@@ -22,9 +22,9 @@ importers:
 
   apps/browser:
     dependencies:
-      '@universe/universecore':
+      '@universe/ai':
         specifier: workspace:*
-        version: link:../../packages/universecore
+        version: link:../../packages/ai
       '@universe/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -40,6 +40,9 @@ importers:
       '@universe/sync':
         specifier: workspace:*
         version: link:../../packages/sync
+      '@universe/universecore':
+        specifier: workspace:*
+        version: link:../../packages/universecore
       expo:
         specifier: ~54.0.37
         version: 54.0.37(@babel/core@7.29.7)(react-native@0.81.6(@babel/core@7.29.7)(@react-native-community/cli@20.2.0(typescript@5.9.3))(@react-native/metro-config@0.81.6(@babel/core@7.29.7))(@types/react@19.1.17)(react@19.1.4))(react@19.1.4)(typescript@5.9.3)
@@ -87,11 +90,7 @@ importers:
         specifier: ~5.9.2
         version: 5.9.3
 
-  packages/universecore:
-    dependencies:
-      '@universe/core':
-        specifier: workspace:*
-        version: link:../core
+  packages/ai: {}
 
   packages/core:
     devDependencies:
@@ -101,9 +100,6 @@ importers:
 
   packages/demo:
     dependencies:
-      '@universe/universecore':
-        specifier: workspace:*
-        version: link:../universecore
       '@universe/core':
         specifier: workspace:*
         version: link:../core
@@ -119,6 +115,9 @@ importers:
       '@universe/sync':
         specifier: workspace:*
         version: link:../sync
+      '@universe/universecore':
+        specifier: workspace:*
+        version: link:../universecore
       lucide-react:
         specifier: ^0.546.0
         version: 0.546.0(react@19.1.4)
@@ -194,13 +193,25 @@ importers:
         specifier: 0.28.2
         version: 0.28.2
 
-  packages/shell: {}
+  packages/shell:
+    dependencies:
+      '@universe/ai':
+        specifier: workspace:*
+        version: link:../ai
 
   packages/sync:
     devDependencies:
       '@types/node':
         specifier: ^24.13.6
         version: 24.13.6
+
+  packages/tweaks: {}
+
+  packages/universecore:
+    dependencies:
+      '@universe/core':
+        specifier: workspace:*
+        version: link:../core
 
 packages:
 
