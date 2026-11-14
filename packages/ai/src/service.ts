@@ -297,7 +297,7 @@ export class AIService {
       }
       try {
         const content = await this.deps.callMcpTool(mcpTool.serverId, mcpTool.name, toolCall.arguments);
-        return { toolCallId: toolCall.id, toolName: toolCall.name, content };
+        return { toolCallId: toolCall.id, toolName: toolCall.name, content, isError: false };
       } catch (cause) {
         const detail = cause instanceof Error ? cause.message : String(cause);
         return { toolCallId: toolCall.id, toolName: toolCall.name, content: `MCP Error: ${detail}`, isError: true };

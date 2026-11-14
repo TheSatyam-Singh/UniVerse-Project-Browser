@@ -160,7 +160,7 @@ export class SponsorBlockClient {
         this.store(videoId, [], now());
         return [];
       }
-      const enabledSet = new Set(enabled);
+      const enabledSet = new Set<string>(enabled);
       const segments = match.segments
         .filter((s) => isValidSegment(s) && enabledSet.has(s.category) && (s.actionType === "skip" || s.actionType === "mute"))
         .sort((a, b) => segmentStart(a) - segmentStart(b));

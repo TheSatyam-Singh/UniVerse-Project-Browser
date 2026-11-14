@@ -90,7 +90,11 @@ importers:
         specifier: ~5.9.2
         version: 5.9.3
 
-  packages/ai: {}
+  packages/ai:
+    devDependencies:
+      '@types/node':
+        specifier: 24.13.6
+        version: 24.13.6
 
   packages/core:
     devDependencies:
