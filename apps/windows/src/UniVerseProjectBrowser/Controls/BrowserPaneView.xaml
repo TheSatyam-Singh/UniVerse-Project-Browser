@@ -1,0 +1,9 @@
+<UserControl
+    x:Class="UniVerseProjectBrowser.Controls.BrowserPaneView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Grid>
+        <Grid x:Name="WebViewHost" />
+        <ProgressRing x:Name="LoadingRing" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,12,0,0" Width="28" Height="28" />
+    </Grid>
+</UserControl>

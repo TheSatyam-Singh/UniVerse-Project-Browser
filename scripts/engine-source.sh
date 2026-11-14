@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage="usage: scripts/engine-source.sh <version or engine-<tree:12>> <out.tar.xz>"
+version="${1:?$usage}"
+out="${2:?$usage}"
+root="$(cd "$(dirname "$0")/.." && pwd -P)"
+. "$root/scripts/lib/releases.sh"
+die() { echo "error: $*" >&2; exit 1; }
+case "$version" in
+  engine-*) ref="$version" shipped="the ArdiaCore engine ${version#engine-}" ;;
+  *) ref="v$version" shipped="UniVerse Project Browser $version" ;;
+esac
+pinned() { [ -n "${!1:-}" ] && echo "${!1}" || sed -n "s/^export $1=//p" "$root/engine/patches/build/env.sh"; }
+chromium="$(pinned CHROMIUM_VERSION)"
+helium="$(pinned HELIUM_TAG)"
+helium_macos="$(pinned HELIUM_MACOS_TAG)"
+[ -n "$chromium" ] && [ -n "$helium" ] && [ -n "$helium_macos" ] \
+  || die "engine/patches/build/env.sh pins no CHROMIUM_VERSION, HELIUM_TAG and HELIUM_MACOS_TAG"
+
+work="$(mktemp -d "${TMPDIR:-/tmp}/ac-engine-source.XXXXXX")"
+trap 'rm -rf "$work"' EXIT
+name="universe-engine-source-$version"
+src="$work/$name"
+mkdir -p "$src"
+fetch() {
+  curl -fsSL --retry 3 --max-time 600 "https://codeload.github.com/imputnet/$1/tar.gz/refs/tags/$2" -o "$src/$1-$2.tar.gz" \
+    || die "couldn't download imputnet/$1 at $2"
+}
+fetch helium-chromium "$helium"
+fetch helium-macos "$helium_macos"
+
+cat >"$src/README.txt" <<EOF
+The source of $shipped, besides UniVerse Project Browser's own repository.
+
+UniVerse Project Browser, with the engine's patches and build scripts:
+  $REPO_URL/tree/$ref
+  How to build it: docs/engine-build.md there.
+
+Chromium $chromium (BSD-3-Clause and others):
+  https://chromium.googlesource.com/chromium/src/+/refs/tags/$chromium
+  https://commondatastorage.googleapis.com/chromium-browser-official/chromium-$chromium.tar.xz
+
+Helium (GPL-3.0), copies of github.com/imputnet's tags:
+  helium-chromium-$helium.tar.gz   its patches, domain substitution and build utilities
+  helium-macos-$helium_macos.tar.gz   its macOS patches
+Helium's downloads (its onboarding page, its uBlock Origin, the search engine data in its deps.ini) aren't
+built into UniVerse Project Browser, so they aren't here.
+EOF
+
+tar --no-mac-metadata -cJf "$out" -C "$work" "$name"
+echo "$out"

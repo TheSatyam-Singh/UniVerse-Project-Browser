@@ -1,0 +1,126 @@
+import { CastMode, preferredCastMode, startCasting, stopCasting, type CastSink, closeCastPicker, useCast } from "../../state/media/cast";
+import { openExternalURL, showMenu } from "../../state/app/system";
+import { Symbol, Button, IconTile, PANEL, PanelHeader, Popover, POPOVER_MARGIN, POPOVER_WIDTH, PopoverValue, Text, useHover } from "../ui";
+import { buttonMotion, usePressScaleMotion } from "../ui/motion";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Animated, Pressable, ScrollView, View } from "react-native";
+import { useTheme } from "../ui/theme";
+import { ink, space } from "../ui/tokens";
+import { useMediaTokens } from "./tokens";
+
+const FLEX = { flex: 1 } as const;
+const UNDERLINE = { textDecorationLine: "underline" } as const;
+const NO_UNDERLINE = { textDecorationLine: "none" } as const;
+
+const SINK_ICON: Record<number, string> = { 0: "tv", 1: "hifispeaker.2", 2: "hifispeaker", 6: "display", 7: "tv" };
+
+export function CastPicker({ tabId, paneWidth }: { tabId: string; paneWidth: number }) {
+  const theme = useTheme();
+  const dialog = useCast((c) => c.dialogs[tabId]);
+  const [screen, setScreen] = useState(false);
+  useEffect(() => setScreen(false), [dialog?.id]);
+  if (!dialog) return null;
+  const close = () => closeCastPicker(tabId);
+  const available = dialog.sinks.filter((s) => s.state !== "unavailable");
+  const canScreen = dialog.sinks.some((s) => s.modes & CastMode.screen);
+  const width = Math.min(POPOVER_WIDTH.m, paneWidth - 24);
+  const cast = (sink: CastSink) => {
+    const mode = screen && sink.modes & CastMode.screen ? CastMode.screen : preferredCastMode(sink.modes & ~CastMode.screen) || preferredCastMode(sink.modes);
+    if (mode) void startCasting(dialog.id, sink.id, mode);
+  };
+
+  return (
+    <Popover key={dialog.id} width={width} top={POPOVER_MARGIN} right={POPOVER_MARGIN} onDismiss={close}>
+      <View style={{ paddingBottom: PANEL.inset }}>
+        <PanelHeader
+          icon={<Symbol name="tv.and.mediabox" size={14} color={theme.icon} style={{ width: PANEL.iconSlot, height: PANEL.iconSlot }} />}
+          title={screen ? "Cast screen" : dialog.header || "Cast tab"}
+          accessory={canScreen ? <SourceButton screen={screen} onChange={setScreen} /> : null}
+        />
+
+        {dialog.permissionRejected ? (
+          <Message
+            text="UniVerse Project Browser needs Local Network access to find Cast devices."
+            link="Open Local Network Settings"
+            onLink={() => void openExternalURL("x-apple.systempreferences:com.apple.preference.security?Privacy_LocalNetwork")}
+          />
+        ) : available.length ? (
+          <ScrollView style={{ maxHeight: 280 }} contentContainerStyle={{ paddingHorizontal: PANEL.rowInset, gap: space.xxs }}>
+            {available.map((sink) => (
+              <SinkRow key={sink.id} sink={sink} onCast={() => cast(sink)} onStop={() => void stopCasting(dialog.id, sink.routeId)} />
+            ))}
+          </ScrollView>
+        ) : (
+          <View style={{ flexDirection: "row", alignItems: "center", gap: space.m, paddingHorizontal: PANEL.inset, paddingTop: space.xs, paddingBottom: space.xs }}>
+            <ActivityIndicator size="small" style={{ transform: [{ scale: 0.6 }], width: 14, height: 14 }} />
+            <Text size="small" tone="textSecondary" style={FLEX}>
+              Looking for devices… Cast devices need to be on the same Wi‑Fi network as this Mac.
+            </Text>
+          </View>
+        )}
+
+        <View style={{ flexDirection: "row", justifyContent: "flex-end", paddingHorizontal: PANEL.inset, marginTop: space.ml }}>
+          <Button variant="pill" title="Done" onPress={close} />
+        </View>
+      </View>
+    </Popover>
+  );
+}
+
+function SinkRow({ sink, onCast, onStop }: { sink: CastSink; onCast(): void; onStop(): void }) {
+  const theme = useTheme();
+  const tokens = useMediaTokens();
+  const { hovered, hoverProps } = useHover();
+  const active = sink.state === "connected" && !!sink.routeId;
+  const busy = sink.state === "connecting" || sink.state === "disconnecting";
+  const iconPress = usePressScaleMotion(!active && !busy, buttonMotion.controlPressScale);
+  const iconMotionStyle = iconPress.scale ? { transform: [{ scale: iconPress.scale }] } : undefined;
+  return (
+    <View {...hoverProps}>
+      <Pressable onPress={active || busy ? undefined : onCast} onPressIn={iconPress.onPressIn} onPressOut={iconPress.onPressOut}>
+        <View style={{ minHeight: 42, borderRadius: PANEL.rowRadius, flexDirection: "row", alignItems: "center", gap: PANEL.iconGap, paddingHorizontal: PANEL.rowPadding, paddingVertical: space.xs, backgroundColor: hovered && !active ? theme.rowHover : undefined }}>
+          <Animated.View pointerEvents="none" style={iconMotionStyle}>
+            <IconTile symbol={SINK_ICON[sink.icon] ?? "tv"} size="m" fill={active ? theme.accent : tokens.iconTile} glyph={active ? ink.white : theme.icon} />
+          </Animated.View>
+          <View style={{ flex: 1 }}>
+            <Text lines={1}>
+              {sink.name}
+            </Text>
+            {sink.issue || sink.status ? (
+              <Text lines={1} size="caption" tone={sink.issue ? "destructive" : "textSecondary"}>
+                {sink.issue || sink.status}
+              </Text>
+            ) : null}
+          </View>
+          {busy ? <ActivityIndicator size="small" style={{ transform: [{ scale: 0.6 }], width: 16, height: 16 }} /> : null}
+          {active ? <Button variant="pill" title="Stop" onPress={onStop} /> : null}
+        </View>
+      </Pressable>
+    </View>
+  );
+}
+
+function SourceButton({ screen, onChange }: { screen: boolean; onChange: (screen: boolean) => void }) {
+  const pick = async () => {
+    const choice = await showMenu([
+      { id: "tab", title: "Cast Tab", checked: !screen },
+      { id: "screen", title: "Cast Screen", checked: screen },
+    ]);
+    if (choice) onChange(choice === "screen");
+  };
+  return <PopoverValue title="Sources" chevron="chevron.down" tooltip="Source" onPress={() => void pick()} />;
+}
+
+function Message({ text, link, onLink }: { text: string; link: string; onLink: () => void }) {
+  const { hovered, hoverProps } = useHover();
+  return (
+    <View style={{ paddingHorizontal: PANEL.inset, paddingTop: space.xs, gap: space.xs }}>
+      <Text size="small" tone="textSecondary">{text}</Text>
+      <View {...hoverProps}>
+        <Pressable onPress={onLink}>
+          <Text size="small" weight="medium" tone="accent" style={hovered ? UNDERLINE : NO_UNDERLINE}>{link}</Text>
+        </Pressable>
+      </View>
+    </View>
+  );
+}

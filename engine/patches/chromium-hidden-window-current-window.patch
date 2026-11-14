@@ -1,0 +1,37 @@
+--- a/chrome/browser/extensions/chrome_extension_function_details.cc
++++ b/chrome/browser/extensions/chrome_extension_function_details.cc
+@@ -3,6 +3,7 @@
+ // found in the LICENSE file.
+ 
+ #include "chrome/browser/extensions/chrome_extension_function_details.h"
++#include "ardia/core/ac_hooks.h"  // nogncheck
+ 
+ #include "chrome/browser/extensions/browser_extension_window_controller.h"
+ #include "chrome/browser/extensions/window_controller.h"
+@@ -45,7 +46,13 @@
+       // otherwise fall through to finding another one.
+       BrowserWindowInterface* bwi =
+           window_controller->GetBrowserWindowInterface();
+-      if (!bwi || !bwi->IsDeleteScheduled()) {
++      if (!bwi ||
++          (!bwi->IsDeleteScheduled() &&
++           // Ardia: extension pages ArdiaCore shows outside any tab strip
++           // (its popups, side panels) sit in hidden windows: their "current
++           // window" is the last active one, as for Chrome's popups.
++           !(g_ardia_hidden_from_extensions &&
++             g_ardia_hidden_from_extensions(bwi)))) {
+         return window_controller;
+       }
+     }
+@@ -61,6 +68,11 @@
+   WindowController* window_controller = nullptr;
+   ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
+       [&](BrowserWindowInterface* browser) {
++        // Ardia: ArdiaCore's hidden windows.
++        if (g_ardia_hidden_from_extensions &&
++            g_ardia_hidden_from_extensions(browser)) {
++          return true;  // Continue iterating.
++        }
+         if (browser->GetProfile() == profile ||
+             (function_->include_incognito_information() &&
+              browser->GetProfile()->GetOriginalProfile() == profile)) {

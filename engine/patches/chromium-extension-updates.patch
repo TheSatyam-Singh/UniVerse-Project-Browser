@@ -1,0 +1,11 @@
+--- a/chrome/browser/extensions/updater/chrome_update_client_config.cc
++++ b/chrome/browser/extensions/updater/chrome_update_client_config.cc
+@@ -224,7 +224,7 @@
+   if (url_override_.has_value()) {
+     return {*url_override_};
+   }
+-  return impl_.UpdateUrl();
++  return {GURL("https://clients2.google.com/service/update2/json")};
+ }
+ 
+ std::vector<GURL> ChromeUpdateClientConfig::PingUrl() const {

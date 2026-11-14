@@ -1,0 +1,121 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { findNodeHandle, View, type TextInput } from "react-native";
+import { useTab, useWindow } from "../../state/browser/hooks";
+import { useProfileHistory } from "../../state/history/hooks";
+import { removeHistory } from "../../state/history/actions";
+import type { HistoryEntry } from "../../state/browser/types";
+import { requestClearData, useClearDataRequest } from "../../state/profiles/clearDataRequest";
+import { takeHistorySearchFocusRequest, useHistorySearchFocusRequest } from "../../state/history/showHistory";
+import { claimFocusTag, historySearchFocus } from "../../state/focus/focusClaims";
+import { Button, EmptyState, Text } from "../ui";
+import { ClearDataDialog } from "./ClearDataDialog";
+import { layoutHistory } from "./historyLayout";
+import { confirmRemoveSelected, shownSelection } from "../../state/history/historyMenus";
+import { HistoryList } from "./HistoryList";
+import { hostLabel, PageHeader } from "./PageLayout";
+
+
+export function HistoryPage({ tabId, profileId, initialQuery }: { tabId: string; profileId: string; initialQuery: string }) {
+  const windowId = useTab(tabId, (t) => t?.windowId ?? "");
+  const history = useProfileHistory(profileId);
+  const [query, setQuery] = useState(initialQuery);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [clearOpen, setClearOpen] = useState(false);
+  const lastClicked = useRef<string | null>(null);
+
+  const clearRequest = useClearDataRequest((r) => r.windowId);
+  const activeHere = useWindow(windowId, (w) => w?.activeTabIds[w!.profileId] === tabId);
+  useEffect(() => {
+    if (clearRequest === windowId && activeHere) {
+      setClearOpen(true);
+      requestClearData(null);
+    }
+  }, [clearRequest, activeHere]);
+
+  const search = useRef<TextInput>(null);
+  const searchFocusRequested = useHistorySearchFocusRequest((r) => r.tabId === tabId);
+  useEffect(() => {
+    if (!searchFocusRequested || !activeHere || !windowId) return;
+    takeHistorySearchFocusRequest();
+    search.current?.focus();
+    search.current?.setSelection(0, query.length);
+    claimFocusTag(windowId, historySearchFocus(tabId), () => findNodeHandle(search.current));
+  }, [searchFocusRequested, activeHere, windowId]);
+
+  useEffect(() => setQuery(initialQuery), [initialQuery]);
+
+  const layout = useMemo(() => layoutHistory(history, query), [history, query]);
+  const latest = useRef({ layout, profileId });
+  latest.current = { layout, profileId };
+  useEffect(() => setSelected((prev) => shownSelection(prev, layout.rows)), [layout]);
+
+  const toggle = useCallback((url: string, shift: boolean) => {
+    const { rows } = latest.current.layout;
+    const from = shift && lastClicked.current ? rows.findIndex((r) => r.entry.url === lastClicked.current) : -1;
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (from >= 0) {
+        const to = rows.findIndex((r) => r.entry.url === url);
+        const [a, b] = [from, to].sort((x, y) => x - y);
+        for (let i = a!; i <= b!; i++) next.add(rows[i]!.entry.url);
+      } else if (next.has(url)) next.delete(url);
+      else next.add(url);
+      return next;
+    });
+    lastClicked.current = url;
+  }, []);
+  const moreFromSite = useCallback((url: string) => setQuery(hostLabel(url)), []);
+  const selection = useRef(selected);
+  selection.current = selected;
+  const remove = useCallback((urls: string[]) => {
+    removeHistory(latest.current.profileId, urls);
+    setSelected((prev) => (urls.some((u) => prev.has(u)) ? new Set([...prev].filter((u) => !urls.includes(u))) : prev));
+  }, []);
+  const menuTargets = useCallback((entry: HistoryEntry) => {
+    const chosen = selection.current;
+    if (chosen.size < 2 || !chosen.has(entry.url)) return [entry];
+    return latest.current.layout.rows.map((r) => r.entry).filter((e) => chosen.has(e.url));
+  }, []);
+
+  const deleteSelected = async () => {
+    const confirmed = await confirmRemoveSelected(windowId);
+    if (!confirmed) return;
+    removeHistory(profileId, [...selected]);
+    setSelected(new Set());
+  };
+
+  const actions =
+    selected.size > 0 ? (
+      <>
+        <Text size="small" tone="textSecondary">{`${selected.size} selected`}</Text>
+        <Button title="Cancel" onPress={() => setSelected(new Set())} />
+        <Button title="Delete" kind="primary" onPress={() => void deleteSelected()} />
+      </>
+    ) : (
+      <Button title="Clear Browsing Data…" onPress={() => setClearOpen(true)} />
+    );
+
+  return (
+    <View style={{ flex: 1 }}>
+      <PageHeader title="History" query={query} onQuery={setQuery} actions={actions} searchRef={search} />
+      {layout.rows.length === 0 ? (
+        <EmptyState
+          symbol="clock"
+          title={query ? "No search results found" : "Your browsing history appears here"}
+        />
+      ) : (
+        <HistoryList
+          layout={layout}
+          profileId={profileId}
+          windowId={windowId}
+          selected={selected}
+          onToggle={toggle}
+          onMoreFromSite={moreFromSite}
+          onRemove={remove}
+          menuTargets={menuTargets}
+        />
+      )}
+      {clearOpen && <ClearDataDialog profileId={profileId} onClose={() => setClearOpen(false)} />}
+    </View>
+  );
+}

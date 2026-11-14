@@ -1,0 +1,60 @@
+# UniVerse-Project-Browser — the Linux-verifiable gate: typecheck + JS tests.
+#
+# No secrets are used by this workflow.
+# Two things in the repo's own scripts do NOT run on Linux, so they are not run
+# here as-is (the macOS checks job in universe-macos.yml is the gate for them):
+# - `pnpm test` runs Swift tests (packages/import, packages/shell, packages/sync)
+#   and macOS-only clang++ ObjC tests (packages/universecore), so only the
+#   Node-only subset runs below.
+# - `pnpm shaders:check` compiles Metal with `xcrun`, which does not exist on
+#   Linux; the shaders step below runs the check when xcrun exists and otherwise
+#   says so and passes.
+name: Typecheck
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: typecheck-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: .turbo/cache
+          key: turbo-${{ github.sha }}
+          restore-keys: turbo-
+      - run: pnpm typecheck
+      - name: JavaScript tests
+        run: |
+          pnpm --filter @universe/browser test
+          pnpm --filter @universe/core test
+          pnpm --filter @universe/shaders test
+          pnpm --filter @universe/sync exec node --test "src/**/*.test.ts"
+          pnpm --filter @universe/universecore exec node --test src/engine/api.test.mjs src/pageEvents.test.mjs tests/webkit-page-script.test.mjs tests/webkit-auto-pip.test.mjs tests/webkit-media-faults.test.mjs tests/webkit-warm.test.mjs
+          node --no-warnings --test extras/raycast-universe/src/scripts.test.ts "scripts/**/*.test.mjs" "apps/site/src/**/*.test.ts"
+      - name: Metal shaders
+        run: |
+          if command -v xcrun >/dev/null 2>&1; then
+            pnpm shaders:check
+          else
+            echo "::warning::no xcrun on Linux: shaders:check needs macOS Metal; the macOS checks job in universe-macos.yml is the gate that enforces it"
+          fi

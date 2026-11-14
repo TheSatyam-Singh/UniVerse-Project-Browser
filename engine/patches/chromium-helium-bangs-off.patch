@@ -1,0 +1,25 @@
+SPDX-License-Identifier: GPL-3.0-only
+Changes code from Helium's helium/core/add-native-bangs.patch (GPL-3.0, The Helium Authors).
+
+Helium's !bangs come from its services (<services base>/bangs.json, behind consent). Ardia never turns the services
+on, and its address bar is its own (packages/core), so Chromium's omnibox never uses bangs. LoadBangs now answers at
+once with an empty catalogue whatever the prefs say: no loader is made, no retry is armed and nothing is requested.
+The rest of the bangs code stays and compiles.
+
+--- a/components/search_engines/template_url_bang_manager.cc
++++ b/components/search_engines/template_url_bang_manager.cc
+@@ -184,13 +184,7 @@
+   weak_ptr_factory_.InvalidateWeakPtrs();
+   backoff_.Reset();
+   callback_ = std::move(callback);
+-
+-  if (!helium::ShouldFetchBangs(*prefs_)) {
+-    OnBangsLoaded(base::MakeRefCounted<Catalogue>(std::vector<Bang>()));
+-    return;
+-  }
+-
+-  StartFetch();
++  OnBangsLoaded(base::MakeRefCounted<Catalogue>(std::vector<Bang>()));
+ }
+ 
+ void BangManager::StartFetch() {

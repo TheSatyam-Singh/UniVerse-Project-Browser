@@ -1,0 +1,1240 @@
+{
+  "date": "2026-11-13",
+  "machine": {
+    "model": "Mac mini (Mac16,10)",
+    "chip": "Apple M4",
+    "cores": 10,
+    "ram": "24 GB",
+    "macOS": "27.2.1 (26B131)"
+  },
+  "harness": 1,
+  "browsers": {
+    "universe": {
+      "name": "UniVerse Project Browser",
+      "version": "main (6bd2319)",
+      "chromium": "157.0.8103.50",
+      "measured": "2026-11-13"
+    },
+    "dia": {
+      "name": "Dia",
+      "version": "1.57.1",
+      "chromium": "157.0.8103.79",
+      "measured": "2026-11-13"
+    },
+    "helium": {
+      "name": "Helium",
+      "version": "0.21.2.1",
+      "chromium": "157.0.8103.50",
+      "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+      "measured": "2026-11-13"
+    },
+    "chrome": {
+      "name": "Google Chrome",
+      "version": "157.0.8103.79",
+      "chromium": "157.0.8103.79",
+      "measured": "2026-11-13"
+    }
+  },
+  "rows": [
+    {
+      "id": "launch-link",
+      "label": "Cold launch → page painted (link opened from another app)",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 515,
+          "min": 483,
+          "max": 578,
+          "n": 10,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 2603,
+          "min": 2308,
+          "max": 3212,
+          "n": 10,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 527,
+          "min": 462,
+          "max": 1157,
+          "n": 10,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 640,
+          "min": 466,
+          "max": 4736,
+          "n": 10,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "universe"
+    },
+    {
+      "id": "launch-window",
+      "label": "Cold launch → window on screen",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 278,
+          "min": 258,
+          "max": 301,
+          "n": 10,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 1811,
+          "min": 1675,
+          "max": 1914,
+          "n": 10,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 450,
+          "min": 411,
+          "max": 914,
+          "n": 10,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 409,
+          "min": 391,
+          "max": 800,
+          "n": 10,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "universe"
+    },
+    {
+      "id": "launch-restore",
+      "label": "Cold launch → restored tab painted",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 351,
+          "min": 331,
+          "max": 385,
+          "n": 10,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": null,
+          "min": null,
+          "max": null,
+          "n": 0,
+          "note": "Dia opens on its start view at launch; the restored tab stays hidden until it's chosen, so it never paints on its own",
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 460,
+          "min": 403,
+          "max": 926,
+          "n": 10,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 421,
+          "min": 405,
+          "max": 800,
+          "n": 10,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "universe"
+    },
+    {
+      "id": "newtab",
+      "label": "New tab → first paint",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 63,
+          "min": 62.7,
+          "max": 63.6,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 89.7,
+          "min": 84.9,
+          "max": 92.9,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 69.5,
+          "min": 55.1,
+          "max": 69.9,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 65.9,
+          "min": 62.6,
+          "max": 70.2,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "universe"
+    },
+    {
+      "id": "switch",
+      "label": "Tab switch → shown",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 13,
+          "min": 10.5,
+          "max": 14.5,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 27.5,
+          "min": 24.5,
+          "max": 29,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 15,
+          "min": 11,
+          "max": 15,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 15.5,
+          "min": 12.5,
+          "max": 16,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "universe"
+    },
+    {
+      "id": "newwindow",
+      "label": "New window → first paint",
+      "unit": "ms",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 79.4,
+          "min": 73,
+          "max": 87.2,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 450,
+          "min": 410,
+          "max": 453,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 91.6,
+          "min": 88.1,
+          "max": 97.6,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 101,
+          "min": 84.7,
+          "max": 111,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "universe"
+    },
+    {
+      "id": "memory-1",
+      "label": "Memory, 1 tab",
+      "unit": "MB",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 240,
+          "min": 240,
+          "max": 242,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 361,
+          "min": 360,
+          "max": 362,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 331,
+          "min": 330,
+          "max": 335,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 230,
+          "min": 229,
+          "max": 232,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "chrome"
+    },
+    {
+      "id": "memory-10",
+      "label": "Memory, 10 tabs",
+      "unit": "MB",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 504,
+          "min": 496,
+          "max": 504,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 709,
+          "min": 708,
+          "max": 712,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 569,
+          "min": 566,
+          "max": 571,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 464,
+          "min": 461,
+          "max": 473,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "chrome"
+    },
+    {
+      "id": "memory-20",
+      "label": "Memory, 20 tabs",
+      "unit": "MB",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 734,
+          "min": 731,
+          "max": 741,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 1002,
+          "min": 1002,
+          "max": 1006,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 787,
+          "min": 783,
+          "max": 789,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 685,
+          "min": 668,
+          "max": 686,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "chrome"
+    },
+    {
+      "id": "memory-closed",
+      "label": "Memory, back to 1 tab after 20",
+      "unit": "MB",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 281,
+          "min": 277,
+          "max": 282,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 447,
+          "min": 444,
+          "max": 450,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 367,
+          "min": 366,
+          "max": 370,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 274,
+          "min": 269,
+          "max": 276,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "chrome"
+    },
+    {
+      "id": "idle-cpu-1",
+      "label": "Idle CPU, 1 tab",
+      "unit": "%",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 0.25,
+          "min": 0.21,
+          "max": 0.27,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 0.9,
+          "min": 0.67,
+          "max": 0.97,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 0.2,
+          "min": 0.16,
+          "max": 0.22,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 0.64,
+          "min": 0.51,
+          "max": 0.67,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "helium"
+    },
+    {
+      "id": "idle-cpu-20",
+      "label": "Idle CPU, 20 tabs",
+      "unit": "%",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 0.77,
+          "min": 0.74,
+          "max": 0.86,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 1.14,
+          "min": 0.95,
+          "max": 1.46,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 1.33,
+          "min": 1.22,
+          "max": 1.9,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 0.65,
+          "min": 0.54,
+          "max": 0.72,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "chrome"
+    },
+    {
+      "id": "idle-wakeups-1",
+      "label": "Idle wakeups, 1 tab",
+      "unit": "/s",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 9.33,
+          "min": 7.07,
+          "max": 9.98,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 19.45,
+          "min": 14.23,
+          "max": 21.98,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 7.54,
+          "min": 6.74,
+          "max": 7.97,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 7.37,
+          "min": 6.74,
+          "max": 7.39,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "chrome"
+    },
+    {
+      "id": "idle-wakeups-20",
+      "label": "Idle wakeups, 20 tabs",
+      "unit": "/s",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 20.06,
+          "min": 19.53,
+          "max": 20.62,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 44.34,
+          "min": 41.98,
+          "max": 50.35,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 42.84,
+          "min": 35.44,
+          "max": 65.93,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 30.79,
+          "min": 28.65,
+          "max": 33.08,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "universe"
+    },
+    {
+      "id": "idle-cpu-1-steady",
+      "label": "Idle CPU, 1 tab, settled (2 min after load)",
+      "unit": "%",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 0.09,
+          "min": 0.08,
+          "max": 0.11,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 0.67,
+          "min": 0.57,
+          "max": 0.74,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 0.08,
+          "min": 0.06,
+          "max": 0.13,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 0.09,
+          "min": 0.07,
+          "max": 0.29,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "helium"
+    },
+    {
+      "id": "idle-cpu-20-steady",
+      "label": "Idle CPU, 20 tabs, settled (2 min after the last load)",
+      "unit": "%",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 0.4,
+          "min": 0.29,
+          "max": 0.44,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 1.02,
+          "min": 0.87,
+          "max": 1.26,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 0.39,
+          "min": 0.37,
+          "max": 0.43,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 0.55,
+          "min": 0.43,
+          "max": 0.68,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "helium"
+    },
+    {
+      "id": "idle-wakeups-1-steady",
+      "label": "Idle wakeups, 1 tab, settled",
+      "unit": "/s",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 5.29,
+          "min": 5.18,
+          "max": 5.71,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 16.97,
+          "min": 13.64,
+          "max": 17.98,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 6.27,
+          "min": 4.91,
+          "max": 9.77,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 5.89,
+          "min": 5.34,
+          "max": 5.97,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "universe"
+    },
+    {
+      "id": "idle-wakeups-20-steady",
+      "label": "Idle wakeups, 20 tabs, settled",
+      "unit": "/s",
+      "lowerIsBetter": true,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "main (6bd2319)",
+          "chromium": "157.0.8103.50",
+          "median": 14.85,
+          "min": 12.48,
+          "max": 16.27,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.57.1",
+          "chromium": "157.0.8103.79",
+          "median": 38.68,
+          "min": 37.87,
+          "max": 44.07,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.21.2.1",
+          "chromium": "157.0.8103.50",
+          "variant": "background-only copy (LSBackgroundOnly, ad hoc signed)",
+          "median": 15.64,
+          "min": 15.26,
+          "max": 20.89,
+          "n": 5,
+          "measured": "2026-11-13"
+        },
+        "chrome": {
+          "name": "Google Chrome",
+          "version": "157.0.8103.79",
+          "chromium": "157.0.8103.79",
+          "median": 27.8,
+          "min": 27.06,
+          "max": 28.29,
+          "n": 5,
+          "measured": "2026-11-13"
+        }
+      },
+      "best": "universe"
+    },
+    {
+      "id": "speedometer",
+      "label": "Speedometer 3",
+      "unit": "points",
+      "lowerIsBetter": false,
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "0.2.38-nightly.7",
+          "chromium": "155.0.8059.84",
+          "median": 59.1,
+          "min": 42.6,
+          "max": 60.2,
+          "n": 6,
+          "measured": "2026-10-19"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.19.3.1",
+          "chromium": "155.0.8059.79",
+          "median": 58.55,
+          "min": 52.5,
+          "max": 59.3,
+          "n": 6,
+          "measured": "2026-10-19"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.53.0",
+          "chromium": "155.0.8059.80",
+          "median": 58.2,
+          "min": 57.5,
+          "max": 60.7,
+          "n": 6,
+          "measured": "2026-10-16"
+        }
+      },
+      "best": "universe",
+      "machine": {
+        "model": "MacBook Pro (Mac17,9)",
+        "chip": "Apple M5 Pro",
+        "cores": 15,
+        "ram": "48 GB",
+        "macOS": "27.2 (26B5112a)"
+      }
+    },
+    {
+      "id": "power-idle-visible",
+      "label": "Idle, window in view",
+      "unit": "mW",
+      "lowerIsBetter": true,
+      "group": "Power with 11 tabs open",
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "0.2.38-nightly.8",
+          "chromium": "155.0.8059.84",
+          "median": 3.5,
+          "min": 3.3,
+          "max": 3.6,
+          "n": 2,
+          "measured": "2026-10-19"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.19.3.1",
+          "chromium": "155.0.8059.79",
+          "median": 4,
+          "min": 3.8,
+          "max": 4.2,
+          "n": 2,
+          "measured": "2026-10-19"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.53.0",
+          "chromium": "155.0.8059.80",
+          "median": 848,
+          "min": 274,
+          "max": 1421,
+          "n": 2,
+          "measured": "2026-10-16"
+        }
+      },
+      "best": "universe",
+      "machine": {
+        "model": "MacBook Pro (Mac17,9)",
+        "chip": "Apple M5 Pro",
+        "cores": 15,
+        "ram": "48 GB",
+        "macOS": "27.2 (26B5112a)"
+      }
+    },
+    {
+      "id": "power-idle-hidden",
+      "label": "Idle, window hidden",
+      "unit": "mW",
+      "lowerIsBetter": true,
+      "group": "Power with 11 tabs open",
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "0.2.38-nightly.8",
+          "chromium": "155.0.8059.84",
+          "median": 3.9,
+          "min": 3.9,
+          "max": 3.9,
+          "n": 2,
+          "measured": "2026-10-19"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.19.3.1",
+          "chromium": "155.0.8059.79",
+          "median": 3.1,
+          "min": 3,
+          "max": 3.2,
+          "n": 2,
+          "measured": "2026-10-19"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.53.0",
+          "chromium": "155.0.8059.80",
+          "median": 1223,
+          "min": 959,
+          "max": 1487,
+          "n": 2,
+          "measured": "2026-10-16"
+        }
+      },
+      "best": "helium",
+      "machine": {
+        "model": "MacBook Pro (Mac17,9)",
+        "chip": "Apple M5 Pro",
+        "cores": 15,
+        "ram": "48 GB",
+        "macOS": "27.2 (26B5112a)"
+      }
+    },
+    {
+      "id": "power-scroll",
+      "label": "Scrolling",
+      "unit": "mW",
+      "lowerIsBetter": true,
+      "group": "Power with 11 tabs open",
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "0.2.38-nightly.8",
+          "chromium": "155.0.8059.84",
+          "median": 28.2,
+          "min": 28.1,
+          "max": 28.2,
+          "n": 2,
+          "measured": "2026-10-19"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.19.3.1",
+          "chromium": "155.0.8059.79",
+          "median": 51.9,
+          "min": 51.1,
+          "max": 52.6,
+          "n": 2,
+          "measured": "2026-10-19"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.53.0",
+          "chromium": "155.0.8059.80",
+          "median": 626,
+          "min": 297,
+          "max": 954,
+          "n": 2,
+          "measured": "2026-10-16"
+        }
+      },
+      "best": "universe",
+      "machine": {
+        "model": "MacBook Pro (Mac17,9)",
+        "chip": "Apple M5 Pro",
+        "cores": 15,
+        "ram": "48 GB",
+        "macOS": "27.2 (26B5112a)"
+      }
+    },
+    {
+      "id": "power-switch",
+      "label": "Switching tabs",
+      "unit": "mW",
+      "lowerIsBetter": true,
+      "group": "Power with 11 tabs open",
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "0.2.38-nightly.8",
+          "chromium": "155.0.8059.84",
+          "median": 136,
+          "min": 135,
+          "max": 137,
+          "n": 2,
+          "measured": "2026-10-19"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.19.3.1",
+          "chromium": "155.0.8059.79",
+          "median": 173,
+          "min": 167,
+          "max": 178,
+          "n": 2,
+          "measured": "2026-10-19"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.53.0",
+          "chromium": "155.0.8059.80",
+          "median": 763,
+          "min": 423,
+          "max": 1104,
+          "n": 2,
+          "measured": "2026-10-16"
+        }
+      },
+      "best": "universe",
+      "machine": {
+        "model": "MacBook Pro (Mac17,9)",
+        "chip": "Apple M5 Pro",
+        "cores": 15,
+        "ram": "48 GB",
+        "macOS": "27.2 (26B5112a)"
+      }
+    },
+    {
+      "id": "power-video",
+      "label": "Playing a video",
+      "unit": "mW",
+      "lowerIsBetter": true,
+      "group": "Power with 11 tabs open",
+      "browsers": {
+        "universe": {
+          "name": "UniVerse Project Browser",
+          "version": "0.2.38-nightly.8",
+          "chromium": "155.0.8059.84",
+          "median": 82,
+          "min": 78.4,
+          "max": 85.7,
+          "n": 2,
+          "measured": "2026-10-19"
+        },
+        "helium": {
+          "name": "Helium",
+          "version": "0.19.3.1",
+          "chromium": "155.0.8059.79",
+          "median": 90.9,
+          "min": 89.5,
+          "max": 92.3,
+          "n": 2,
+          "measured": "2026-10-19"
+        },
+        "dia": {
+          "name": "Dia",
+          "version": "1.53.0",
+          "chromium": "155.0.8059.80",
+          "median": 779,
+          "min": 432,
+          "max": 1126,
+          "n": 2,
+          "measured": "2026-10-16"
+        }
+      },
+      "best": "universe",
+      "machine": {
+        "model": "MacBook Pro (Mac17,9)",
+        "chip": "Apple M5 Pro",
+        "cores": 15,
+        "ram": "48 GB",
+        "macOS": "27.2 (26B5112a)"
+      }
+    }
+  ],
+  "method": "docs/perf/vs-browsers.md",
+  "notes": [
+    "One harness drives all four from outside the app over CDP, the same local test pages served from 127.0.0.1, one instance at a time, browsers interleaved per run and rotated each round.",
+    "Every run starts from its own copy of a template profile made once per browser (one launch, the test page open, 90 s to settle, quit), with HOME pointed into it; default settings, built-in ad blockers as shipped.",
+    "Chrome and Helium get --restore-last-session so all four restore the same one-tab session (UniVerse Project Browser and Dia restore by default).",
+    "Window 1280×800 at the same place for every browser that takes --window-size; UniVerse Project Browser's window frame is set in its session to the same size; Dia ignores --window-size and opens full-screen-sized (1512×949).",
+    "Chrome runs as shipped and brings itself to the front at launch and on a tab switch; Helium runs from a copy marked background-only (LSBackgroundOnly), so it can't take focus. Both fetch their Finch (variations) seed and components as usual. Dia runs in view without taking focus, signed in with a throwaway account. UniVerse Project Browser runs in its background test mode: it can't become the active app, its windows sit behind the owner's and report themselves as not occluded, and App Nap is off for it.",
+    "Memory is phys_footprint summed over every process of the browser (app, helpers, GPU, renderers, utilities, anything running from its bundle); CPU and wakeups are rusage over the same processes.",
+    "Measured on the owner's working Mac, in normal use: browsers interleaved run by run and rotated each round so the owner's activity falls on all of them alike; each figure is the median of the runs, with min–max and n.",
+    "Median, min–max and n over runs; a row is a win when the ranges don't overlap.",
+    "UniVerse Project Browser and Helium both run as ad-hoc signed copies (a Developer ID signature adds about 30 ms to a cold launch on macOS 27), measured in the same session.",
+    "Speedometer 3: six runs each in turn on 0.2.38-nightly.7 (Chromium 155.0.8059.84), the same engine as nightly.8.",
+    "Power: macOS's own per-process energy counter (ri_energy_nj), summed over every process of the browser, with 11 public, logged-out sites open, two runs each, interleaved, the same day."
+  ],
+  "forced": [
+    "different machine (model: stored \"MacBook Pro (Mac17,9)\", this Mac \"Mac mini (Mac16,10)\")",
+    "different machine (chip: stored \"Apple M5 Pro\", this Mac \"Apple M4\")"
+  ]
+}

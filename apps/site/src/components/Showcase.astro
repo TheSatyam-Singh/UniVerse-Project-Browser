@@ -1,0 +1,319 @@
+---
+import { base } from "../data/site";
+import Shot from "./Shot.astro";
+import DownloadButton from "./DownloadButton.astro";
+import Plate from "./Plate.astro";
+import windowShot from "../assets/shots/window.webp";
+
+const fullPage = /\/try\/?$/.test(Astro.url.pathname);
+const demoSrc = `${base}/demo/?embed${fullPage ? "&warm" : ""}`;
+---
+
+<section class="showcase" id="demo" aria-label="The app" data-shot="office">
+  <div class="wrap">
+    <figure class="showcase-figure">
+      <Plate hour="morning" sun={{ x: 0.84, y: 0.16 }} still class="showcase-plate">
+        <div class="demo" data-demo>
+          <p class="label demo-cue">
+            <span>Not a screenshot.</span>
+            <span class="demo-cue-swap">
+              <span class="demo-nudge"><span class="go-on">Go on, </span><span class="by-pointer">click</span><span class="by-touch">tap</span> a tab</span>
+              <span class="demo-told" aria-hidden="true">Told you.</span>
+            </span>
+          </p>
+          <div class="demo-poster" data-demo-poster>
+            <Shot
+              src={windowShot}
+              alt="The UniVerse Project Browser window in light mode: pinned tiles and tabs in the sidebar, and Wikipedia’s article on The Hay Wain, John Constable’s painting of a hay cart crossing a river, open on the right."
+              sizes="(max-width: 1440px) 88vw, 1240px"
+            />
+          </div>
+          <div class="demo-stage" data-demo-stage>
+            <iframe
+              class="demo-frame"
+              src={demoSrc}
+              title="UniVerse Project Browser, live: try the sidebar, split view and the command bar"
+              allow="clipboard-write"
+              loading="eager"></iframe>
+          </div>
+        </div>
+      </Plate>
+      <div class="demo-controls" data-demo-controls hidden>
+        <div class="demo-actions">
+          <button type="button" class="btn demo-customize" data-demo-customize data-track="demo_customize">
+            <span data-demo-customize-label>Customize it</span>
+          </button>
+          <span class="demo-code" data-demo-code hidden>
+            <DownloadButton location="demo-code" label="Download & copy code" meta="" class="demo-get" />
+          </span>
+        </div>
+        <code class="demo-code-value" data-demo-code-value hidden></code>
+        <p class="demo-code-line" data-demo-code-line hidden>Your setup code goes to your clipboard as the download starts. Paste it on UniVerse Project Browser’s first screen and it sets itself up just like this.</p>
+      </div>
+    </figure>
+    <aside class="band" aria-label="Download" data-download-band hidden>
+      <p class="band-line poster"><span data-band-lead>That was a screenshot. </span><span>This is the app.</span></p>
+      <DownloadButton location="office-band" />
+    </aside>
+  </div>
+</section>
+
+<script>
+  import "../scripts/demo";
+  import { getFeatureFlag } from "../scripts/telemetry";
+
+  const FLAG = "download-band";
+  const band = document.querySelector<HTMLElement>("[data-download-band]");
+  const show = (variant: unknown) => {
+    if (band) band.hidden = variant !== "band";
+  };
+
+  if (band && document.documentElement.dataset.device === "mac") {
+    const local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+    const forced = local ? new URLSearchParams(location.search).get("nnflag") : null;
+    if (forced) show(forced);
+    else void getFeatureFlag(FLAG).then(show);
+  }
+</script>
+
+<style>
+  .showcase {
+    padding-top: clamp(24px, 4vw, 64px);
+    padding-bottom: calc(var(--edge) + clamp(32px, 4vw, 64px));
+  }
+  .showcase-figure {
+    margin: 0 auto;
+  }
+  @media (hover: hover) and (pointer: fine) and (min-width: 900px) {
+    .showcase-figure {
+      max-width: max(860px, calc((100svh - 170px) / 0.66));
+    }
+  }
+  .demo {
+    position: relative;
+  }
+  .demo-cue {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    gap: 0.7em;
+    margin: 0 0 clamp(10px, 1.2vw, 13px);
+    padding: 0.72em 1em 0.66em;
+    border-radius: 4px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: clamp(0.66rem, 0.6rem + 0.3vw, 0.78rem);
+    white-space: nowrap;
+    box-shadow:
+      0 1px 2px rgb(22 19 15 / 0.2),
+      0 8px 18px -6px rgb(22 19 15 / 0.35);
+    visibility: hidden;
+    pointer-events: none;
+  }
+  .demo-cue::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 1.6em;
+    border: 6px solid transparent;
+    border-top-color: var(--ink);
+    border-bottom: 0;
+  }
+  .demo[data-live] .demo-cue {
+    visibility: visible;
+  }
+  .demo-cue-swap {
+    display: grid;
+    color: var(--sun-pale);
+  }
+  .demo-nudge,
+  .demo-told {
+    grid-area: 1 / 1;
+    transition: opacity 400ms var(--ease-out);
+  }
+  .demo-told,
+  .demo[data-engaged] .demo-nudge {
+    opacity: 0;
+  }
+  .demo[data-engaged] .demo-told {
+    opacity: 1;
+    transition-delay: 250ms;
+  }
+  .by-touch {
+    display: none;
+  }
+  @media (hover: none) {
+    .by-touch {
+      display: inline;
+    }
+    .by-pointer {
+      display: none;
+    }
+  }
+  @media (max-width: 400px) {
+    .go-on {
+      display: none;
+    }
+  }
+  .showcase :global(.showcase-plate) {
+    padding-top: clamp(50px, 6.5%, 78px);
+  }
+  @media (max-width: 640px) {
+    :global(.js) .demo {
+      aspect-ratio: 4 / 5;
+    }
+    :global(.js) .demo-poster {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+    }
+  }
+  .demo-stage {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: calc(14px * var(--demo-scale, 1));
+    box-shadow:
+      0 1px 2px rgb(22 19 15 / 0.14),
+      0 22px 44px rgb(22 19 15 / 0.2);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .demo[data-live] .demo-stage {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .demo[data-live] .demo-poster {
+    visibility: hidden;
+  }
+  .demo-frame {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    transform-origin: 0 0;
+    background: transparent;
+  }
+  .demo-stage[data-far] .demo-frame {
+    content-visibility: auto;
+  }
+  .demo-controls {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    margin-top: clamp(18px, 2.2vw, 28px);
+    text-align: center;
+  }
+  .demo-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 12px;
+  }
+  .demo-controls[hidden] {
+    display: none;
+  }
+  :global(.js) .demo-controls[hidden] {
+    display: flex;
+    visibility: hidden;
+  }
+  .demo-customize {
+    --h: 46px;
+    --btn-bg: transparent;
+    --btn-fg: var(--ink);
+    --btn-wipe: color-mix(in srgb, var(--ink) 10%, transparent);
+    box-shadow: inset 0 0 0 1.5px var(--ink);
+    padding: 0 22px;
+    cursor: pointer;
+    border: 0;
+  }
+  .demo-customize:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  .demo-customize:disabled::before {
+    transform: translateX(-104%) skewX(-12deg);
+  }
+  .demo-customize:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .demo-code {
+    display: flex;
+  }
+  .demo-code[hidden],
+  .demo-code-value[hidden],
+  .demo-code-line[hidden] {
+    display: none;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .demo-code,
+    .demo-code-line {
+      animation: band-in 600ms var(--ease-out) both;
+    }
+  }
+  .demo-code :global(.demo-get) {
+    --h: 46px;
+  }
+  .demo-code-value {
+    max-width: 100%;
+    padding: 11px 14px;
+    border-radius: 4px;
+    box-shadow: inset 0 0 0 1px var(--rule-strong);
+    font-family: var(--mono);
+    font-size: clamp(0.72rem, 0.66rem + 0.3vw, 0.86rem);
+    letter-spacing: 0.01em;
+    overflow-wrap: anywhere;
+    user-select: all;
+  }
+  .demo-code-line {
+    max-width: 46ch;
+    color: var(--ink-2);
+    font-size: var(--t-small);
+    line-height: 1.45;
+  }
+  .band {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px 32px;
+    margin-top: clamp(40px, 5vw, 72px);
+    padding: 22px 0;
+    border-top: 2px solid var(--ink);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .band[hidden] {
+    display: none;
+  }
+  .band-line {
+    font-size: clamp(2rem, 1.2rem + 2.6vw, 3.6rem);
+    line-height: 0.9;
+  }
+  .band-line span + span {
+    color: var(--accent);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .band {
+      animation: band-in 600ms var(--ease-out) both;
+    }
+  }
+  @keyframes band-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+  }
+  @media (max-width: 640px) {
+    .band {
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .band :global(.btn) {
+      justify-content: center;
+    }
+  }
+</style>

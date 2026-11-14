@@ -1,0 +1,418 @@
+#!/usr/bin/env python3
+"""Keep the Mac's total CPU under a cap by throttling only the agents' own work.
+
+  scripts/agent/cpu-cap [--cap 70] [--resume 60] [--every 3] [--mem-cap 75] [--mem-resume 70] [--mem-kill 90] [--memory-only]
+
+"Ours" is every process whose command line mentions this checkout or the agents' scratch folders (/private/tmp/claude-*)
+plus all their descendants: builds (xcodebuild, clang, swift, ld, hermesc), benches, Metro, hidden test instances,
+Codex runs started from here. The owner's apps (/Applications/UniVerse-Project-Browser.app, Claude, games) are never touched.
+
+  - Every process of ours is moved to background QoS (taskpolicy -b -p): efficiency cores, lowest I/O. Except
+    processes whose command line holds "/perf-gate/" (put a release gate's app copies in such a folder) so its
+    timings stand for what users get; those can still be paused.
+  - While total CPU is over --cap, the busiest processes of ours are paused (SIGSTOP), busiest first.
+  - Once total CPU is under --resume, they are resumed (SIGCONT), one per tick.
+  - Memory, the Mac's used share (100 minus macOS's own free percentage from memory_pressure -Q, which leaves
+    out what macOS can reclaim; vm_stat's anonymous + wired + compressor read ~20 points higher): while it is over
+    --mem-cap, our largest workers (compilers, linkers, siso's python3, ffmpeg, hidden test instances and tools under
+    ~/universe-scratch or apps/browser/build-*) are paused, 2 a tick, so they stop growing; each gets a turn after
+    --max-pause seconds while memory is under --mem-cap, and they are resumed one per tick under --mem-resume.
+    Sizes come from top's memory column (compressed pages included), not ps's resident size. Over 85 % it logs a
+    census every 20 s: the most numerous processes and a sample command line, to name a runaway. Over --mem-kill, our largest worker
+    is killed (SIGKILL) each tick, so a runaway build fails instead of the kernel panicking (twice on 2026-11-11).
+    Agents (claude, codex, T3), coordinators (siso, ninja, xcodebuild, lockf) and the owner's apps are never touched.
+  - --memory-only: just the memory cap; no CPU cap and no background QoS (the owner's default since 2026-11-11).
+  - On exit (any signal) everything paused is resumed.
+Agents: a paused build or instance just runs slower; give waits their deadlines as usual.
+
+  scripts/agent/cpu-cap --league            (= --during /Game/LeagueOfLegends.app/ --share 40)
+  scripts/agent/cpu-cap --during PATTERN --share PCT
+
+Share mode caps our own work instead of the total, and only while a process whose command line holds PATTERN runs
+(League's game itself, not its client; matched ignoring case, as the game's path is spelled either way). Then: ours go to background QoS, and our share of the whole machine,
+measured from each process's CPU time over the tick, stays at or under PCT by pausing our busiest processes. A paused
+one resumes once its last rate fits under PCT again. When the match ends, everything is resumed and taken out of
+background QoS: full speed.
+"""
+import argparse, os, re, signal, subprocess, sys, time
+
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+MARKERS = (REPO + "/", REPO + " ", "/private/tmp/claude-", "/tmp/ac-", os.path.expanduser("~/universe-scratch/"))
+NEVER = ("/Applications/UniVerse-Project-Browser.app/", "/Applications/Claude.app/", "/Applications/League of Legends.app/",
+         "/System/", "/usr/libexec/", "/sbin/launchd")
+COORD = {"SWBBuildService", "ibtoold", "xcodebuild", "XCBBuildService", "lockf", "siso", "ninja", "autoninja", "gn"}
+TOOLS = COORD | {"bash", "zsh", "sh", "-zsh", "top", "ps", "git", "perl", "lockf", "timeout", "sleep", "python3", "Python",
+         "osascript", "log", "caffeinate", "codex", "node_repl"}
+ME = os.getpid()
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--cap", type=float, default=70)
+ap.add_argument("--resume", type=float, default=60)
+ap.add_argument("--every", type=float, default=3)
+ap.add_argument("--mem-cap", type=float, default=75)
+ap.add_argument("--mem-resume", type=float, default=72)
+ap.add_argument("--mem-kill", type=float, default=90)
+ap.add_argument("--memory-only", action="store_true", help="only the memory cap: no CPU cap, no background QoS")
+ap.add_argument("--max-pause", type=float, default=60, help="seconds; a job paused this long gets a turn (no starvation)")
+ap.add_argument("--during", action="append", default=[], help="share mode: throttle only while this process runs")
+ap.add_argument("--share", type=float, help="share mode: our CPU, in %% of the whole machine, while --during runs")
+ap.add_argument("--league", action="store_true", help="--during /Game/LeagueOfLegends.app/ --share 40")
+a = ap.parse_args()
+if a.league:
+    a.during.append("/Game/LeagueOfLegends.app/")
+    a.share = a.share if a.share is not None else 40
+if bool(a.during) != (a.share is not None):
+    ap.error("--during and --share go together")
+
+paused = []
+mem_paused = []
+paused_at = {}
+turn_until = {}
+backgrounded = set()
+
+
+def log(msg):
+    print(time.strftime("%H:%M:%S"), msg, flush=True)
+
+
+def total_cpu():
+    out = subprocess.run(["top", "-l", "2", "-s", "1", "-n", "0"], capture_output=True, text=True).stdout
+    lines = [l for l in out.splitlines() if l.startswith("CPU usage")]
+    m = re.search(r"([\d.]+)% idle", lines[-1]) if lines else None
+    return 100 - float(m.group(1)) if m else 0.0
+
+
+def memory_used():
+    out = subprocess.run(["memory_pressure", "-Q"], capture_output=True, text=True).stdout
+    m = re.search(r"free percentage:\s*(\d+)%", out)
+    return 100.0 - float(m.group(1)) if m else 0.0
+
+
+def footprints():
+    out = subprocess.run(["top", "-l", "1", "-o", "mem", "-n", "60", "-stats", "pid,mem"], capture_output=True, text=True).stdout
+    sizes = {}
+    for line in out.splitlines():
+        m = re.match(r"\s*(\d+)\s+([\d.]+)([BKMG])\+?-?\s*$", line)
+        if m:
+            sizes[int(m.group(1))] = int(float(m.group(2)) * {"B": 1, "K": 1 << 10, "M": 1 << 20, "G": 1 << 30}[m.group(3)])
+    return sizes
+
+
+last_census = [0.0]
+
+
+def census(mem):
+    if time.time() - last_census[0] < 20:
+        return
+    last_census[0] = time.time()
+    out = subprocess.run(["ps", "-axo", "pid=,ppid=,rss=,command="], capture_output=True, text=True).stdout
+    by_name, sample = {}, {}
+    for line in out.splitlines():
+        p = line.split(None, 3)
+        if len(p) < 4:
+            continue
+        name = os.path.basename(p[3].split()[0])
+        count, rss = by_name.get(name, (0, 0))
+        by_name[name] = (count + 1, rss + int(p[2]) * 1024)
+        sample.setdefault(name, f"ppid {p[1]}: {p[3][:220]}")
+    top = sorted(by_name.items(), key=lambda kv: -kv[1][0])[:6]
+    log(f"mem {mem:.0f}% census: " + ", ".join(f"{n} x{c} {r >> 20} MB" for n, (c, r) in top))
+    log(f"mem {mem:.0f}% most common: {sample[top[0][0]]}")
+
+
+def resident(pids):
+    if not pids:
+        return {}
+    out = subprocess.run(["ps", "-o", "pid=,rss=", "-p", ",".join(map(str, pids))], capture_output=True, text=True).stdout
+    sizes = {}
+    for line in out.splitlines():
+        p = line.split()
+        if len(p) == 2:
+            sizes[int(p[0])] = int(p[1]) * 1024
+    return sizes
+
+
+MEMORY_WORKERS = {"clang", "clang++", "clang-cl", "python3", "python3.11", "Python", "ld", "ld64.lld", "lld", "rustc",
+                  "swift-frontend", "swiftc", "hermesc", "ffmpeg", "dsymutil", "llvm-strip"}
+MEMORY_WORKER_PATHS = ("/universe-scratch/", "/apps/browser/build-", "/private/tmp/ac-")
+NEVER_PAUSE = ("claude", "codex", "T3 Code", "/node_modules/.bin/", "cpu-cap")
+
+
+def memory_worker(cmd):
+    if any(n in cmd for n in NEVER_PAUSE) or os.path.basename(cmd.split()[0]) in COORD | {"swift-build", "pod", "pnpm"}:
+        return False
+    return os.path.basename(cmd.split()[0]) in MEMORY_WORKERS or any(m in cmd for m in MEMORY_WORKER_PATHS)
+
+
+def memory_tick(procs):
+    now = time.time()
+    mem_paused[:] = [p for p in mem_paused if alive(p)]
+    mem = memory_used()
+    candidates = {pid: cmd for pid, (_, _, cmd, _) in procs.items() if memory_worker(cmd)}
+    if mem > 85:
+        census(mem)
+    if mem > a.mem_kill:
+        real = footprints()
+        sizes = {p: real.get(p, 0) for p in candidates} or resident(list(candidates))
+        if sizes:
+            pid = max(sizes, key=sizes.get)
+            try:
+                os.kill(pid, signal.SIGKILL)
+                log(f"mem {mem:.0f}%: killed {pid} ({sizes[pid] >> 20} MB) {candidates[pid][:90]}")
+            except ProcessLookupError:
+                pass
+    for pid in [p for p in mem_paused if now - paused_at.get(p, now) > a.max_pause and mem < a.mem_cap]:
+        try:
+            os.kill(pid, signal.SIGCONT)
+            log(f"mem {mem:.0f}%: turn, resumed {pid} after {now - paused_at[pid]:.0f}s")
+        except ProcessLookupError:
+            pass
+        mem_paused.remove(pid)
+        paused_at.pop(pid, None)
+        turn_until[pid] = now + a.max_pause / 2
+    if mem > a.mem_cap:
+        real = footprints()
+        sizes = {p: real.get(p, 0) for p in candidates if p not in mem_paused and turn_until.get(p, 0) <= now}
+        for pid in sorted(sizes, key=sizes.get, reverse=True)[:2]:
+            if sizes[pid] < 128 << 20:
+                break
+            try:
+                os.kill(pid, signal.SIGSTOP)
+            except ProcessLookupError:
+                continue
+            mem_paused.append(pid)
+            paused_at[pid] = now
+            log(f"mem {mem:.0f}%: paused {pid} ({sizes[pid] >> 20} MB) {candidates[pid][:90]}")
+    elif mem < a.mem_resume and mem_paused:
+        pid = mem_paused.pop(0)
+        paused_at.pop(pid, None)
+        try:
+            os.kill(pid, signal.SIGCONT)
+            log(f"mem {mem:.0f}%: resumed {pid}")
+        except ProcessLookupError:
+            pass
+
+
+def cpu_seconds(t):
+    """ps's time column: [[dd-]hh:]mm:ss.ss"""
+    days, _, t = t.rpartition("-")
+    secs = 0.0
+    for part in t.split(":"):
+        secs = secs * 60 + float(part)
+    return secs + (int(days) * 86400 if days else 0)
+
+
+def snapshot():
+    """Every process: pid -> (ppid, pcpu, command, CPU seconds so far)."""
+    out = subprocess.run(["ps", "-axo", "pid=,ppid=,pcpu=,time=,command="], capture_output=True, text=True).stdout
+    procs = {}
+    for line in out.splitlines():
+        p = line.split(None, 4)
+        if len(p) < 5:
+            continue
+        try:
+            procs[int(p[0])] = (int(p[1]), float(p[2]), p[4], cpu_seconds(p[3]))
+        except ValueError:
+            continue
+    return procs
+
+
+def ours(procs=None):
+    procs = procs if procs is not None else snapshot()
+    roots = {pid for pid, (_, _, cmd, _) in procs.items()
+             if any(m in cmd for m in MARKERS) and not any(n in cmd for n in NEVER)}
+    mine = set()
+    for pid in procs:
+        seen, cur = [], pid
+        while cur in procs and cur > 1 and cur not in seen:
+            if cur in roots or cur in mine:
+                mine.add(pid)
+                break
+            seen.append(cur)
+            cur = procs[cur][0]
+    cur = ME
+    while cur in procs and cur > 1:
+        mine.discard(cur)
+        cur = procs[cur][0]
+    mine = {p for p in mine if not any(n in procs[p][2] for n in NEVER)}
+    return {p: procs[p] for p in mine}
+
+
+def alive(pid):
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True
+
+
+def resume_all(*_):
+    for pid in paused + mem_paused:
+        try:
+            os.kill(pid, signal.SIGCONT)
+        except ProcessLookupError:
+            pass
+    log(f"exit: resumed {len(paused) + len(mem_paused)}")
+    sys.exit(0)
+
+
+for s in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP):
+    signal.signal(s, resume_all)
+
+def pausable(cmd):
+    return os.path.basename(cmd.split()[0]) not in TOOLS
+
+
+def share_loop():
+    ncpu = os.cpu_count()
+    active = False
+    last, last_at = {}, time.time()
+    rate = {}
+    log(f"share mode: ours <= {a.share}% while {a.during} runs; repo {REPO}")
+    while True:
+        time.sleep(a.every)
+        procs = snapshot()
+        now = time.time()
+        dt, last_at = now - last_at, now
+        mine = ours(procs)
+        memory_tick(mine)
+        paused[:] = [p for p in paused if alive(p)]
+        mine_up = set()
+        cur = ME
+        while cur in procs and cur > 1:
+            mine_up.add(cur)
+            cur = procs[cur][0]
+        running = any(any(d.lower() in cmd.lower() for d in a.during)
+                      for pid, (_, _, cmd, _) in procs.items() if pid not in mine_up)
+        if not running:
+            if active:
+                for pid in paused:
+                    try:
+                        os.kill(pid, signal.SIGCONT)
+                    except ProcessLookupError:
+                        pass
+                for pid in backgrounded:
+                    subprocess.run(["taskpolicy", "-B", "-p", str(pid)], capture_output=True)
+                log(f"match over: resumed {len(paused)}, {len(backgrounded)} back to normal QoS")
+                paused.clear(); paused_at.clear(); turn_until.clear(); backgrounded.clear()
+                active = False
+            last = {pid: procs[pid][3] for pid in mine}
+            continue
+        if not active:
+            log("match on: capping ours")
+            active = True
+        for pid in mine.keys() - backgrounded:
+            if "/perf-gate/" not in mine[pid][2]:
+                subprocess.run(["taskpolicy", "-b", "-p", str(pid)], capture_output=True)
+                backgrounded.add(pid)
+        backgrounded.intersection_update(mine.keys() | set(paused))
+        for pid, (_, _, _, secs) in mine.items():
+            if pid not in paused:
+                rate[pid] = max(0.0, secs - last.get(pid, 0.0)) / dt / ncpu * 100
+        last = {pid: procs[pid][3] for pid in mine}
+        for pid in list(rate):
+            if pid not in mine and pid not in paused:
+                del rate[pid]
+        share = sum(r for pid, r in rate.items() if pid not in paused)
+        for pid in [p for p in paused if now - paused_at.get(p, now) > a.max_pause]:
+            try:
+                os.kill(pid, signal.SIGCONT)
+            except ProcessLookupError:
+                pass
+            paused.remove(pid); paused_at.pop(pid, None)
+            turn_until[pid] = now + a.max_pause / 2
+            share += rate.get(pid, 0)
+        if share > a.share:
+            for pid in sorted((p for p in mine if p not in paused), key=lambda p: -rate.get(p, 0)):
+                if share <= a.share:
+                    break
+                if rate.get(pid, 0) < 1 or turn_until.get(pid, 0) > now or not pausable(mine[pid][2]):
+                    continue
+                try:
+                    os.kill(pid, signal.SIGSTOP)
+                except ProcessLookupError:
+                    continue
+                paused.append(pid); paused_at[pid] = now
+                share -= rate[pid]
+                log(f"ours {share + rate[pid]:.0f}%: paused {pid} ({rate[pid]:.0f}%) {mine[pid][2][:80]}")
+        else:
+            for pid in list(paused):
+                if share + rate.get(pid, 0) > a.share:
+                    break
+                try:
+                    os.kill(pid, signal.SIGCONT)
+                except ProcessLookupError:
+                    pass
+                paused.remove(pid); paused_at.pop(pid, None)
+                share += rate.get(pid, 0)
+
+
+if a.share is not None:
+    try:
+        share_loop()
+    except Exception as e:
+        log(f"error {e!r}")
+        resume_all()
+
+if a.memory_only:
+    log(f"memory only: cap {a.mem_cap}% resume {a.mem_resume}% kill {a.mem_kill}% repo {REPO}")
+    try:
+        while True:
+            memory_tick(ours())
+            time.sleep(a.every)
+    except Exception as e:
+        log(f"error {e!r}")
+        resume_all()
+
+log(f"cap {a.cap}% resume {a.resume}% mem cap {a.mem_cap}% resume {a.mem_resume}% kill {a.mem_kill}% repo {REPO}")
+try:
+    while True:
+        procs = ours()
+        memory_tick(procs)
+        for pid in procs.keys() - backgrounded:
+            if "/perf-gate/" in procs[pid][2]:
+                continue
+            subprocess.run(["taskpolicy", "-b", "-p", str(pid)], capture_output=True)
+            backgrounded.add(pid)
+        backgrounded &= procs.keys() | set(paused)
+        paused[:] = [p for p in paused if alive(p)]
+        now = time.time()
+        for pid in [p for p in paused if now - paused_at.get(p, now) > a.max_pause]:
+            try:
+                os.kill(pid, signal.SIGCONT)
+                log(f"turn: resumed {pid} after {now - paused_at[pid]:.0f}s")
+            except ProcessLookupError:
+                pass
+            paused.remove(pid)
+            paused_at.pop(pid, None)
+            turn_until[pid] = now + a.max_pause / 2
+        cpu = total_cpu()
+        if cpu > a.cap:
+            budget = cpu - a.cap + 5
+            for pid, (_, pcpu, cmd, _) in sorted(procs.items(), key=lambda kv: -kv[1][1]):
+                if budget <= 0 or pcpu < 3 or pid in paused or pid in mem_paused or turn_until.get(pid, 0) > now:
+                    continue
+                if not pausable(cmd):
+                    continue
+                try:
+                    os.kill(pid, signal.SIGSTOP)
+                except ProcessLookupError:
+                    continue
+                paused.append(pid)
+                paused_at[pid] = now
+                budget -= pcpu / os.cpu_count()
+                log(f"cpu {cpu:.0f}%: paused {pid} ({pcpu:.0f}%) {cmd[:90]}")
+        elif cpu < a.resume and paused:
+            pid = paused.pop(0)
+            paused_at.pop(pid, None)
+            try:
+                os.kill(pid, signal.SIGCONT)
+                log(f"cpu {cpu:.0f}%: resumed {pid}")
+            except ProcessLookupError:
+                pass
+        time.sleep(a.every)
+except Exception as e:
+    log(f"error {e!r}")
+    resume_all()

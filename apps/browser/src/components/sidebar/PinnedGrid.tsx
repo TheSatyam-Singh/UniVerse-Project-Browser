@@ -1,0 +1,180 @@
+import { memo, useMemo } from "react";
+import { Animated, View } from "react-native";
+import { radius, Symbol } from "../ui";
+import { GlassGroup, useGlass } from "../ui/Glass";
+import { layout, useTheme } from "../ui/theme";
+import { useSidebarField } from "../../state/sidebar/chrome";
+import { listTopGap } from "./geometry";
+import { useIsActiveTab, useSettings, useTab, useWindowId } from "../../state/browser/hooks";
+import { useIsSelected } from "../../state/pins/hooks";
+import { NextMeetingBadge } from "../live/NextMeetingBadge";
+import { TileStatus } from "./TileStatus";
+import { returnShownTabToPinnedUrl } from "../../state/sidebar/actions";
+import { pinSlotPitch, cellKey, tailKey } from "./dragModel";
+import { useDragController, useDragging, useDragItem, useDropPins, useFolderTarget, usePinnedCount, usePinSlots } from "./DragProvider";
+import { FolderTile } from "./FolderTile";
+import { useRowHover } from "./hoverController";
+import { pinGrid, pinGridHeight, TILE_GAP } from "./pinZone";
+import { registerRow } from "../../state/sidebar/sidebarUi";
+import { FolderDropRing, TileFace, useSlotPosition } from "./TileFace";
+import { folderIdOfCell } from "../../state/pins/tileFolders";
+import { useSidebarTokens } from "./tokens";
+import { TabPressArea } from "./TabPressArea";
+import { entryKey } from "../../state/sidebar/entryKey";
+
+export const PinnedGrid = memo(function PinnedGrid({ tabs, innerWidth, flush = false }: { tabs: string[]; innerWidth: number; flush?: boolean }) {
+  const controller = useDragController();
+  const count = usePinnedCount(tabs);
+  const balanced = useSettings((st) => st.balancedTopApps);
+  const { columns, width } = pinGrid(count, innerWidth, balanced);
+  const slots = usePinSlots(tabs);
+  const tail = useDragItem(tailKey("tiles"), { kind: "tail", tabIds: [], section: "tiles" });
+  const dragging = useDragging();
+  const addressBar = useSidebarField() === "top";
+  const topGap = listTopGap(addressBar);
+  if (!tabs.length) return dragging && !addressBar && tail.gap ? <Animated.View style={{ height: tail.gap }} /> : null;
+  return (
+    <View
+      ref={(v) => {
+        controller?.regions.set("tiles", v);
+      }}
+      style={{ marginTop: flush ? 0 : topGap }}
+    >
+      <GlassGroup style={{ height: pinGridHeight(count, innerWidth, layout.pinnedHeight, balanced) }}>
+        {tabs.map((cell, i) => {
+          const x = (slots[i]! % columns) * (width + TILE_GAP);
+          const y = Math.floor(slots[i]! / columns) * pinSlotPitch();
+          const folderId = folderIdOfCell(cell);
+          return folderId ? (
+            <FolderTile key={cellKey(cell)} folderId={folderId} width={width} sliding={dragging} x={x} y={y} />
+          ) : (
+            <PinnedTile key={cellKey(cell)} tabId={cell} width={width} sliding={dragging} x={x} y={y} />
+          );
+        })}
+      </GlassGroup>
+      <Animated.View ref={tail.wrapper.ref} style={{ position: "absolute", right: 0, bottom: 0, width: 0, height: 0 }} />
+    </View>
+  );
+});
+
+export function PinFieldZone({ top, height }: { top: number; height: number }) {
+  const tokens = useSidebarTokens();
+  const theme = useTheme();
+  const controller = useDragController();
+  const active = useDropPins();
+  return (
+    <View
+      ref={(v) => {
+        controller?.regions.set("tiles", v);
+      }}
+      onLayout={() => void controller?.tilesLaidOut()}
+      pointerEvents="none"
+      style={{
+        position: "absolute",
+        left: layout.sidebarInset,
+        right: layout.sidebarInset,
+        top,
+        height,
+        borderRadius: radius.chrome,
+        borderWidth: active ? 1.5 : 1,
+        borderStyle: "dashed",
+        borderColor: active ? theme.accent : tokens.dragBorder,
+        backgroundColor: tokens.dragSilhouette,
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      <PinGlyph color={active ? theme.accent : theme.textSecondary} />
+    </View>
+  );
+}
+
+export function PinSlotZone() {
+  const theme = useTheme();
+  const controller = useDragController();
+  const active = useDropPins();
+  const gap = controller?.items.get(tailKey("tiles"))?.gap;
+  const opacity = gap ? gap.interpolate({ inputRange: [0, pinSlotPitch()], outputRange: [0, 1], extrapolate: "clamp" }) : active ? 1 : 0;
+  return (
+    <>
+      <View
+        ref={(v) => {
+          controller?.regions.set("tiles", v);
+        }}
+        onLayout={() => void controller?.tilesLaidOut()}
+        pointerEvents="none"
+        style={{
+          position: "absolute",
+          left: layout.sidebarInset,
+          right: layout.sidebarInset,
+          top: 0,
+          height: active ? layout.pinnedTop + layout.pinnedHeight : layout.pinnedTop - layout.rowGap,
+        }}
+      />
+      <Animated.View
+        pointerEvents="none"
+        style={{
+          position: "absolute",
+          left: layout.sidebarInset,
+          right: layout.sidebarInset,
+          top: layout.pinnedTop,
+          height: layout.pinnedHeight,
+          opacity,
+          borderRadius: radius.pinned,
+          borderWidth: 1.5,
+          borderStyle: "dashed",
+          borderColor: theme.accent,
+          backgroundColor: theme.dropZoneFill,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <PinGlyph color={theme.accent} />
+      </Animated.View>
+    </>
+  );
+}
+
+function PinGlyph({ color }: { color: string }) {
+  return <Symbol name="pin" size={13} color={color} style={{ width: 16, height: 16 }} />;
+}
+
+const PinnedTile = memo(function PinnedTile({ tabId, width, sliding, x, y }: { tabId: string; width: number; sliding: boolean; x: number; y: number }) {
+  const windowId = useWindowId();
+  const tab = useTab(tabId);
+  const active = useIsActiveTab(tabId);
+  const selected = useIsSelected(windowId, tabId);
+  const { hovered, hoverProps } = useRowHover(windowId, { kind: "tab", id: tabId });
+  const { wrapper, handle, dragging } = useDragItem(entryKey("tab", tabId), { kind: "tile", tabIds: [tabId], section: "tiles" });
+  const target = useFolderTarget(entryKey("tab", tabId));
+  const position = useSlotPosition(x, y, width, sliding, dragging);
+  const glass = useGlass();
+  const overlays = useMemo(
+    () => (
+      <>
+        <NextMeetingBadge tabId={tabId} />
+        <TileStatus tabId={tabId} />
+      </>
+    ),
+    [tabId],
+  );
+  if (!tab) return null;
+
+  return (
+    <Animated.View ref={wrapper.ref} style={[{ position: "absolute", ...position.getLayout() }, wrapper.style]} {...handle}>
+      <FolderDropRing on={target} />
+      <View
+        ref={(v) => registerRow(windowId, tabId, v)}
+        {...hoverProps}
+        onDoubleClick={() => returnShownTabToPinnedUrl(windowId, tabId)}
+      >
+        <TabPressArea windowId={windowId} tab={tab}>
+          {({ pressed }) => (
+            <TileFace tabId={tabId} width={width} active={active} selected={selected} hovered={hovered} pressed={pressed} badge={glass ? overlays : undefined} />
+          )}
+        </TabPressArea>
+        {glass ? null : overlays}
+      </View>
+    </Animated.View>
+  );
+});

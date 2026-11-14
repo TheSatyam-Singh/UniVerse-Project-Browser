@@ -1,0 +1,2 @@
+-keep class com.universe.projectbrowser.shared.ScriptEngine { *; }
+-keep class com.universe.projectbrowser.shared.ScriptError { <init>(java.lang.String); }

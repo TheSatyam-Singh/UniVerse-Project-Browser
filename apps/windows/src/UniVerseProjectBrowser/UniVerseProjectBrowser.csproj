@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
+    <RootNamespace>UniVerseProjectBrowser</RootNamespace>
+    <AssemblyName>UniVerseProjectBrowser</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Platforms>x64;ARM64</Platforms>
+    <RuntimeIdentifiers>win-x64;win-arm64</RuntimeIdentifiers>
+    <PublishProfile>Properties\PublishProfiles\win-x64.pubxml</PublishProfile>
+    <UseWinUI>true</UseWinUI>
+    <EnableMsixTooling>true</EnableMsixTooling>
+    <WindowsPackageType>MSIX</WindowsPackageType>
+    <WindowsAppSDKSelfContained>true</WindowsAppSDKSelfContained>
+    <WindowsAppSDKDeploymentManager>true</WindowsAppSDKDeploymentManager>
+    <AppxPackageSigningEnabled>false</AppxPackageSigningEnabled>
+    <GenerateAppxPackageOnBuild>false</GenerateAppxPackageOnBuild>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12</LangVersion>
+    <ProjectGuid>{F1044E50-B2E7-4B82-A740-80324C199498}</ProjectGuid>
+    <Version>0.2.47.0</Version>
+    <Authors>UniVerse Project Browser</Authors>
+    <Description>UniVerse Project Browser for Windows — sidebar-first browser on WebView2.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260101001" />
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4314.35" />
+    <PackageReference Include="WinSparkle" Version="0.9.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml" />
+    <Page Include="MainWindow.xaml" />
+    <Page Include="Controls\SidebarView.xaml" />
+    <Page Include="Controls\AddressBarView.xaml" />
+    <Page Include="Controls\BrowserPaneView.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Assets\Logo.png" />
+    <Content Include="Assets\Square44x44Logo.png" />
+    <Content Include="Assets\Square150x150Logo.png" />
+    <Content Include="Assets\Wide310x150Logo.png" />
+    <Content Include="Assets\StoreLogo.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="ContentScripts\youtube-sponsorblock.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="ContentScripts\youtube-tweaks.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="ContentScripts\social-image-download.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="ContentScripts\social-video-source.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="ContentScripts\nook-cosmetic.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="ContentScripts\facebook-sponsored-blocker.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="ContentScripts\instagram-sponsored-blocker.js" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="ContentScripts\twitter-ad-blocker.js" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\..\android\blocking\src\main\resources\com\universe\projectbrowser\blocking\FilterListCatalog.json" Link="FilterLists\FilterListCatalog.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,13 @@
+*
+!Dockerfile
+!app/
+!app/**
+!site/
+!site/**
+!core/
+!core/**
+app/node_modules
+app/dist
+app/.output
+app/.tanstack
+app/src/routeTree.gen.ts

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="universe_surface">#FFE7CFD3</color>
+    <color name="universe_icon_background">#FFF9F5E3</color>
+    <color name="universe_icon_ink">#FF17604B</color>
+</resources>

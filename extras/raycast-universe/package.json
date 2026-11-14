@@ -1,0 +1,90 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "universe",
+  "title": "UniVerse Project Browser",
+  "description": "Search and switch UniVerse Project Browser's tabs and profiles, and open new tabs and windows",
+  "icon": "icon.png",
+  "author": "mantrakp04",
+  "contributors": [
+    "ridemountainpig"
+  ],
+  "platforms": [
+    "macOS"
+  ],
+  "categories": [
+    "Productivity"
+  ],
+  "license": "MIT",
+  "commands": [
+    {
+      "name": "search-tabs",
+      "title": "Search Tabs",
+      "subtitle": "UniVerse Project Browser",
+      "description": "Search your open tabs in UniVerse Project Browser and switch to one",
+      "mode": "view"
+    },
+    {
+      "name": "search-profiles",
+      "title": "Search Profiles",
+      "subtitle": "UniVerse Project Browser",
+      "description": "Search your UniVerse Project Browser profiles and show one in the front window or a new one",
+      "mode": "view"
+    },
+    {
+      "name": "new-tab",
+      "title": "New Tab",
+      "subtitle": "UniVerse Project Browser",
+      "description": "Open a new tab in UniVerse Project Browser's front window, with a URL or a search read as its command bar reads it",
+      "mode": "no-view",
+      "arguments": [
+        {
+          "name": "query",
+          "placeholder": "URL or search",
+          "type": "text",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "new-window",
+      "title": "New Window",
+      "subtitle": "UniVerse Project Browser",
+      "description": "Open a new UniVerse Project Browser window in the profile you name, or in the default profile",
+      "mode": "no-view",
+      "arguments": [
+        {
+          "name": "profile",
+          "placeholder": "Profile",
+          "type": "text",
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "new-incognito-window",
+      "title": "New Incognito Window",
+      "subtitle": "UniVerse Project Browser",
+      "description": "Open a new incognito window in UniVerse Project Browser",
+      "mode": "no-view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.1",
+    "@raycast/utils": "^2.2.3"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.1.1",
+    "@types/node": "22.13.10",
+    "@types/react": "19.0.10",
+    "eslint": "^9.22.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2"
+  },
+  "scripts": {
+    "build": "ray build",
+    "dev": "ray develop",
+    "lint": "ray lint",
+    "fix-lint": "ray lint --fix",
+    "test": "node --test src/scripts.test.ts"
+  }
+}

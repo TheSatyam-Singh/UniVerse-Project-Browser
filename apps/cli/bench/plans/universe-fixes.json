@@ -1,0 +1,31 @@
+{
+  "repeats": 3,
+  "max_lanes": 24,
+  "pace_slack": 1.0,
+  "max_round_lead": 3,
+  "app": "~/universe-scratch/bench-proper/app/UniVerse-Project-Browser.app",
+  "port": 9371,
+  "cli": "dev",
+  "universe_test": "cdpTabsVisible",
+  "name": "universe-fixes-2026-11-10",
+  "tasks": "all",
+  "results": "~/universe-scratch/bench-proper/results/universe-fixes-1",
+  "contenders": [
+    {
+      "id": "universe-claude",
+      "label": "UniVerse Project Browser + Claude Code (Opus 5.5)",
+      "kind": "universe",
+      "agent": "claude",
+      "model": "claude-opus-5-5",
+      "effort": "high"
+    },
+    {
+      "id": "universe-codex",
+      "label": "UniVerse Project Browser + Codex (GPT-6.1 Sol)",
+      "kind": "universe",
+      "agent": "codex",
+      "model": "gpt-6.1-sol",
+      "effort": "high"
+    }
+  ]
+}

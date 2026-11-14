@@ -1,0 +1,109 @@
+import { Button, FadeLabel, Symbol, Text, ToolbarRowContext } from "../ui";
+import type { ReactNode } from "react";
+import { View } from "react-native";
+import { useTheme } from "../ui/theme";
+import { CARD_INSET } from "../../lib/windowLayout";
+import { pageHostLabel } from "../../lib/url";
+import { useTabLive } from "../../state/browser/hooks";
+import type { Tab } from "../../state/browser/types";
+import { usePage } from "../../state/tabs/pageState";
+import { font, radius, space } from "../ui/tokens";
+import { SMALL_BAR_BUTTON, SMALL_PROGRESS, smallBarRow } from "./tokens";
+import { Favicon } from "../favicon/Favicon";
+import { TabProgressBar } from "../toolbar/ProgressBar";
+import { insecureLevel } from "../toolbar/Toolbar";
+import { SMALL_BAR_HEIGHT } from "../../state/windows/small";
+
+export const SMALL_INSET = CARD_INSET;
+export { SMALL_BAR_BUTTON, SMALL_WINDOW_FRAME, smallWindowRadius } from "./tokens";
+const MID = SMALL_BAR_HEIGHT / 2;
+const FIELD_HEIGHT = 28;
+export const SMALL_BAR_GAP = 2;
+export const SMALL_FIELD_GAP = 6;
+const HOST = { flexShrink: 0, maxWidth: "60%" } as const;
+const FLEX = { flex: 1 } as const;
+const PROGRESS_PLACE = { position: "absolute", left: SMALL_PROGRESS.left, width: SMALL_PROGRESS.share, top: 0, bottom: 0 } as const;
+
+export type SmallBarButton = { icon: string; tooltip: string; onPress: () => void; disabled?: boolean };
+
+export function SmallBar({
+  fieldLeft,
+  fieldMaxWidth,
+  field,
+  buttons,
+  trailing,
+  children,
+}: {
+  fieldLeft: number;
+  fieldMaxWidth?: number;
+  field: ReactNode;
+  buttons: SmallBarButton[];
+  trailing?: ReactNode;
+  children?: ReactNode;
+}) {
+  const count = buttons.length + (trailing ? 1 : 0);
+  const buttonsWidth = count * SMALL_BAR_BUTTON + Math.max(0, count - 1) * SMALL_BAR_GAP;
+  return (
+    <ToolbarRowContext.Provider value={smallBarRow()}>
+      <View style={{ height: SMALL_BAR_HEIGHT }}>
+        {children}
+        <View style={{ position: "absolute", left: fieldLeft, right: SMALL_INSET + buttonsWidth + SMALL_FIELD_GAP, maxWidth: fieldMaxWidth, top: MID - FIELD_HEIGHT / 2, height: FIELD_HEIGHT }}>{field}</View>
+        <View style={{ position: "absolute", right: SMALL_INSET, top: MID - SMALL_BAR_BUTTON / 2, flexDirection: "row", gap: SMALL_BAR_GAP }}>
+          {buttons.map((b) => (
+            <Button variant="icon" key={b.tooltip} icon={b.icon} look="row" disabled={b.disabled} tooltip={b.tooltip} onPress={b.onPress} />
+          ))}
+          {trailing}
+        </View>
+      </View>
+    </ToolbarRowContext.Provider>
+  );
+}
+
+export function PageLabel({ tab, hovered = false, label }: { tab: Tab; hovered?: boolean; label?: string }) {
+  const theme = useTheme();
+  const live = useTabLive(tab.id);
+  const insecure = usePage(tab.id, (p) => !!insecureLevel(p)) && !!tab.url;
+  const host = tab.url ? pageHostLabel(tab.url) : "";
+  const title = tab.customTitle || tab.title;
+
+  return (
+    <View
+      style={{
+        flex: 1,
+        flexDirection: "row",
+        alignItems: "center",
+        gap: space.m,
+        paddingLeft: space.m,
+        paddingRight: space.m,
+        borderRadius: radius.tile,
+        backgroundColor: hovered ? theme.toolbarHover : undefined,
+      }}
+    >
+      {insecure ? (
+        <Symbol name="lock.open.trianglebadge.exclamationmark.fill" size={12} color={theme.textSecondary} style={{ width: 16, height: 16 }} />
+      ) : tab.url ? (
+        <Favicon url={tab.url} favicon={tab.favicon} profileId={tab.profileId} />
+      ) : (
+        <Symbol name="magnifyingglass" size={12} color={theme.placeholder} style={{ width: 16, height: 16 }} />
+      )}
+      {tab.url ? (
+        <View style={{ flex: 1, flexDirection: "row", alignItems: "center" }}>
+          <Text accessible={!!label} accessibilityLabel={label} lines={1} ellipsizeMode="head" weight="medium" style={HOST}>
+            {host}
+          </Text>
+          {title && title !== host ? <FadeLabel text={`  ${title}`} fontSize={font.body.fontSize} color={theme.textSecondary} fadeWidth={14} style={{ flex: 1, height: 18 }} /> : null}
+        </View>
+      ) : (
+        <Text lines={1} tone="placeholder" style={FLEX}>
+          Search or enter address
+        </Text>
+      )}
+      {live.isLoading ? (
+        <View pointerEvents="none" style={PROGRESS_PLACE}>
+          <TabProgressBar tabId={tab.id} color={theme.accent} />
+        </View>
+      ) : null}
+    </View>
+  );
+}
+

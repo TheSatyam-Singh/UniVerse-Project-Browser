@@ -1,0 +1,8 @@
+{
+  "name": "smoke",
+  "repeats": 1,
+  "tasks": ["calendar"],
+  "contenders": [
+    {"id": "universe-claude", "label": "UniVerse Project Browser + Claude Code (Opus 5.5)", "kind": "universe", "agent": "claude", "model": "claude-opus-5-5", "effort": "high"}
+  ]
+}

@@ -1,0 +1,214 @@
+# UniVerse-Project-Browser — Android (extends Ardia's android.yml).
+#
+# Secrets this workflow expects (repo Settings > Secrets and variables > Actions):
+#   ANDROID_KEYSTORE_BASE64 — the release keystore (.jks or .keystore), base64.
+#   ANDROID_KEYSTORE_PASSWORD — the keystore password.
+#   ANDROID_KEY_ALIAS — the key alias inside the keystore.
+#   ANDROID_KEY_PASSWORD — the key password.
+#   All four must be present or the release stays unsigned: the debug APK and
+#   the unsigned release APK + AAB are still built and uploaded. No other
+#   secrets are used, and there is no vouch gate — this repo has no vouch system.
+#   No Windows code-signing secret is used here (Android only).
+# The signing itself is a Gradle init script (written below) that configures a
+# signingConfigs entry on :app only when the keystore was decoded; it no-ops
+# otherwise, so the same build commands produce signed or unsigned output.
+name: Android
+
+on:
+  pull_request:
+    paths:
+      - "apps/android/**"
+      - "apps/ios/Packages/ArdiaKit/Sources/ArdiaShared/Scripts/**"
+      - "packages/sync/**"
+      - "packages/core/**"
+      - ".github/workflows/universe-android.yml"
+  push:
+    branches: [master]
+    paths:
+      - "apps/android/**"
+      - "apps/ios/Packages/ArdiaKit/Sources/ArdiaShared/Scripts/**"
+      - "packages/sync/**"
+      - "packages/core/**"
+      - ".github/workflows/universe-android.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-android-${{ hashFiles('apps/android/gradle/libs.versions.toml', 'apps/android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: gradle-android-
+      - name: Build the app and every test
+        working-directory: apps/android
+        run: ./gradlew assembleDebug assembleDebugAndroidTest --stacktrace
+      - name: Unit tests
+        working-directory: apps/android
+        run: ./gradlew testDebugUnitTest --stacktrace
+      - name: The release build shrinks without losing what it needs
+        working-directory: apps/android
+        run: ./gradlew :app:assembleRelease :app:bundleRelease --stacktrace
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: universe-android-debug-apk
+          path: apps/android/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: universe-android-release-unsigned
+          path: |
+            apps/android/app/build/outputs/apk/release/*.apk
+            apps/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+          retention-days: 14
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: android-unit-test-reports
+          path: apps/android/*/build/reports/tests
+          if-no-files-found: ignore
+      - name: Write the release-signing init script
+        run: |
+          cat > "$RUNNER_TEMP/sign-release.gradle.kts" <<'EOF'
+          val keystorePath = System.getenv("ANDROID_KEYSTORE_PATH")
+          if (!keystorePath.isNullOrBlank()) {
+              gradle.projectsLoaded {
+                  gradle.rootProject.project(":app").afterEvaluate {
+                      extensions.configure<com.android.build.api.dsl.ApplicationExtension> {
+                          signingConfigs {
+                              create("ciRelease") {
+                                  storeFile = file(keystorePath)
+                                  storePassword = System.getenv("ANDROID_KEYSTORE_PASSWORD")
+                                  keyAlias = System.getenv("ANDROID_KEY_ALIAS")
+                                  keyPassword = System.getenv("ANDROID_KEY_PASSWORD")
+                              }
+                          }
+                          buildTypes {
+                              getByName("release") {
+                                  signingConfig = signingConfigs.getByName("ciRelease")
+                              }
+                          }
+                      }
+                  }
+              }
+          }
+          EOF
+          echo "init script written to $RUNNER_TEMP/sign-release.gradle.kts"
+      - id: keystore
+        name: Decode the release keystore
+        if: ${{ secrets.ANDROID_KEYSTORE_BASE64 != '' && secrets.ANDROID_KEYSTORE_PASSWORD != '' && secrets.ANDROID_KEY_ALIAS != '' && secrets.ANDROID_KEY_PASSWORD != '' }}
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          STORE_PASS: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASS: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          echo "::add-mask::$STORE_PASS"
+          echo "::add-mask::$KEY_PASS"
+          (umask 077 && printf '%s' "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.keystore")
+          {
+            echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/release.keystore"
+            echo "ANDROID_KEYSTORE_PASSWORD=$STORE_PASS"
+            echo "ANDROID_KEY_ALIAS=$KEY_ALIAS"
+            echo "ANDROID_KEY_PASSWORD=$KEY_PASS"
+          } >> "$GITHUB_ENV"
+          echo "present=true" >> "$GITHUB_OUTPUT"
+          echo "keystore decoded; the release build below is signed"
+      - name: Sign the release
+        if: ${{ steps.keystore.outputs.present == 'true' }}
+        working-directory: apps/android
+        run: |
+          set -euo pipefail
+          ./gradlew :app:assembleRelease :app:bundleRelease -I "$RUNNER_TEMP/sign-release.gradle.kts" --stacktrace
+          apk=$(ls app/build/outputs/apk/release/*.apk | head -1)
+          aab=$(ls app/build/outputs/bundle/release/*.aab | head -1)
+          apksigner=$(find "$ANDROID_HOME/build-tools" -maxdepth 2 -name apksigner -type f 2>/dev/null | sort -V | tail -1 || true)
+          if [ -n "$apksigner" ]; then
+            "$apksigner" verify --verbose "$apk"
+          else
+            echo "::warning::apksigner not found under $ANDROID_HOME/build-tools; the APK signature was not verified"
+          fi
+          jarsigner -verify "$aab" >/dev/null || { echo "::error::the signed AAB did not verify"; exit 1; }
+          echo "signed release APK and AAB verified"
+      - if: ${{ steps.keystore.outputs.present == 'true' }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: universe-android-release-signed
+          path: |
+            apps/android/app/build/outputs/apk/release/*.apk
+            apps/android/app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error
+          retention-days: 14
+      - if: always()
+        name: Remove the keystore
+        run: |
+          rm -f "$RUNNER_TEMP/release.keystore" "$RUNNER_TEMP/sign-release.gradle.kts"
+          printf '%s=\n' ANDROID_KEYSTORE_PATH ANDROID_KEYSTORE_PASSWORD ANDROID_KEY_ALIAS ANDROID_KEY_PASSWORD >> "$GITHUB_ENV"
+          [ ! -e "$RUNNER_TEMP/release.keystore" ] || { echo "::error::couldn't remove the keystore"; exit 1; }
+          echo "keystore and signing init script removed"
+
+  device:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961
+        with:
+          distribution: temurin
+          java-version: 21
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: gradle-android-${{ hashFiles('apps/android/gradle/libs.versions.toml', 'apps/android/gradle/wrapper/gradle-wrapper.properties') }}
+          restore-keys: gradle-android-
+      - name: Let the emulator use KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Instrumented tests on an emulator
+        uses: ReactiveCircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d
+        with:
+          api-level: 35
+          arch: x86_64
+          target: google_apis
+          working-directory: apps/android
+          disable-animations: true
+          emulator-options: -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-snapshot
+          script: |
+            adb shell wm size 720x1600
+            adb shell wm density 320
+            adb shell settings put global hide_error_dialogs 1
+            ./gradlew connectedDebugAndroidTest --continue
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: android-instrumented-test-reports
+          path: apps/android/*/build/reports/androidTests
+          if-no-files-found: ignore
+      - if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: android-screen-tour
+          path: apps/android/app/build/outputs/connected_android_test_additional_output
+          if-no-files-found: ignore

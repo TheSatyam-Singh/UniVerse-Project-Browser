@@ -1,0 +1,22 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+    "paths": {
+      "react-native": ["../../node_modules/react-native-macos"],
+      "react-native-web": ["./src/shims/react-native-web.d.ts"],
+      "@universe/shell": ["./src/shims/shell.tsx"],
+      "@universe/universecore": ["./src/shims/universecore.tsx"],
+      "@universe/shaders": ["./src/shims/shaders.tsx"],
+      "@universe/sync": ["./src/shims/sync.tsx"],
+      "@universe/import": ["./src/shims/import.tsx"],
+      "@universe-real/shell": ["../../packages/shell/src/index.tsx"],
+      "@universe-real/universecore": ["../../packages/universecore/src/index.ts"],
+      "@universe-real/shaders": ["../../packages/shaders/src/index.tsx"],
+      "@universe-real/sync": ["../../packages/sync/src/index.ts"],
+      "@universe-real/import": ["../../packages/import/src/index.ts"]
+    }
+  },
+  "include": ["src", "vite.config.ts", "../../apps/browser/src/react-native-macos.d.ts"]
+}

@@ -1,0 +1,16 @@
+<Application
+    x:Class="UniVerseProjectBrowser.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+            </ResourceDictionary.MergedDictionaries>
+            <SolidColorBrush x:Key="UniverseSidebarBackground" Color="#1B1840" />
+            <SolidColorBrush x:Key="UniverseSidebarForeground" Color="#F2F0FF" />
+            <SolidColorBrush x:Key="UniverseAccent" Color="#6C5CE7" />
+            <SolidColorBrush x:Key="UniversePinnedTileBackground" Color="#2A2566" />
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>
