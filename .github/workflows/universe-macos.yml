@@ -32,7 +32,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: Version, as committed in MARKETING_VERSION (0.2.42 or 0.2.42-nightly.1); empty takes MARKETING_VERSION, or the tag on a tag push
+        description: Version, as committed in MARKETING_VERSION (0.2.42 or 0.2.42-nightly.1; optional leading v is accepted); empty takes MARKETING_VERSION, or the tag on a tag push
         type: string
         required: false
         default: ""
@@ -82,6 +82,7 @@ jobs:
           if [ -z "$version" ]; then
             version=$(sed -n 's/.*MARKETING_VERSION = "\{0,1\}\([^";]*\)"\{0,1\};/\1/p' apps/browser/macos/UniVerse-Project-Browser.xcodeproj/project.pbxproj | sort -u)
           fi
+          version="${version#v}"
           [ -n "$version" ] || fail "no version: pass one, push a v* tag, or commit a MARKETING_VERSION first"
           check() { if [ "$rc" = true ]; then echo "::warning::$* (a real release would stop here)"; else fail "$*"; fi; }
           . scripts/lib/releases.sh
