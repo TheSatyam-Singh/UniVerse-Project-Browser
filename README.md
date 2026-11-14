@@ -1,301 +1,180 @@
 <p align="center">
-  <img src="apps/site/src/assets/app-icon.png" width="128" height="128" alt="UniVerse Project Browser's app icon">
+  <img src="apps/site/src/assets/app-icon.png" width="128" height="128" alt="UniVerse Project Browser app icon">
 </p>
 
-<h1 align="center">Touch grass.</h1>
+<h1 align="center">UniVerse Project Browser</h1>
 
 <p align="center">
-  Arc’s sidebar and Dia’s polish on real Chromium.<br>
-  Free and open source. Ads and trackers stay out.
-</p>
-
-<h3 align="center">
-  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">Download UniVerse Project Browser for Mac</a>
-</h3>
-
-<p align="center">
-  macOS 14 Sonoma or later · Apple Silicon · Notarized by Apple<br>
-  Like your paint wet? <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">The nightly</a> has every fix the day it’s made, smudges and all.<br>
-  Homebrew: <code>brew install TheSatyam-Singh/tap/universe-project-browser</code><br>
-  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser">github.com/TheSatyam-Singh/UniVerse-Project-Browser</a> · <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">What’s new</a> · <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">All releases</a> · <a href="https://discord.gg/TdhuXrbcA6">Discord</a>
+  One browser for macOS, Windows and Android.<br>
+  Real Chromium under the hood, an Arc-style sidebar on top, and Nook's brains inside.
 </p>
 
 <p align="center">
-  <img src="apps/site/src/assets/shots/window.webp" alt="The UniVerse Project Browser window in light mode: pinned tiles and tabs in the sidebar, and Wikipedia’s article on The Hay Wain open on the right.">
+  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">Download for Mac</a> ·
+  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">Download for Windows</a> ·
+  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">Download for Android</a>
 </p>
 
-## Lose the toolbar.
+<p align="center">
+  <img src="apps/site/src/assets/shots/window.webp" alt="UniVerse Project Browser window: pinned tiles and tabs in the sidebar, a Wikipedia article open on the right.">
+</p>
 
-Move the address bar into the sidebar and the page runs all the way to the top of the window.
+## Why another browser
 
-<img src="apps/site/src/assets/shots/address-sidebar.webp" alt="UniVerse Project Browser with the address bar in the sidebar under the traffic lights and Wikipedia running to the top of the window.">
+Most browsers make you choose: Chrome's compatibility or a nicer interface. UniVerse Project Browser refuses the trade. It runs the real Chromium engine, so every site, extension and DevTools panel behaves exactly like Chrome — and it wraps that engine in a sidebar-first interface with the features that made Arc and Nook worth using: spaces, tab archive, split view, a built-in blocker, and an AI assistant that can actually do things in your tabs.
 
-## Two pages, one window.
+It is free and open source, and it stays that way: the engine carries GPL-3.0 patches, so this browser cannot be closed-sourced.
 
-Drag a tab onto the page. Up to three panes, side by side or stacked.
+## The sidebar is the browser
 
-<img src="apps/site/src/assets/shots/split.webp" alt="UniVerse Project Browser in split view: MDN on the left, Wikipedia on the right, both in one window.">
+No top toolbar. The address bar lives in the sidebar, tabs stack down the side, and the page gets the whole window.
 
-## Refuses to leave the picture.
+<img src="apps/site/src/assets/shots/address-sidebar.webp" alt="UniVerse Project Browser with the address bar in the sidebar and the page running to the top of the window.">
 
-Switch tabs mid-video and it floats along in the corner. Go back to its tab and it slips back into the page.
+- **Spaces** — separate logins, history, extensions and themes per space. Work stays at work.
+- **Pinned tiles** — your daily sites, one click away, always in the same place.
+- **Tab groups** — drop a tab on a tab and it becomes a group, named for you.
 
-<img src="apps/site/src/assets/shots/pip.webp" alt="UniVerse Project Browser on Wikipedia’s article about Big Buck Bunny, while the film keeps playing in a small floating window at the bottom right.">
+<img src="apps/site/src/assets/shots/tab-group.webp" alt="Tab groups in UniVerse Project Browser's sidebar.">
 
-## Your extensions come along.
+## Two pages, one window
 
-The Chrome Web Store just works, its button says Add to UniVerse Project Browser, and Sync takes them to your other Macs.
+Drag a tab onto the page and it splits. Up to three panes, side by side or stacked, each a full live page.
 
-<img src="apps/site/src/assets/shots/extensions.webp" alt="Dark Reader’s page on the Chrome Web Store, open in UniVerse Project Browser, with an Add to UniVerse Project Browser button.">
+<img src="apps/site/src/assets/shots/split.webp" alt="Split view in UniVerse Project Browser: MDN on the left, Wikipedia on the right, in one window.">
 
-## Ads and trackers stay out.
+## Video that follows you
 
-The full uBlock Origin is built in, cookie banners included. Google’s pings are compiled out. Crash reports are
-opt-in and never carry your sites or searches.
+Switch tabs mid-video and it floats along in a small window in the corner. Go back to its tab and it slips back into the page — with a seek bar, so you never lose your place.
 
-## Also in there
+<img src="apps/site/src/assets/shots/pip.webp" alt="Picture-in-picture in UniVerse Project Browser: a video keeps playing in a small floating window while another page is open.">
 
-- **Work stays at work.** Each profile keeps its own logins, history, extensions and colour. Swipe the sidebar to switch.
-- **Little UniVerse.** ⌥⌘N opens a small window with one page and no sidebar.
-- **Groups on contact.** Drop a tab on a tab and they’re a group, named for you.
-- **Moves in for you.** Bookmarks, history, passwords and logins from Chrome, Safari, Firefox, Arc, Dia and five more. Arc’s spaces, pinned tabs and themes too.
-- **Paints like Arc.** Gradient themes per profile: up to three colours, some grain, some blur.
-- **Syncs through your iCloud.** End-to-end encrypted, in a folder in your own iCloud Drive. No server of ours in the middle.
-- **Command bar.** ⌘L finds tabs, history and bookmarks, does your sums, and knows doc.new and 16 friends.
-- **Tidies up.** ⌥⌘K sweeps the tabs you haven’t touched into Recently Cleaned.
-- **Clean links.** Copy a link and the tracking junk stays behind.
-- **Naps when you do.** Background tabs past your latest five freeze, and sleep after half an hour.
-- **Sits still.** Idles under half a percent of CPU with a tab open.
-- **Updates itself.** Quietly, then shows you what changed.
+## Your extensions come along
 
-## It’s actually Chromium.
+The Chrome Web Store just works. The button says Add to UniVerse Project Browser, and sync carries your extensions to your other machines.
 
-Not WebKit. Not Electron. Every window is Chrome’s own, so sites, extensions and DevTools behave like they do in Chrome.
+<img src="apps/site/src/assets/shots/extensions.webp" alt="A Chrome Web Store page open in UniVerse Project Browser, with an Add to UniVerse Project Browser button.">
 
-| Part | Details | Status |
+## Ads and trackers stay out
+
+The full uBlock Origin is built in, cookie banners included. Google's background services are compiled out of the engine. Crash reports are opt-in and never carry your sites or searches.
+
+<img src="apps/site/src/assets/shots/privacy.webp" alt="Privacy protections in UniVerse Project Browser.">
+
+## The Nook parts
+
+This browser is a merge of two codebases, and the Nook half brings the quiet productivity features:
+
+- **Tab archive** — tabs you haven't touched are swept into an archive automatically, instead of piling up. Nothing is ever lost, it's just filed away.
+- **SponsorBlock and tweaks** — skip sponsored segments on YouTube, plus per-site tweaks for YouTube, Facebook and Reddit, and Boosts that restyle sites your way.
+- **Tidy Downloads** — downloads sorted and named without the mess.
+- **Per-site zoom** — each site remembers its own zoom level.
+- **Full-text history** — search what pages actually said, not just their titles.
+- **Clean links** — copy a link and the tracking parameters stay behind.
+- **Command bar** — ⌘L finds tabs, history and bookmarks, does your sums, and opens new docs.
+- **Little UniVerse** — ⌥⌘N opens a small window with one page and no sidebar.
+
+## An assistant that works in your tabs
+
+⌘J opens the AI assistant. It can read the page you're on, summarise it, organise your tabs, and run tools through a local MCP server. It talks to Gemini, OpenRouter, Ollama or any OpenAI-compatible model — pick your provider in Settings. Apple Intelligence tab organising arrives with macOS 26.
+
+## Three platforms, one repo
+
+| Platform | What ships | How it builds |
 | --- | --- | --- |
-| Engine | Chromium 157, on Chrome’s own framework. | ✓ Yes |
-| De-Googled | Google’s background services stripped out. | ✓ Yes |
-| H.264 and AAC | The codecs Chromium leaves out. | ✓ Yes |
-| DevTools | Docked, with device mode. Like Chrome. | ✓ Yes |
-| Sync | End-to-end encrypted, through your own iCloud Drive. | ✓ Yes |
-| Translate | On your Mac. Nothing leaves it. | ✓ macOS 26 |
-| Passkeys | Touch ID yes. iCloud Keychain waits on Apple. | ~ Partly |
-| Netflix and DRM | Streaming sites open in WebKit, where they play. Widevine in Chromium waits on Google. | ~ Partly |
-| Intel Macs | Apple Silicon only. | ✗ No |
+| macOS | The full browser: React Native macOS shell on the Chromium framework. Apple Silicon, macOS 14+. | `universe-macos.yml` |
+| Android | Native Kotlin app with the system WebView as its engine, Compose UI, SponsorBlock and multi-select tabs. | `universe-android.yml` |
+| Windows | Native WinUI 3 + WebView2 shell. MSIX installer and portable zip. Chrome extensions are not in v1. | `universe-windows.yml` |
+| iOS | In the tree, but out of scope for this merge — simulator CI only. | `universe-ios.yml` |
 
-<h3 align="center">
-  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">Download UniVerse Project Browser</a>
-</h3>
+Every push to `master` builds all four on GitHub Actions. Typecheck and tests run on every push too (`universe-typecheck.yml`).
 
-<p align="center">
-  It’s one drag into Applications.<br>
-  Not on a Mac? Watch › Custom › Releases up top and GitHub tells you when it is.
-</p>
+## Get it
 
----
+Releases live at [github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases](https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases). Nightly builds carry the day's fixes; stable releases go through the full smoke and performance run first.
 
-## Platforms
+- **Mac:** download the DMG, drag it into Applications. Or `brew install TheSatyam-Singh/tap/universe-project-browser`.
+- **Windows:** download the MSIX or the portable zip.
+- **Android:** download the APK from the release.
 
-One browser for **macOS, Windows and Android**, built by GitHub Actions from this repo.
+## Build it yourself
 
-| Platform | Status | Built by |
-| --- | --- | --- |
-| macOS | Shipping — the app in this tree (`apps/browser`, React Native macOS shell on the Chromium framework). Apple Silicon, macOS 14+. | `.github/workflows/universe-macos.yml` (Release workflow, macOS runner) |
-| Android | Shipping — the Kotlin app in `apps/android/` (Compose UI, `com.universe.projectbrowser.android`). CI builds debug and release. | `.github/workflows/universe-android.yml` (Android workflow, Ubuntu runner, Temurin Java 21) |
-| Windows | Shipping — the WinUI 3 + WebView2 shell in `apps/windows/` (native WinUI 3, no Chrome extensions on v1). CI builds MSIX + portable zip. | `.github/workflows/universe-windows.yml` |
-| iOS | Present in the tree (`apps/ios/`), but out of this merge’s scope — do not break it. | `.github/workflows/universe-ios.yml` (the iOS release workflow was deleted; simulator CI only) |
-
-The site (`apps/site`) deploys with `pnpm -C apps/site run deploy`.
-
-## Signed builds: secrets to add on GitHub
-
-Signed builds need secrets the repo does not ship. Add them under the repo’s
-**Settings › Secrets and variables › Actions** (never commit a secret, and never paste one
-into a chat, an issue or a log). The names below are the ones the workflows already read.
-
-**macOS — Developer ID + notarization + Sparkle** (read by `universe-macos.yml`):
-
-| Secret | What it is |
-| --- | --- |
-| `MACOS_CERTIFICATE_P12` | Your Apple Developer ID Application certificate, exported as a base64 `.p12` |
-| `MACOS_CERTIFICATE_PASSWORD` | The password for that `.p12` |
-| `MACOS_PROVISIONING_PROFILE` | The provisioning profile for the app (base64) |
-| `SPARKLE_ED_PRIVATE_KEY` | The Sparkle EdDSA private key that signs the appcast (the public key is already in the app’s `Info.plist` as `SUPublicEDKey`) |
-| `NOTARY_KEY_P8` | The App Store Connect API key (`.p8`) for `notarytool` |
-| `NOTARY_KEY_ID` | That API key’s key ID |
-| `NOTARY_ISSUER` | That API key’s issuer ID |
-| `HOMEBREW_TAP_TOKEN` | A token that can push to the Homebrew tap repo, for `update-tap.sh` |
-
-Without the macOS secrets, `universe-macos.yml` still builds, but it cannot sign, notarize or publish a
-release; dry runs pass with `ALLOW_MISSING_NOTARY=1`.
-
-**Android — keystore** (for a signed release build; `universe-android.yml` signs the release
-only when all four secrets are present, otherwise it still uploads the unsigned APK + AAB):
-
-| Secret | What it is |
-| --- | --- |
-| `ANDROID_KEYSTORE_BASE64` | Your release keystore file, base64-encoded |
-| `ANDROID_KEYSTORE_PASSWORD` | The keystore’s password |
-| `ANDROID_KEY_ALIAS` | The key alias inside the keystore |
-| `ANDROID_KEY_PASSWORD` | That key’s password |
-
-**Windows — optional, for signing the MSIX** (read by `universe-windows.yml`; without them the
-workflow still builds and uploads the unsigned MSIX + zip):
-
-| Secret | What it is |
-| --- | --- |
-| `WINDOWS_CERT_PFX_BASE64` | A code-signing certificate (`.pfx`, base64) for the Windows installer, if you sign it |
-| `WINDOWS_CERT_PASSWORD` | That certificate’s password |
-
----
-
-# Build it yourself
-
-A macOS browser that looks and feels like [Dia](https://diabrowser.com): Chrome's own framework from our
-patched Chromium with our layer on top (ArdiaCore), an Expo + React Native macOS shell, and Metal shaders
-reconstructed from Dia's own New Tab effects.
-
-```
-apps/
-  browser/            Expo + react-native-macos app (UI in src/, Xcode project in macos/)
-packages/
-  universecore/          The engine: Chromium 157's framework with our layer (Chrome tabs hosted in our views), JS API in src/
-  shell/              Native menu bar + shortcuts → JS, windows, SF Symbols, native primitives
-  shaders/            Metal: New Tab effects + grained OKLab window backdrop
-  import/             Import from other browsers (bookmarks, history, passwords, Arc spaces)
-  core/               Pure TS: omnibox input → URL, suggestions, Dia-style breadcrumbs (tested)
-```
-
-
-## Run it
-
-Requires Xcode 26+, CocoaPods, Node 24 (pinned in `.nvmrc`), pnpm 11.
+You need Xcode 26+, CocoaPods, Node 24 and pnpm 11 for the Mac app.
 
 ```bash
 pnpm install
-```
-
-The engine (Chrome's framework, built from our patched Chromium) comes prebuilt: with no local engine build, the app's
-build downloads the one matching your checkout's `engine/` (about 110 MB, once; Apple Silicon only) and checks it
-against `packages/universecore/prebuilt-engines.tsv`. Every release whose engine changed publishes one. If `main`'s engine
-is newer than the last release's, work from a release tag (`v0.2.30`, say), or run
-`packages/universecore/scripts/fetch-engine.sh --nearest` to build against the newest prebuilt anyway. Passkeys and saved
-cards need our team ID and won't work in a build signed by anyone else.
-
-To change the engine itself (anything under `engine/`), build it from source: Chrome's framework from our patched
-Chromium tree in `~/chromium-build` (Chromium 157.0.8103.50 with the patch series in `engine/patches`;
-`docs/engine-build.md` › "Rebuilding", then `engine/chromium/apply.sh`,
-`engine/ardiacore/apply.sh` and `autoninja -C out/Release_GN_arm64 chrome_framework`; the first build takes about 2
-hours). The app's build stages it from there when it exists.
-
-```bash
 pnpm pods
 ```
 
-In one terminal, start Metro:
+Start Metro in one terminal:
 
 ```bash
 pnpm dev
 ```
 
-In another, build and launch the Debug app (on its own data, `~/Library/Application Support/UniVerse Project Browser Dev`, or
-`ARDIA_DATA_DIR`):
+Build and launch the Debug app in another:
 
 ```bash
 pnpm macos
 ```
 
-Other tasks: `pnpm typecheck`, `pnpm test`, `pnpm shaders:check` (compiles the embedded Metal offline),
-`scripts/agent/build-app --config Release` (a Release `.app` with a Hermes bytecode bundle in
-`apps/browser/build-<name>`, under the shared build locks; `--help`).
-Signed releases (DMG, Sparkle zip and appcast) are built by the Release workflow with `scripts/release.sh`, see
-`docs/releasing.md`.
+The Chromium engine comes prebuilt (about 110 MB, downloaded once, Apple Silicon only) and is checked against `packages/universecore/prebuilt-engines.tsv`. Building the engine from source takes around 2 hours the first time — see `docs/engine-build.md`.
 
-Shortcuts: ⌘T new tab, ⌘L command bar, ⌘W close, ⇧⌘T reopen, ⌘S sidebar, ⌘[ / ⌘] back/forward,
-⌘R reload, ⌘1–⌘9 select tab, ⌃Tab cycle.
+Other useful commands: `pnpm typecheck`, `pnpm test`, `pnpm shaders:check`.
 
-## How Dia's New Tab light works
+Shortcuts: ⌘T new tab, ⌘L command bar, ⌘W close, ⇧⌘T reopen, ⌘S sidebar, ⌘[ / ⌘] back and forward, ⌘R reload, ⌘1–⌘9 select tab, ⌃Tab cycle tabs.
 
-Dia 1.50 turns this light off along with its rebrand (a painted mark, a single-colour power-up band
-and a halo around the bar; `docs/dia-spec.md` › "1.50 Sunglow"), and so does UniVerse Project Browser. The
-reconstruction left the tree with it: `git show f2c0e251:packages/shaders/ios/AreaLightView.swift`.
+## Signed builds
 
-These findings come from disassembling the Metal libraries in `Dia.app` (v1.49.1) with
-`xcrun metal-objdump`. `BoostBrowser_PowerUp.bundle/default.metallib` contains
-`breathingAreaLightFragment`, which the Swift class `NewTabPage.NewTabAreaLightView` hosts. The
-reconstruction was `AreaLightView.swift` (above).
+The workflows build unsigned with no setup at all. Signing and publishing need secrets, added under the repo's **Settings › Secrets and variables › Actions**. Never commit a secret, and never paste one into a chat, an issue or a log.
 
-- **The command bar is a light source.** Dia models the bar as a rounded-rectangle area light floating
-  `lift` points above the page. Each pixel receives the closed-form irradiance of that rectangle: the
-  solid-angle formula, one `atan` term per corner, times 1/2π. Rounded corners subtract (1 − π/4) of
-  each corner square. The result is a physically correct penumbra: a higher lift gives a softer, wider
-  glow.
-- **Falloff** is reshaped from inverse-square to `(h/d)^falloff`, where `d` is the distance to the
-  emitter's rounded-rect surface rather than to its centre.
-- **Colour** is Dia's brand spectrum (`ProgressBarColor2…7` in its asset catalog):
-  blue `#0358F7`, steel `#5092C7`, lavender `#E1E1FE`, yellow `#FFD400`, orange `#FA3D1D` and magenta
-  `#FD02F5`. It is laid out as a wrapping, slightly diagonal gradient that scrolls every 20 s. IQ's 2D
-  simplex noise warps the gradient under the bar, and the warp fades out into the penumbra.
-- **Dark mode** treats the light as HDR emission and applies the Hable/Uncharted-2 filmic tonemap
-  (white point 11.2), with alpha set to Rec.709 luminance. **Light mode** keeps the flat palette
-  colour and uses the irradiance as opacity.
-- **Finishing:** alpha fades over the top 50 pt and bottom 200 pt of the view, and ±3/255 triangular
-  dither (Dave Hoskins' `hash12`) prevents banding in the long soft falloff.
-- **Animation:** the shader itself only scrolls the colours. The lift-off intro and the slow
-  "breathing" come from the CPU, which animates `lift` and `intensity`. Those curves live in Dia's
-  Swift code, so the ones here (quartic ease-out over 1.1 s, ±7% intensity on a 5.5 s sine) are my
-  approximation.
+**macOS** — Developer ID, notarization and Sparkle updates:
 
-The **window backdrop** comes from `ARC_WindowThemeUI.bundle`
-(`gradientFragment` + `renderFragment`). Gradient stops are stored and mixed in **OKLab**, then
-converted to linear sRGB and gamma-encoded in the shader. A tiled grain texture is then
-multiply-blended on top. `WindowBackdropView` does the same with procedural grain.
+| Secret | What it is |
+| --- | --- |
+| `MACOS_CERTIFICATE_P12` | Developer ID Application certificate, base64 `.p12` |
+| `MACOS_CERTIFICATE_PASSWORD` | Password for that `.p12` |
+| `MACOS_PROVISIONING_PROFILE` | Provisioning profile for the app, base64 |
+| `SPARKLE_ED_PRIVATE_KEY` | Sparkle EdDSA private key that signs the appcast |
+| `NOTARY_KEY_P8` | App Store Connect API key (`.p8`) for `notarytool` |
+| `NOTARY_KEY_ID` | That API key's key ID |
+| `NOTARY_ISSUER` | That API key's issuer ID |
+| `HOMEBREW_TAP_TOKEN` | Token that can push to the Homebrew tap repo |
 
-Only math and colour values are reused. No Dia images, fonts or binaries are copied into this repo.
+Without these, the macOS workflow still builds — it just can't sign, notarize or publish a release.
 
-## Architecture notes
+**Android** — release keystore (the workflow signs the release only when all four are present, otherwise it uploads the unsigned APK and AAB):
 
-- **Why Expo SDK 54:** `react-native-macos` tops out at 0.81, which pairs with Expo SDK 54 (whose
-  `ExpoAppDelegate` / `ExpoReactNativeFactory` have macOS code paths).
-- **Legacy architecture.** react-native-macos 0.81's Fabric support is experimental, so the app runs on
-  the legacy architecture. One consequence: Expo's legacy view-manager adapter instantiates a module's
-  *first* view class for every view it declares, so each native view has its own module.
-- **Metro, not `expo start`.** Metro runs through the react-native-macos CLI. `metro.config.js`
-  redirects `react-native` → `react-native-macos` for `platform=macos`, because defining our own
-  `resolveRequest` replaces the redirect the CLI would install.
-- **No Reanimated.** It has no macOS build for 0.81; animations use RN's `Animated`.
-- **Monorepo paths.** pnpm is set to `nodeLinker: hoisted` because CocoaPods and Metro resolve
-  `react-native-macos` by path. The Podfile rewrites `REACT_NATIVE_PATH` to the hoisted location and
-  raises every pod's deployment target to 14.0, since Xcode 26+ rejects the 11.0 some Expo pods declare.
-- **Native subviews** are sized in `setFrameSize`, not `layout()`. RN macOS assigns frames directly and
-  never autoresizes subviews.
-- **Shaders** are Metal source embedded in Swift and compiled at runtime (once per class, cached). This
-  keeps the pods free of a metallib build phase.
+| Secret | What it is |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | Release keystore file, base64-encoded |
+| `ANDROID_KEYSTORE_PASSWORD` | The keystore's password |
+| `ANDROID_KEY_ALIAS` | The key alias inside the keystore |
+| `ANDROID_KEY_PASSWORD` | That key's password |
 
-## Status
+**Windows** — optional, for signing the MSIX:
 
-Feature parity with Dia (everything but its AI) is tracked row by row in
-[docs/dia-feature-parity.md](docs/dia-feature-parity.md); releases and their notes are at
-[https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases](https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases).
+| Secret | What it is |
+| --- | --- |
+| `WINDOWS_CERT_PFX_BASE64` | Code-signing certificate (`.pfx`, base64) |
+| `WINDOWS_CERT_PASSWORD` | That certificate's password |
+
+## Under the hood
+
+- **Engine:** Chromium 157 on Helium's de-Googled patches, with H.264 and AAC included. DevTools docked, with device mode, like Chrome.
+- **Shell:** Expo 54 + React Native macOS 0.81, with Metal shaders for the New Tab effects and grained window backdrop.
+- **Sync:** end-to-end encrypted, through a folder in your own iCloud Drive. No server in the middle.
+- **Import:** bookmarks, history, passwords and logins from Chrome, Safari, Firefox, Arc, Dia and more — including Arc's spaces, pinned tabs and themes.
+- **Translate:** on-device, on macOS 26. Nothing leaves the machine.
+- **Passkeys:** Touch ID works; iCloud Keychain waits on Apple.
+- **Streaming and DRM:** Netflix and friends open in WebKit, where they play. Widevine in Chromium waits on Google.
 
 ## License
 
-UniVerse Project Browser is derived from [Ardia](https://github.com/mantrakp04/ardia) and
-[Nook](https://github.com/nook-browser/Nook), and is distributed under the
-[GNU General Public License v3](LICENSE). It cannot be closed-sourced: its engine carries
-Helium's GPL-3.0 patches, and Nook's code is GPL-3.0.
+UniVerse Project Browser is derived from [Ardia](https://github.com/mantrakp04/ardia) and [Nook](https://github.com/nook-browser/Nook), and is distributed under the [GNU General Public License v3](LICENSE).
 
-- Ardia's own source files are under the [Apache License 2.0](LICENSE.Apache-2.0) (copyright
-  Mantra Patel; see [NOTICE](NOTICE) for Ardia's attributions). Apache-2.0 code may be combined
-  into a GPL-3.0 work, so those files keep that licence on their own.
-- Nook's code is under the GPL-3.0; its copyright notices are kept with it.
-- The browser builds on Chromium, carries a few of the Chromium Embedded Framework's patches to
-  Chromium (BSD-3-Clause), and bundles uBlock Origin, each under its own license; see
-  [NOTICE](NOTICE).
+- Ardia's own source files are under the [Apache License 2.0](LICENSE.Apache-2.0) — see [NOTICE](NOTICE) for attributions.
+- Nook's code is GPL-3.0, with its copyright notices kept.
+- It builds on Chromium, carries Chromium Embedded Framework patches (BSD-3-Clause), and bundles uBlock Origin, each under its own license — see [NOTICE](NOTICE).
 
-Corresponding Source: every release's notes on GitHub
-(https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases) link the repository at
-that release's tag, with the engine's patch series and build scripts (`engine/`,
-`docs/engine-build.md`), and the release's `ArdiaCore-<tree>-source.tar.xz`, which holds the
-Helium sources the engine was built from and says where Chromium's source is.
+Corresponding Source: every release's notes link the repository at that release's tag, with the engine's patch series and build scripts (`engine/`, `docs/engine-build.md`).
