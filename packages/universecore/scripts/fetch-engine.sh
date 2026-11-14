@@ -58,7 +58,13 @@ $version's engine anyway, or build the engine"
   entry=$found
 fi
 read -r tree version sha <<<"$entry"
-short=${tree:0:12}
+case "$version" in
+  engine-*) short=${version#engine-} ;;
+  *) short=${tree:0:12} ;;
+esac
+# The file is named after the release's engine tree, which is the entry's tree
+# except when a tree is mapped to another release's engine (its version's
+# engine-* suffix names that release's tree instead).
 dest="$store/$short"
 if [ ! -f "$dest/.complete" ]; then
   file="ArdiaCore-$short.tar.xz"
@@ -69,7 +75,7 @@ if [ ! -f "$dest/.complete" ]; then
   echo "downloading the engine from $version ($url)" >&2
   curl -fL --retry 3 --progress-bar -o "$tmp/$file" "$url" || die "couldn't download $url"
   [ "$(shasum -a 256 "$tmp/$file" | awk '{ print $1 }')" = "$sha" ] || die "$file doesn't match its SHA-256 in prebuilt-engines.tsv"
-  tar -xJf "$tmp/$file" -C "$tmp" || die "couldn't unpack $file"
+  tar -xJf "$tmp/$file" -C "$tmp" --no-same-owner || die "couldn't unpack $file"
   [ -f "$tmp/$name.framework/Versions/Current/$name" ] || die "$file holds no $name.framework"
   rm -f "$tmp/$file"
   touch "$tmp/.complete"
