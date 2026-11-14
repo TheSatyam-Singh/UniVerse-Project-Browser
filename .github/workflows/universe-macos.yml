@@ -148,7 +148,12 @@ jobs:
         with:
           path: apps/browser/build-universecore/prebuilt
           key: engine-${{ env.TREE }}
+      # Until we build and publish our own engine, the framework comes from Ardia's
+      # releases: our engine tree only rebrands Ardia's (no engine C++ changed), so
+      # prebuilt-engines.tsv maps our tree key to Ardia's engine-ee28c4b3a7d9 asset.
       - name: Engine
+        env:
+          ARDIACORE_PREBUILT_REPO: ardia-browser/ardia
         run: |
           if ! framework=$(packages/universecore/scripts/fetch-engine.sh); then
             echo "::error::no engine for ${TREE:0:12}: build it here and publish it with scripts/publish-engine.sh, then commit prebuilt-engines.tsv"
