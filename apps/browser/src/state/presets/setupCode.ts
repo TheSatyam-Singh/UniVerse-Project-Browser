@@ -145,7 +145,7 @@ export function decodeSetupCode(input: string): SetupCodeResult {
   const code = normalizeSetupCode(input);
   if (!code) return { ok: false, error: SETUP_CODE_ERRORS.empty };
   if (code.length > SETUP_CODE_MAX_LENGTH) return { ok: false, error: SETUP_CODE_ERRORS.shape };
-  const version = /^universe(\d{1,3})-/.exec(code);
+  const version = /^(?:universe|ardia)(\d{1,3})-/.exec(code);
   if (!version) return { ok: false, error: SETUP_CODE_ERRORS.shape };
   if (Number(version[1]) > SETUP_CODE_VERSION) return { ok: false, error: SETUP_CODE_ERRORS.newer };
   if (version[0] !== SETUP_CODE_PREFIX) return { ok: false, error: SETUP_CODE_ERRORS.shape };

@@ -5,6 +5,7 @@ const { sidebarEntries } = await import("./entries.ts");
 const { rowSpan } = await import("./geometry.ts");
 const { sidebarMenuItems } = await import("./sidebarMenu.ts");
 const fold = await import("./pinnedFold.ts");
+fold.startPinnedFold();
 const { flushPersistence, loadSession, startPersistence } = await import("../session/persist.ts");
 const stub = await import("../../test-native/index.ts");
 
@@ -97,3 +98,4 @@ test("a collapsed section stays collapsed across a relaunch", () => {
   S().hydrate(loadSession());
   assert.equal(collapsed(), true);
 });
+

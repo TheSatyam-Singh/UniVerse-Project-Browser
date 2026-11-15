@@ -50,7 +50,7 @@ export function organizerInputs(s: BrowserState, windowId: string): TabInput[] {
   for (const tabId of w.tabIds) {
     if (grouped.has(tabId)) continue;
     const tab = s.tabs[tabId];
-    if (!tab || !tab.url) continue;
+    if (!tab || !tab.url || !tab.title) continue;
     inputs.push({ index: inputs.length + 1, id: tabId, title: tabTitle(tab), url: tab.url });
   }
   return inputs;
@@ -126,7 +126,7 @@ export const createTabOrganizerSlice: StateCreator<BrowserState, [], [], TabOrga
           renames = rulesRenames(kept.filter((input) => input.title.length > 24));
         }
       }
-      const plan = buildPlan(kept, groups, renames, duplicates);
+      const plan = buildPlan(inputs, groups, renames, duplicates);
       const before = get();
       const undo: OrganizerUndo = {
         windowId: target,

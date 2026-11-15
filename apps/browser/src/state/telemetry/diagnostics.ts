@@ -3,7 +3,7 @@ import { onHoverLost, systemState, type HoverLostEpisode } from "../../platform/
 import { cliControlStatus } from "../../platform/cli";
 import { withDeadline } from "../../lib/deadline";
 import { activeTab } from "../browser/model";
-import { useBrowser } from "../browser/store";
+import { useBrowser, type BrowserState } from "../browser/store";
 import { capture, isSharing, saveContext, useTelemetry } from "./client";
 import type { SavedContext } from "./savedContext";
 import { noteDragsEnded } from "./stuckDrags";
@@ -31,6 +31,7 @@ let samples: SavedContext[] = [];
 let firstSample: ReturnType<typeof setTimeout> | undefined;
 let everySample: ReturnType<typeof setInterval> | undefined;
 let unwatchWebuiPage: (() => void) | undefined;
+let unwatchProfiles: (() => void) | undefined;
 let webuiRecord: ReturnType<typeof setTimeout> | undefined;
 let lastWebuiRecordAt = 0;
 
@@ -100,11 +101,11 @@ function forgetContext() {
 
 useTelemetry.subscribe((s, prev) => prev.sharing && !s.sharing && forgetContext());
 
-useBrowser.subscribe((s, prev) => {
+function forgetProfiles(s: BrowserState, prev: BrowserState) {
   if (s.profiles === prev.profiles || size(s.profiles) >= size(prev.profiles)) return;
   forgetContext();
   saveContext(null);
-});
+}
 
 function recordForWebuiPage() {
   if (webuiRecord !== undefined) return;
@@ -132,6 +133,7 @@ export function startContextSamples() {
   firstSample = setTimeout(() => void recordContext(), FIRST_CONTEXT_MS);
   everySample = setInterval(() => void recordContext(), CONTEXT_EVERY_MS);
   watchWebuiPage();
+  unwatchProfiles = useBrowser.subscribe(forgetProfiles);
 }
 
 export function stopContextSamples() {
@@ -139,7 +141,8 @@ export function stopContextSamples() {
   clearInterval(everySample);
   clearTimeout(webuiRecord);
   unwatchWebuiPage?.();
-  firstSample = everySample = webuiRecord = unwatchWebuiPage = undefined;
+  unwatchProfiles?.();
+  firstSample = everySample = webuiRecord = unwatchWebuiPage = unwatchProfiles = undefined;
 }
 
 const CONTEXT_FIELDS = ["tabs", "windows", "profiles", "footprint_mb", "app_memory_mb", "free_disk_gb", "memory_pressure", "page_processes_gone", "webui_page"] as const;

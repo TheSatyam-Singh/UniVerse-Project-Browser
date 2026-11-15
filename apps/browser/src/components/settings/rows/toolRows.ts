@@ -169,7 +169,7 @@ export const toolRows = {
           advanced: true,
           title: "Load profiles when opened",
           description: "A profile, its extensions and its data load the first time you open it, not all at launch, so UniVerse Project Browser uses less memory. Takes effect the next time you open UniVerse Project Browser.",
-          keywords: ["profiles", "memory", "ram", "startup", "launch", "extensions", "lazy", "defer", "performance"],
+          keywords: ["profiles", "memory", "ram", "launch", "extensions", "lazy", "defer", "performance"],
         },
       },
     },

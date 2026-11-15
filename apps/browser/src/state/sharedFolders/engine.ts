@@ -1,6 +1,6 @@
 import { useBrowser, type BrowserState } from "../browser/store";
 import { pinKeyOf } from "../browser/model";
-import { fromSync } from "../pins/pinOrderChoices";
+import { fromSync } from "../pins/syncWrites";
 import { sessionSaved } from "../session/persist";
 import { saveBeforeQuit } from "../app/quit";
 import { guardGroupClose, keepGroupsOpen } from "../groups/closeGuard";

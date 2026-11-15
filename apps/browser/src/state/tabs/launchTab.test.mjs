@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { test } from "node:test";
+import { after, test } from "node:test";
 
 globalThis.__DEV__ = false;
 const { useBrowser } = await import("../browser/store.ts");
@@ -8,7 +8,8 @@ const { loadSession, flushPersistence, startPersistence } = await import("../ses
 const stub = await import("../../test-native/index.ts");
 
 const S = () => useBrowser.getState();
-startPersistence();
+const stopPersistence = startPersistence();
+after(() => stopPersistence());
 const tab = (id, windowId, url, profileId = "default") => ({
   id, windowId, profileId, url, title: "", favicon: null, pin: null, muted: false, zoom: 1, customTitle: null, customIcon: null,
   pinnedUrl: null, page: { kind: "idle" }, openerId: null, createdAt: 0, lastActiveAt: 0,

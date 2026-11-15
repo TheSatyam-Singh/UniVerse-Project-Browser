@@ -3,6 +3,7 @@ import { test } from "node:test";
 const { useBrowser } = await import("../browser/store.ts");
 const { live, createFolder, removeFolder, updateFolder } = await import("../live/store.ts");
 const order = await import("../sidebar/pinnedOrder.ts");
+order.startPinnedOrder();
 
 const S = () => useBrowser.getState();
 const host = (id) => new URL(S().tabs[id].url).hostname.replace(".example", "");
@@ -111,3 +112,4 @@ test("deleting another folder during a held drag doesn't move the folder that's 
   order.arrangeLive(held);
   assert.deepEqual(sequence(w), ["a", "b", "LF2", "c"]);
 });
+

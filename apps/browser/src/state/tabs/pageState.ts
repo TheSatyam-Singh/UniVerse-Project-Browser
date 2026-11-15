@@ -126,23 +126,29 @@ export function useFullscreenTab(windowId: string): string | undefined {
   });
 }
 
-useBrowser.subscribe((s, prev) => {
-  if (s.tabs === prev.tabs) return;
-  for (const id of iconPages.keys()) if (!s.tabs[id]) iconPages.delete(id);
-  const { pages, ready, popover } = usePages.getState();
-  const stale = (ids: string[], tabOf: (id: string) => string) => {
-    for (let i = 0; i < ids.length; i++) if (!s.tabs[tabOf(ids[i]!)]) return true;
-    return false;
-  };
-  const pageIds = Object.keys(pages);
-  const readyIds = Object.keys(ready);
-  const popoverIds = Object.keys(popover);
-  if (!stale(pageIds, (id) => id) && !stale(readyIds, (id) => id) && !stale(popoverIds, (id) => id)) return;
-  const nextPages = { ...pages };
-  for (const id of pageIds) if (!s.tabs[id]) delete nextPages[id];
-  const nextPopover = { ...popover };
-  for (const id of popoverIds) if (!s.tabs[id]) delete nextPopover[id];
-  const nextReady = { ...ready };
-  for (const id of readyIds) if (!s.tabs[id]) delete nextReady[id];
-  usePages.setState({ pages: nextPages, ready: nextReady, popover: nextPopover });
-});
+let started = false;
+
+export function startPageState() {
+  if (started) return;
+  started = true;
+  useBrowser.subscribe((s, prev) => {
+    if (s.tabs === prev.tabs) return;
+    for (const id of iconPages.keys()) if (!s.tabs[id]) iconPages.delete(id);
+    const { pages, ready, popover } = usePages.getState();
+    const stale = (ids: string[], tabOf: (id: string) => string) => {
+      for (let i = 0; i < ids.length; i++) if (!s.tabs[tabOf(ids[i]!)]) return true;
+      return false;
+    };
+    const pageIds = Object.keys(pages);
+    const readyIds = Object.keys(ready);
+    const popoverIds = Object.keys(popover);
+    if (!stale(pageIds, (id) => id) && !stale(readyIds, (id) => id) && !stale(popoverIds, (id) => id)) return;
+    const nextPages = { ...pages };
+    for (const id of pageIds) if (!s.tabs[id]) delete nextPages[id];
+    const nextPopover = { ...popover };
+    for (const id of popoverIds) if (!s.tabs[id]) delete nextPopover[id];
+    const nextReady = { ...ready };
+    for (const id of readyIds) if (!s.tabs[id]) delete nextReady[id];
+    usePages.setState({ pages: nextPages, ready: nextReady, popover: nextPopover });
+  });
+}

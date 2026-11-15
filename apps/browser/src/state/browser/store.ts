@@ -23,6 +23,7 @@ import { activated, apply } from "../tabs/tabs";
 import { createTabsSlice, type TabsSlice } from "../tabs/tabsSlice";
 import { settle, SettleDidNotConverge } from "./settle";
 import { transactional } from "./transaction";
+import { setStoreActionStore } from "./storeAction";
 import type { BrowserWindow, Tab } from "./types";
 import { createUiSlice, type UiSlice } from "../windows/ui";
 import { createDownloadsSlice, type DownloadsSlice } from "../downloads/downloadsSlice";
@@ -214,10 +215,6 @@ export const useBrowser = create<BrowserState>()(transactions.middleware(batched
   },
 }))));
 
+setStoreActionStore(() => useBrowser.getState());
+
 export type { CreateWindowOptions } from "../windows/windows";
-
-type StoreActions = { [K in keyof BrowserState as BrowserState[K] extends (...args: never[]) => unknown ? K : never]: BrowserState[K] };
-
-export const storeAction =
-  <K extends keyof StoreActions>(name: K): StoreActions[K] =>
-  ((...args: unknown[]) => (useBrowser.getState()[name] as (...a: unknown[]) => unknown)(...args)) as StoreActions[K];

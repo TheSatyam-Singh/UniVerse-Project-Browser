@@ -27,6 +27,8 @@ export const AUTOMATION: Readonly<Record<BrowserCommand, AutomationDecision>> = 
   forceReload: "run",
   toggleTabLayout: "run",
   toggleSidebar: "run",
+  toggleAssistant: "run",
+  organizeTabs: "run",
   toggleSidebarSide: "run",
   openSplitPane: "run",
   useSelectionForFind: "run",

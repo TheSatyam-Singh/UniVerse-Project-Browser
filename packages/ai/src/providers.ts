@@ -1,5 +1,9 @@
 import { httpError, invalidApiKey, invalidResponse, insecureUrl, networkError, requireHttpsForRemote, unsupportedFeature } from "./errors.ts";
-import { toGeminiFormat, toOpenAIFormat } from "./tools.ts";
+import { toOpenAIFormat } from "./tools.ts";
+import { asInt, asList, asRecord, asString, defaultFetch, getJson, isRecord, postJson, type FetchFn, type JsonRecord } from "./providerUtils.ts";
+import { GeminiProvider } from "./providersGemini.ts";
+import { OllamaProvider } from "./providersOllama.ts";
+import { AppleIntelligenceProvider, type OnDeviceToolRunner } from "./providersApple.ts";
 import type {
   AIGenerationConfig,
   AIMessage,
@@ -11,13 +15,12 @@ import type {
   PlatformInfo,
   URLCitation,
 } from "./types.ts";
-import { AI_PROVIDER_DEFAULT_BASE_URL, APPLE_INTELLIGENCE_MIN_MACOS, APPLE_INTELLIGENCE_MODEL_ID, APPLE_INTELLIGENCE_PROVIDER_ID } from "./types.ts";
+import { AI_PROVIDER_DEFAULT_BASE_URL } from "./types.ts";
 
-export type FetchFn = (input: string, init?: Record<string, unknown>) => Promise<{
-  status: number;
-  json: () => Promise<unknown>;
-  text: () => Promise<string>;
-}>;
+export { GeminiProvider, parseInlineCitations } from "./providersGemini.ts";
+export { OllamaProvider } from "./providersOllama.ts";
+export { AppleIntelligenceProvider, appleIntelligenceAvailable, appleIntelligenceUnavailableNote, estimateTokens, fittedToTokens, type OnDeviceToolRunner } from "./providersApple.ts";
+export type { FetchFn } from "./providerUtils.ts";
 
 export type StreamCallback = (textSoFar: string) => void;
 
@@ -35,71 +38,6 @@ export type AIProvider = {
   sendMessage: (args: ProviderSendArgs) => Promise<AIResponse>;
 };
 
-type JsonRecord = Record<string, unknown>;
-
-function isRecord(value: unknown): value is JsonRecord {
-  return !!value && typeof value === "object" && !Array.isArray(value);
-}
-
-function asRecord(value: unknown): JsonRecord {
-  return isRecord(value) ? value : {};
-}
-
-function asList(value: unknown): unknown[] {
-  return Array.isArray(value) ? value : [];
-}
-
-function asString(value: unknown): string {
-  return typeof value === "string" ? value : "";
-}
-
-function asInt(value: unknown): number {
-  return typeof value === "number" && Number.isFinite(value) ? Math.floor(value) : 0;
-}
-
-function defaultFetch(): FetchFn {
-  const impl = (globalThis as { fetch?: unknown }).fetch;
-  if (typeof impl !== "function") throw new Error("No fetch implementation available");
-  return impl as FetchFn;
-}
-
-async function postJson(url: string, body: unknown, headers: Record<string, string>, fetchFn: FetchFn): Promise<{ status: number; json: unknown; text: string }> {
-  let response: { status: number; json: () => Promise<unknown>; text: () => Promise<string> };
-  try {
-    response = await fetchFn(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", ...headers },
-      body: JSON.stringify(body),
-    });
-  } catch (cause) {
-    throw networkError(cause);
-  }
-  const text = await response.text();
-  let json: unknown = null;
-  try {
-    json = JSON.parse(text);
-  } catch {
-    json = null;
-  }
-  return { status: response.status, json, text };
-}
-
-async function getJson(url: string, headers: Record<string, string>, fetchFn: FetchFn): Promise<{ status: number; json: unknown; text: string }> {
-  let response: { status: number; json: () => Promise<unknown>; text: () => Promise<string> };
-  try {
-    response = await fetchFn(url, { method: "GET", headers });
-  } catch (cause) {
-    throw networkError(cause);
-  }
-  const text = await response.text();
-  let json: unknown = null;
-  try {
-    json = JSON.parse(text);
-  } catch {
-    json = null;
-  }
-  return { status: response.status, json, text };
-}
 
 function openAIMessages(messages: AIMessage[]): JsonRecord[] {
   const out: JsonRecord[] = [];
@@ -228,123 +166,6 @@ async function sendOpenAIChatCompletions(
   throw invalidResponse("provider kept rejecting the request body");
 }
 
-function geminiBody(messages: AIMessage[], config: AIGenerationConfig, tools: AIToolDefinition[]): JsonRecord {
-  const body: JsonRecord = {};
-  const system = messages.find((m) => m.role === "system");
-  if (system && system.content) body.system_instruction = { parts: [{ text: system.content }] };
-  const contents: JsonRecord[] = [];
-  for (const message of messages) {
-    if (message.role === "system") continue;
-    if (message.role === "user") {
-      contents.push({ role: "user", parts: [{ text: message.content }] });
-    } else if (message.role === "assistant") {
-      if (message.toolCalls && message.toolCalls.length > 0) {
-        const parts: JsonRecord[] = [];
-        if (message.content) parts.push({ text: message.content });
-        for (const call of message.toolCalls) {
-          const part: JsonRecord = { functionCall: { name: call.name, args: call.arguments } };
-          if (call.thoughtSignature) part.thoughtSignature = call.thoughtSignature;
-          parts.push(part);
-        }
-        contents.push({ role: "model", parts });
-      } else {
-        contents.push({ role: "model", parts: [{ text: message.content }] });
-      }
-    } else if (message.role === "tool") {
-      contents.push({
-        role: "user",
-        parts: (message.toolResults ?? []).map((result) => ({
-          functionResponse: { id: result.toolCallId, name: result.toolName, response: { content: result.content } },
-        })),
-      });
-    }
-  }
-  body.contents = contents;
-  const allTools: JsonRecord[] = [];
-  if (config.webSearchEnabled) allTools.push({ google_search: {} });
-  if (tools.length > 0) allTools.push({ function_declarations: tools.map(toGeminiFormat) });
-  if (allTools.length > 0) body.tools = allTools;
-  body.generationConfig = { temperature: config.temperature, maxOutputTokens: config.maxTokens };
-  return body;
-}
-
-function parseGeminiResponse(data: unknown): AIResponse {
-  const root = asRecord(data);
-  const candidates = asList(root.candidates);
-  const first = asRecord(candidates[0]);
-  const content = asRecord(first.content);
-  const parts = asList(content.parts);
-  let textContent = "";
-  const toolCalls: AIToolCall[] = [];
-  for (const entry of parts) {
-    const part = asRecord(entry);
-    if (typeof part.text === "string") textContent += part.text;
-    const call = asRecord(part.functionCall);
-    const name = asString(call.name);
-    if (name) {
-      const args = isRecord(call.args) ? call.args : {};
-      const callId = asString(call.id) || `gemini-${toolCalls.length}-${Date.now()}`;
-      const toolCall: AIToolCall = { id: callId, name, arguments: args };
-      if (typeof part.thoughtSignature === "string") toolCall.thoughtSignature = part.thoughtSignature;
-      toolCalls.push(toolCall);
-    }
-  }
-  if (parts.length === 0) throw invalidResponse("Gemini returned no candidates");
-  const citations = parseInlineCitations(textContent);
-  let usage: AIUsage | undefined;
-  const usageData = asRecord(root.usageMetadata);
-  if (typeof usageData.promptTokenCount === "number") {
-    const prompt = asInt(usageData.promptTokenCount);
-    const completion = asInt(usageData.candidatesTokenCount);
-    usage = { promptTokens: prompt, completionTokens: completion, totalTokens: prompt + completion };
-  }
-  return { content: textContent, toolCalls, citations, usage, finishReason: toolCalls.length > 0 ? "tool_calls" : "stop" };
-}
-
-export function parseInlineCitations(text: string): URLCitation[] {
-  const citations: URLCitation[] = [];
-  const pattern = /\[(\d+)\]\((https?:\/\/[^)]+)\)/g;
-  let match: RegExpExecArray | null;
-  while ((match = pattern.exec(text)) !== null) {
-    const url = match[2] ?? "";
-    let host: string | undefined;
-    try {
-      host = new URL(url).host.replace(/^www\./, "");
-    } catch {
-      host = undefined;
-    }
-    const citation: URLCitation = { url, title: host, startIndex: match.index, endIndex: match.index + match[0].length };
-    if (!citations.some((c) => c.url === citation.url)) citations.push(citation);
-  }
-  return citations;
-}
-
-export class GeminiProvider implements AIProvider {
-  readonly providerId = "gemini";
-  private apiKey: string;
-  private baseURL: string;
-
-  constructor(apiKey: string, baseURL: string = AI_PROVIDER_DEFAULT_BASE_URL.gemini) {
-    this.apiKey = apiKey;
-    this.baseURL = baseURL.replace(/\/$/, "");
-  }
-
-  async sendMessage({ messages, model, config, tools, onStream, fetchFn }: ProviderSendArgs): Promise<AIResponse> {
-    if (!this.apiKey) throw invalidApiKey();
-    const url = `${this.baseURL}/models/${encodeURIComponent(model)}:generateContent`;
-    const { status, json, text } = await postJson(
-      url,
-      geminiBody(messages, config, tools),
-      { "x-goog-api-key": this.apiKey },
-      fetchFn ?? defaultFetch(),
-    );
-    if (status !== 200) throw httpError(status, text);
-    const response = parseGeminiResponse(json);
-    onStream(response.content);
-    return response;
-  }
-}
-
 export class OpenRouterProvider implements AIProvider {
   readonly providerId = "openrouter";
   private apiKey: string;
@@ -377,82 +198,6 @@ export class OpenRouterProvider implements AIProvider {
   }
 }
 
-export class OllamaProvider implements AIProvider {
-  readonly providerId = "ollama";
-  private baseURL: string;
-
-  constructor(baseURL: string = AI_PROVIDER_DEFAULT_BASE_URL.ollama) {
-    this.baseURL = baseURL.replace(/\/$/, "");
-  }
-
-  async sendMessage({ messages, model, config, tools, onStream, fetchFn }: ProviderSendArgs): Promise<AIResponse> {
-    const url = `${this.baseURL}/api/chat`;
-    const messagesArray: JsonRecord[] = [];
-    for (const message of messages) {
-      if (message.role === "system" || message.role === "user") {
-        messagesArray.push({ role: message.role, content: message.content });
-      } else if (message.role === "assistant") {
-        if (message.toolCalls && message.toolCalls.length > 0) {
-          messagesArray.push({
-            role: "assistant",
-            content: message.content,
-            tool_calls: message.toolCalls.map((call) => ({ function: { name: call.name, arguments: call.arguments } })),
-          });
-        } else {
-          messagesArray.push({ role: "assistant", content: message.content });
-        }
-      } else if (message.role === "tool") {
-        for (const result of message.toolResults ?? []) {
-          messagesArray.push({ role: "tool", content: result.content });
-        }
-      }
-    }
-    const body: JsonRecord = {
-      model,
-      messages: messagesArray,
-      stream: false,
-      options: { temperature: config.temperature },
-    };
-    if (tools.length > 0) {
-      body.tools = tools.map((t) => ({ type: "function", function: { name: t.name, description: t.description, parameters: t.parameters } }));
-    }
-    const { status, json, text } = await postJson(url, body, {}, fetchFn ?? defaultFetch());
-    if (status !== 200) throw httpError(status, text || "API request failed. Make sure Ollama is running.");
-    const root = asRecord(json);
-    const message = asRecord(root.message);
-    if (!message || Object.keys(message).length === 0) throw invalidResponse("Ollama returned no message");
-    const content = asString(message.content);
-    const toolCalls: AIToolCall[] = [];
-    for (const entry of asList(message.tool_calls)) {
-      const item = asRecord(entry);
-      const fn = asRecord(item.function);
-      const name = asString(fn.name);
-      if (!name) continue;
-      toolCalls.push({ id: `ollama-${toolCalls.length}`, name, arguments: isRecord(fn.arguments) ? fn.arguments : {} });
-    }
-    let usage: AIUsage | undefined;
-    if (typeof root.prompt_eval_count === "number" && typeof root.eval_count === "number") {
-      const prompt = asInt(root.prompt_eval_count);
-      const completion = asInt(root.eval_count);
-      usage = { promptTokens: prompt, completionTokens: completion, totalTokens: prompt + completion };
-    }
-    const response: AIResponse = { content, toolCalls, citations: [], usage, finishReason: toolCalls.length > 0 ? "tool_calls" : "stop" };
-    onStream(content);
-    return response;
-  }
-
-  async listModels(fetchFn?: FetchFn): Promise<{ id: string; displayName: string }[]> {
-    const { status, json } = await getJson(`${this.baseURL}/api/tags`, {}, fetchFn ?? defaultFetch());
-    if (status !== 200) return [];
-    const models: { id: string; displayName: string }[] = [];
-    for (const entry of asList(asRecord(json).models)) {
-      const name = asString(asRecord(entry).name);
-      if (name) models.push({ id: name, displayName: name });
-    }
-    return models.sort((a, b) => a.displayName.localeCompare(b.displayName));
-  }
-}
-
 export class OpenAICompatibleProvider implements AIProvider {
   readonly providerId = "openai_compatible";
   private apiKey: string;
@@ -480,64 +225,6 @@ export class OpenAICompatibleProvider implements AIProvider {
     const response = await sendOpenAIChatCompletions(`${this.baseURL}/chat/completions`, headers, body, fetchFn ?? defaultFetch());
     onStream(response.content);
     return response;
-  }
-}
-
-export type OnDeviceToolRunner = (name: string, argumentsJson: string) => Promise<string>;
-
-export function appleIntelligenceAvailable(platform: PlatformInfo): boolean {
-  if (platform.os !== "darwin") return false;
-  if ((platform.macOSMajor ?? 0) < APPLE_INTELLIGENCE_MIN_MACOS) return false;
-  return platform.appleIntelligenceAvailable !== false;
-}
-
-export function appleIntelligenceUnavailableNote(platform: PlatformInfo): string | null {
-  if (platform.os !== "darwin" || (platform.macOSMajor ?? 0) < APPLE_INTELLIGENCE_MIN_MACOS) {
-    return "Apple Intelligence requires macOS 26 or later.";
-  }
-  if (platform.appleIntelligenceAvailable === false) {
-    return "Apple Intelligence needs to be turned on in System Settings > Apple Intelligence & Siri.";
-  }
-  return null;
-}
-
-export function estimateTokens(text: string): number {
-  let quarters = 0;
-  for (const ch of text) quarters += ch.codePointAt(0)! < 128 ? 1 : 4;
-  return Math.floor((quarters + 3) / 4);
-}
-
-export function fittedToTokens(text: string, tokens: number): string {
-  let budget = tokens * 4;
-  let end = 0;
-  for (const ch of text) {
-    const cost = (ch.codePointAt(0)! < 128 ? 1 : 4);
-    budget -= cost;
-    if (budget < 0) return text.slice(0, end) + "…";
-    end += ch.length;
-  }
-  return text;
-}
-
-export class AppleIntelligenceProvider implements AIProvider {
-  readonly providerId = APPLE_INTELLIGENCE_PROVIDER_ID;
-  static readonly modelId = APPLE_INTELLIGENCE_MODEL_ID;
-  private platform: PlatformInfo;
-  private runTool: OnDeviceToolRunner | null;
-
-  constructor(platform: PlatformInfo, runTool: OnDeviceToolRunner | null = null) {
-    this.platform = platform;
-    this.runTool = runTool;
-  }
-
-  isAvailable(): boolean {
-    return appleIntelligenceAvailable(this.platform);
-  }
-
-  async sendMessage(_args: ProviderSendArgs): Promise<AIResponse> {
-    throw unsupportedFeature(
-      "On-device chat requires macOS 26 or later and Apple Intelligence, reached through the native Foundation Models bridge in the macOS shell. This TypeScript provider is a gate, not an implementation.",
-    );
   }
 }
 

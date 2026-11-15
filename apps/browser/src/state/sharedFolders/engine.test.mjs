@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mock, test } from "node:test";
+import { after, mock, test } from "node:test";
 import { shellNativeModules } from "../../test-native/shell.ts";
 
 const shares = [];
@@ -88,8 +88,10 @@ async function settled(promise) {
 }
 
 let persisting = false;
+let stopPersistence;
+after(() => stopPersistence?.());
 function fresh() {
-  if (!persisting) (startPersistence(), (persisting = true));
+  if (!persisting) (stopPersistence = startPersistence(), (persisting = true));
   events.length = 0;
   failing.clear();
   unstageable.clear();

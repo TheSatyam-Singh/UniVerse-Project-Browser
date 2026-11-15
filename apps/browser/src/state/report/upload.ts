@@ -36,7 +36,13 @@ const text = (value: unknown): string | null => (typeof value === "string" && va
 export function resolveUrl(base: string, path: string): string {
   if (/^https?:\/\//i.test(path)) return path;
   const origin = /^(https?:\/\/[^/?#]+)/i.exec(base)?.[1] ?? "";
-  if (path.startsWith("/")) return `${origin}${path}`;
+  if (path.startsWith("/")) {
+    const baseSegments = base.replace(/^(https?:\/\/[^/?#]+)/i, "").replace(/[?#].*$/, "").split("/").filter(Boolean);
+    const first = path.split("/").filter(Boolean)[0] ?? "";
+    const at = first ? baseSegments.indexOf(first) : -1;
+    if (at >= 0) return `${origin}/${[...baseSegments.slice(0, at), ...path.split("/").filter(Boolean)].join("/")}`;
+    return `${origin}${path}`;
+  }
   return `${base.replace(/[?#].*$/, "").replace(/\/[^/]*$/, "")}/${path}`;
 }
 

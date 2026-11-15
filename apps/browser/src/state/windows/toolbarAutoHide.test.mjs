@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { test } from "node:test";
 const { useBrowser } = await import("../browser/store.ts");
-const { noteScroll, revealToolbar, setToolbarPeek, toolbarMode, useToolbarAutoHide } = await import("./toolbarAutoHide.ts");
+const { noteScroll, revealToolbar, setToolbarPeek, startToolbarAutoHide, toolbarMode, useToolbarAutoHide } = await import("./toolbarAutoHide.ts");
 
 const script = readFileSync(new URL("../../../../../packages/universecore/ios/page_script.js", import.meta.url), "utf8");
 const source = script.match(/const scrollDirection = (\(\) => \{[\s\S]*?\n {2}\});\n/)?.[1];
@@ -291,3 +291,5 @@ test("with Hide toolbar while scrolling off, a page's scrolling is not kept, and
   noteScroll(tabId, "down");
   assert.equal(st().scrolledDown[tabId], true);
 });
+
+startToolbarAutoHide();

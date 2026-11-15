@@ -3,6 +3,7 @@ import { test } from "node:test";
 const { useBrowser } = await import("../browser/store.ts");
 const { webviews } = await import("../../platform/webviews.ts");
 const media = await import("./media.ts");
+media.startMedia();
 
 const S = () => useBrowser.getState();
 const M = () => media.useMedia.getState();
@@ -199,3 +200,4 @@ test("a session that ends while its tab is in the background stops being left pa
   media.setNowPlaying(b, null);
   assert.equal(M().leftPaused[b], undefined);
 });
+

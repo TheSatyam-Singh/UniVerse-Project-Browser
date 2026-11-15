@@ -4,7 +4,7 @@
     const HOST = location.hostname.toLowerCase();
     if (!UNIVERSE_DOWNLOAD_SITES.some(d => HOST === d || HOST.endsWith('.' + d))) return;
 
-    const MIN_SIZE = 120;       // skips avatars and icons
+    const MIN_SIZE = 120;
     const INSET = 8;
     const HANDLER = 'universeSocialImageDownload';
 

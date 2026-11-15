@@ -79,13 +79,13 @@
     var d = payload.data, p = payload.path, idx = c.root.length + 1, n = p[idx];
     if (!c.streaming) return payload;
 
-    if (p.length > idx + 1) { // $defer under an edge
+    if (p.length > idx + 1) {
       if (c.orphaned[n]) p[idx] = ORPHAN_BASE + n;
       else if (c.newIndex[n] !== undefined) p[idx] = c.newIndex[n];
       return payload;
     }
 
-    if (shouldRemove(d && d.node)) { // streamed item to remove
+    if (shouldRemove(d && d.node)) {
       c.orphaned[n] = true;
       if (!c.lastItem) {
         d.node = null;
@@ -144,7 +144,7 @@
   JSON.parse = function (text) {
     var out = origParse.apply(this, arguments);
     if (out && typeof out === 'object' && typeof text === 'string' && WANT.test(text)) {
-      try { out = visit(out, 0); } catch (e) {} // a malformed payload is left as Facebook sent it
+      try { out = visit(out, 0); } catch (e) {}
     }
     return out;
   };

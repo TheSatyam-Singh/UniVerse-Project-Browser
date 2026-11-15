@@ -28,7 +28,6 @@ export function loadOrCreateDevMcpToken(dir: string = devMcpTokenDir()): string 
   try {
     chmodSync(file, 0o600);
   } catch {
-    // permissions already set by write mode on most platforms
   }
   return fresh;
 }
