@@ -1,4 +1,4 @@
-import { createDevMcpControl } from "@universe/shell";
+import { createDevMcpControl } from "../../platform/devMcp";
 import type { DevMcpBridge } from "@universe/ai";
 import { buildPageBridge } from "./aiBridge";
 import { useBrowser } from "../browser/store";
@@ -39,7 +39,6 @@ export function buildDevMcpBridge(): DevMcpBridge {
 
 let started = false;
 
-// Windows has no DevMCP start: this starter runs in the macOS app only.
 export function startDevMcp() {
   if (started) return;
   started = true;

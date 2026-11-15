@@ -32,7 +32,8 @@ export type ControlLine = { lead: string; name: string; rest: string };
 
 export function controlLine(caller: CliCaller | null): ControlLine {
   const name = caller?.name ?? CLI_CALLER_FALLBACK;
-  if (name.toLowerCase() === CLI_CALLER_FALLBACK) return { lead: "The ", name: CLI_CALLER_FALLBACK, rest: " command is controlling UniVerse Project Browser" };
+  const lowered = name.toLowerCase();
+  if (lowered === CLI_CALLER_FALLBACK || lowered === "universe project browser") return { lead: "The ", name: CLI_CALLER_FALLBACK, rest: " command is controlling UniVerse Project Browser" };
   return { lead: "", name, rest: " is controlling UniVerse Project Browser" };
 }
 

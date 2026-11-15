@@ -1,5 +1,5 @@
 import { arcRouteToSiteRule, type SiteRoutingRule } from "@universe/tweaks";
-import type { ArcArchivedItem, ArcRoute, BookmarkNode } from "@universe/import";
+import type { ArcArchivedItem, ArcRoute, BookmarkNode } from "../../platform/importModule";
 import { addSiteRoutingRule, siteRoutingRules } from "../tweaks/siteRouting";
 import { useBrowser } from "../browser/store";
 import { hostOfUrl, type ArchiveItem, type ArchiveReason } from "../archive/archive";

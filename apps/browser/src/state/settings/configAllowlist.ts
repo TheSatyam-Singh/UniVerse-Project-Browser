@@ -9,12 +9,15 @@ export const CONFIG_SETTING_KEYS: readonly SettingKey[] = [
   "autoPictureInPicture", "commandScrollZoom", "videoUpscaling", "sidebarMediaControls", "sidebarWidth", "showSidebarButton",
   "showClearButton", "tidyTabs", "balancedTopApps", "showAdvancedSettings", "selectedTabGlow", "interfaceStyle", "glassTintWithTheme",
   "glassTintAmount", "pageScrollBars", "fadeUnloadedTabs", "warnBeforeClosingTabGroup", "batterySaverWhen", "memorySaver",
-  "memorySaverMode", "loadProfilesWhenOpened", "keepActiveSites", "extensionSidePanelWidth", "showFullUrl", "showBookmarks", "bookmarksBar", "bookmarksBarSize",
+  "memorySaverMode", "tabManagementMode", "loadProfilesWhenOpened", "keepActiveSites", "extensionSidePanelWidth", "showFullUrl", "showBookmarks", "bookmarksBar", "bookmarksBarSize",
   "hideBookmarksBarImport", "appearance", "addressBar", "compactToolbar", "borderlessMode", "pageFrame", "pageFrameZeroInFullScreen", "pageFrameZeroWhenTabsHidden", "commandBarPlacement", "spacesFollowAppearance", "adaptTextToColor",
   "profileSwitcherIcons", "shortcuts", "openLinksInLittleUniverse", "littleUniverseOpensNewTabLinks", "littleWindowGestures", "littleUniverseSize",
   "omniboxProviders", "launchActions", "commandBarStart",
   "showAIAssistant", "aiProvider", "aiModel", "ollamaEndpoint", "aiWebSearchEnabled", "aiWebSearchEngine", "aiWebSearchMaxResults",
   "aiWebSearchContextSize", "aiToolExecutionMode", "tabOrganizerEnabled",
+  "startupLoadMode", "nestTabsFromLinks", "linkPreviews", "warnBeforeHTTP", "fingerprintingProtection", "removeTrackingFromLinks",
+  "topBarAddressView", "themeTranslucency", "favoritePreviews", "archiveAfter", "searchPageTextInHistory",
+  "developerModeEnabled", "developerSites", "sponsorBlockEnabled", "sponsorBlockCategories", "youTubeHideShorts", "enabledOptionalFilterLists",
 ];
 
 export const CONFIG_EXCLUDED_KEYS: readonly SettingKey[] = [

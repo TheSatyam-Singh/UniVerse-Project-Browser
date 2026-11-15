@@ -62,9 +62,6 @@ case "$version" in
   engine-*) short=${version#engine-} ;;
   *) short=${tree:0:12} ;;
 esac
-# The file is named after the release's engine tree, which is the entry's tree
-# except when a tree is mapped to another release's engine (its version's
-# engine-* suffix names that release's tree instead).
 dest="$store/$short"
 if [ ! -f "$dest/.complete" ]; then
   file="ArdiaCore-$short.tar.xz"

@@ -1,4 +1,4 @@
-import { storeAction } from "../browser/store";
+import { storeAction } from "../browser/storeAction";
 
 export const newTab = storeAction("newTab");
 export const activate = storeAction("activate");

@@ -16,7 +16,7 @@ export const aiRows = {
       section: "Web search",
       rows: {
         aiWebSearchEnabled: { title: "Web search", description: "Let the provider search the web when the page does not answer the question.", keywords: ["ai", "web search", "search", "online"] },
-        aiWebSearchEngine: { title: "Search engine", description: "Which search engine the provider uses, or auto.", keywords: ["ai", "web search", "engine"] },
+        aiWebSearchEngine: { title: "AI provider search engine", description: "Which search engine the provider uses, or auto.", keywords: ["ai", "web search", "engine"] },
         aiWebSearchMaxResults: { title: "Maximum results", description: "How many search results the assistant may use.", keywords: ["ai", "web search", "results"] },
         aiWebSearchContextSize: { title: "Search context size", description: "How much search context the provider gets: low, medium or high.", keywords: ["ai", "web search", "context"] },
       },

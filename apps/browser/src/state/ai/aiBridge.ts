@@ -71,9 +71,9 @@ export function buildPageBridge(): PageBridge {
     navigateTab: (tabId, url) => {
       useBrowser.getState().navigate(tabId, url, { userInitiated: true });
     },
-    evaluateJs: async (tabId, code, args) => {
-      if (pageEvaluator) return pageEvaluator(tabId, code, args);
-      return defaultEvaluate(tabId, code, args);
+    evaluateJs: async (tabId, code) => {
+      if (pageEvaluator) return pageEvaluator(tabId, code);
+      return defaultEvaluate(tabId, code);
     },
     evaluateJsWithArg: async (tabId, code, args) => {
       if (pageEvaluator) return pageEvaluator(tabId, code, args);

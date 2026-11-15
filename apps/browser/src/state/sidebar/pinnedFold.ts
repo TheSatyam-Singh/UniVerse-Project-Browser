@@ -48,7 +48,13 @@ export function expandOnPin(s: BrowserState, prev: BrowserState) {
   for (const id of s.profileOrder) if (pinnedCollapsed(s, id) && enteredPinnedSection(s, prev, id)) setPinnedCollapsed(id, false);
 }
 
-useBrowser.subscribe(expandOnPin);
+let started = false;
+
+export function startPinnedFold() {
+  if (started) return;
+  started = true;
+  useBrowser.subscribe(expandOnPin);
+}
 
 export function pinnedFoldMenuItem(s: BrowserState, windowId: string): MenuItem[] {
   const w = s.windows[windowId];

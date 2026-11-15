@@ -17,7 +17,7 @@
         let keys;
         try { keys = Object.keys(value); } catch { return; }
         for (const k of keys) {
-            if (k.startsWith('_')) continue;   // Relay store internals hold every video on the page
+            if (k.startsWith('_')) continue;
             let v;
             try { v = value[k]; } catch { continue; }
             collect(v, k, value, depth - 1, seen, out);
@@ -44,7 +44,7 @@
         let found = null, foundNode = null, visited = 0;
         while (stack.length && visited++ < MAX_FIBERS) {
             const fiber = stack.pop();
-            const node = fiber.tag === 4 ? fiber.stateNode?.containerInfo : fiber.stateNode;   // 4: portal
+            const node = fiber.tag === 4 ? fiber.stateNode?.containerInfo : fiber.stateNode;
             if (node instanceof Element) {
                 if (!node.contains(element)) continue;
                 if (fiber.tag !== 4 && (!foundNode || foundNode.contains(node))) { found = fiber; foundNode = node; }
@@ -56,7 +56,7 @@
 
     function collectFiber(fiber, seen, out) {
         collect(fiber.memoizedProps, '', null, MAX_DEPTH, seen, out);
-        if (fiber.tag === 1) return collect(fiber.memoizedState, '', null, MAX_DEPTH, seen, out);   // 1: class
+        if (fiber.tag === 1) return collect(fiber.memoizedState, '', null, MAX_DEPTH, seen, out);
         for (let hook = fiber.memoizedState, i = 0; hook && typeof hook === 'object' && i < 50; hook = hook.next, i++) {
             collect(hook.memoizedState, '', null, MAX_DEPTH, seen, out);
         }
