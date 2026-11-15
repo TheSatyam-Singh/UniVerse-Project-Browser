@@ -209,7 +209,7 @@ final class LegacyMigrationTests: XCTestCase {
     XCTAssertNil(try? fm.destinationOfSymbolicLink(atPath: newData.appendingPathComponent("Chromium/SingletonLock").path))
     XCTAssertFalse(fm.fileExists(atPath: newData.appendingPathComponent(LegacyMigrator.stagingName).path))
 
-    XCTAssertEqual(newKeychain.items["Ardia Safe Storage"], ["UniVerse Project Browser": safeStorageKey])
+    XCTAssertEqual(newKeychain.items["Ardia Safe Storage"], ["Ardia": safeStorageKey])
     XCTAssertEqual(newKeychain.items["UniVerse Project Browser Connected Accounts"], ["github": Data("gh-token".utf8), "google": Data("g-token".utf8)])
     XCTAssertEqual(newKeychain.items["UniVerse Project Browser Sync Key"], ["device-1": Data(repeating: 1, count: 32)])
     XCTAssertNil(newKeychain.items["Chrome Safe Storage"])
@@ -480,7 +480,7 @@ final class LegacyMigrationTests: XCTestCase {
     runningAnswers = [false, false, true, true]
     answers = [0]
     XCTAssertEqual(run(), .proceed)
-    XCTAssertEqual(newKeychain.items["Ardia Safe Storage"], ["UniVerse Project Browser": safeStorageKey])
+    XCTAssertEqual(newKeychain.items["Ardia Safe Storage"], ["Ardia": safeStorageKey])
   }
 
   func testAResumePublishesTheVerifiedCopy() throws {

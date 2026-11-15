@@ -83,7 +83,7 @@ final class LegacyDockTileTests: XCTestCase {
     XCTAssertEqual(NSArray(array: try XCTUnwrap(repoint([oldTile, messages, ardiaTile]).tiles)), NSArray(array: [messages, ardiaTile]))
     let byFile = with(ardiaTile) {
       $0["bundle-identifier"] = "something.else"
-      $0["file-data"] = ["_CFURLString": "file:///Applications/ARDIA.app", "_CFURLStringType": 15]
+      $0["file-data"] = ["_CFURLString": "file:///Applications/UniVerse-Project-Browser.app", "_CFURLStringType": 15]
     }
     XCTAssertEqual(NSArray(array: try XCTUnwrap(repoint([oldTile, byFile]).tiles)), NSArray(array: [byFile]))
   }
@@ -150,7 +150,7 @@ final class LegacyDockTileTests: XCTestCase {
     let lower = tile("", "file:///Applications/\(LegacyName.appFileName.lowercased())/", label: "x")
     XCTAssertNil(repoint([lower], disk: sensitive).tiles)
     XCTAssertEqual(ids(repoint([lower]).tiles), [bundleId])
-    let other = tile("something.else", "file:///Applications/universe.app/", label: "universe")
+    let other = tile("something.else", "file:///Applications/universe-project-browser.app/", label: "universe-project-browser")
     XCTAssertEqual(ids(repoint([oldTile, other], disk: sensitive).tiles), [bundleId, "something.else"])
     XCTAssertEqual(ids(repoint([oldTile, other]).tiles), ["something.else"])
   }

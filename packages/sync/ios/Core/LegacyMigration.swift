@@ -62,7 +62,7 @@ enum Renamed {
     "NNPictureInPictureZoom": "ACPictureInPictureZoom",
     "NNUpdateFeedURL": "ACUpdateFeedURL",
   ]
-  static let defaultsKeyPrefixes = [("NSWindow Frame Netnyahoo", "NSWindow Frame UniVerse Project Browser")]
+  static let defaultsKeyPrefixes = [("NSWindow Frame Netnyahoo", "NSWindow Frame Ardia")]
   static let menuTitleWords = [("Small Yahu", "Little UniVerse"), ("Netnyahoo", "UniVerse Project Browser")]
 }
 
