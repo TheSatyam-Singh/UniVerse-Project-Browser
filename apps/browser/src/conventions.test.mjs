@@ -30,7 +30,7 @@ const SCOPES = ["apps/browser/src", "packages", "engine/ardiacore/src", "engine/
 const GENERATED = new Set(["packages/core/src/bangList.ts", "packages/demo/src/shims/web/symbols/data.ts", "apps/browser/src/lib/emojiData.ts"]);
 const ONE_INJECTED_SCRIPT = new Set(["packages/universecore/ios/page_script.js"]);
 const FROZEN_SPECS = new Set(["packages/core/src/suggest.reference.ts"]);
-const LAUNCH_CONFIG = [/^packages\/ardiacore\/ios\/ArdiaLaunchConfig\.\w+$/, /^apps\/browser\/src\/platform\/launchConfig\.ts$/];
+const LAUNCH_CONFIG = [/^packages\/universecore\/ios\/ArdiaLaunchConfig\.\w+$/, /^apps\/browser\/src\/platform\/launchConfig\.ts$/];
 const MIGRATION_FILE = /(?:^|\/)(?:LegacyMigration\.swift|legacy\.ts|\w*[Mm]igrations?\.(?:ts|swift|mm|m))$/;
 const TOKEN_FILE = /(?:^|\/)(?:tokens|motion)\.ts$/;
 const ENGINE_ENV_READS = {
@@ -39,6 +39,7 @@ const ENGINE_ENV_READS = {
     "std::unique_ptr<base::Environment> env = base::Environment::Create();",
   ],
   "engine/chromium/src/chrome/browser/ardia/ac_scripts_policy.cc": ['if (const char* home = getenv("HOME")) {'],
+  "packages/ai/src/mcpStdio.ts": ["for (const [key, value] of Object.entries(process.env)) {"],
 };
 
 const APP_SRC = "apps/browser/src/";

@@ -310,7 +310,7 @@ export function startPersistence(overrides: LaunchOverrides = {}) {
   useBrowser.getState().hydrate(loaded ?? {});
   restoreLaunchLook();
   useBrowser.getState().archiveIdleTabs();
-  everySlowly({ every: ARCHIVE_SCAN_MS, run: () => useBrowser.getState().archiveIdleTabs() });
+  const stopArchiveScan = everySlowly({ every: ARCHIVE_SCAN_MS, run: () => useBrowser.getState().archiveIdleTabs() });
 
   const lastSources = new Map<string, unknown[]>();
   const lastJson = new Map<string, string>();
@@ -359,5 +359,11 @@ export function startPersistence(overrides: LaunchOverrides = {}) {
     check(useBrowser.getState());
     save();
   };
-  return useBrowser.subscribe((s) => check(s));
+  const stopSubscription = useBrowser.subscribe((s) => check(s));
+  return () => {
+    stopSubscription();
+    stopArchiveScan();
+    clearTimeout(timer);
+    timer = undefined;
+  };
 }

@@ -205,10 +205,25 @@ function noteLeftPaused() {
   if (left.length !== Object.keys(m.leftPaused).length || left.some((id) => !m.leftPaused[id])) useMedia.setState({ leftPaused: Object.fromEntries(left.map((id) => [id, true as const])) });
 }
 
-useBrowser.subscribe(noteLeftPaused);
-useMedia.subscribe((m, prev) => {
-  if (m.sessions !== prev.sessions) noteLeftPaused();
-});
+let mediaStarted = false;
+
+export function startMedia() {
+  if (mediaStarted) return;
+  mediaStarted = true;
+  useBrowser.subscribe(noteLeftPaused);
+  useMedia.subscribe((m, prev) => {
+    if (m.sessions !== prev.sessions) noteLeftPaused();
+  });
+  useBrowser.subscribe((s, prev) => {
+    if (s.tabs === prev.tabs) return;
+    const m = useMedia.getState();
+    const gone = [...new Set(PER_TAB.flatMap((k) => Object.keys(m[k])))].filter((id) => !s.tabs[id]);
+    if (!gone.length) return;
+    const next = Object.fromEntries(PER_TAB.map((k) => [k, { ...m[k] }])) as Store;
+    for (const id of gone) for (const k of PER_TAB) delete next[k][id];
+    useMedia.setState(next);
+  });
+}
 
 export function playerTabFor(m: Pick<Store, "sessions" | "dismissed">, tabIds: string[], current?: string): string | undefined {
   const eligible = (id: string) => hasPlayer(m, id);
@@ -275,16 +290,6 @@ export function usePictureInPicture(tabId: string): [boolean, (press: GestureRes
   const on = useMedia((s) => !!s.pipOpen[tabId]);
   return [on, (press) => void togglePictureInPicture(tabId, controlPress(press))];
 }
-
-useBrowser.subscribe((s, prev) => {
-  if (s.tabs === prev.tabs) return;
-  const m = useMedia.getState();
-  const gone = [...new Set(PER_TAB.flatMap((k) => Object.keys(m[k])))].filter((id) => !s.tabs[id]);
-  if (!gone.length) return;
-  const next = Object.fromEntries(PER_TAB.map((k) => [k, { ...m[k] }])) as Store;
-  for (const id of gone) for (const k of PER_TAB) delete next[k][id];
-  useMedia.setState(next);
-});
 
 if (typeof __DEV__ !== "undefined" && __DEV__) {
   (globalThis as { acMedia?: unknown }).acMedia = { useMedia, mediaCommand, setNowPlaying, togglePictureInPicture, inPictureInPicture, playerTabFor };

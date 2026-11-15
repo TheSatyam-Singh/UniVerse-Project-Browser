@@ -6,7 +6,7 @@ import { noteRemotePinDeletion } from "../pins/tabCleanup";
 import { type PinSyncEntry } from "../pins/pinChoices";
 import { adoptParkedPins, parkWindowPins } from "../pins/parkedPins";
 import { arrangePinnedArea } from "../pins/pinnedArea";
-import { fromSync } from "../pins/pinOrderChoices";
+import { fromSync } from "../pins/syncWrites";
 import { removeTabs } from "../tabs/tabs";
 import type { Tab, TabGroup } from "../browser/types";
 import {

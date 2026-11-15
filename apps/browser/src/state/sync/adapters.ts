@@ -8,7 +8,7 @@ import { useBrowser } from "../browser/store";
 import { engineProfile } from "../browser/model";
 import { profileOpened } from "../profiles/profileLoading";
 import { isPeekTab } from "../peek/peek";
-import { fromSync } from "../pins/pinOrderChoices";
+import { fromSync } from "../pins/syncWrites";
 import { fromLegacy } from "../../lib/legacy";
 import type { BookmarkNode, HistoryEntry } from "../browser/types";
 import { isWebPageUrl } from "../../lib/url";

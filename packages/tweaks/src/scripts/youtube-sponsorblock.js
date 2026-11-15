@@ -39,7 +39,7 @@
 
   var currentVideoID = null;
   var segments = [];
-  var categoryOptions = {};           // category → "auto" | "manual" | "disabled"
+  var categoryOptions = {};
   var currentSkipSchedule = null;
   var currentSkipInterval = null;
   var videoElement = null;
