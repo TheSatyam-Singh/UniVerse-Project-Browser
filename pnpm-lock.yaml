@@ -40,6 +40,9 @@ importers:
       '@universe/sync':
         specifier: workspace:*
         version: link:../../packages/sync
+      '@universe/tweaks':
+        specifier: workspace:*
+        version: link:../../packages/tweaks
       '@universe/universecore':
         specifier: workspace:*
         version: link:../../packages/universecore
