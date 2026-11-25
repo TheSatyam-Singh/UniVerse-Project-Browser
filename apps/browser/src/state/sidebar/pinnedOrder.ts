@@ -92,13 +92,7 @@ export function keepLiveAnchors(s: BrowserState, prev: BrowserState) {
   }
 }
 
-let started = false;
-
-export function startPinnedOrder() {
-  if (started) return;
-  started = true;
-  useBrowser.subscribe(keepLiveAnchors);
-}
+useBrowser.subscribe(keepLiveAnchors);
 
 export function usePinnedSequence(windowId: string, profileId: string, off: boolean): string[] {
   const pinned = useBrowser((s) => (off ? NO_ENTRIES : sidebarEntries(s, windowId, profileId).pinned));

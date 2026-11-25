@@ -19,8 +19,6 @@ the file and its WAL before opening it.
 | autofill (addresses, cards) | `ChromiumAutofill.swift`: `Web Data` | same as Chromium | none |
 | extensions (listed, never installed) | `ChromiumExtensions.swift`: `Preferences`, `Secure Preferences`, `Extensions/*/manifest.json` | same as Chromium | none |
 | spaces, pinnedTabs, favorites | none | `ArcSidebar.swift`: `<Application Support>/Arc/StorableSidebar.json` | none |
-| Arc link routing (Air Traffic Control rules) | none | `ArcDepth.swift`: `<Application Support>/Arc/StorableLinkRouting.json` (single `contains` component, space target only); JS (`state/import/arcDepth.ts`) turns each route into a site-routing rule for the space's new profile | none |
-| Arc archived tabs | none | `ArcDepth.swift`: `<Application Support>/Arc/StorableArchiveItems.json` (space, URL, title, Apple reference-date `archivedAt`, auto/manual reason); carried in `ImportResult.archivedTabs`, converted by `arcArchiveEntries` (30-day retention, http(s) only) for the archive store | none |
 | favicons (for the imported tabs, favourites and bookmarks-bar links) | `ChromiumFavicons.swift`: `Favicons` (the page's own icon, else another page of the same site's; one PNG near 32 px, 16 KB each, up to 1,000 pages and 6 MB) | same as Chromium | none |
 
 | Source | Files | What it reads |

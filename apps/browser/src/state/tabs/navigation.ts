@@ -93,20 +93,14 @@ function hideNewTab(tabId: string) {
   store().updateTab(tabId, { url: kept.url, title: kept.title, favicon: kept.favicon });
 }
 
-let started = false;
-
-export function startNavigation() {
-  if (started) return;
-  started = true;
-  useBrowser.subscribe((s, prev) => {
-    for (const id of changedIds(s.tabs, prev.tabs)) {
-      const tab = s.tabs[id];
-      const before = prev.tabs[id];
-      if (!tab || !before) continue;
-      if (!tabDestination(before) && internalPageOf(tabDestination(tab)) && !pageOf(id).backToNewTab) patchPage(id, { backToNewTab: true });
-    }
-  });
-}
+useBrowser.subscribe((s, prev) => {
+  for (const id of changedIds(s.tabs, prev.tabs)) {
+    const tab = s.tabs[id];
+    const before = prev.tabs[id];
+    if (!tab || !before) continue;
+    if (!tabDestination(before) && internalPageOf(tabDestination(tab)) && !pageOf(id).backToNewTab) patchPage(id, { backToNewTab: true });
+  }
+});
 
 export type HistoryItem = {
   key: string;

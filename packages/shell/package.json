@@ -9,9 +9,6 @@
     "typecheck": "tsc -p .",
     "test": "swift test --scratch-path \"${TMPDIR:-/tmp}/universe-shell-swiftpm\""
   },
-  "dependencies": {
-    "@universe/ai": "workspace:*"
-  },
   "peerDependencies": {
     "expo": "*",
     "react": "*",

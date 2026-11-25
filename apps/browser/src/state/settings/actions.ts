@@ -1,6 +1,5 @@
 import type { Shortcut } from "../commands/shortcuts";
-import { storeAction } from "../browser/storeAction";
-import { useBrowser } from "../browser/store";
+import { storeAction, useBrowser } from "../browser/store";
 import { tabLayoutOf } from "../browser/model";
 
 export const updateSettings = storeAction("updateSettings");

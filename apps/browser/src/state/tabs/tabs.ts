@@ -35,7 +35,7 @@ export type NewTabOptions = {
 };
 
 
-export type CloseOptions = { lastClosesWindow?: boolean; skipArchive?: boolean };
+export type CloseOptions = { lastClosesWindow?: boolean };
 export type CloseKind = "close" | "unload" | "removePin";
 export type CloseIntent = { kind: CloseKind; ids: string[] };
 

@@ -166,8 +166,3 @@ export const AccessibilityInfo = {
   isReduceMotionEnabled: () => Promise.resolve(false),
   addEventListener: () => ({ remove() {} }),
 };
-
-export const Appearance = {
-  getColorScheme: () => "light",
-  addChangeListener: () => ({ remove() {} }),
-};

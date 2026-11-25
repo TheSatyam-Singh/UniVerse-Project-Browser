@@ -2,7 +2,7 @@
 
 Releases are GitHub releases of `TheSatyam-Singh/UniVerse-Project-Browser`, tagged `v<version>`, on two channels: **stable** (`0.2.37`, a full
 release) and **nightly** (`0.2.37-nightly.1`, a GitHub prerelease: one fix, shipped the day it's made; "Channels" below).
-Since the Release workflow (`.github/workflows/universe-macos.yml`, "CI releases" below) a release is built and published in
+Since the Release workflow (`.github/workflows/release.yml`, "CI releases" below) a release is built and published in
 GitHub Actions. Each has these assets:
 
 - `UniVerse Project Browser-<version>.dmg`: what people download (the app and an `/Applications` link, in a window with the
@@ -220,8 +220,8 @@ list one `…/release-notes#<version>` page; a second launch opens none.
 
 ## CI releases
 
-`.github/workflows/universe-macos.yml` is the release pipeline, run by hand only (Actions › Release › Run workflow, or
-`gh workflow run universe-macos.yml -f version=<version> -f dry_run=false`). It
+`.github/workflows/release.yml` is the release pipeline, run by hand only (Actions › Release › Run workflow, or
+`gh workflow run release.yml -f version=<version> -f dry_run=false`). It
 releases the commit it runs on, so first commit and push the version bump and the notes (steps 1 and 2), and publish
 the engine if `engine/` changed (below).
 
@@ -272,7 +272,7 @@ the engine if `engine/` changed (below).
 
 `dry_run` (on by default) builds a release candidate (`release.sh --rc`: the next build number, no notes needed),
 signed and notarized like a release, and runs `publish.sh --dry-run`: nothing is tagged or published. The site's `VERSION`, the landing page and the stable perf gate stay local (the release skill); the
-site deploys with the release (`pnpm -C apps/site run deploy`).
+site redeploys by itself when the notes are pushed (`.github/workflows/deploy.yml`).
 
 Secrets (repository secrets, these names):
 

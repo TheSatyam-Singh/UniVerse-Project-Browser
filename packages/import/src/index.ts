@@ -119,19 +119,6 @@ export type ImportWarning =
 
 export type ImportedFavicon = { page: string; icon: string; png: string };
 
-export type ArcRoute = {
-  pattern: string;
-  spaceID: string;
-};
-
-export type ArcArchivedItem = {
-  spaceID: string;
-  url: string;
-  title: string;
-  archivedAt: number;
-  auto: boolean;
-};
-
 export type ImportResult = {
   browserId: string;
   profileId: string;
@@ -149,8 +136,6 @@ export type ImportResult = {
   spaces: SpaceSuggestion[];
   favorites: ImportedTab[];
   favicons: ImportedFavicon[];
-  arcRoutes: ArcRoute[];
-  archivedTabs: ArcArchivedItem[];
   separateEssentials?: boolean;
   failed: ImportKind[];
   warnings: ImportWarning[];

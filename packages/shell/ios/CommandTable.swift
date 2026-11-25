@@ -25,8 +25,6 @@ enum CommandTable {
     case toggleTabLayout
     case toggleSidebarSide
     case toggleSidebar
-    case toggleAssistant
-    case organizeTabs
     case openSplitPane
     case useSelectionForFind
     case findAndReplace
@@ -138,8 +136,6 @@ enum CommandTable {
     "toggleTabLayout": "Show Tabs in Sidebar",
     "toggleSidebarSide": "Sidebar on Right",
     "toggleSidebar": "Auto-Hide Tabs",
-    "toggleAssistant": "Toggle AI Assistant",
-    "organizeTabs": "Organize Tabs",
     "openSplitPane": "Open Split Pane",
     "useSelectionForFind": "Use Selection for Find",
     "findAndReplace": "Find and Replace…",

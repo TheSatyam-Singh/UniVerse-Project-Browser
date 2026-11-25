@@ -62,7 +62,7 @@ So a merge or omnibox rule changed on the Mac is the phone's rule after the next
 zooms, downloads, extracts readable content, draws a snapshot, samples its tone and saves its state. Nothing outside
 `browser` sees what is behind it.
 
-Today it is `SystemWebViewEngine` over the system WebView (`isDevelopmentOnly` is false), the production engine. That costs, against the
+Today it is `DevelopmentWebViewEngine` over the system WebView (`isDevelopmentOnly` is true). That costs, against the
 iPhone's WebKit:
 
 - **No blur behind the bottom bar.** A Compose layer can't blur the WebView under it, so the bar takes the page's tone
@@ -243,7 +243,7 @@ first build downloads Gradle, Hermes, `react-android` (for `libjsi.so`) and `her
   Kotlin opens, and Kotlin write one that Swift opens (payloads, tags, passwords, the phrase). Set
   `ARDIA_CROSSCHECK_DIR` to keep the files. It runs on a Mac, not in CI.
 - `node apps/ios/scripts/bundle-shared.mjs --check` guards the bundles both phones run.
-- **CI** (`.github/workflows/universe-android.yml`, on pull requests and pushes to `main` that touch `apps/android`, the
+- **CI** (`.github/workflows/android.yml`, on pull requests and pushes to `main` that touch `apps/android`, the
   bundles, `packages/sync`, `packages/core` or the workflow, behind the vouch gate) builds the app and every test and
   runs the unit tests in one job, and runs every module's instrumented tests on an API 35 emulator in another. It keeps
   the test reports and the screen tour as artifacts.

@@ -15,7 +15,6 @@ export type Download = {
   profile?: string;
   offTheRecord?: boolean;
   staging?: string | null;
-  renamedFrom?: string;
 };
 
 export type DownloadSettings = { folder: string; askWhereToSave: boolean; managed: boolean };

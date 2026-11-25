@@ -251,7 +251,7 @@ previous tab), `-BrowsePagerScript` plays a scripted swipe (cancel, edge, commit
   arrives once and no seq is reused. iCloud's own delivery between devices is the one thing left for a real phone.
 - `pnpm --filter @universe/sync test` includes the companion's tests and checks the bundles are current.
 - The app's own states are checked in the simulator (see the agent notes below).
-- CI (`.github/workflows/universe-ios.yml`, on GitHub's `xcode-27` runner with Xcode 27.1) builds the `UniVerse Project Browser` scheme for the
+- CI (`.github/workflows/ios.yml`, on GitHub's `xcode-27` runner with Xcode 27.1) builds the `UniVerse Project Browser` scheme for the
   simulator without signing and runs the ArdiaKit and `packages/sync` Swift tests and the bundle check, on pull
   requests and pushes to `main` that touch `apps/ios`, `packages/sync`, `packages/core` or the workflow.
 
@@ -271,11 +271,7 @@ build. Adding a cryptography library, or an algorithm implemented in the app, ch
 The app record in App Store Connect is "UniVerse Project Browser", bundle id `com.universe.projectbrowser.ios`, team `U5L5T3NGVV`; its extensions
 are `.widgets`, `.share` and `.open`, and they share the app group `group.com.universe.projectbrowser.ios`.
 
-The iOS Release workflow (`ios-release.yml`) was deleted with the old iOS release path; `universe-ios.yml` builds for
-the simulator only and uploads nothing to TestFlight. There is currently no CI workflow that uploads a build, so the
-commands below are the deleted workflow's interface, kept for when it is restored.
-
-- **In CI (when restored).** Run the iOS Release workflow from `main`:
+- **In CI.** Run the iOS Release workflow (`.github/workflows/ios-release.yml`) from `main`:
   `gh workflow run ios-release.yml -f mode=upload`. It archives the Release build, signs it and uploads it through the
   App Store Connect API key the Mac release notarizes with (`NOTARY_KEY_P8`, `NOTARY_KEY_ID`, `NOTARY_ISSUER`), then
   waits until App Store Connect has processed the build. `mode=status` lists what App Store Connect holds (the app

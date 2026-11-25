@@ -1,21 +1,8 @@
-import {
-  isContentBlockerAllowed,
-  setContentBlockerAllowed,
-  setContentBlockerEnabled,
-  setFilterListEnabled,
-  type ContentBlockerState,
-  type FilterListCategory,
-} from "../../platform/contentBlocker";
+import { setContentBlockerEnabled, setFilterListEnabled, type ContentBlockerState, type FilterListCategory } from "../../platform/contentBlocker";
 
 export const blockerAvailable = (s: ContentBlockerState | null): s is ContentBlockerState => !!s && s.stats.ready !== false && s.lists.length > 0;
 
 export const categoryOn = (s: ContentBlockerState, category: FilterListCategory) => s.enabled && s.lists.some((l) => l.category === category && l.enabled);
-
-export const hostAdBlockingOff = (s: ContentBlockerState, host: string): boolean => s.allowedHosts.some((h) => host === h || host.endsWith(`.${h}`));
-
-export const isAdBlockingAllowedForHost = (host: string) => isContentBlockerAllowed(host);
-
-export const setAdBlockingForHost = (host: string, on: boolean) => setContentBlockerAllowed(host, !on);
 
 async function setLists(s: ContentBlockerState, ids: string[], on: boolean) {
   for (const id of ids) await setFilterListEnabled(id, on);

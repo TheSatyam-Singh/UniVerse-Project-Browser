@@ -5,7 +5,6 @@ const model = await import("../browser/model.ts");
 const organize = await import("../pins/tabCleanup.ts");
 const { controllingSearchExtension, defaultSearchEngine, searchUrlPrefix } = await import("../settings/settings.ts");
 const media = await import("../media/media.ts");
-media.startMedia();
 const { splitTabIdsOf } = await import("../splits/splits.ts");
 
 let clock = Date.now();
@@ -608,4 +607,3 @@ test("a tab opened behind joins the ⌃Tab order only once it is shown, so ⌃Ta
   assert.deepEqual(order(), ["link", "a", "b"]);
   assert.equal(S().tabs[link].unseen, undefined);
 });
-

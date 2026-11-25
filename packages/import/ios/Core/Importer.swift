@@ -79,20 +79,6 @@ public final class Importer: @unchecked Sendable {
       return parsed
     }
 
-    var arcRoutes: [ArcRoute]?
-    var arcArchived: [ArcArchivedItem]?
-    func arcDepth() -> (routes: [ArcRoute], archived: [ArcArchivedItem]) {
-      if let arcRoutes, let arcArchived { return (arcRoutes, arcArchived) }
-      let dir = discovery.arcSidebarURL().deletingLastPathComponent()
-      let routes = (try? Data(contentsOf: dir.appendingPathComponent("StorableLinkRouting.json")))
-        .map(parseArcLinkRouting) ?? ArcRouting()
-      let archived = (try? Data(contentsOf: dir.appendingPathComponent("StorableArchiveItems.json")))
-        .map(parseArcArchive) ?? []
-      arcRoutes = routes.routes
-      arcArchived = archived
-      return (routes.routes, archived)
-    }
-
     var zen: ZenSidebar?
     func zenSidebar() throws -> ZenSidebar {
       if let zen { return zen }
@@ -175,17 +161,9 @@ public final class Importer: @unchecked Sendable {
           guard def.sidebar != nil else { throw ImportError.unsupported("\(def.name) has no \(kind.rawValue) to import") }
           guard let spaces = try sidebarSpaces() else { throw ImportError.notFound("No \(def.name) spaces in this profile") }
           count = take(spaces, for: kind)
-          if def.sidebar == .arc {
-            let depth = arcDepth()
-            result.arcRoutes = depth.routes
-            result.archivedTabs = depth.archived
-          }
         case (.favorites, .arc):
           result.favorites = try arcSidebar().favorites[profileId] ?? []
           count = result.favorites.count
-          let depth = arcDepth()
-          result.arcRoutes = depth.routes
-          result.archivedTabs = depth.archived
         case (.favorites, .firefox):
           guard def.sidebar == .zen else { throw ImportError.unsupported("\(def.name) has no \(kind.rawValue) to import") }
           result.favorites = try zenSidebar().essentials

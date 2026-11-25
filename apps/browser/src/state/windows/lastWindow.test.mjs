@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { after, test } from "node:test";
+import { test } from "node:test";
 const { useBrowser } = await import("../browser/store.ts");
 const { startWindowCloseGuard } = await import("./windowClose.ts");
 const { openLastWindowOrNew } = await import("./lastWindow.ts");
@@ -16,8 +16,7 @@ shellNativeModules.ArdiaDialogs.confirm = (options) => {
   asked.push(options);
   return Promise.resolve({ confirmed: true, suppressed: false });
 };
-const stopPersistence = startPersistence();
-after(() => stopPersistence());
+startPersistence();
 startWindowCloseGuard();
 
 async function closeByUser(id) {

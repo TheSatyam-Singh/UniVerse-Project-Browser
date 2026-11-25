@@ -59,20 +59,15 @@ export function toolbarMode(i: ToolbarModeInput): ToolbarMode {
   return i.peek ? "peek" : "collapsed";
 }
 
-let started = false;
-
-export function startToolbarAutoHide() {
-  if (started) return;
-  started = true;
-  useBrowser.subscribe((s, prev) => {
-    if (prev.settings.hideToolbarWhileScrolling && !s.settings.hideToolbarWhileScrolling) useToolbarAutoHide.setState({ scrolledDown: {}, peek: {} });
-    if (s.tabs === prev.tabs) return;
-    const { scrolledDown, peek } = useToolbarAutoHide.getState();
-    const gone: string[] = [];
-    for (const id in scrolledDown) if (!s.tabs[id]) gone.push(id);
-    for (const id in peek) if (!s.tabs[id]) gone.push(id);
-    if (!gone.length) return;
-    useToolbarAutoHide.setState((st) => {
+useBrowser.subscribe((s, prev) => {
+  if (prev.settings.hideToolbarWhileScrolling && !s.settings.hideToolbarWhileScrolling) useToolbarAutoHide.setState({ scrolledDown: {}, peek: {} });
+  if (s.tabs === prev.tabs) return;
+  const { scrolledDown, peek } = useToolbarAutoHide.getState();
+  const gone: string[] = [];
+  for (const id in scrolledDown) if (!s.tabs[id]) gone.push(id);
+  for (const id in peek) if (!s.tabs[id]) gone.push(id);
+  if (!gone.length) return;
+  useToolbarAutoHide.setState((st) => {
     let { scrolledDown: d, peek: p } = st;
     for (const id of gone) {
       d = without(d, id);
@@ -80,5 +75,4 @@ export function startToolbarAutoHide() {
     }
     return { scrolledDown: d, peek: p };
   });
-  });
-}
+});

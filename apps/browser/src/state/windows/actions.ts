@@ -1,5 +1,4 @@
-import { storeAction } from "../browser/storeAction";
-import { useBrowser } from "../browser/store";
+import { storeAction, useBrowser } from "../browser/store";
 
 export const toggleSidebar = storeAction("toggleSidebar");
 export const restoreClosed = storeAction("restoreClosed");

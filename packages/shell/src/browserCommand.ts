@@ -22,8 +22,6 @@ export type BrowserCommand =
   | "toggleTabLayout"
   | "toggleSidebarSide"
   | "toggleSidebar"
-  | "toggleAssistant"
-  | "organizeTabs"
   | "openSplitPane"
   | "useSelectionForFind"
   | "findAndReplace"

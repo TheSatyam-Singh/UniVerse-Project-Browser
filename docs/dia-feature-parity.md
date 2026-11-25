@@ -1,10 +1,5 @@
 # Dia feature parity
 
-> Merge note: the 59 ⏸ AI rows below were deferred when this doc was written, before the merge.
-> They are now implemented in this project via `packages/ai` (assistant, providers, MCP client,
-> local DevMCP server, Tab Organizer) and `apps/browser/src/components/ai/` — the ⏸ marks on
-> the AI rows are stale and stand until the tables are re-audited row by row.
-
 Dia = installed build **1.49.1 (87398), Chromium 153** plus the public changelog up to **v1.50.0 (2026‑09‑24)**;
 visual rows re-checked against **1.50.1 (87750)** (`docs/dia-spec.md` › "1.50 Sunglow").
 Ardia = this working tree on **2026‑09‑25, after the Chrome migration**: then our patched Chrome-style CEF

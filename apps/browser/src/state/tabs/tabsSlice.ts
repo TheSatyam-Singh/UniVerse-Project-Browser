@@ -3,7 +3,7 @@ import { startNavigation } from "./earlyNavigate";
 import { cloneId } from "./adoptIds";
 import type { BrowserState } from "../browser/store";
 import { syncGroupOrder } from "../groups/groups";
-import { activeTabId, isIncognitoProfile, merge, navigationTo, pinSection, snapshotTab, viewTabIds } from "../browser/model";
+import { activeTabId, merge, navigationTo, pinSection, snapshotTab, viewTabIds } from "../browser/model";
 import { forgetOpeners, joinedWithCurrent, newTabPlacement, switchKeepsOpeners } from "./openers";
 import { onUrlChange } from "../pins/organize";
 import { groupWithOpener } from "../pins/tabGrouping";
@@ -17,7 +17,6 @@ import { holderOf, swapPinPage } from "../pins/pinShare";
 import { engineForUrl, tabEngine, typedNavigationEngine } from "../engines/engines";
 import type { ClosedTab, Tab, TabLive } from "../browser/types";
 import { activated, apply, closingTabs, withNewTab, type CloseOptions, type NewTabOptions } from "./tabs";
-import { archiveItemsOfTabs } from "../archive/archiveSlice";
 import { hasPage, loadedPage, navigationOf, renavigated, wakeOf, withWake } from "./pageSession";
 import { cancelOpening, gateOpening, isGatedUrl, settleOpening } from "./openingGate";
 
@@ -28,7 +27,7 @@ export type TabsSlice = {
   closedTabs: ClosedTab[];
 
   newTab(windowId: string, options?: NewTabOptions): string;
-  closeTab(id: string, options?: CloseOptions): void;
+  closeTab(id: string): void;
   closeTabs(ids: string[], options?: CloseOptions): void;
   activate(id: string): void;
   handOffPin(id: string): void;
@@ -105,29 +104,20 @@ export const createTabsSlice: StateCreator<BrowserState, [], [], TabsSlice> = (s
     return id;
   },
 
-  closeTab(id, options) {
-    get().closeTabs([id], { lastClosesWindow: true, ...options });
+  closeTab(id) {
+    get().closeTabs([id], { lastClosesWindow: true });
   },
 
   closeTabs(ids, options) {
-    const before = get();
-    const items = archiveItemsOfTabs(before, ids).filter((item) => !isIncognitoProfile(item.profileId));
-    const [next, closedWindows] = closingTabs(before, ids, options);
+    const [next, closedWindows] = closingTabs(get(), ids, options);
     set(next);
     for (const windowId of closedWindows) get().closeWindow(windowId);
-    if (!options?.skipArchive) {
-      const gone = items.filter((item) => !get().tabs[item.id]);
-      const byProfile = new Map<string, typeof gone>();
-      for (const item of gone) byProfile.set(item.profileId, [...(byProfile.get(item.profileId) ?? []), item]);
-      for (const [profileId, group] of byProfile) get().archiveClosedTabs(group, profileId, "closed");
-    }
   },
 
   activate(id) {
     const s = get();
     const tab = s.tabs[id];
     if (!tab) return;
-    get().noteTabActive(id);
     if (!hasPage(tab) && holderOf(s, id)) return handOffPinPage(id, () => get().handOffPin(id));
     const shown = activeTabId(s, tab.windowId);
     let next = apply(s, activated(s, id));

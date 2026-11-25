@@ -1,7 +1,7 @@
 import type { HLC } from "../../platform/sync";
 import { useBrowser, type BrowserState } from "../browser/store";
 import type { MainWindow, Tab } from "../browser/types";
-import { fromSync } from "../pins/syncWrites";
+import { fromSync } from "../pins/pinOrderChoices";
 import { PIN_TAB } from "./pinRecords";
 import { isRegularWindow } from "../windows/small";
 

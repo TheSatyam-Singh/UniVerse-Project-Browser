@@ -2,7 +2,7 @@ export type SiteSettingType =
   | "popups" | "camera" | "microphone" | "location" | "notifications" | "sound" | "autoplay" | "javascript"
   | "images" | "clipboard" | "automaticDownloads" | "cookies" | "midi" | "sensors" | "windowManagement"
   | "localFonts" | "idleDetection" | "storageAccess" | "fileSystem" | "keyboardLock" | "pointerLock"
-  | "cameraPanTiltZoom" | "adBlocking";
+  | "cameraPanTiltZoom";
 
 export type SiteSettingValue = "allow" | "block" | "ask" | "default";
 

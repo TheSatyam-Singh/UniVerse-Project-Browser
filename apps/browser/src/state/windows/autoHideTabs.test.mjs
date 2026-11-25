@@ -5,8 +5,6 @@ const { tabsShownIn } = await import("../browser/model.ts");
 const { menuState } = await import("../commands/menuState.ts");
 const { sidebarMenuItems } = await import("../sidebar/sidebarMenu.ts");
 const { flushPersistence, loadSession, parseSession, startPersistence } = await import("../session/persist.ts");
-const { startToolbarAutoHide } = await import("./toolbarAutoHide.ts");
-startToolbarAutoHide();
 const { SESSION_DOCUMENT } = await import("../session/sessionDocument.ts");
 const { noteScroll, useToolbarAutoHide } = await import("./toolbarAutoHide.ts");
 const { takeAutoHideTabsChoices, takeTornOffWindowsKeptAutoHide } = await import("../telemetry/autoHideTabsChoices.ts");
@@ -239,4 +237,3 @@ test("a saved session that disagreed with the setting is written back in line at
   assert.equal(saved.settings.autoHideTabs, false);
   stop();
 });
-
