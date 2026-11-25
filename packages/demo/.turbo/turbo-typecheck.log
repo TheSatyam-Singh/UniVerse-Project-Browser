@@ -1,0 +1,2 @@
+$ tsc -p . && node scripts/icons/check.mjs
+icons check skipped: needs macOS (CoreGlyphs symbol names)
