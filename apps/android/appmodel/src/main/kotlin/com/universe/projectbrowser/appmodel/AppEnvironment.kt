@@ -6,7 +6,7 @@ import com.universe.projectbrowser.blocking.FilterLists
 import com.universe.projectbrowser.blocking.HttpFilterListDownloader
 import com.universe.projectbrowser.blocking.InMemoryBlockingStore
 import com.universe.projectbrowser.blocking.SharedPreferencesBlockingStore
-import com.universe.projectbrowser.SystemWebViewEngine
+import com.universe.projectbrowser.DevelopmentWebViewEngine
 import com.universe.projectbrowser.PageEngine
 import com.universe.projectbrowser.SitePreferences
 import com.universe.projectbrowser.store.BrowserStore
@@ -58,7 +58,7 @@ class AppEnvironment(
                     preferences = MemoryKeyValueStore(),
                     blockingStore = InMemoryBlockingStore(),
                     openStore = { BrowserStore.demo(app) },
-                    makeEngine = { preferences -> SystemWebViewEngine(app, preferences) },
+                    makeEngine = { preferences -> DevelopmentWebViewEngine(app, preferences) },
                     makeSync = { SyncController.demo() },
                     makeFilterLists = { store -> FilterLists.demo(File(File(app.cacheDir, DEMO_BLOCKING_FOLDER), "Filters"), store) },
                     coreScript = { HermesCoreScript(app.assets) },
@@ -71,7 +71,7 @@ class AppEnvironment(
                 preferences = SharedPreferencesStore(app.getSharedPreferences(BrowserStore.PREFERENCES_NAME, Context.MODE_PRIVATE)),
                 blockingStore = SharedPreferencesBlockingStore(app.getSharedPreferences(BLOCKING_PREFERENCES, Context.MODE_PRIVATE)),
                 openStore = { BrowserStore.open(app) },
-                makeEngine = { preferences -> SystemWebViewEngine(app, preferences) },
+                makeEngine = { preferences -> DevelopmentWebViewEngine(app, preferences) },
                 makeSync = { SyncController.forApp(app) },
                 makeFilterLists = { store -> FilterLists(File(File(app.cacheDir, BLOCKING_FOLDER), "Filters"), store, HttpFilterListDownloader()) },
                 coreScript = { HermesCoreScript(app.assets) },

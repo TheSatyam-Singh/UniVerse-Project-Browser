@@ -83,7 +83,6 @@ internal object BrowsingTags {
     const val FAILURE = "browsing.failure"
     const val REQUEST = "browsing.request"
     const val PRESS_MENU = "browsing.press"
-    const val PREVIEW_OPEN = "browsing.preview.open"
 }
 
 @OptIn(ExperimentalFoundationApi::class)

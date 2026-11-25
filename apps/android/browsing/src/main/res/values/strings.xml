@@ -31,7 +31,6 @@
     <string name="browsing_zoom_in">Zoom In</string>
     <string name="browsing_reset_zoom">Reset Zoom</string>
     <string name="browsing_desktop_site">Desktop Site</string>
-    <string name="browsing_sponsor_block">Skip Sponsors</string>
     <string name="browsing_block_ads_and_trackers">Block Ads and Trackers</string>
     <string name="browsing_blocked">Blocked</string>
     <string name="browsing_open_in_default_browser">Open in Default Browser</string>
@@ -92,10 +91,6 @@
 
     <string name="browsing_open_in_new_tab">Open in New Tab</string>
     <string name="browsing_open_in_background">Open in Background</string>
-    <string name="browsing_preview_link">Preview Link</string>
-    <string name="browsing_preview_loading">Loading preview…</string>
-    <string name="browsing_preview_failed">Couldn’t load a preview for this link.</string>
-    <string name="browsing_preview_open">Open</string>
     <string name="browsing_share_ellipsis">Share…</string>
     <string name="browsing_download_linked_file">Download Linked File</string>
     <string name="browsing_save_image">Save Image</string>

@@ -17,30 +17,11 @@ android {
         testInstrumentationRunnerArguments["useTestStorageService"] = "true"
     }
 
-    val releaseKeystoreFile = (System.getenv("UNIVERSE_RELEASE_STORE_FILE") ?: project.findProperty("universe.release.storeFile") as? String)
-        ?.let { project.file(it) }?.takeIf { it.exists() }
-    val releaseKeystorePassword = System.getenv("UNIVERSE_RELEASE_STORE_PASSWORD") ?: project.findProperty("universe.release.storePassword") as? String
-    val releaseKeyAlias = System.getenv("UNIVERSE_RELEASE_KEY_ALIAS") ?: project.findProperty("universe.release.keyAlias") as? String
-    val releaseKeyPassword = System.getenv("UNIVERSE_RELEASE_KEY_PASSWORD") ?: project.findProperty("universe.release.keyPassword") as? String
-    val hasReleaseSigning = releaseKeystoreFile != null && releaseKeystorePassword != null && releaseKeyAlias != null && releaseKeyPassword != null
-
-    signingConfigs {
-        if (hasReleaseSigning) {
-            create("release") {
-                storeFile = releaseKeystoreFile
-                storePassword = releaseKeystorePassword
-                keyAlias = releaseKeyAlias
-                keyPassword = releaseKeyPassword
-            }
-        }
-    }
-
     buildTypes {
         release {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
-            if (hasReleaseSigning) signingConfig = signingConfigs.getByName("release")
         }
     }
 

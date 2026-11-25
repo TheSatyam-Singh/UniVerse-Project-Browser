@@ -36,15 +36,11 @@ internal class PageScriptSources(private val assets: AssetManager) {
     val nightShade: String by lazy { read("night-shade.js") }
     val reader: String by lazy { read("readable-content.js") }
     val pageLook: String by lazy { read("page-look.js") }
-    val sponsorBlock: String by lazy { read("sponsorblock.js") }
-    val youTubeTweaks: String by lazy { read("youtube-tweaks.js") }
 
     fun preload() {
         nightShade
         pageLook
         reader
-        sponsorBlock
-        youTubeTweaks
     }
 
     private fun read(name: String): String = assets.open("universe-browser/$name").bufferedReader().use { it.readText() }

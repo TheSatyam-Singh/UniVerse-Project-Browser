@@ -151,7 +151,7 @@
    "id": "adguard-spyware-url",
    "title": "AdGuard/uBO – URL Tracking Protection",
    "group": "privacy",
-   "off": false,
+   "off": true,
    "tags": [
     "privacy"
    ],

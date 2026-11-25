@@ -35,22 +35,6 @@ class TabDeckModel(private val preferences: AppPreferences) {
     var handoff: Handoff? by mutableStateOf(null)
     var entrance: Entrance by mutableStateOf(Entrance.Plain)
     var command: Command? by mutableStateOf(null)
-    var selectedIds: Set<String> by mutableStateOf(emptySet())
-        private set
-
-    val isSelecting: Boolean get() = selectedIds.isNotEmpty()
-
-    fun beginSelection(id: String) {
-        selectedIds = setOf(id)
-    }
-
-    fun toggleSelection(id: String) {
-        selectedIds = if (id in selectedIds) selectedIds - id else selectedIds + id
-    }
-
-    fun clearSelection() {
-        selectedIds = emptySet()
-    }
 
     var hasShownArchiveCard: Boolean
         get() = preferences.settings.value.archiveCardShown
@@ -62,7 +46,6 @@ class TabDeckModel(private val preferences: AppPreferences) {
 
     fun forget(ids: Set<String>) {
         if (handoff?.tabId in ids) handoff = null
-        if (selectedIds.any { it in ids }) selectedIds = selectedIds - ids
     }
 
     companion object {

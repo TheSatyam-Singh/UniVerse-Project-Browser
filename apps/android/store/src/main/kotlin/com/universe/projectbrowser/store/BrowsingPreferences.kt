@@ -51,7 +51,6 @@ data class SiteSettings(
     val appLinks: AppLinkPreference? = null,
     val desktopSite: Boolean? = null,
     val blockersOff: Boolean? = null,
-    val sponsorBlock: Boolean? = null,
 ) {
     val isEmpty: Boolean get() = this == SiteSettings()
 }
@@ -62,12 +61,6 @@ data class BrowsingSettings(
     val appLinks: AppLinkPreference = AppLinkPreference.ARDIA,
     val searchSuggestions: Boolean = true,
     val searchEngineId: String = "google",
-    val sponsorBlockEnabled: Boolean = false,
-    val sponsorBlockCategories: Map<String, String> = emptyMap(),
-    val youTubeHideShorts: Boolean = false,
-    val youTubeFrameThumbnails: Boolean = false,
-    val youTubeNoHoverPreview: Boolean = false,
-    val tidyDownloads: Boolean = false,
     val sites: Map<String, SiteSettings> = emptyMap(),
     val privateSites: Map<String, SiteSettings> = emptyMap(),
 ) {
@@ -85,8 +78,6 @@ data class BrowsingSettings(
     fun desktopSite(host: String?, isPrivate: Boolean = false): Boolean = site(host, isPrivate).desktopSite ?: false
 
     fun blockersOff(host: String?, isPrivate: Boolean = false): Boolean = site(host, isPrivate).blockersOff ?: false
-
-    fun sponsorBlock(host: String?, isPrivate: Boolean = false): Boolean = site(host, isPrivate).sponsorBlock ?: sponsorBlockEnabled
 }
 
 class BrowsingPreferences(private val store: KeyValueStore) {
@@ -105,21 +96,6 @@ class BrowsingPreferences(private val store: KeyValueStore) {
     fun setSearchSuggestions(enabled: Boolean) = change { store.putBoolean(KEYS_SUGGESTIONS, enabled); it.copy(searchSuggestions = enabled) }
 
     fun setSearchEngine(id: String) = change { store.putString(KEYS_ENGINE, id); it.copy(searchEngineId = id) }
-
-    fun setSponsorBlockEnabled(enabled: Boolean) = change { store.putBoolean(KEYS_SPONSOR_BLOCK, enabled); it.copy(sponsorBlockEnabled = enabled) }
-
-    fun setSponsorBlockCategories(categories: Map<String, String>) = change {
-        store.putString(KEYS_SPONSOR_BLOCK_CATEGORIES, json.encodeToString(categoriesSerializer, categories))
-        it.copy(sponsorBlockCategories = categories)
-    }
-
-    fun setYouTubeHideShorts(enabled: Boolean) = change { store.putBoolean(KEYS_YOUTUBE_HIDE_SHORTS, enabled); it.copy(youTubeHideShorts = enabled) }
-
-    fun setYouTubeFrameThumbnails(enabled: Boolean) = change { store.putBoolean(KEYS_YOUTUBE_FRAME_THUMBNAILS, enabled); it.copy(youTubeFrameThumbnails = enabled) }
-
-    fun setYouTubeNoHoverPreview(enabled: Boolean) = change { store.putBoolean(KEYS_YOUTUBE_NO_HOVER_PREVIEW, enabled); it.copy(youTubeNoHoverPreview = enabled) }
-
-    fun setTidyDownloads(enabled: Boolean) = change { store.putBoolean(KEYS_TIDY_DOWNLOADS, enabled); it.copy(tidyDownloads = enabled) }
 
     fun updateSite(host: String, isPrivate: Boolean = false, edit: (SiteSettings) -> SiteSettings) = change { settings ->
         val key = normalize(host)
@@ -153,12 +129,6 @@ class BrowsingPreferences(private val store: KeyValueStore) {
         appLinks = AppLinkPreference.of(store.string(KEYS_APP_LINKS)) ?: AppLinkPreference.ARDIA,
         searchSuggestions = store.boolean(KEYS_SUGGESTIONS) ?: true,
         searchEngineId = store.string(KEYS_ENGINE) ?: "google",
-        sponsorBlockEnabled = store.boolean(KEYS_SPONSOR_BLOCK) ?: false,
-        sponsorBlockCategories = store.string(KEYS_SPONSOR_BLOCK_CATEGORIES)?.let { runCatching { json.decodeFromString(categoriesSerializer, it) }.getOrNull() } ?: emptyMap(),
-        youTubeHideShorts = store.boolean(KEYS_YOUTUBE_HIDE_SHORTS) ?: false,
-        youTubeFrameThumbnails = store.boolean(KEYS_YOUTUBE_FRAME_THUMBNAILS) ?: false,
-        youTubeNoHoverPreview = store.boolean(KEYS_YOUTUBE_NO_HOVER_PREVIEW) ?: false,
-        tidyDownloads = store.boolean(KEYS_TIDY_DOWNLOADS) ?: false,
         sites = store.string(KEYS_SITES)?.let { runCatching { json.decodeFromString(sitesSerializer, it) }.getOrNull() } ?: emptyMap(),
     )
 
@@ -169,17 +139,10 @@ class BrowsingPreferences(private val store: KeyValueStore) {
         const val KEYS_SUGGESTIONS = "browsing.searchSuggestions"
         const val KEYS_ENGINE = "browsing.searchEngine"
         const val KEYS_SITES = "browsing.sites"
-        const val KEYS_SPONSOR_BLOCK = "browsing.sponsorBlockEnabled"
-        const val KEYS_SPONSOR_BLOCK_CATEGORIES = "browsing.sponsorBlockCategories"
-        const val KEYS_YOUTUBE_HIDE_SHORTS = "browsing.youTubeHideShorts"
-        const val KEYS_YOUTUBE_FRAME_THUMBNAILS = "browsing.youTubeFrameThumbnails"
-        const val KEYS_YOUTUBE_NO_HOVER_PREVIEW = "browsing.youTubeNoHoverPreview"
-        const val KEYS_TIDY_DOWNLOADS = "browsing.tidyDownloads"
         const val SITE_LIMIT = 500
 
         private val json = Json { ignoreUnknownKeys = true; explicitNulls = false }
         private val sitesSerializer = MapSerializer(String.serializer(), SiteSettings.serializer())
-        private val categoriesSerializer = MapSerializer(String.serializer(), String.serializer())
 
         fun normalize(host: String): String = host.lowercase().trim('.', ' ').removePrefix("www.")
     }

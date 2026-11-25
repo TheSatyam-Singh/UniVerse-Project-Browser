@@ -14,7 +14,7 @@ class FilterListsTest {
     fun defaultsMatchUBlockOriginPlusTheDevicesLanguageAndCookieNotices() {
         val catalog = FilterListCatalog.bundled
         assertEquals("1.75.0", catalog.ubo)
-        val ubo = setOf("ublock-filters", "ublock-badware", "ublock-privacy", "ublock-unbreak", "ublock-quick-fixes", "easylist", "easyprivacy", "urlhaus-1", "plowe-0", "adguard-spyware-url")
+        val ubo = setOf("ublock-filters", "ublock-badware", "ublock-privacy", "ublock-unbreak", "ublock-quick-fixes", "easylist", "easyprivacy", "urlhaus-1", "plowe-0")
         assertEquals(ubo, catalog.lists.filter { !it.off }.map { it.id }.toSet())
         assertEquals(ubo + "fanboy-cookiemonster", catalog.defaultSelection(listOf("en-US"), isMobile = false))
         assertEquals(ubo + setOf("fanboy-cookiemonster", "DEU-0", "adguard-mobile"), catalog.defaultSelection(listOf("de-DE", "en-GB"), isMobile = true))

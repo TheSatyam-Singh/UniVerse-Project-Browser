@@ -62,7 +62,6 @@ import com.universe.projectbrowser.appmodel.AppModel
 import com.universe.projectbrowser.appmodel.SettingsRoute
 import com.universe.projectbrowser.Page
 import com.universe.projectbrowser.PageZoom
-import com.universe.projectbrowser.SponsorBlock
 import com.universe.projectbrowser.design.UniVerseColors
 import com.universe.projectbrowser.design.UniVerseSymbols
 import com.universe.projectbrowser.design.UniVerseType
@@ -103,7 +102,6 @@ internal object MenuTags {
     const val ZOOM_IN = "menu.zoomIn"
     const val ZOOM_RESET = "menu.zoomReset"
     const val DESKTOP = "menu.desktop"
-    const val SPONSOR_BLOCK = "menu.sponsorBlock"
     const val BLOCKING = "menu.blocking"
     const val DEFAULT_BROWSER = "menu.defaultBrowser"
     const val SITE_SETTINGS = "menu.siteSettings"
@@ -163,9 +161,7 @@ private fun PageMenuMain(model: AppModel, tab: BrowserTab, page: Page?, onShowSi
             MenuGroup {
                 NightShadeRow(model, page, isWebPage)
                 ZoomRow(page, isWebPage, large)
-                val isYouTube = SponsorBlock.isYouTubeHost(BrowserUrl.host(tab.url))
-                DesktopRow(model, page, isWebPage, onDismiss, divider = isYouTube)
-                if (isYouTube) SponsorBlockRow(model, page, isWebPage)
+                DesktopRow(model, page, isWebPage, onDismiss)
             }
             MenuGroup {
                 BlockingRow(model, page, isWebPage, onDismiss)
@@ -528,22 +524,12 @@ private fun NightShadeRow(model: AppModel, page: Page, isWebPage: Boolean) {
 }
 
 @Composable
-private fun DesktopRow(model: AppModel, page: Page, isWebPage: Boolean, onDismiss: () -> Unit, divider: Boolean = false) {
+private fun DesktopRow(model: AppModel, page: Page, isWebPage: Boolean, onDismiss: () -> Unit) {
     val isOn = model.isDesktopSite(page)
-    ToggleRow(BrowsingSymbols.desktop, stringResource(R.string.browsing_desktop_site), MenuTags.DESKTOP, checked = isOn, enabled = isWebPage, divider = divider) { wanted ->
+    ToggleRow(BrowsingSymbols.desktop, stringResource(R.string.browsing_desktop_site), MenuTags.DESKTOP, checked = isOn, enabled = isWebPage, divider = false) { wanted ->
         if (wanted == model.isDesktopSite(page)) return@ToggleRow
         model.toggleDesktopSite(page)
         onDismiss()
-    }
-}
-
-@Composable
-private fun SponsorBlockRow(model: AppModel, page: Page, isWebPage: Boolean) {
-    page.select { it.host }.value
-    val isOn = model.sponsorBlockEnabled(page)
-    ToggleRow(BrowsingSymbols.video, stringResource(R.string.browsing_sponsor_block), MenuTags.SPONSOR_BLOCK, checked = isOn, enabled = isWebPage, divider = false) { wanted ->
-        if (wanted == model.sponsorBlockEnabled(page)) return@ToggleRow
-        model.setSponsorBlock(wanted, page)
     }
 }
 

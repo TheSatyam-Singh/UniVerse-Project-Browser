@@ -19,8 +19,6 @@ import com.universe.projectbrowser.blocking.MyFiltersResult
 import com.universe.projectbrowser.BrowserUrl as PageUrl
 import com.universe.projectbrowser.DownloadFailure
 import com.universe.projectbrowser.DownloadOutcome
-import com.universe.projectbrowser.DownloadTidier
-import com.universe.projectbrowser.LinkPreviewFetcher
 import com.universe.projectbrowser.Page
 import com.universe.projectbrowser.PageColors
 import com.universe.projectbrowser.PageDownload
@@ -201,7 +199,6 @@ class AppModel(
     private val freshTabs = HashMap<String, VisitKind>()
     private var isActive = false
     private var appliedSearchKey: Any? = null
-    private val linkPreviewFetcher = LinkPreviewFetcher()
 
     init {
         mirrorServices()
@@ -552,7 +549,7 @@ class AppModel(
         when (event) {
             is PageEvent.Visited -> recordVisit(id, event)
             is PageEvent.OpenWindow -> openPopup(id, event.popup)
-            is PageEvent.Download -> startDownload(id, event.download)
+            is PageEvent.Download -> startDownload(event.download)
             PageEvent.CloseRequested -> closeTab(id)
             is PageEvent.ExternalAppMissing -> toasts.show(Toast(NO_APP_FOR_LINK, UniVerseSymbols.exclamationmarkTriangleFill))
             is PageEvent.LongPress -> browse.press = BrowseSession.PagePress(id, event.target, event.x, event.y)
@@ -584,23 +581,16 @@ class AppModel(
         system.cancelDownload(id)
     }
 
-    private fun startDownload(tabId: String, download: PageDownload) {
-        val tidy = if (browsing.tidyDownloads && DownloadTidier.shouldTidy(true, download.isPrivate, DownloadTidier.Origin.NETWORK)) {
-            val tab = tabStore?.tab(tabId)
-            DownloadTidier.tidyName(download.fileName, tab?.title, PageUrl.host(download.url))
-        } else {
-            null
-        }
-        val named = if (tidy != null) download.copy(fileName = tidy) else download
-        val id = system.enqueueDownload(named)
+    private fun startDownload(download: PageDownload) {
+        val id = system.enqueueDownload(download)
         if (id != null) {
-            if (named.isPrivate) {
+            if (download.isPrivate) {
                 privateDownloadIds = privateDownloadIds + id
                 privateStopAnnounced = false
             }
-            toasts.show(Toast(downloading(named.fileName), UniVerseSymbols.arrowDownCircleFill))
+            toasts.show(Toast(downloading(download.fileName), UniVerseSymbols.arrowDownCircleFill))
         } else {
-            toasts.show(Toasts.downloadFailed(named.fileName))
+            toasts.show(Toasts.downloadFailed(download.fileName))
         }
     }
 
@@ -772,84 +762,6 @@ class AppModel(
         deck.forget(setOf(id))
         browse.forget(id)
         tabStore?.archive(id)
-    }
-
-    fun beginTabSelection(id: String) {
-        deck.beginSelection(id)
-    }
-
-    fun toggleTabSelection(id: String) {
-        deck.toggleSelection(id)
-    }
-
-    fun clearTabSelection() {
-        deck.clearSelection()
-    }
-
-    fun archiveSelectedTabs() {
-        val ids = deck.selectedIds
-        if (ids.isEmpty()) return
-        deck.clearSelection()
-        ids.forEach(::closeTab)
-    }
-
-    fun deleteSelectedTabs() {
-        val ids = deck.selectedIds
-        if (ids.isEmpty()) return
-        deck.clearSelection()
-        ids.forEach { browse.forget(it) }
-        tabStore?.delete(ids)
-    }
-
-    fun previewLink(url: String) {
-        browse.linkPreview = BrowseSession.LinkPreview(url, null, true)
-        scope.launch {
-            val clean = runCatching { omnibox.cleanUrl(url) }.getOrDefault(url)
-            val page = runCatching { linkPreviewFetcher.fetch(clean, isPrivate = isIncognito) }.getOrNull()
-            if (browse.linkPreview?.url == url) browse.linkPreview = BrowseSession.LinkPreview(clean, page, false)
-        }
-    }
-
-    fun dismissLinkPreview() {
-        browse.linkPreview = null
-    }
-
-    fun setSponsorBlockEnabled(enabled: Boolean) {
-        preferences.setSponsorBlockEnabled(enabled)
-        browsing = preferences.current
-        engine?.refreshSitePreferences()
-    }
-
-    fun setTidyDownloads(enabled: Boolean) {
-        preferences.setTidyDownloads(enabled)
-        browsing = preferences.current
-    }
-
-    fun setYouTubeHideShorts(enabled: Boolean) {
-        preferences.setYouTubeHideShorts(enabled)
-        browsing = preferences.current
-        engine?.refreshSitePreferences()
-    }
-
-    fun setYouTubeFrameThumbnails(enabled: Boolean) {
-        preferences.setYouTubeFrameThumbnails(enabled)
-        browsing = preferences.current
-        engine?.refreshSitePreferences()
-    }
-
-    fun setYouTubeNoHoverPreview(enabled: Boolean) {
-        preferences.setYouTubeNoHoverPreview(enabled)
-        browsing = preferences.current
-        engine?.refreshSitePreferences()
-    }
-
-    fun sponsorBlockEnabled(page: Page): Boolean = browsing.sponsorBlock(page.state.value.host, page.isPrivate)
-
-    fun setSponsorBlock(enabled: Boolean, page: Page) {
-        val host = page.state.value.host ?: return
-        preferences.updateSite(host, page.isPrivate) { it.copy(sponsorBlock = enabled) }
-        browsing = preferences.current
-        engine?.refreshSitePreferences()
     }
 
     fun moveTab(id: String, index: Int) {

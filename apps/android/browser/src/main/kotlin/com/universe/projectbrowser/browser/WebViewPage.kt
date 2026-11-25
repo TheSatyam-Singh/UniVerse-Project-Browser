@@ -46,7 +46,7 @@ import org.json.JSONObject
 internal class WebViewPage(
     override val id: String,
     override val isPrivate: Boolean,
-    internal val engine: SystemWebViewEngine,
+    internal val engine: DevelopmentWebViewEngine,
     setup: PageSetup,
     private var popup: PopupRequest?,
 ) : Page, DiscardablePage {
@@ -86,9 +86,6 @@ internal class WebViewPage(
     private var findQuery = ""
     private var lastTouchX = 0f
     private var lastTouchY = 0f
-    private var sponsorVideoId: String? = null
-    private var sponsorBlockInstalled = false
-    private var youTubeTweaksInstalled = false
     internal val answeredSignIns = HashSet<String>()
     internal var lastCaptureRoute: CaptureRoute? = null
     private var reportsContent = false
@@ -366,7 +363,6 @@ internal class WebViewPage(
         val host = mutableState.value.host
         applyNightShade(web, engine.sitePreferences.nightShade(host, isPrivate))
         applyZoom(engine.sitePreferences.pageZoom(host, isPrivate) ?: 1.0)
-        mutableState.value.url?.let { refreshYouTube(web, it) }
     }
 
     @SuppressLint("SetJavaScriptEnabled", "ClickableViewAccessibility", "RequiresFeature")
@@ -516,9 +512,6 @@ internal class WebViewPage(
         if (web !== webView) return
         filterPageUrl = url
         reportsContent = false
-        sponsorVideoId = null
-        sponsorBlockInstalled = false
-        youTubeTweaksInstalled = false
         val changed = installFilterScripts(web, url)
         if (!engine.supportsDocumentStartScripts) {
             web.evaluateJavascript(PageScripts.mainFrameOnly(engine.scripts.nightShade), null)
@@ -569,41 +562,6 @@ internal class WebViewPage(
             )
         }
         readPageLook(web)
-        refreshYouTube(web, web.url ?: url)
-    }
-
-    internal fun refreshYouTube(web: WebView, url: String) {
-        if (web !== webView || isPrivate) return
-        val host = BrowserUrl.host(url)
-        if (!SponsorBlock.isYouTubeHost(host)) return
-        val tweaks = engine.sitePreferences.youTubeTweaks(host, isPrivate)
-        if (!youTubeTweaksInstalled) {
-            val css = SponsorBlock.youTubeTweaksCss(tweaks.hideShorts)
-            val call = runCatching { SponsorBlock.youTubeTweaksCall(css, tweaks, engine.scripts.youTubeTweaks) }.getOrNull()
-            if (call != null) {
-                web.evaluateJavascript(PageScripts.mainFrameOnly(call), null)
-                youTubeTweaksInstalled = true
-            }
-        }
-        val options = engine.sitePreferences.sponsorBlock(host, isPrivate)
-        if (!options.enabled) {
-            sponsorVideoId = null
-            return
-        }
-        if (!sponsorBlockInstalled) {
-            runCatching { web.evaluateJavascript(PageScripts.mainFrameOnly(engine.scripts.sponsorBlock), null) }
-            sponsorBlockInstalled = true
-        }
-        val videoId = SponsorBlock.videoId(url) ?: return
-        if (videoId == sponsorVideoId) return
-        sponsorVideoId = videoId
-        engine.sponsorBlockClient.fetchSegments(videoId, options) { segments ->
-            engine.mainHandler.post {
-                if (web !== webView || isPrivate) return@post
-                if (SponsorBlock.videoId(web.url) != videoId) return@post
-                web.evaluateJavascript(SponsorBlock.deliveryScript(segments, options), null)
-            }
-        }
     }
 
     internal fun historyUpdated(web: WebView, url: String, isReload: Boolean) {
@@ -624,7 +582,6 @@ internal class WebViewPage(
             else -> VisitKind.Link
         }
         if (visit != null) mutableEvents.tryEmit(PageEvent.Visited(url, cleanTitle(web.title, url), visit))
-        refreshYouTube(web, url)
     }
 
     internal fun rendererNavigationKind(hasGesture: Boolean): VisitKind = when {

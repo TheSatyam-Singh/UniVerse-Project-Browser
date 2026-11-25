@@ -6,7 +6,7 @@ description: Cut and ship an UniVerse Project Browser release end to end, stable
 # Releasing UniVerse Project Browser
 
 A release is: notes → version bump → `scripts/release.sh` → smoke test → GitHub release → site deploy.
-The build and the publishing run in GitHub Actions: the **Release** workflow (`.github/workflows/universe-macos.yml`,
+The build and the publishing run in GitHub Actions: the **Release** workflow (`.github/workflows/release.yml`,
 `docs/releasing.md` › CI releases) runs `release.sh`, signs, notarizes and publishes.
 Locally you write the notes, bump the version, publish the engine when `engine/` changed, smoke-test, run the
 stable perf gate and the site's UniVerse Project Browser-only benchmarks, and update the site.
@@ -48,15 +48,15 @@ For each fix:
      All of it must pass, as for stable. To test CI's own build instead of a local one, see "Smoke-testing CI's build"
      in step 5.
    - Publish: commit and push the bump and notes, then
-     `gh workflow run universe-macos.yml -R TheSatyam-Singh/UniVerse-Project-Browser -f version=<version> -f dry_run=false` and
+     `gh workflow run release.yml -R TheSatyam-Singh/UniVerse-Project-Browser -f version=<version> -f dry_run=false` and
      watch it (`gh run watch <id> --exit-status`, in pieces under 10 minutes). It builds, tags, and runs
      `.claude/skills/release/scripts/publish.sh <version>` (a prerelease with the DMG, zip, appcast and CLI
      tarball; the merged feed onto the latest stable release; `UniVerse-Project-Browser-Nightly.dmg` behind https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases;
      it checks all of them), and the Homebrew tap's `universe@nightly` cask when the `HOMEBREW_TAP_TOKEN` secret is set
      (otherwise run `update-tap.sh <version>` yourself, step 5c). Locally the same is `git tag v<version> && git push
      origin main v<version>` and `publish.sh <version>` after `release.sh`.
-   - Site: deploy it with `pnpm -C apps/site run deploy`, so the after-update tab finds the nightly's
-     entry (no `release.ts` change, no claims or screenshots). The nightly download link
+   - Site: pushing the notes redeploys it (`.github/workflows/deploy.yml`), so the after-update tab finds the nightly's
+     entry; check the deploy run finished (no `release.ts` change, no claims or screenshots). The nightly download link
      never changes.
    - Report in two lines: the version, the fix, the smoke result.
 
@@ -308,8 +308,8 @@ Both channels publish with `publish.sh` (`docs/releasing.md` › Cutting a relea
 and, for a stable, the perf gate passed:
 
 ```bash
-gh workflow run universe-macos.yml -R TheSatyam-Singh/UniVerse-Project-Browser -f version=<version> -f dry_run=false
-gh run list -R TheSatyam-Singh/UniVerse-Project-Browser -w universe-macos.yml -L 1        # its id; then gh run watch <id> --exit-status, in pieces
+gh workflow run release.yml -R TheSatyam-Singh/UniVerse-Project-Browser -f version=<version> -f dry_run=false
+gh run list -R TheSatyam-Singh/UniVerse-Project-Browser -w release.yml -L 1        # its id; then gh run watch <id> --exit-status, in pieces
 .claude/skills/release/scripts/feed.sh <version>           # with a local dist/<version>/export, or curl github.com/TheSatyam-Singh/UniVerse-Project-Browser/appcast.xml
 ```
 

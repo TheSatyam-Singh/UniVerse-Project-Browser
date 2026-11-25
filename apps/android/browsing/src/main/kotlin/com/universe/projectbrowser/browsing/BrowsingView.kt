@@ -217,8 +217,6 @@ fun BrowsingView(model: AppModel, isFront: Boolean, modifier: Modifier = Modifie
                         modifier = Modifier.fillMaxSize(),
                     )
                     if (press != null && isFront) PagePressMenu(model, press)
-                    val linkPreview = model.browse.linkPreview
-                    if (linkPreview != null && tab != null && isFront) LinkPreviewDialog(model, linkPreview, tab.id)
                 }
             }
             PagerNeighbors(model, pager, statusTop, corner)

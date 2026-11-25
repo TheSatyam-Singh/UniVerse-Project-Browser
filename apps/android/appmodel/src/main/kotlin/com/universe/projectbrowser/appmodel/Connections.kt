@@ -4,9 +4,7 @@ import com.universe.projectbrowser.blocking.ContentBlocker
 import com.universe.projectbrowser.NightShadeMode as PageNightShade
 import com.universe.projectbrowser.PageFilter
 import com.universe.projectbrowser.SitePreferences
-import com.universe.projectbrowser.SponsorBlockOptions as PageSponsorBlockOptions
 import com.universe.projectbrowser.VisitKind
-import com.universe.projectbrowser.YouTubeTweaksOptions as PageYouTubeTweaksOptions
 import com.universe.projectbrowser.store.AppLinkPreference
 import com.universe.projectbrowser.store.BrowsingPreferences
 import com.universe.projectbrowser.store.CandidateBookmark
@@ -37,17 +35,6 @@ class StoreSitePreferences(private val preferences: BrowsingPreferences) : SiteP
     }
 
     override fun opensLinksInApps(host: String?, isPrivate: Boolean): Boolean = preferences.current.appLinks(host, isPrivate) == AppLinkPreference.APP
-
-    override fun sponsorBlock(host: String?, isPrivate: Boolean): PageSponsorBlockOptions {
-        val current = preferences.current
-        val enabled = current.sponsorBlock(host, isPrivate)
-        return PageSponsorBlockOptions(enabled, current.sponsorBlockCategories)
-    }
-
-    override fun youTubeTweaks(host: String?, isPrivate: Boolean): PageYouTubeTweaksOptions {
-        val current = preferences.current
-        return PageYouTubeTweaksOptions(current.youTubeHideShorts, current.youTubeFrameThumbnails, current.youTubeNoHoverPreview)
-    }
 
     companion object {
         fun pageMode(mode: NightShadeMode): PageNightShade = when (mode) {

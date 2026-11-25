@@ -81,34 +81,6 @@ fun SiteSettingsPage(nav: SettingsNav) {
                 )
             }
         }
-        item(key = "youtube") {
-            SettingsGroup {
-                ToggleRow(
-                    stringResource(R.string.site_sponsor_block), model.browsing.sponsorBlockEnabled, model::setSponsorBlockEnabled,
-                    icon = UniVerseSymbols.eyes, tint = SettingsTint.red, showsDivider = true, tag = "sponsorBlock",
-                )
-                ToggleRow(
-                    stringResource(R.string.site_youtube_hide_shorts), model.browsing.youTubeHideShorts, model::setYouTubeHideShorts,
-                    icon = UniVerseSymbols.squareStack, tint = SettingsTint.neutral, showsDivider = true, tag = "hideShorts",
-                )
-                ToggleRow(
-                    stringResource(R.string.site_youtube_frame_thumbnails), model.browsing.youTubeFrameThumbnails, model::setYouTubeFrameThumbnails,
-                    icon = UniVerseSymbols.squareOnSquare, tint = SettingsTint.neutral, showsDivider = true, tag = "frameThumbnails",
-                )
-                ToggleRow(
-                    stringResource(R.string.site_youtube_no_hover_preview), model.browsing.youTubeNoHoverPreview, model::setYouTubeNoHoverPreview,
-                    icon = UniVerseSymbols.handRaisedFill, tint = SettingsTint.neutral, tag = "noHoverPreview",
-                )
-            }
-        }
-        item(key = "downloads") {
-            SettingsGroup {
-                ToggleRow(
-                    stringResource(R.string.site_tidy_downloads), model.browsing.tidyDownloads, model::setTidyDownloads,
-                    icon = UniVerseSymbols.arrowDownCircleFill, tint = SettingsTint.bottomBar, tag = "tidyDownloads",
-                )
-            }
-        }
         item(key = "page") {
             SettingsGroup(footer = stringResource(R.string.site_footer)) {
                 PickerRow(

@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.universe.projectbrowser.LinkPreviewPage
 import com.universe.projectbrowser.PageTone
 import com.universe.projectbrowser.PressTarget
 import java.util.concurrent.atomic.AtomicLong
@@ -25,14 +24,11 @@ class BrowseSession(private val scope: CoroutineScope) {
 
     data class PagePress(val tabId: String, val target: PressTarget, val x: Float, val y: Float)
 
-    data class LinkPreview(val url: String, val page: LinkPreviewPage?, val isLoading: Boolean)
-
     var search: SearchRequest? by mutableStateOf(null)
     var trayHoldsKeyboard: Boolean by mutableStateOf(false)
     var isToolbarPresented: Boolean by mutableStateOf(false)
     var readerTabId: String? by mutableStateOf(null)
     var titleFeedback: String? by mutableStateOf(null)
-    var linkPreview: LinkPreview? by mutableStateOf(null)
         private set
     var isVoicePresented: Boolean by mutableStateOf(false)
     var isFindPresented: Boolean by mutableStateOf(false)

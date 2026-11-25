@@ -15,41 +15,8 @@ class PreferencesTest {
         assertEquals(AppLinkPreference.ARDIA, settings.appLinks)
         assertTrue(settings.searchSuggestions)
         assertEquals("google", settings.searchEngineId)
-        assertFalse(settings.sponsorBlockEnabled)
-        assertTrue(settings.sponsorBlockCategories.isEmpty())
-        assertFalse(settings.youTubeHideShorts)
-        assertFalse(settings.youTubeFrameThumbnails)
-        assertFalse(settings.youTubeNoHoverPreview)
-        assertFalse(settings.tidyDownloads)
         val app = AppPreferences(MemoryKeyValueStore()).settings.value
         assertEquals(AppSettings(collapsesBottomBar = false, autoOpensKeyboard = true, hasFinishedOnboarding = false, archiveCardShown = false), app)
-    }
-
-    @Test
-    fun sponsorBlockTweaksAndTidyDownloadsSurviveARelaunch() {
-        val store = MemoryKeyValueStore()
-        val preferences = BrowsingPreferences(store)
-        preferences.setSponsorBlockEnabled(true)
-        preferences.setSponsorBlockCategories(mapOf("sponsor" to "auto", "intro" to "disabled"))
-        preferences.setYouTubeHideShorts(true)
-        preferences.setYouTubeFrameThumbnails(true)
-        preferences.setYouTubeNoHoverPreview(true)
-        preferences.setTidyDownloads(true)
-        preferences.updateSite("www.youtube.com") { it.copy(sponsorBlock = false) }
-        val reloaded = BrowsingPreferences(store).current
-        assertTrue(reloaded.sponsorBlockEnabled)
-        assertEquals(mapOf("sponsor" to "auto", "intro" to "disabled"), reloaded.sponsorBlockCategories)
-        assertTrue(reloaded.youTubeHideShorts)
-        assertTrue(reloaded.youTubeFrameThumbnails)
-        assertTrue(reloaded.youTubeNoHoverPreview)
-        assertTrue(reloaded.tidyDownloads)
-        assertFalse(reloaded.sponsorBlock("youtube.com"))
-        assertFalse(reloaded.sponsorBlock("www.youtube.com"))
-        assertTrue(reloaded.sponsorBlock("other.example"))
-        preferences.updateSite("www.youtube.com") { it.copy(sponsorBlock = null) }
-        val cleared = BrowsingPreferences(store).current
-        assertTrue(cleared.sites.isEmpty())
-        assertTrue(cleared.sponsorBlock("youtube.com"))
     }
 
     @Test

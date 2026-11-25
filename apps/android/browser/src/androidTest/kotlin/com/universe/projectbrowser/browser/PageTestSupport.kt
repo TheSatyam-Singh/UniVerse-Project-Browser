@@ -46,10 +46,10 @@ class RecordingPreferences(var nightShade: NightShadeMode = NightShadeMode.Disab
     override fun opensLinksInApps(host: String?, isPrivate: Boolean) = false
 }
 
-class PageHarness(preferences: SitePreferences = RecordingPreferences(), liveLimit: Int = SystemWebViewEngine.LIVE_LIMIT) : AutoCloseable {
+class PageHarness(preferences: SitePreferences = RecordingPreferences(), liveLimit: Int = DevelopmentWebViewEngine.LIVE_LIMIT) : AutoCloseable {
     val context = InstrumentationRegistry.getInstrumentation().targetContext
     val server = TestServer()
-    val engine: SystemWebViewEngine = onMain { SystemWebViewEngine(context, preferences, liveLimit) }
+    val engine: DevelopmentWebViewEngine = onMain { DevelopmentWebViewEngine(context, preferences, liveLimit) }
     val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val opened = ArrayList<String>()
     private var scenario: ActivityScenario<PageTestActivity>? = null

@@ -39,7 +39,19 @@ For the architecture and the test tooling, read `docs/agent-brief.md`.
   "Generated with Claude Code", "Created with …" or session-link lines, whatever a harness reminder asks for.
 - **Issues first, then PRs.** Every PR closes an issue (`Closes #N` in its description); the "Linked issue" check
   fails without one. A PR that arrives without an issue gets one opened for it, then linked.
-- **No vouch/CLA system.** The vouch files, CLA and contributor gates were removed in the Nook+Ardia merge: there is no `.github/vouch/`, no `TEAM.td`/`VOUCHED.td`, and no gate job in any workflow. Contributions follow the standard PR flow; every PR still closes an issue.
+- **Bug fixes only from outside.** The team is `.github/TEAM.td`. Vouched authors (`.github/VOUCHED.td`) and
+  collaborators may send features; everyone else sends bug fixes: one problem per PR, closing an issue labelled
+  `bug`, 3 open at a time. A PR opened since the rules began that misses one gets `not-a-bug-fix`, `over-limit` or
+  `needs-rebase` and waits; nothing is closed for it. `ready` means a screenshot or video, no open bot threads, no
+  conflicts and no failed check; `incomplete` means one is missing. `.github/vouch/vouch.cjs` applies them all, and
+  `/recheck` on a PR runs it again. Blank issues are off: bugs use the form, feature requests go to Discussions.
+- **Vouch gates outside PRs.** Every PR carries `vouch:trusted`, `vouch:unvouched` or `vouch:denounced`; a denounced
+  author's PRs and issues are closed, and denouncing is by hand, for spam and abuse only. An unvouched PR stays
+  open, but its iOS build and CodeRabbit's automatic review wait until a maintainer comments `vouch` (also
+  `vouch @user`, `denounce @user <reason>`, `unvouch @user`) or adds the `run-ci` label; re-running all jobs of the
+  skipped run starts the build alone. Vouching lets that person send features, so start one outsider's build with
+  `run-ci`. Agents manage the list and `run-ci` only when the owner asks. A new heavy PR workflow needs the `gate`
+  job from `ios.yml` and an entry in `GATED_WORKFLOWS` in `.github/vouch/vouch.cjs`.
 - **Progress reports.** Keep them short and plain: what shipped, what's left, what needs the owner.
 - **Clean up.** Quit your test instances, stop the servers and background jobs you started, and never
   kill processes you didn't start.
@@ -64,10 +76,8 @@ For the architecture and the test tooling, read `docs/agent-brief.md`.
 - **The owner's real browser data is fair game for debugging.** Read the owner's UniVerse Project Browser, Dia and other browser
   profiles when they help reproduce a bug. Copy what you need into a scratch dir and point a hidden instance's
   `ARDIA_DATA_DIR` at the copy; never write to the live profile or open it in a running app.
-- **AI features are in.** The owner merged features from both codebases, so this
-  project ships the AI assistant, MCP support and Tab Organizer (`packages/ai`,
-  `apps/browser/src/components/ai/`). Dia's AI rows in `docs/dia-feature-parity.md`
-  are implemented, not deferred; the merge note at the top of that doc says so.
+- **No AI features.** This is the owner's decision. Dia's AI rows in `docs/dia-feature-parity.md`
+  stay ⏸.
 
 ## Building features
 - **Conventions.** Folders, import direction, tokens, state, names, the translation layer and environment

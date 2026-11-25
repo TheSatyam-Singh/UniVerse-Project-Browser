@@ -29,18 +29,16 @@ import com.universe.projectbrowser.design.UniVerseType
 import com.universe.projectbrowser.design.SystemPalette
 import kotlin.math.roundToInt
 
-enum class PressAction { Preview, OpenInNewTab, OpenInBackground, CopyLink, Share, Download, SaveImage }
+enum class PressAction { OpenInNewTab, OpenInBackground, CopyLink, Share, Download, SaveImage }
 
 object PressMenuItems {
     fun of(target: PressTarget): List<List<PressAction>> = when (target) {
         is PressTarget.Link -> listOf(
-            listOf(PressAction.Preview),
             listOf(PressAction.OpenInNewTab, PressAction.OpenInBackground),
             listOf(PressAction.CopyLink, PressAction.Share, PressAction.Download),
         )
         is PressTarget.Image -> if (target.linkUrl != null) {
             listOf(
-                listOf(PressAction.Preview),
                 listOf(PressAction.OpenInNewTab, PressAction.OpenInBackground),
                 listOf(PressAction.CopyLink, PressAction.Share, PressAction.Download),
                 listOf(PressAction.SaveImage),
@@ -91,7 +89,6 @@ internal fun PagePressMenu(model: AppModel, press: BrowseSession.PagePress) {
                         onClick = {
                             dismiss()
                             when (action) {
-                                PressAction.Preview -> model.previewLink(link)
                                 PressAction.OpenInNewTab -> model.openLink(link, press.tabId, inBackground = false)
                                 PressAction.OpenInBackground -> model.openLink(link, press.tabId, inBackground = true)
                                 PressAction.CopyLink -> model.copyLink(link)
@@ -109,7 +106,6 @@ internal fun PagePressMenu(model: AppModel, press: BrowseSession.PagePress) {
 
 @Composable
 private fun pressLabel(action: PressAction): Pair<String, ImageVector> = when (action) {
-    PressAction.Preview -> stringResource(R.string.browsing_preview_link) to UniVerseSymbols.eyes
     PressAction.OpenInNewTab -> stringResource(R.string.browsing_open_in_new_tab) to BrowsingSymbols.plusSquareOnSquare
     PressAction.OpenInBackground -> stringResource(R.string.browsing_open_in_background) to UniVerseSymbols.squareOnSquare
     PressAction.CopyLink -> stringResource(R.string.browsing_copy_link) to UniVerseSymbols.link

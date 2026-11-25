@@ -32,11 +32,6 @@
     <string name="site_night_shade">Night Shade</string>
     <string name="site_swipe_to_navigate">Swipe to Navigate</string>
     <string name="site_collapse_bottom_bar">Collapse Bottom Bar</string>
-    <string name="site_sponsor_block">Skip Sponsors on YouTube</string>
-    <string name="site_youtube_hide_shorts">Hide YouTube Shorts</string>
-    <string name="site_youtube_frame_thumbnails">YouTube Frame Thumbnails</string>
-    <string name="site_youtube_no_hover_preview">No YouTube Hover Previews</string>
-    <string name="site_tidy_downloads">Tidy Downloads</string>
     <string name="site_footer">Change one site from its page menu.</string>
 
     <string name="search_from_your_mac">From Your Mac</string>
