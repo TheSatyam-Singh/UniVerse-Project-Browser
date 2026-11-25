@@ -8,14 +8,6 @@
     <string name="tabs_close_incognito_title">Close Incognito Tabs?</string>
     <string name="tabs_close_incognito_message">Their pages, cookies and history are cleared.</string>
     <string name="tabs_close_tab">Close Tab</string>
-    <string name="tabs_select_tab">Select Tab</string>
-    <string name="tabs_archive_selected">Archive</string>
-    <string name="tabs_delete_selected">Delete</string>
-    <string name="tabs_done">Done</string>
-    <plurals name="tabs_selected_count">
-        <item quantity="one">1 selected</item>
-        <item quantity="other">%d selected</item>
-    </plurals>
     <string name="tabs_cancel">Cancel</string>
     <plurals name="tabs_close_count_title">
         <item quantity="one">Close 1 Tab?</item>

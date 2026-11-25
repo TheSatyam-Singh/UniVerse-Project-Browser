@@ -3,7 +3,6 @@ import { setHeldReportsTransaction } from "../../platform/nativeEvents";
 import { createBookmarksSlice, ensureRoots, type BookmarksSlice } from "../bookmarks/bookmarks";
 import { changedIds } from "./changes";
 import { createGroupsSlice, type GroupsSlice } from "../groups/groups";
-import { createTabOrganizerSlice, type TabOrganizerSlice } from "../groups/tabOrganizer";
 import { createHistorySlice, type HistorySlice } from "../history/history";
 import { engineProfile, IDLE_LIVE, isIncognitoProfile } from "./model";
 import { createOrganizeSlice, type OrganizeSlice } from "../pins/organize";
@@ -12,8 +11,6 @@ import { createCleanUpSlice, type CleanUpSlice } from "../pins/tabCleanup";
 import { keptCleanedTabs, keptDeletedGroups } from "../pins/closedTabs";
 import { notePinChoices } from "../pins/pinChoices";
 import { createPeekSlice, type PeekSlice } from "../peek/peek";
-import { createArchiveSlice, type ArchiveSlice } from "../archive/archiveSlice";
-import { parseArchiveEntries } from "../archive/archive";
 import { pinHome } from "../pins/pinHomes";
 import { createProfilesSlice, DEFAULT_PROFILE, type ProfilesSlice } from "../profiles/profiles";
 import { engineProfiles } from "../profiles/engineProfiles";
@@ -23,7 +20,6 @@ import { activated, apply } from "../tabs/tabs";
 import { createTabsSlice, type TabsSlice } from "../tabs/tabsSlice";
 import { settle, SettleDidNotConverge } from "./settle";
 import { transactional } from "./transaction";
-import { setStoreActionStore } from "./storeAction";
 import type { BrowserWindow, Tab } from "./types";
 import { createUiSlice, type UiSlice } from "../windows/ui";
 import { createDownloadsSlice, type DownloadsSlice } from "../downloads/downloadsSlice";
@@ -34,7 +30,6 @@ export type BrowserState = ProfilesSlice &
   WindowsSlice &
   TabsSlice &
   GroupsSlice &
-  TabOrganizerSlice &
   OrganizeSlice &
   MuteSlice &
   CleanUpSlice &
@@ -44,8 +39,7 @@ export type BrowserState = ProfilesSlice &
   SettingsSlice &
   UiSlice &
   DownloadsSlice &
-  PeekSlice &
-  ArchiveSlice & {
+  PeekSlice & {
     hydrate(data: HydrateData): void;
   };
 
@@ -69,7 +63,6 @@ export type HydrateData = Partial<
     | "closedGroups"
     | "deletedGroups"
     | "cleanedTabs"
-    | "archiveEntries"
     | "downloads"
     | "settings"
     | "settingsMeta"
@@ -114,7 +107,6 @@ export const useBrowser = create<BrowserState>()(transactions.middleware(batched
   ...createWindowsSlice(...a),
   ...createTabsSlice(...a),
   ...createGroupsSlice(...a),
-  ...createTabOrganizerSlice(...a),
   ...createOrganizeSlice(...a),
   ...createMuteSlice(...a),
   ...createCleanUpSlice(...a),
@@ -125,7 +117,6 @@ export const useBrowser = create<BrowserState>()(transactions.middleware(batched
   ...createUiSlice(...a),
   ...createDownloadsSlice(...a),
   ...createPeekSlice(...a),
-  ...createArchiveSlice(...a),
 
   hydrate(data) {
     const [set, get] = a;
@@ -192,7 +183,6 @@ export const useBrowser = create<BrowserState>()(transactions.middleware(batched
       closedGroups: data.closedGroups ?? [],
       deletedGroups: keptDeletedGroups(data.deletedGroups ?? []),
       cleanedTabs: keptCleanedTabs((data.cleanedTabs ?? []).filter((c) => !isIncognitoProfile(c.tab.profileId))),
-      archiveEntries: parseArchiveEntries(data.archiveEntries ?? []),
       privateCleanedTabs: {},
       privateSiteMutes: {},
       selection: {},
@@ -215,6 +205,10 @@ export const useBrowser = create<BrowserState>()(transactions.middleware(batched
   },
 }))));
 
-setStoreActionStore(() => useBrowser.getState());
-
 export type { CreateWindowOptions } from "../windows/windows";
+
+type StoreActions = { [K in keyof BrowserState as BrowserState[K] extends (...args: never[]) => unknown ? K : never]: BrowserState[K] };
+
+export const storeAction =
+  <K extends keyof StoreActions>(name: K): StoreActions[K] =>
+  ((...args: unknown[]) => (useBrowser.getState()[name] as (...a: unknown[]) => unknown)(...args)) as StoreActions[K];

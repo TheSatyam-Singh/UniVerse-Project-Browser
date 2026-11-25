@@ -165,20 +165,6 @@ private fun TabDeck(model: AppModel, state: DeckState, haptics: Haptics, geometr
                     .shieldsDeck(),
             )
         }
-        if (model.deck.isSelecting) {
-            SelectionBar(
-                count = model.deck.selectedIds.size,
-                archive = model::archiveSelectedTabs,
-                delete = model::deleteSelectedTabs,
-                done = model::clearTabSelection,
-                modifier = Modifier
-                    .zIndex(OVERLAY_LAYER)
-                    .align(Alignment.TopCenter)
-                    .offset(y = (geometry.safeTop + if (privateCount > 0) 44.0 else 0.0).dp)
-                    .graphicsLayer { alpha = state.chromeOpacity }
-                    .shieldsDeck(),
-            )
-        }
         AnimatedVisibility(
             visible = state.showsArchiveCard,
             modifier = Modifier

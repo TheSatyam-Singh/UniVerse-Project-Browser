@@ -99,7 +99,7 @@ internal fun DeckCardItem(model: AppModel, state: DeckState, haptics: Haptics, t
     Box(
         Modifier
             .deckCardPlacement(state, id, index, isLast, pose, shapes, TabsPalette.cardShadow)
-            .deckCardEdge(state, id, index, frame, if (id in model.deck.selectedIds) Palette.accent.resolve(dark) else TabsPalette.cardEdge.resolve(dark))
+            .deckCardEdge(state, id, index, frame, TabsPalette.cardEdge.resolve(dark))
             .clearAndSetSemantics {
                 contentDescription = title
                 stateDescription = value
@@ -335,10 +335,6 @@ internal fun CardMenu(model: AppModel, tab: BrowserTab, dismiss: () -> Unit, clo
             }
         }
         HorizontalDivider()
-    }
-    MenuRow(stringResource(R.string.tabs_select_tab), UniVerseSymbols.checkmarkCircleFill) {
-        dismiss()
-        model.beginTabSelection(tab.id)
     }
     MenuRow(stringResource(R.string.tabs_close_tab), UniVerseSymbols.xmark, destructive = true, action = close)
 }

@@ -6,6 +6,8 @@ import type { TabGroup } from "../browser/types";
 import { isRegularWindow } from "../windows/small";
 import { writingFromSync } from "./syncWrites";
 
+export { fromSync } from "./syncWrites";
+
 function homes(s: BrowserState): Map<string, string> {
   const out = new Map<string, string>();
   for (const profileId of new Set(Object.values(s.groups).filter((g) => g.pinned && !g.parentId).map((g) => g.profileId))) {
@@ -46,10 +48,4 @@ export function noteOrderChoices(s: BrowserState, prev: BrowserState) {
   if (pinChoices !== s.pinChoices) useBrowser.setState({ pinChoices });
 }
 
-let started = false;
-
-export function startPinOrderChoices() {
-  if (started) return;
-  started = true;
-  useBrowser.subscribe(noteOrderChoices);
-}
+useBrowser.subscribe(noteOrderChoices);

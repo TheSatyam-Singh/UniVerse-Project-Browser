@@ -1,8 +1,6 @@
 import type * as ImportApi from "@universe/import";
 
 export type {
-  ArcArchivedItem,
-  ArcRoute,
   BookmarkNode,
   BrowserProfile,
   BrowserSource,

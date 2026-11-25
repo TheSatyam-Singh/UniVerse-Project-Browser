@@ -30,7 +30,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
@@ -208,27 +207,6 @@ internal fun IncognitoChip(count: Int, close: () -> Unit, modifier: Modifier = M
                 close()
             }
         }
-    }
-}
-
-@Composable
-internal fun SelectionBar(
-    count: Int,
-    archive: () -> Unit,
-    delete: () -> Unit,
-    done: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val dark = LocalUniVerseDarkTheme.current
-    Row(
-        modifier.heightIn(min = 44.dp).background(TabsPalette.incognitoCard, CircleShape).padding(horizontal = 12.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
-    ) {
-        Text(pluralStringResource(R.plurals.tabs_selected_count, count, count), style = UniVerseType.body, color = SystemPalette.label.resolve(dark))
-        TextButton(onClick = archive) { Text(stringResource(R.string.tabs_archive_selected)) }
-        TextButton(onClick = delete) { Text(stringResource(R.string.tabs_delete_selected), color = SystemPalette.red.resolve(dark)) }
-        TextButton(onClick = done) { Text(stringResource(R.string.tabs_done)) }
     }
 }
 

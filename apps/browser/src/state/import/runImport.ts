@@ -22,7 +22,6 @@ import {
   type ImportResult,
 } from "./apply";
 import { diaProfilesFor } from "./diaTabs";
-import { applyArcArchive, applyArcRoutes } from "./arcDepth";
 import { planSidebar } from "./sidebarPlan";
 import {
   APP_TAB_KINDS,
@@ -179,23 +178,16 @@ export async function runImport(wanted: ReadonlySet<ImportKind>, withoutKey = fa
     if (bySpaces) {
       const plan = planSidebar(source.sidebar!, result, profile.spaces);
       const members: string[][] = [];
-      const spaceProfileIds = new Map<string, string>();
       for (const { space, partition } of plan.spaces) {
         const name = space.name || "Space";
         const head = members[partition]?.[0] ?? null;
         const shared = plan.sharesTopApps && plan.spaces.filter((p) => p.partition === partition).length > 1;
         const dest = await nextDestination(name, space.color, space.emoji, head, shared);
-        spaceProfileIds.set(space.id, dest);
         (members[partition] ??= []).push(dest);
         const r = importArcSpace(dest, space, result.favicons);
         add({ ...emptyCounts(), tabs: r.tabs, bookmarks: r.bookmarks });
         if (r.skipped) left.push(`${plural(r.skipped, "link")} in ${name}'s folders weren't imported: each folder brings up to ${MAX_DRAFT_LINKS.toLocaleString("en-US")} links.`);
       }
-      const routeOutcome = applyArcRoutes(result.arcRoutes ?? [], spaceProfileIds);
-      if (routeOutcome.added) left.push(`${plural(routeOutcome.added, "Air Traffic Control rule")} imported from Arc.`);
-      if (routeOutcome.skipped) left.push(`${plural(routeOutcome.skipped, "Air Traffic Control rule")} from Arc couldn't be imported: the pattern wasn't a plain host, or its space didn't come in.`);
-      const archiveOutcome = applyArcArchive(result.archivedTabs ?? [], spaceProfileIds);
-      if (archiveOutcome.archived) left.push(`${plural(archiveOutcome.archived, "archived tab")} imported from Arc.`);
       const dest = members[plan.dataPartition]?.[0] ?? (await nextDestination(result.profile?.name ?? profile.name, result.profile?.color));
       members[plan.dataPartition] ??= [dest];
       add(await applyResult(dest, { ...result, favorites: [] }, source.name, profileKinds, refused));
@@ -217,11 +209,6 @@ export async function runImport(wanted: ReadonlySet<ImportKind>, withoutKey = fa
     } else {
       const dest = await nextDestination(result.profile?.name ?? profile.name, result.profile?.color ?? profile.color);
       add(await applyResult(dest, result, source.name, profileKinds, refused));
-      const archiveOutcome = applyArcArchive(
-        result.archivedTabs ?? [],
-        new Map((result.archivedTabs ?? []).map((a) => [a.spaceID, dest])),
-      );
-      if (archiveOutcome.archived) left.push(`${plural(archiveOutcome.archived, "archived tab")} imported from Arc.`);
       if (appTabs) {
         const tabs = await appTabs;
         if (signal.aborted) return;

@@ -40,7 +40,6 @@ import { escapePressed } from "../../state/windows/unclaimedEscape";
 import { withoutFragment } from "../../lib/url";
 import { adoptOf, loadedPage, navigationOf } from "../../state/tabs/pageSession";
 import { noteCommit } from "../../state/automation/automationEvents";
-import { capturePageTextForHistory } from "../../state/history/pageTextCapture";
 import { forgetUnreadIfGone, noteAppBadge, noteUnreadFavicon, noteUnreadLoading, noteUnreadPageEnded } from "../../state/tabs/unread";
 import { trackPageProcessGone } from "../../state/telemetry/diagnostics";
 import { releaseTranslation, translateCrashContext } from "../../state/site/translate";
@@ -156,7 +155,6 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
         markTabReady(tabId);
         noteTabReady(tabId);
         noteReady(tabId);
-        void capturePageTextForHistory(tabId);
         void webviews.get(tabId)?.setMuted(isTabSilenced(tabId));
       }}
       onNavigationChange={({ url: reported, title: reportedPageTitle, canGoBack, canGoForward, isLoading, themeColor, themeColorSource, initialDocumentAccessed, committedInitial, committedUrl, committedAt, httpStatus }) => {
@@ -198,7 +196,6 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
         if (fromNewTab.current && url && !isBlankAddress(url)) patchPage(tabId, { backToNewTab: true });
         const shownTitle = !title && restoring ? (tab()?.title ?? title) : title;
         updateTab(tabId, { url, title: shownTitle }, { isLoading, canGoBack, canGoForward, themeColor: shownTheme });
-        if (committedUrl && !isLoading) void capturePageTextForHistory(tabId);
         dropOutlivedFavicon(tabId, url, isLoading);
         if (engine === "webkit") noteWebKitPage(tabId, { url, title, isLoading, committedUrl: committedUrl ?? "" });
         if (lastPage.current !== null && withoutFragment(url) !== lastPage.current) leftPage(tabId, url, lastPage.current, engine, peekOf !== undefined);

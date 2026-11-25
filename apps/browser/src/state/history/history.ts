@@ -5,7 +5,6 @@ import { engineProfile, isIncognitoProfile } from "../browser/model";
 import { engineProfiles } from "../profiles/engineProfiles";
 import type { HistoryEntry } from "../browser/types";
 import { isWebPageUrl } from "../../lib/url";
-import { pageTextIndex } from "./pageTextIndex";
 
 export type HistoryView = { list: HistoryEntry[]; floor: number; ready: boolean };
 
@@ -50,7 +49,6 @@ export const createHistorySlice: StateCreator<BrowserState, [], [], HistorySlice
   removeHistory(profileId, urls) {
     if (!urls.length || isIncognitoProfile(profileId)) return;
     set((s) => withHistoryList(s, engineProfile(s, profileId), historyOf(s, profileId).filter((h) => !urls.includes(h.url))));
-    for (const url of urls) pageTextIndex.delete(url);
     void deleteHistoryUrls(engineProfile(get(), profileId), urls).catch(failed("delete"));
   },
 
@@ -81,6 +79,5 @@ export const createHistorySlice: StateCreator<BrowserState, [], [], HistorySlice
       const kept = historyOf(s, profileId).map((h) => withoutVisitsSince(h, since)).filter((h): h is HistoryEntry => !!h);
       return withHistoryList(s, engine, kept.sort((a, b) => b.lastVisit - a.lastVisit));
     });
-    pageTextIndex.retain(new Set(Object.values(get().history).flatMap((view) => view.list.map((h) => h.url))));
   },
 });

@@ -19,11 +19,8 @@ import { isRegularWindow } from "../windows/small";
 import { sessionWithPinChoiceStamps } from "../pins/pinChoices";
 import { isFields, isString, isStringList } from "../../lib/decode";
 import { pageFromDisk, pinFromDisk, splitsChecked, savedPage, sessionWithSplitSlots, sessionWithTabPages, sessionWithTabPins, slotsFromDisk } from "./savedShapes";
-import { parseArchiveEntries } from "../archive/archive";
-import { everySlowly } from "../../platform/slowTimers";
 
 const SAVE_DELAY_MS = 800;
-const ARCHIVE_SCAN_MS = 30 * 60_000;
 const SESSION_VERSION = 11;
 const SESSION_MIGRATIONS: Migrations = { 2: sessionWithCleanUpMinutes, 3: sessionWithOwnTabMutes, 4: sessionWithTabPages, 5: sessionWithTabPins, 6: sessionWithSplitSlots, 7: sessionWithSettingsMeta, 8: sessionWithPinChoiceStamps, 9: sessionWithNewTabLinksInLittleUniverse, 10: sessionWithUnreadCountsOffByDefault };
 const downloadsWithStagingPathOnly = (doc: SavedObject): SavedObject => ({
@@ -106,7 +103,6 @@ const SESSION_FIELDS = {
   closedGroups: field(["closedGroups"], (s) => s.closedGroups.filter((c) => c.tabs.every(publicTab))),
   deletedGroups: field(["deletedGroups"], (s) => s.deletedGroups.filter((c) => c.tabs.every(publicTab))),
   cleanedTabs: field(["cleanedTabs"], (s) => s.cleanedTabs.filter((c) => publicTab(c.tab))),
-  archiveEntries: field(["archiveEntries"], (s) => s.archiveEntries),
 };
 
 const DOWNLOADS_FIELDS = {
@@ -186,7 +182,6 @@ export function parseSession(json: string | null | undefined): SavedSession | nu
     closedGroups: rows(raw.closedGroups, tabListOk),
     deletedGroups: rows(raw.deletedGroups, tabListOk),
     cleanedTabs: rows(raw.cleanedTabs, closedTabOk),
-    archiveEntries: parseArchiveEntries(raw.archiveEntries),
   };
 }
 
@@ -309,8 +304,6 @@ export function startPersistence(overrides: LaunchOverrides = {}) {
   realignedAtLaunch = loaded?.windowsAgainstAutoHideTabs ?? 0;
   useBrowser.getState().hydrate(loaded ?? {});
   restoreLaunchLook();
-  useBrowser.getState().archiveIdleTabs();
-  const stopArchiveScan = everySlowly({ every: ARCHIVE_SCAN_MS, run: () => useBrowser.getState().archiveIdleTabs() });
 
   const lastSources = new Map<string, unknown[]>();
   const lastJson = new Map<string, string>();
@@ -359,11 +352,5 @@ export function startPersistence(overrides: LaunchOverrides = {}) {
     check(useBrowser.getState());
     save();
   };
-  const stopSubscription = useBrowser.subscribe((s) => check(s));
-  return () => {
-    stopSubscription();
-    stopArchiveScan();
-    clearTimeout(timer);
-    timer = undefined;
-  };
+  return useBrowser.subscribe((s) => check(s));
 }

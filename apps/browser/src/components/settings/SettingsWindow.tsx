@@ -28,7 +28,6 @@ import { EnginesPane } from "./panes/Engines";
 import { ShortcutsPane } from "./panes/Shortcuts";
 import { SyncPane } from "./panes/Sync";
 import { TabsPane } from "./panes/Tabs";
-import { AIPane } from "./panes/AI";
 import { useSettingsSheet } from "../../state/settings/sheet";
 import { goToSettingsPane, SETTINGS_WINDOW_ID, settingsBack, settingsForward, useSettingsNav, type SettingsPane, type SettingsPlace } from "../../state/settings/settingsWindows";
 import { closeProfileIconPickerIn } from "../../state/profiles/iconPicker";
@@ -194,7 +193,6 @@ const PANE_VIEWS: Record<SettingsPane, (place: SettingsPlace) => ReactNode> = {
   shortcuts: () => <ShortcutsPane />,
   liveFolders: () => <LiveFoldersPane />,
   calendar: () => <CalendarPane />,
-  ai: () => <AIPane />,
   advanced: () => <AdvancedPane />,
 };
 

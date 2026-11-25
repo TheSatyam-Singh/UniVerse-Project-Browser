@@ -1,4 +1,4 @@
-import { storeAction } from "../browser/storeAction";
+import { storeAction } from "../browser/store";
 
 export const updateGroup = storeAction("updateGroup");
 export const removeTabsFromGroup = storeAction("removeTabsFromGroup");

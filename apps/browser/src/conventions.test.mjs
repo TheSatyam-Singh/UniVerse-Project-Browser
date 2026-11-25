@@ -39,7 +39,6 @@ const ENGINE_ENV_READS = {
     "std::unique_ptr<base::Environment> env = base::Environment::Create();",
   ],
   "engine/chromium/src/chrome/browser/ardia/ac_scripts_policy.cc": ['if (const char* home = getenv("HOME")) {'],
-  "packages/ai/src/mcpStdio.ts": ["for (const [key, value] of Object.entries(process.env)) {"],
 };
 
 const APP_SRC = "apps/browser/src/";

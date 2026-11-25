@@ -2,8 +2,6 @@ import { WindowBackdrop } from "./components/ui";
 import { useMemo, useState } from "react";
 import { StyleSheet } from "react-native";
 import { CommandPanel } from "./components/omnibox/CommandPanel";
-import { AssistantPanel } from "./components/ai/AssistantPanel";
-import { toggleAssistantOpen, useAssistant } from "./state/ai/assistant";
 import { ContentCard } from "./components/window/ContentCard";
 import { BookmarkDialog } from "./components/bookmarks/BookmarkDialog";
 import { EditBookmarkDialog } from "./components/bookmarks/EditBookmarkDialog";
@@ -63,7 +61,6 @@ function BrowserWindow() {
   const windowId = useWindowId();
   const topTabs = useTabLayout() === "top";
   const fullscreen = !!useFullscreenTab(windowId);
-  const assistantOpen = useAssistant((s) => s.assistantOpen);
   const frame = usePageFrameInset();
   const [width, setWidth] = useState(0);
   const settleWidth = useSettled(setWidth, topTabs ? 0 : SETTLE_MS);
@@ -72,10 +69,9 @@ function BrowserWindow() {
       <>
         <ContentCard />
         {!fullscreen && <ExtensionSidePanel />}
-        {assistantOpen && <AssistantPanel onClose={toggleAssistantOpen} />}
       </>
     ),
-    [fullscreen, assistantOpen],
+    [fullscreen],
   );
 
   return (

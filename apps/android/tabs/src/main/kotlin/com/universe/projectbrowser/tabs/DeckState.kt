@@ -225,10 +225,6 @@ class DeckState internal constructor(
     }
 
     fun open(id: String) {
-        if (model.deck.isSelecting) {
-            model.toggleTabSelection(id)
-            return
-        }
         if (phase != DeckPhase.Settled || id in lifting) return
         hideArchiveCard()
         menuFor = null
@@ -350,10 +346,6 @@ class DeckState internal constructor(
 
     fun back(): Boolean {
         if (phase != DeckPhase.Settled) return true
-        if (model.deck.isSelecting) {
-            model.clearTabSelection()
-            return true
-        }
         if (menuFor != null) {
             menuFor = null
             return true
@@ -458,10 +450,6 @@ class DeckState internal constructor(
     }
 
     fun showMenu(id: String) {
-        if (model.deck.isSelecting) {
-            model.toggleTabSelection(id)
-            return
-        }
         hideArchiveCard()
         menuFor = id
     }

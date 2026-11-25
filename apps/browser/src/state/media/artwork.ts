@@ -40,18 +40,12 @@ export function useArtwork(tabId: string, url: string | null | undefined): strin
   return uri;
 }
 
-let started = false;
-
-export function startArtwork() {
-  if (started) return;
-  started = true;
-  useBrowser.subscribe((s, prev) => {
-    if (s.tabs === prev.tabs) return;
-    const entries = useArtworks.getState().entries;
-    const gone = Object.keys(entries).filter((key) => !s.tabs[key.slice(0, key.indexOf(" "))]);
-    if (!gone.length) return;
-    const next = { ...entries };
-    for (const key of gone) delete next[key];
-    useArtworks.setState({ entries: next });
-  });
-}
+useBrowser.subscribe((s, prev) => {
+  if (s.tabs === prev.tabs) return;
+  const entries = useArtworks.getState().entries;
+  const gone = Object.keys(entries).filter((key) => !s.tabs[key.slice(0, key.indexOf(" "))]);
+  if (!gone.length) return;
+  const next = { ...entries };
+  for (const key of gone) delete next[key];
+  useArtworks.setState({ entries: next });
+});

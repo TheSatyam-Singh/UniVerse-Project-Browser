@@ -2,14 +2,8 @@ import { lastTabClosesWindow } from "../../platform/tabs";
 import { onDownload } from "../../platform/downloads";
 import { releaseProfile } from "../../platform/profiles";
 import { closeWindow, onWindowEvent, openWindow, restoreFullScreen, setTrafficLightsCenter, setWindowTitle, windowIds } from "../../platform/windows";
-import { isDarkAppearance, onAppEvent, onOpenURLs, replyToTerminate, type OpenURLSource } from "../../platform/app";
+import { isDarkAppearance, onAppEvent, onOpenURLs, replyToTerminate } from "../../platform/app";
 import { startNativeSettings } from "../settings/nativeSettings";
-import { searchUrlPrefix } from "../settings/settings";
-import { handleUniverseLink, isUniverseLink, type UniverseLinkContext } from "../commands/universeLinks";
-import { currentTweaks } from "../tweaks/tweaks";
-import { resolveSiteRoute } from "../tweaks/siteRouting";
-import { focus, openWindow as openStoreWindow } from "../browser/actions";
-import { lastActiveProfile, mainWindowFor } from "../windows/small";
 import { menuShortcuts, onCommand, setMenuStateParts } from "../../platform/commands";
 import { Appearance } from "react-native";
 import { useBrowser } from "../browser/store";
@@ -50,45 +44,6 @@ export const shellWindowPort: WindowPort = {
   onEvent: (listener) => void onWindowEvent(listener),
   releaseProfile: (profile) => void releaseProfile(profile) };
 
-function handleOpenURLs(urls: string[], pointer?: [number, number], source?: OpenURLSource) {
-  const universe = urls.filter(isUniverseLink);
-  const rest = urls.filter((url) => !isUniverseLink(url));
-  if (universe.length) {
-    const s = useBrowser.getState();
-    const context: UniverseLinkContext = {
-      allowed: currentTweaks().allowUniverseLinks,
-      spaces: Object.values(s.profiles).map((profile) => ({ id: profile.id, name: profile.name })),
-      defaultProfileId: lastActiveProfile(s),
-      searchTemplate: searchUrlPrefix(s.settings),
-      tabs: Object.values(s.windows).flatMap((w) =>
-        w.tabIds.map((id) => ({ id, url: s.tabs[id]?.url ?? "", profileId: w.profileId, windowId: w.id })),
-      ),
-      isPrivateWindow: (windowId) => s.windows[windowId]?.kind === "private",
-      routeProfileId: (url) => resolveSiteRoute(url)?.targetProfileId ?? null,
-      openUrl: (url, profileId) => {
-        const target = mainWindowFor(useBrowser.getState(), profileId);
-        if (target) {
-          useBrowser.getState().newTab(target, { url, profileId });
-          focus(target);
-        } else {
-          focus(openStoreWindow({ url, profileId }));
-        }
-      },
-      selectTab: (tabId, windowId) => {
-        useBrowser.getState().activate(tabId);
-        focus(windowId);
-      },
-      focusProfileWindow: (profileId) => {
-        const target = mainWindowFor(useBrowser.getState(), profileId);
-        if (target) focus(target);
-        else focus(openStoreWindow({ profileId }));
-      },
-    };
-    for (const link of universe) handleUniverseLink(link, context);
-  }
-  if (rest.length) openExternalUrls(rest, pointer, source);
-}
-
 export function startNativeSync() {
   const store = useBrowser;
   if (!store.getState().windowOrder.length) openLastWindowOrNew("launch");
@@ -97,7 +52,7 @@ export function startNativeSync() {
   onCommand((e) => settlingCommandFocus(e, runCommand));
   startWindowCloseGuard();
   startExtensionsBridge();
-  onOpenURLs((urls, pointer, source) => handleOpenURLs(urls, pointer, source));
+  onOpenURLs((urls, pointer, source) => openExternalUrls(urls, pointer, source));
   startUnclaimedEscape();
   void lastTabClosesWindow()
     .catch(() => true)

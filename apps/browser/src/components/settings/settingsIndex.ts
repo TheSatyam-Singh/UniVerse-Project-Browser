@@ -2,7 +2,6 @@ import { prepare, type Searchable } from "./searchMatch";
 import { SETTINGS_PANES, type SettingsPane } from "../../state/settings/settingsWindows";
 import type { Settings } from "../../state/settings/settings";
 import { airTrafficRows } from "./rows/airTrafficRows";
-import { aiRows } from "./rows/aiRows";
 import { appearanceRows } from "./rows/appearanceRows";
 import { generalRows } from "./rows/generalRows";
 import { privacyRows } from "./rows/privacyRows";
@@ -25,13 +24,12 @@ const PANE_LOOKS: Record<SettingsPane, { title: string; icon: string }> = {
   shortcuts: { title: "Keyboard Shortcuts", icon: "keyboard" },
   liveFolders: { title: "Live Folders", icon: "dot.radiowaves.left.and.right" },
   calendar: { title: "Calendar", icon: "calendar" },
-  ai: { title: "AI Assistant", icon: "sparkles" },
   advanced: { title: "Advanced", icon: "slider.horizontal.3" },
 };
 
 export const PANES: { id: SettingsPane; title: string; icon: string }[] = SETTINGS_PANES.map((id) => ({ id, ...PANE_LOOKS[id] }));
 
-const ROWS = { ...generalRows, ...airTrafficRows, ...aiRows, ...appearanceRows, ...privacyRows, ...toolRows };
+const ROWS = { ...generalRows, ...airTrafficRows, ...appearanceRows, ...privacyRows, ...toolRows };
 
 type RowKeysOf<P extends SettingsPane> = (typeof ROWS)[P][number] extends infer S ? (S extends { rows: infer R } ? keyof R & string : never) : never;
 export type SettingId = { [P in SettingsPane]: `${P}.${RowKeysOf<P>}` }[SettingsPane];

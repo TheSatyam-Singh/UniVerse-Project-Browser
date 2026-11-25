@@ -55,8 +55,6 @@ export const COMMANDS = {
   toggleTabLayout: { title: "Show Tabs in Sidebar", keys: ["⇧⌘S"], ...windowOffInLittleUniverse },
   toggleSidebarSide: { title: "Sidebar on Right", symbol: "sidebar.right", ...offInLittleUniverse },
   toggleSidebar: { title: "Auto-Hide Tabs", symbol: "sidebar.left", keys: ["⌘S", "⇧⌘L", "⇧⌘F"], ...windowOffInLittleUniverse },
-  toggleAssistant: { title: "Toggle AI Assistant", symbol: "sparkles", ...windowOffInLittleUniverse },
-  organizeTabs: { title: "Organize Tabs", symbol: "square.grid.2x2", ...windowOffInLittleUniverse },
   openSplitPane: { title: "Open Split Pane", keys: ["⌃⇧=", "⌃+"], ...windowOffInLittleUniverse },
   useSelectionForFind: { title: "Use Selection for Find", keys: ["⌘E"], ...pageInLittleUniverse },
   findAndReplace: { title: "Find and Replace…", keys: ["⌥⌘F"], ...pageInLittleUniverse },

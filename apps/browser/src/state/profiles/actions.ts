@@ -1,4 +1,4 @@
-import { storeAction } from "../browser/storeAction";
+import { storeAction } from "../browser/store";
 import { currentProfile, currentSettings } from "../browser/current";
 import { updateSettings } from "../settings/actions";
 

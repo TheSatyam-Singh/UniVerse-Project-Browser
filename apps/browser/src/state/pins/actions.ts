@@ -1,4 +1,4 @@
-import { storeAction } from "../browser/storeAction";
+import { storeAction } from "../browser/store";
 
 export const placeTabs = storeAction("placeTabs");
 export const dropTabs = storeAction("dropTabs");

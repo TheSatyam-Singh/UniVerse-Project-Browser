@@ -14,7 +14,6 @@ export type ProfilesSlice = {
 
   createProfile(options: { name: string; color?: ProfileColor; icon?: string | null; shareWith?: string | null; shareTopApps?: boolean }): string;
   updateProfile(id: string, patch: Partial<Pick<Profile, "name" | "icon" | "pinnedCollapsed" | "shareTopApps">>): void;
-  setProfileData(id: string, patch: { dataId?: string | null; dataName?: string | null }): void;
   setProfileLook(id: string, look: Partial<Pick<Profile, "color" | "theme">>): void;
   deleteProfile(id: string): void;
   reorderProfiles(ids: string[]): void;
@@ -74,24 +73,6 @@ export const createProfilesSlice: StateCreator<BrowserState, [], [], ProfilesSli
 
     updateProfile(id, patch) {
       set((s) => (s.profiles[id] ? { profiles: { ...s.profiles, [id]: { ...s.profiles[id]!, ...patch } } } : {}));
-    },
-
-    setProfileData(id, patch) {
-      set((s) => {
-        const profile = s.profiles[id];
-        if (!profile) return {};
-        const next: Profile = { ...profile };
-        if (patch.dataId !== undefined) {
-          if (patch.dataId === null) next.dataId = newId("d");
-          else if (patch.dataId === profile.id) delete next.dataId;
-          else next.dataId = patch.dataId;
-        }
-        if (patch.dataName !== undefined) {
-          if (patch.dataName === null) delete next.dataName;
-          else next.dataName = patch.dataName;
-        }
-        return { profiles: { ...s.profiles, [id]: next } };
-      });
     },
 
     setProfileLook(id, look) {

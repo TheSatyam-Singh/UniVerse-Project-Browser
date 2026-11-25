@@ -15,7 +15,6 @@ export type Profile = {
   icon: string | null;
   createdAt: number;
   dataId?: string;
-  dataName?: string;
   theme?: ProfileTheme | null;
   pinnedCollapsed?: boolean;
   shareTopApps?: true;

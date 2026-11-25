@@ -5,15 +5,13 @@ import { useStoreWhile } from "../tabs/tabWatch";
 import { usePages } from "../tabs/pageState";
 import { startCast } from "./cast";
 import { cancelDisplayMediaOnNavigation, startTabShareCleanup } from "./screenShare";
-import { allowsAutomaticPiP } from "./pipUx";
 
 export function useAutoPictureInPicture(tabId: string, visible: boolean): boolean {
   const enabled = useStoreWhile(useBrowser, visible, (s) => s.settings.autoPictureInPicture);
   const audible = useStoreWhile(useBrowser, visible, (s) => !!s.live[tabId]?.playingAudio);
   const capturing = useStoreWhile(usePages, visible, (s) => !!s.pages[tabId]?.mediaAccess);
-  const url = useStoreWhile(useBrowser, visible, (s) => s.tabs[tabId]?.url ?? "");
   const decided = useRef(false);
-  if (visible) decided.current = enabled && (audible || capturing) && allowsAutomaticPiP(url);
+  if (visible) decided.current = enabled && (audible || capturing);
   return decided.current;
 }
 

@@ -36,7 +36,6 @@ import { addFolderToSidebar, restoreArcFolders } from "../bookmarks/bookmarkGrou
 import { withLivePage } from "../tabs/livePage";
 import { webviews } from "../../platform/webviews";
 import { togglePageEngine } from "../engines/actions";
-import { toggleAssistantOpen } from "../ai/assistant";
 import { goBack, goForward } from "../tabs/navigation";
 import { awaitsFirstPage } from "../tabs/pendingAddress";
 import { openSplitPane } from "../splits/actions";
@@ -239,10 +238,6 @@ export function runCommand({ command, arg, windowId: requested }: CommandEvent, 
       return s.focusPane(windowId, -1);
     case "toggleSidebar":
       return s.toggleSidebar(windowId);
-    case "toggleAssistant":
-      return toggleAssistantOpen();
-    case "organizeTabs":
-      return void s.organizeTabs(windowId);
     case "zoomIn":
       return page ? void web?.zoomStep(1) : undefined;
     case "zoomOut":

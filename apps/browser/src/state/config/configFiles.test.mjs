@@ -137,7 +137,7 @@ test("an edit between the launch read and the watcher arming is picked up once t
 
 test("restoreSession from the file decides the launch restore, both ways", async () => {
   const { flushPersistence, loadSession, startPersistence } = await import("../session/persist.ts");
-  const stopPersistence = startPersistence();
+  startPersistence();
   const { configRestoreSession } = await import("./configFiles.ts");
   const savedWith = (restoreSession) => {
     fresh();
@@ -156,7 +156,6 @@ test("restoreSession from the file decides the launch restore, both ways", async
   assert.equal(configRestoreSession(), undefined, "an invalid value leaves the saved setting in charge");
   files.delete("config.json");
   assert.equal(configRestoreSession(), undefined);
-  stopPersistence();
 });
 
 test("a theme's look applies live through the tokens, keeps the last good version, and going back gives UniVerse Project Browser's own look", () => {
