@@ -4,7 +4,7 @@
 // for JavaScriptCore, with no dependencies. --check exits 1 when a checked-in bundle is out of date.
 
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
-import { dirname, join, relative, resolve } from "node:path";
+import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { stripTypeScriptTypes } from "node:module";
 
@@ -44,7 +44,7 @@ function bundle({ entry, global }) {
     const reexports = [];
     const dep = (spec) => {
       if (!spec.startsWith(".")) throw new Error(`${path}: only relative imports can be bundled (${spec})`);
-      const target = relative(root, resolve(root, dirname(path), spec));
+      const target = relative(root, resolve(root, dirname(path), spec)).split(sep).join("/");
       deps.push(target);
       return target;
     };
