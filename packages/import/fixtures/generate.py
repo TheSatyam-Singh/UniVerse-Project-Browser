@@ -247,7 +247,7 @@ def chromium_web_data(path):
         INSERT INTO masked_credit_cards VALUES ('server-1', 'Server Card', 'visa', '1111', 1, 2031);
     """)
     modern = {
-        "00000000-0000-4000-8000-00000000a001": [(7, "Alex Example"), (3, "Alex"), (5, "Example"), (60, "Ardia Ltd"),
+        "00000000-0000-4000-8000-00000000a001": [(7, "Alex Example"), (3, "Alex"), (5, "Example"), (60, "UniVerse Project Browser Ltd"),
             (77, "1 Example Way\nSuite 2"), (30, "1 Example Way"), (31, "Suite 2"), (33, "Cupertino"), (34, "CA"),
             (35, "95014"), (36, "US"), (14, "+14155550100"), (9, "alex@example.com")],
         "00000000-0000-4000-8000-00000000a002": [(3, "Sam"), (5, "Smith"), (30, "10 High Street"), (31, "Flat 1"),
