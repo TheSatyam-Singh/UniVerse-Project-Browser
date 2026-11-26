@@ -1,14 +1,53 @@
 {
   "layout": {},
-  "imports": {},
-  "native-calls": {},
-  "tokens": {},
-  "scale": {},
-  "get-state": {},
+  "imports": {
+    "apps/browser/src/components/pages/PdfViewerPage.tsx": 2,
+    "apps/browser/src/components/settings/panes/Boosts.tsx": 1,
+    "apps/browser/src/components/sidebar/AiSidebar.tsx": 1
+  },
+  "native-calls": {
+    "apps/browser/src/state/site/cookieAutoDelete.ts": 1
+  },
+  "tokens": {
+    "apps/browser/src/components/account/AccountButton.tsx": 2,
+    "apps/browser/src/components/account/AccountSheet.tsx": 2,
+    "apps/browser/src/components/pages/ReaderPage.tsx": 12,
+    "apps/browser/src/components/pages/SurfPage.tsx": 22,
+    "apps/browser/src/components/settings/panes/Boosts.tsx": 1,
+    "apps/browser/src/state/pdf/pdfAnnotations.ts": 4,
+    "apps/browser/src/state/profiles/universeThemes.ts": 30
+  },
+  "scale": {
+    "apps/browser/src/components/account/AccountSheet.tsx": 1,
+    "apps/browser/src/components/ntp/QuickTools.tsx": 7,
+    "apps/browser/src/components/ntp/ShortcutsRow.tsx": 3,
+    "apps/browser/src/components/ntp/SurfCard.tsx": 2,
+    "apps/browser/src/components/pages/PdfViewerPage.tsx": 1,
+    "apps/browser/src/components/pages/SurfPage.tsx": 3,
+    "apps/browser/src/components/toolbar/TimerChip.tsx": 2
+  },
+  "get-state": {
+    "apps/browser/src/components/settings/panes/Boosts.tsx": 2
+  },
   "set-state": {},
-  "store-reads": {},
-  "store-shape": {},
-  "size": {},
+  "store-reads": {
+    "apps/browser/src/components/media/FloatingPlayer.tsx": 1,
+    "apps/browser/src/components/pages/SurfPage.tsx": 1
+  },
+  "store-shape": {
+    "apps/browser/src/components/ntp/BetaBanner.tsx": 1,
+    "apps/browser/src/state/ai/aiSidebar.ts": 1,
+    "apps/browser/src/state/notes/notes.ts": 1,
+    "apps/browser/src/state/pdf/pdfAnnotations.ts": 1,
+    "apps/browser/src/state/reader/reader.ts": 1
+  },
+  "size": {
+    "apps/browser/src/components/omnibox/Omnibox.tsx": 1,
+    "apps/browser/src/components/pages/PdfViewerPage.tsx": 1,
+    "apps/browser/src/components/settings/panes/Privacy.tsx": 1,
+    "apps/browser/src/state/commands/commands.ts": 1,
+    "apps/browser/src/state/telemetry/usage.ts": 1
+  },
   "env": {},
   "naming": {},
   "comments": {},

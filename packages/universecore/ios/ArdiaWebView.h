@@ -178,7 +178,7 @@ NS_ASSUME_NONNULL_BEGIN
          completion:(void (^)(NSArray<NSDictionary<NSString *, id> *> *_Nullable cookies))completion
     NS_SWIFT_NAME(pageCookies(_:completion:));
 - (void)importCookies:(NSArray<NSDictionary<NSString *, id> *> *)cookies
-           completion:(void (^)(NSNumber *count))completion
+           completion:(void (^)(NSInteger count))completion
     NS_SWIFT_NAME(importCookies(_:completion:));
 - (void)clearSiteData:(void (^)(id _Nullable result, NSString *_Nullable error))reply NS_SWIFT_NAME(clearSiteData(_:));
 - (void)resolvePasswordPrompt:(NSString *)action username:(nullable NSString *)username password:(nullable NSString *)password

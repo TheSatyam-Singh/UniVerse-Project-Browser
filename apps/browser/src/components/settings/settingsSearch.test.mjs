@@ -27,7 +27,7 @@ const TOP = [
   ["adblock", ["privacy.blockAds"]],
   ["block ads", ["privacy.blockAds"]],
   ["trackers", ["privacy.blockTrackers"]],
-  ["cookies", ["privacy.blockCookieBanners"]],
+  ["cookies", ["privacy.autoDeleteCookies"]],
   ["import", ["general.importBrowser", "passwords.importPasswords", "advanced.bookmarksImport"]],
   ["import from chrome", ["general.importBrowser"]],
   ["profile", ["profiles.defaultProfile", "profiles.list"]],

@@ -18,6 +18,7 @@ export function BoostsPane() {
     <View>
       <SectionHeader
         title="Boosts"
+        anchor="boosts.boosts"
         description="Custom CSS for a site. A boost matches the site and its subdomains, and applies whenever the page loads."
         action={<Button title="Add Boost…" icon="plus" onPress={() => showSettingsSheet(<BoostSheet />)} />}
       />

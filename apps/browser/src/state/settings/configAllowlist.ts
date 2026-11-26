@@ -12,7 +12,8 @@ export const CONFIG_SETTING_KEYS: readonly SettingKey[] = [
   "memorySaverMode", "loadProfilesWhenOpened", "keepActiveSites", "extensionSidePanelWidth", "showFullUrl", "showBookmarks", "bookmarksBar", "bookmarksBarSize",
   "hideBookmarksBarImport", "appearance", "addressBar", "compactToolbar", "borderlessMode", "pageFrame", "pageFrameZeroInFullScreen", "pageFrameZeroWhenTabsHidden", "commandBarPlacement", "spacesFollowAppearance", "adaptTextToColor",
   "profileSwitcherIcons", "shortcuts", "openLinksInLittleUniverse", "littleUniverseOpensNewTabLinks", "littleWindowGestures", "littleUniverseSize",
-  "omniboxProviders", "launchActions", "commandBarStart",
+  "omniboxProviders", "launchActions", "commandBarStart", "aiSearchUrl", "autoDeleteCookies", "cookieKeepHosts",
+  "fingerprintProtection", "surfBestScore", "boosts",
 ];
 
 export const CONFIG_EXCLUDED_KEYS: readonly SettingKey[] = [

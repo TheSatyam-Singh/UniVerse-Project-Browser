@@ -310,6 +310,11 @@ export const CURATED = {
   "xmark.circle": "L:circle-x T:circle-x P:x-circle I:xmark-circle M:close-circle-outline",
   "xmark.circle.fill": "TF:circle-x PF:x-circle-fill M:close-circle IS:xmark-circle",
   "xmark.square": "L:square-x T:square-x P:x-square I:xmark-square M:close-box-outline",
+  "highlighter": "L:highlighter P:highlighter M:marker",
+  "note.text": "L:notebook-text T:note P:note M:note-text",
+  "textformat.size.larger": "L:case-sensitive T:text-increase M:format-font-size-increase",
+  "textformat.size.smaller": "L:case-sensitive T:text-decrease M:format-font-size-decrease",
+  "timer": "L:timer P:timer I:timer M:timer",
 };
 
 const SETS = { L: "lucide", T: "tabler", TF: "tabler-filled", I: "iconoir", IS: "iconoir-solid", P: "phosphor", PF: "phosphor-fill", M: "mdi" };

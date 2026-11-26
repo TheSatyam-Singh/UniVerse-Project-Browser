@@ -36,8 +36,8 @@ using namespace universe_runtime;
 }
 
 - (void)importCookies:(NSArray<NSDictionary<NSString *, id> *> *)cookies
-           completion:(void (^)(NSNumber *count))completion {
-  if (!_tab || _tab.closed) return completion(@0);
+           completion:(void (^)(NSInteger count))completion {
+  if (!_tab || _tab.closed) return completion(0);
   NSMutableArray *valid = [NSMutableArray array];
   for (NSDictionary *cookie in cookies) {
     NSString *name = cookie[@"name"];
@@ -49,7 +49,7 @@ using namespace universe_runtime;
       [valid addObject:cookie];
     }
   }
-  if (!valid.count) return completion(@0);
+  if (!valid.count) return completion(0);
   __block NSInteger done = 0;
   __block NSInteger ok = 0;
   NSInteger total = (NSInteger)valid.count;
@@ -74,7 +74,7 @@ using namespace universe_runtime;
     }
     [_tab devToolsCall:@"Network.setCookie" params:params timeout:1.0 completion:^(NSDictionary *result, NSString *error) {
       if (!error) ok++;
-      if (++done == total) completion(@(ok));
+      if (++done == total) completion(ok);
     }];
   }
 }
