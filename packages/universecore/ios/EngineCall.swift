@@ -94,7 +94,7 @@ struct CallTable {
   let domain: String
   let handlers: [String: CallHandler]
 
-  var moduleName: String { "UniVerse Project Browser\(domain.prefix(1).uppercased())\(domain.dropFirst())" }
+  var moduleName: String { "Ardia\(domain.prefix(1).uppercased())\(domain.dropFirst())" }
 
   var function: AnyDefinition {
     AsyncFunction("call") { (name: String, profile: String, args: String, promise: Promise) in
