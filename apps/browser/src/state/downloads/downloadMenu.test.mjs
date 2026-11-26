@@ -10,7 +10,7 @@ const render = (items, depth = 0) =>
     ...(i.children ? render(i.children, depth + 1) : []),
   ]);
 
-const base = { held: false, downloading: false, paused: false, failed: false, opensWhenDone: false, fileExists: true };
+const base = { held: false, downloading: false, paused: false, opensWhenDone: false, fileExists: true };
 
 test("a finished download: Open and Show in Finder, Copy Link, then Remove from List and Move to Trash last", () => {
   assert.deepEqual(render(downloadMenuItems(base)), [
@@ -31,18 +31,6 @@ test("a finished download: Open and Show in Finder, Copy Link, then Remove from 
     "Show All Downloads [arrow.down.circle]",
     "---",
     "Remove from List [minus.circle]",
-  ]);
-});
-
-test("a failed download leads with Retry, then the usual list actions", () => {
-  assert.deepEqual(render(downloadMenuItems({ ...base, failed: true })), [
-    "Retry Download [arrow.clockwise]",
-    "---",
-    "Copy Link [link]",
-    "Show All Downloads [arrow.down.circle]",
-    "---",
-    "Remove from List [minus.circle]",
-    "Move to Trash [trash]",
   ]);
 });
 

@@ -9,7 +9,6 @@ import { openUrl } from "../../state/bookmarks/actions";
 import { FileIcon } from "../downloads/Downloads";
 import { useDownloadView } from "../downloads/useDownloadView";
 import { downloadMenu } from "../../state/downloads/downloadMenu";
-import { retryDownload } from "../../state/downloads/history";
 import { downloadStatus } from "../../state/downloads/status";
 import { Box, Button, EmptyState, MouseArea, opacity, ProgressTrack, space, Text, useHover } from "../ui";
 import { hostLabel, matchesQuery, PAGE_WIDTH, PageHeader } from "./PageLayout";
@@ -100,10 +99,6 @@ function DownloadCard({ d, windowId }: { d: Download; windowId: string }) {
             <View style={ROW_BUTTONS}>
               <Button title={d.paused ? "Resume" : "Pause"} onPress={() => void (d.paused ? resumeDownload(d.id) : pauseDownload(d.id))} />
               <Button title="Cancel" onPress={() => void cancelDownload(d.id)} />
-            </View>
-          ) : d.state === "failed" ? (
-            <View style={ROW_BUTTONS}>
-              <Button title="Retry" onPress={() => retryDownload(d, windowId)} />
             </View>
           ) : done ? (
             <Button title="Show in Finder" onPress={() => void revealFile(d.path)} />

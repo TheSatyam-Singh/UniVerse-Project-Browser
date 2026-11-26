@@ -6,11 +6,10 @@ import { openInternalPage } from "../pages/urls";
 import { removeDownload } from "../windows/actions";
 import { opensWhenDone, toggleOpenWhenDone } from "../windows/downloadWatch";
 import { cancelDownload, keepDownload, pauseDownload, resumeDownload, type Download } from "./actions";
-import { retryDownload } from "./history";
 
 export const awaitsKeep = (d: Pick<Download, "state" | "dangerous">) => d.state === "downloading" && d.dangerous === true;
 
-export type DownloadMenuState = { held: boolean; downloading: boolean; paused: boolean; failed: boolean; opensWhenDone: boolean; fileExists: boolean };
+export type DownloadMenuState = { held: boolean; downloading: boolean; paused: boolean; opensWhenDone: boolean; fileExists: boolean };
 
 export function downloadMenuItems(d: DownloadMenuState): MenuItem[] {
   const lead: MenuItem[] = d.held
@@ -18,9 +17,7 @@ export function downloadMenuItems(d: DownloadMenuState): MenuItem[] {
         { id: "keep", title: "Keep", symbol: "checkmark.circle" },
         { id: "cancel", title: "Discard", symbol: "xmark.circle" },
       ]
-    : d.failed
-      ? [{ id: "retry", title: "Retry Download", symbol: "arrow.clockwise" }]
-      : d.downloading
+    : d.downloading
       ? [
           { id: "whenDone", title: "Open When Done", checked: d.opensWhenDone },
           d.paused ? { id: "resume", title: "Resume", symbol: "play" } : { id: "pause", title: "Pause", symbol: "pause" },
@@ -46,10 +43,9 @@ export function downloadMenuItems(d: DownloadMenuState): MenuItem[] {
 export async function downloadMenu(d: Download, windowId: string) {
   const exists = d.state === "finished" && fileExists(d.path);
   const choice = await showMenu(
-    downloadMenuItems({ held: awaitsKeep(d), downloading: d.state === "downloading", paused: d.paused, failed: d.state === "failed", opensWhenDone: opensWhenDone(d.id), fileExists: exists }),
+    downloadMenuItems({ held: awaitsKeep(d), downloading: d.state === "downloading", paused: d.paused, opensWhenDone: opensWhenDone(d.id), fileExists: exists }),
   );
   if (choice === "whenDone") toggleOpenWhenDone(d.id);
-  if (choice === "retry") retryDownload(d, windowId);
   if (choice === "pause") void pauseDownload(d.id);
   if (choice === "resume") void resumeDownload(d.id);
   if (choice === "keep") void keepDownload(d.id);
