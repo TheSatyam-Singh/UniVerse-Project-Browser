@@ -9,7 +9,7 @@
     "pods": "cd macos && pod install",
     "build": "xcodebuild -workspace macos/UniVerse-Project-Browser.xcworkspace -scheme UniVerse-macOS -derivedDataPath build -destination 'platform=macOS,arch=arm64' -quiet -configuration Release",
     "typecheck": "tsc -p .",
-    "test": "node --no-warnings --import ./src/test-loader.mjs --test \"src/**/*.test.mjs\" \"scripts/**/*.test.mjs\""
+    "test": "node --no-warnings --import ./src/test-loader.mjs --test --test-concurrency=4 \"src/**/*.test.mjs\" \"scripts/**/*.test.mjs\""
   },
   "dependencies": {
     "@universe/core": "workspace:*",
