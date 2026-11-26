@@ -9,6 +9,7 @@ export type DownloadsSlice = {
   downloads: Download[];
 
   upsertDownload(d: Download): void;
+  restoreDownloads(downloads: Download[]): void;
   removeDownload(id: string): void;
   clearDownloads(windowId?: string): void;
   forgetDownloads(profile: string): void;
@@ -58,6 +59,14 @@ export const createDownloadsSlice: StateCreator<BrowserState, [], [], DownloadsS
 
   removeDownload(id) {
     set((s) => ({ downloads: s.downloads.filter((d) => d.id !== id) }));
+  },
+
+  restoreDownloads(list) {
+    set((s) => {
+      const fresh = list.filter((d) => d.state !== "downloading" && downloadSession(s, d) === null && !s.downloads.some((x) => x.id === d.id));
+      if (!fresh.length) return {};
+      return { downloads: [...s.downloads, ...fresh].slice(0, MAX_DOWNLOADS) };
+    });
   },
 
   clearDownloads(windowId) {
