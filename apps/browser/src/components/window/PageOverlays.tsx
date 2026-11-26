@@ -17,6 +17,7 @@ import { ZOOM_POPOVER_WIDTH, ZoomPopover } from "../site/ZoomControls";
 import { SelectionPopover } from "../site/SelectionPopover";
 import { SharePicker } from "../media/SharePicker";
 import { CastPicker } from "../media/CastPicker";
+import { FloatingPlayer } from "../media/FloatingPlayer";
 import { DEVICE_CHOOSER_WIDTH, DeviceChooser } from "../site/DeviceChooser";
 import { NavigationOverlays } from "./SwipeOverlay";
 import { HISTORY_MENU_WIDTH, HistoryPopover } from "./HistoryPopover";
@@ -73,6 +74,7 @@ export function PageOverlays({
       <CastPicker tabId={tabId} paneWidth={width} />
       <NavigationOverlays tabId={tabId} windowId={windowId} anchor={anchor} paneWidth={width} historyMenu={popovers} />
       <SelectionPopover tabId={tabId} zoom={zoom} />
+      <FloatingPlayer windowId={windowId} tabId={tabId} />
     </>
   );
 }

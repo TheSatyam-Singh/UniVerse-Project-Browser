@@ -19,7 +19,7 @@ import { useSettings, useTab } from "../../state/browser/hooks";
 import { isIncognitoProfile, tabLabel } from "../../state/browser/model";
 import { ENGINE_NAMES, ENGINE_SYMBOLS, otherEngine } from "../../state/engines/engines";
 import { openPageIn, togglePageEngine } from "../../state/engines/actions";
-import { Box, Divider, MenuRow, MenuSeparator, PANEL, PanelHeader, Popover, PopoverValue, space, Toggle, usePopoverPresence } from "../ui";
+import { Box, Divider, MenuRow, MenuSeparator, PANEL, PanelHeader, Popover, PopoverValue, space, Text, Toggle, usePopoverPresence } from "../ui";
 import { Favicon } from "../favicon/Favicon";
 import { patchPage, setPopover, usePage } from "../../state/tabs/pageState";
 import { dismissPopoverByPress } from "../../state/tabs/popoverDismiss";
@@ -36,11 +36,14 @@ import { SiteExtensions } from "./SiteExtensions";
 import { TranslateRows } from "./TranslateControls";
 import { ZoomStepper } from "./ZoomControls";
 import { blockerLabel, choiceTitle, featuredPermissions, permissionValue, readSiteSettings, setSitePermission, sitePermissionsFor, type SitePermission } from "../../state/site/siteControls";
+import { activeCategories } from "../../state/site/contentBlocking";
 import { isWebPageUrl } from "../../lib/url";
 import { ALL_UNREAD_TITLE, canChooseSiteUnread, isUnreadSiteHidden, setSiteUnreadShown, showUnreadCounts } from "../../state/tabs/unreadSites";
 
 type Expanded = "connection" | "more" | null;
-type Blocker = { enabled: boolean; allowed: boolean };
+type Blocker = { enabled: boolean; allowed: boolean; categories: string[] };
+
+const CATEGORY_LABELS: Record<string, string> = { ads: "Ads", trackers: "Trackers", cookies: "Cookie banners", annoyances: "Annoyances", security: "Malware and scams", regional: "Regional" };
 
 export function SiteControls({ tabId, open, right, left, top }: { tabId: string; open: boolean; right?: number; left?: number; top: number }) {
   const presence = usePopoverPresence(open);
@@ -99,7 +102,7 @@ function SiteControlsPanel({
       setSettings(s);
       setFeatured((f) => f ?? featuredPermissions(tabId, s, permissionList));
     });
-    void Promise.all([getContentBlocker(), isContentBlockerAllowed(host)]).then(([state, allowed]) => live && setBlocker({ enabled: state.enabled, allowed }));
+    void Promise.all([getContentBlocker(), isContentBlockerAllowed(host)]).then(([state, allowed]) => live && setBlocker({ enabled: state.enabled, allowed, categories: activeCategories(state).map((c) => CATEGORY_LABELS[c] ?? c) }));
     void webviews.get(tabId)?.getSecurityInfo().then((info) => live && info && patchPage(tabId, { security: info }));
     return () => {
       live = false;
@@ -224,6 +227,16 @@ function SiteControlsPanel({
                       }
               }
             />
+            {blocker?.enabled && !blocker.allowed && (
+              <View style={{ paddingHorizontal: PANEL.inset, paddingBottom: space.s }}>
+                <Text size="caption" tone="textSecondary">
+                  {blocked > 0 ? `${blocked} tracker${blocked === 1 ? "" : "s"} blocked on this page` : "Nothing blocked on this page yet"}
+                </Text>
+                {blocker.categories.length > 0 && (
+                  <Text size="caption" tone="textTertiary">{`Blocking: ${blocker.categories.join(" · ")}`}</Text>
+                )}
+              </View>
+            )}
             <SettingRow icon={ENGINE_SYMBOLS[pageEngine]} title="Opens in" value={opensIn} on={!!engineRule} onPress={() => void pickEngine()} />
             {shownPermissions.map((p) => (
               <SettingRow

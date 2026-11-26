@@ -1,0 +1,55 @@
+name: Windows
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: windows-${{ github.ref }}
+  cancel-in-progress: false
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  typecheck:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+        with:
+          path: .turbo/cache
+          key: turbo-${{ github.sha }}
+          restore-keys: turbo-
+      - run: pnpm typecheck
+      - name: JavaScript tests
+        run: |
+          pnpm --filter @universe/browser test
+          pnpm --filter @universe/core test
+          pnpm --filter @universe/shaders test
+          pnpm --filter @universe/sync exec node --test "src/**/*.test.ts"
+          pnpm --filter @universe/universecore exec node --test src/engine/api.test.mjs src/pageEvents.test.mjs tests/webkit-page-script.test.mjs tests/webkit-auto-pip.test.mjs tests/webkit-media-faults.test.mjs tests/webkit-warm.test.mjs
+          node --no-warnings --test extras/raycast-universe/src/scripts.test.ts "scripts/**/*.test.mjs" "apps/site/src/**/*.test.ts"
+      - name: Demo web UI builds
+        run: |
+          pnpm --filter @universe/demo run build
+          pnpm --filter @universe/demo run build:windows
+      - name: Metal shaders
+        run: |
+          if command -v xcrun >/dev/null 2>&1; then
+            pnpm shaders:check
+          else
+            echo "::warning::no xcrun on Windows: shaders:check needs macOS Metal; the macOS checks job in universe-macos.yml is the gate that enforces it"
+          fi

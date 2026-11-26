@@ -18,6 +18,7 @@ import { orderSections } from "../groups/groups";
 import { samePage } from "../../lib/url";
 import { historyOf } from "../history/history";
 import { pinHome } from "../pins/pinHomes";
+import { activeSpaceOf, withTabInSpace } from "../spaces/spaces";
 
 export type NewTabOptions = {
   url?: string;
@@ -287,5 +288,7 @@ export function withNewTab(s: BrowserState, windowId: string, o: NewTabOptions =
     windows: { ...s.windows, [windowId]: window },
   };
   if (!o.background) next = apply(next, activated(next, tab.id));
+  const space = activeSpaceOf(next, windowId);
+  if (space && !tab.pin) next = withTabInSpace(next, tab.id, space.id);
   return [next, tab.id];
 }

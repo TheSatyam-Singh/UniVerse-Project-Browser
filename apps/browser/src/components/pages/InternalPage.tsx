@@ -9,6 +9,8 @@ import { BookmarksPage } from "./BookmarksPage";
 import { DownloadsPage } from "./DownloadsPage";
 import { HistoryPage } from "./HistoryPage";
 import { PdfViewerPage } from "./PdfViewerPage";
+import { SurfPage } from "./SurfPage";
+import { ReaderPage } from "./ReaderPage";
 import { INTERNAL_PAGES, internalPageOf, internalQuery, tabDestination } from "../../state/pages/urls";
 
 export function InternalPage({ tabId }: { tabId: string }) {
@@ -33,6 +35,8 @@ export function InternalPage({ tabId }: { tabId: string }) {
       {page === "bookmarks" && <BookmarksPage key={bookmarkProfile} tabId={tabId} profileId={bookmarkProfile} />}
       {page === "downloads" && <DownloadsPage tabId={tabId} />}
       {page === "pdf" && <PdfViewerPage tabId={tabId} />}
+      {page === "surf" && <SurfPage tabId={tabId} />}
+      {page === "reader" && <ReaderPage tabId={tabId} />}
     </View>
   );
 }

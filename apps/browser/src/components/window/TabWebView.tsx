@@ -48,6 +48,7 @@ import { noteAutoPictureInPictureKept, notePageOverlay, noteReopenedPage, noteWe
 import { noteWebKitMediaFault } from "../../state/telemetry/webkitMediaFaults";
 import { isAdoptKind } from "../../state/tabs/adoptIds";
 import { isPdfUrl, isPdfViewerUrl, pdfViewerUrl } from "../../state/pdf/pdfUrls";
+import { applyBoosts } from "../../state/boosts/boosts";
 import { firstPagePending, isBlankAddress, noteFirstPagePending, reportedAddress, reportedTitle } from "../../state/tabs/pendingAddress";
 import { STATUS_FLIP_BAND } from "./tokens";
 
@@ -203,6 +204,7 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
         const shownTitle = !title && restoring ? (tab()?.title ?? title) : title;
         updateTab(tabId, { url, title: shownTitle }, { isLoading, canGoBack, canGoForward, themeColor: shownTheme });
         dropOutlivedFavicon(tabId, url, isLoading);
+        if (url && !isBlankAddress(url)) applyBoosts(tabId, url);
         if (engine === "webkit") noteWebKitPage(tabId, { url, title, isLoading, committedUrl: committedUrl ?? "" });
         if (lastPage.current !== null && withoutFragment(url) !== lastPage.current) leftPage(tabId, url, lastPage.current, engine, peekOf !== undefined);
         lastPage.current = withoutFragment(url);

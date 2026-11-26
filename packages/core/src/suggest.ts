@@ -10,6 +10,7 @@ import { hostLowerOfPage, hostOfPage, hostPart, originOfPage, pageKey, type Page
 import { globalProviderRows, providerUrl, safeProviderRows, type ProviderSection, type ProviderSuggestion } from "./providerRows.ts";
 import { matchQuickCreate } from "./quickCreate.ts";
 import { scopedSearchUrl, type SearchScope } from "./siteSearch.ts";
+import { parseTimer } from "./timer.ts";
 import type { SuggestionResult, SuggestionSource, SuggestOptions, Suggestion } from "./suggestion.ts";
 import { actionRow, createRow, dedupeSuggestions, Output, pageSuggestion } from "./suggestionRows.ts";
 
@@ -124,6 +125,7 @@ export function buildSuggestions(raw: string, source: SuggestionSource, options:
   const search: Suggestion = { kind: "search", query, url: searchUrl(engine, query), engine: engine.name };
   const typedUrl = fixupUrl(query);
   const calc = calculate(query);
+  const timer = parseTimer(query);
   const creates = matchQuickCreate(raw.trimStart());
   const actionRows = query.length >= 4 ? 4 : 2;
   const actionMatches = matchActions(query, actions, actionRows).filter((m) => m.exact || m.score >= 50);
@@ -145,6 +147,7 @@ export function buildSuggestions(raw: string, source: SuggestionSource, options:
   out.push(first);
   out.push(search);
   if (calc) out.push({ kind: "calc", expression: calc.expression, value: calc.display, url: searchUrl(engine, calc.expression) });
+  if (timer) out.push({ kind: "timer", seconds: timer.seconds, label: timer.label });
   out.push(...actionMatches.map((m) => actionRow(m.action)));
   out.push(...extensionMatches.rows);
   out.push(...creates.map(createRow));

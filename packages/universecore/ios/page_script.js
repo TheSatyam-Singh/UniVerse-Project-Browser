@@ -65,6 +65,151 @@
     }
     Object.defineProperty(window, "chrome", { value: undefined, configurable: true, writable: true });
   } catch (e) {}
+  const fingerprintSeed = (Math.random() * 4294967296) >>> 0;
+  const fingerprintIds = new WeakMap();
+  let fingerprintSeq = 0;
+  const fingerprintId = (target) => {
+    let id = fingerprintIds.get(target);
+    if (id === undefined) {
+      id = ++fingerprintSeq;
+      fingerprintIds.set(target, id);
+    }
+    return id;
+  };
+  const fingerprintStream = (id) => {
+    let h = (fingerprintSeed ^ Math.imul(id, 2654435761)) >>> 0;
+    return () => {
+      h = (Math.imul(h, 1664525) + 1013904223) >>> 0;
+      return ((h >>> 16) % 3) - 1;
+    };
+  };
+  const fingerprintPerturbPixels = (data, id) => {
+    let h = (fingerprintSeed ^ Math.imul(id, 2654435761)) >>> 0;
+    for (let i = 0; i + 3 < data.length; i += 4) {
+      h = (Math.imul(h, 1664525) + 1013904223) >>> 0;
+      if ((h >>> 16) % 97 !== 0) continue;
+      const at = i + (h % 3);
+      const next = data[at] + (((h >>> 8) % 3) - 1);
+      data[at] = next < 0 ? 0 : next > 255 ? 255 : next;
+    }
+  };
+  let fingerprintRestorers = [];
+  const fingerprintUninstall = () => {
+    const restores = fingerprintRestorers;
+    fingerprintRestorers = [];
+    for (let i = 0; i < restores.length; i++) {
+      try {
+        restores[i]();
+      } catch (e) {}
+    }
+  };
+  const fingerprintInstall = () => {
+    const canvasProto = window.HTMLCanvasElement && HTMLCanvasElement.prototype;
+    const contextProto = window.CanvasRenderingContext2D && CanvasRenderingContext2D.prototype;
+    const audioBufferProto = window.AudioBuffer && AudioBuffer.prototype;
+    const analyserProto = window.AnalyserNode && AnalyserNode.prototype;
+    const createCanvas = document.createElement.bind(document);
+    if (canvasProto && contextProto) {
+      const nativeGetImageData = contextProto.getImageData;
+      const nativeToDataURL = canvasProto.toDataURL;
+      const nativeToBlob = canvasProto.toBlob;
+      const nativeGetContext = canvasProto.getContext;
+      const nativeDrawImage = contextProto.drawImage;
+      const nativePutImageData = contextProto.putImageData;
+      if (typeof nativeGetImageData === "function") {
+        const patched = asNative(nativeGetImageData, function (target, self, args) {
+          const image = apply(target, self, args);
+          if (image && image.data) fingerprintPerturbPixels(image.data, fingerprintId(self.canvas || self));
+          return image;
+        });
+        contextProto.getImageData = patched;
+        fingerprintRestorers.push(() => {
+          contextProto.getImageData = nativeGetImageData;
+        });
+      }
+      const farbledCopy = (canvas) => {
+        if (!canvas.width || !canvas.height) return null;
+        const copy = createCanvas("canvas");
+        copy.width = canvas.width;
+        copy.height = canvas.height;
+        const ctx = apply(nativeGetContext, copy, ["2d"]);
+        if (!ctx) return null;
+        apply(nativeDrawImage, ctx, [canvas, 0, 0]);
+        const image = apply(nativeGetImageData, ctx, [0, 0, copy.width, copy.height]);
+        fingerprintPerturbPixels(image.data, fingerprintId(canvas));
+        apply(nativePutImageData, ctx, [image, 0, 0]);
+        return copy;
+      };
+      if (typeof nativeToDataURL === "function") {
+        const patched = asNative(nativeToDataURL, function (target, self, args) {
+          const copy = farbledCopy(self);
+          return apply(target, copy || self, args);
+        });
+        canvasProto.toDataURL = patched;
+        fingerprintRestorers.push(() => {
+          canvasProto.toDataURL = nativeToDataURL;
+        });
+      }
+      if (typeof nativeToBlob === "function") {
+        const patched = asNative(nativeToBlob, function (target, self, args) {
+          const copy = farbledCopy(self);
+          return apply(target, copy || self, args);
+        });
+        canvasProto.toBlob = patched;
+        fingerprintRestorers.push(() => {
+          canvasProto.toBlob = nativeToBlob;
+        });
+      }
+    }
+    if (audioBufferProto && typeof audioBufferProto.getChannelData === "function") {
+      const nativeGetChannelData = audioBufferProto.getChannelData;
+      const perturbedBuffers = new WeakSet();
+      const patched = asNative(nativeGetChannelData, function (target, self, args) {
+        const data = apply(target, self, args);
+        if (data && !perturbedBuffers.has(self)) {
+          perturbedBuffers.add(self);
+          const next = fingerprintStream(fingerprintId(self));
+          for (let i = 0; i < data.length; i++) data[i] += next() * 0.0002;
+        }
+        return data;
+      });
+      audioBufferProto.getChannelData = patched;
+      fingerprintRestorers.push(() => {
+        audioBufferProto.getChannelData = nativeGetChannelData;
+      });
+    }
+    if (analyserProto) {
+      const perturbAnalyser = (self, data, scale) => {
+        const next = fingerprintStream(fingerprintId(self));
+        for (let i = 0; i < data.length; i++) data[i] += next() * scale;
+      };
+      if (typeof analyserProto.getFloatFrequencyData === "function") {
+        const native = analyserProto.getFloatFrequencyData;
+        const patched = asNative(native, function (target, self, args) {
+          apply(target, self, args);
+          if (args[0]) perturbAnalyser(self, args[0], 0.5);
+        });
+        analyserProto.getFloatFrequencyData = patched;
+        fingerprintRestorers.push(() => {
+          analyserProto.getFloatFrequencyData = native;
+        });
+      }
+      if (typeof analyserProto.getByteFrequencyData === "function") {
+        const native = analyserProto.getByteFrequencyData;
+        const patched = asNative(native, function (target, self, args) {
+          apply(target, self, args);
+          if (args[0]) perturbAnalyser(self, args[0], 1);
+        });
+        analyserProto.getByteFrequencyData = patched;
+        fingerprintRestorers.push(() => {
+          analyserProto.getByteFrequencyData = native;
+        });
+      }
+    }
+  };
+  try {
+    fingerprintInstall();
+  } catch (e) {}
   const plain = (value, depth) => {
     if (value === null || typeof value === "string" || typeof value === "boolean") return value;
     if (typeof value === "number") return isFinite(value) ? value : null;
@@ -1151,6 +1296,7 @@
     if (config.displayMediaPicker) installDisplayMedia();
     else restoreDisplayMedia();
     if (config.fieldTiming) setFieldTiming(true);
+    if (config.fingerprintProtection === false) fingerprintUninstall();
     if (typeof config.selectionPopover === "boolean" && handlers.selectionPopover) handlers.selectionPopover(config.selectionPopover);
   };
   send("hello", { top: isTop, url: location.href });

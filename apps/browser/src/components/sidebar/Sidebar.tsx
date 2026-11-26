@@ -17,6 +17,8 @@ import type { DragController } from "./dragController";
 import type { Ghost } from "./dragModel";
 import { SidebarDropArea } from "./SidebarDropArea";
 import { FolderPanel } from "./FolderPanel";
+import { AiSidebar } from "./AiSidebar";
+import { NotesPanel } from "./NotesPanel";
 import { dismissHover, dismissHoverIn } from "../../state/sidebar/hover";
 import { PinFieldZone, PinSlotZone } from "./PinnedGrid";
 import { ResizeHandle } from "./ResizeHandle";
@@ -28,6 +30,9 @@ import { GLOW_ROOM, rowPitch, type SidebarGeometry } from "./pageLayout";
 import { SidebarPage } from "./SidebarPage";
 import { SidebarRowLookContext, useSidebarRowLookSource } from "./rowLook";
 import { useRevealTabs } from "./useRevealTabs";
+import { SpaceBar } from "./SpaceBar";
+import { SPACE_BAR_HEIGHT } from "./tokens";
+import { useSpaces } from "../../state/spaces/hooks";
 
 const HEADER_RIGHT = space.m;
 
@@ -58,6 +63,8 @@ export function Sidebar({ width }: { width: number }) {
   const pinnedShown = useSidebarPart("pinned");
   const nothingPinned = useNoTiles(windowId, current) && pinnedShown;
   const rowLook = useSidebarRowLookSource();
+  const spaces = useSpaces(windowId);
+  const spaceBarShown = spaces.length > 0;
 
   const drag = useRef<DragController | null>(null);
   const onScrollView = useCallback((v: ScrollView | null) => {
@@ -90,7 +97,7 @@ export function Sidebar({ width }: { width: number }) {
                 position: "absolute",
                 left: 0,
                 right: 0,
-                top: header - GLOW_ROOM,
+                top: header + (spaceBarShown ? SPACE_BAR_HEIGHT : 0) - GLOW_ROOM,
                 bottom: footer,
                 overflow: paging ? "hidden" : "visible",
               }}
@@ -116,6 +123,12 @@ export function Sidebar({ width }: { width: number }) {
                 ))}
               </SidebarRowLookContext.Provider>
             </View>
+
+            {spaceBarShown ? (
+              <View style={{ position: "absolute", left: 0, right: 0, top: header, height: SPACE_BAR_HEIGHT }}>
+                <SpaceBar windowId={windowId} />
+              </View>
+            ) : null}
 
             <TintInk>
               {footer ? (
@@ -159,6 +172,8 @@ export function Sidebar({ width }: { width: number }) {
               )
             ) : null}
             <FolderPanel windowId={windowId} />
+            <NotesPanel windowId={windowId} />
+            <AiSidebar windowId={windowId} />
             {ghost ? <DragGhost ghost={ghost} /> : null}
           </SidebarDropArea>
         );

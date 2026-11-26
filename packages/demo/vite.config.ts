@@ -13,6 +13,7 @@ const reactNativeWeb = dirname(createRequire(import.meta.url).resolve("react-nat
 const realPackages: Record<string, string> = {
   shell: `${repo}packages/shell/src/index.tsx`,
   ardiacore: `${repo}packages/universecore/src/index.ts`,
+  universecore: `${repo}packages/universecore/src/index.ts`,
   shaders: `${repo}packages/shaders/src/index.tsx`,
   sync: `${repo}packages/sync/src/index.ts`,
   import: `${repo}packages/import/src/index.ts`,

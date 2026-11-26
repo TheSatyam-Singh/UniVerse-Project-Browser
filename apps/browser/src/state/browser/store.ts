@@ -24,6 +24,9 @@ import type { BrowserWindow, Tab } from "./types";
 import { createUiSlice, type UiSlice } from "../windows/ui";
 import { createDownloadsSlice, type DownloadsSlice } from "../downloads/downloadsSlice";
 import { createWindowsSlice, type WindowsSlice } from "../windows/windows";
+import { createSpacesSlice, type SpacesSlice } from "../spaces/spaces";
+import { createArchivedSlice, type ArchivedSlice } from "../spaces/archived";
+import { createSessionsSlice, type SessionsSlice } from "../spaces/sessions";
 import { orderSections } from "../groups/groups";
 
 export type BrowserState = ProfilesSlice &
@@ -39,6 +42,9 @@ export type BrowserState = ProfilesSlice &
   SettingsSlice &
   UiSlice &
   DownloadsSlice &
+  SpacesSlice &
+  ArchivedSlice &
+  SessionsSlice &
   PeekSlice & {
     hydrate(data: HydrateData): void;
   };
@@ -64,6 +70,10 @@ export type HydrateData = Partial<
     | "deletedGroups"
     | "cleanedTabs"
     | "downloads"
+    | "spaces"
+    | "activeSpaceId"
+    | "archivedTabs"
+    | "sessions"
     | "settings"
     | "settingsMeta"
   >
@@ -117,6 +127,9 @@ export const useBrowser = create<BrowserState>()(transactions.middleware(batched
   ...createUiSlice(...a),
   ...createDownloadsSlice(...a),
   ...createPeekSlice(...a),
+  ...createSpacesSlice(...a),
+  ...createArchivedSlice(...a),
+  ...createSessionsSlice(...a),
 
   hydrate(data) {
     const [set, get] = a;
@@ -191,6 +204,18 @@ export const useBrowser = create<BrowserState>()(transactions.middleware(batched
       bookmarks,
       bookmarksReady: {},
       downloads: data.downloads ?? [],
+      spaces: Object.fromEntries(
+        Object.values(data.spaces ?? {})
+          .filter((space) => windows[space.windowId])
+          .map((space) => [space.id, { ...space, tabIds: space.tabIds.filter((id) => tabs[id]?.windowId === space.windowId) }]),
+      ),
+      activeSpaceId: Object.fromEntries(
+        Object.entries(data.activeSpaceId ?? {}).filter(
+          ([windowId, spaceId]) => windows[windowId] && (spaceId === null || !!(data.spaces ?? {})[spaceId]),
+        ),
+      ),
+      archivedTabs: data.archivedTabs ?? [],
+      sessions: data.sessions ?? [],
       windowUi: {},
       peeks: {},
       find: {},

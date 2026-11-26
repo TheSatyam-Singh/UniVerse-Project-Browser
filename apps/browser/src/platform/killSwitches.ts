@@ -78,6 +78,11 @@ export const EXPERIMENTS = {
     owner: "engines",
     removeBy: "2026-12-15",
   },
+  universeAiSidebar: {
+    about: "An experimental UniVerse AI panel in the sidebar that answers questions with the deployed UniVerse search engine (state/ai/aiSidebar.ts).",
+    owner: "ai",
+    removeBy: "2027-01-15",
+  },
 } as const satisfies Record<string, ExperimentDef>;
 
 type SwitchName = keyof typeof SWITCHES;

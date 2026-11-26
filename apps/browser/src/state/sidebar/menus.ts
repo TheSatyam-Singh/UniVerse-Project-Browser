@@ -10,6 +10,7 @@ import { setSidebarUi } from "./sidebarUi";
 import { cleanUpWithUndo, closeAllTabs } from "./clearTabs";
 import { DAILY_CLEAN_UP_MINUTES } from "../settings/cleanUpAfter";
 import { sep } from "./menuParts";
+import { clearArchivedTabs, restoreArchivedTab, restoreSession, saveSessionWithPrompt } from "../spaces/actions";
 
 export { openTabMenu } from "./tabMenu";
 export { openGroupMenu } from "./groupMenu";
@@ -17,7 +18,7 @@ export { openSidebarMenu } from "./sidebarMenu";
 
 const store = () => useBrowser.getState();
 
-type OverflowChoice = { open: string } | { restore: string } | { cleaned: string };
+type OverflowChoice = { open: string } | { restore: string } | { cleaned: string } | { archived: string } | { session: string };
 
 export async function openOverflowMenu(windowId: string) {
   const s = store();
@@ -41,6 +42,8 @@ export async function openOverflowMenu(windowId: string) {
     .map((c) => ({ value: { restore: c.id }, title: `${c.group.name} (${plural(c.tabs.length, "Tab")})`, symbol: "trash" }));
   const daily = s.settings.cleanUpInactiveTabsAfterMinutes !== null;
   const synced = syncedDevicesMenuItem(w.profileId);
+  const archived = s.archivedTabs.filter((a) => a.tab.profileId === w.profileId).slice(0, 15);
+  const sessions = s.sessions;
   const choice = await chooseFromMenu<OverflowChoice, string>([
     { id: "search", title: "Search Tabs…", symbol: "magnifyingglass", ...menuShortcut("searchTabs") },
     sep,
@@ -67,6 +70,25 @@ export async function openOverflowMenu(windowId: string) {
         : [{ id: "none", title: "Empty", enabled: false }],
     },
     ...(deleted.length ? [{ id: "deleted", title: "Recently Deleted Groups", symbol: "trash", children: deleted }] : []),
+    {
+      id: "archived",
+      title: "Archived Tabs",
+      symbol: "archivebox",
+      enabled: archived.length > 0,
+      children: archived.length
+        ? [...archived.map((a) => ({ value: { archived: a.id }, title: tabTitle(a.tab), symbol: "archivebox" })), sep, { id: "clearArchived", title: "Clear All Archived Tabs" }]
+        : [{ id: "none", title: "Empty", enabled: false }],
+    },
+    {
+      id: "sessions",
+      title: "Sessions",
+      symbol: "square.and.arrow.up",
+      children: [
+        ...sessions.map((x) => ({ value: { session: x.id }, title: `${x.name} (${plural(x.closedWindow.tabs.length, "Tab")})` })),
+        ...(sessions.length ? [sep] : []),
+        { id: "saveSession", title: "Save Current Window as Session…" },
+      ],
+    },
     sep,
     { id: "clean", title: "Clean Up Tabs", symbol: "wand.and.stars", ...menuShortcut("cleanUpTabs") },
     { id: "daily", title: "Clean Up Daily", checked: daily },
@@ -78,10 +100,14 @@ export async function openOverflowMenu(windowId: string) {
   if (typeof choice !== "string") {
     if ("open" in choice) switchToTab(choice.open);
     else if ("restore" in choice) s.restoreClosed(choice.restore, windowId);
+    else if ("archived" in choice) restoreArchivedTab(windowId, choice.archived);
+    else if ("session" in choice) restoreSession(choice.session, windowId);
     else s.restoreCleaned(choice.cleaned, windowId);
   } else if (choice === "search") setSidebarUi({ searchTabs: windowId });
   else if (openSyncedTab(choice, windowId, w.profileId)) return;
   else if (choice === "restoreAll") s.restoreCleaned(undefined, windowId);
+  else if (choice === "clearArchived") clearArchivedTabs();
+  else if (choice === "saveSession") void saveSessionWithPrompt(windowId);
   else if (choice === "clean") cleanUpWithUndo(windowId);
   else if (choice === "daily") s.updateSettings({ cleanUpInactiveTabsAfterMinutes: daily ? null : DAILY_CLEAN_UP_MINUTES });
   else if (choice === "mute") muteAll(windowId, !muted);

@@ -19,6 +19,8 @@ import {
 } from "../../lib/profileLook";
 import { THEME_TEXTURES } from "@universe/core";
 import { PROFILE_COLORS } from "../ui/theme";
+import { UNIVERSE_THEMES, type UniverseThemePreset } from "../../state/profiles/universeThemes";
+import { capture } from "../../state/telemetry/client";
 import { useAppDark, useProfile, useSettings, useWindow } from "../../state/browser/hooks";
 import type { ProfileColor, ProfileTheme, ThemeMode, ThemeTexture } from "../../state/browser/types";
 import { Box, Button, curve, duration, Group, PopUp, Segmented, space, Swatch, swatch, Text, ThemeSwatch } from "../ui";
@@ -103,6 +105,9 @@ export function ThemeSection({ profileId }: { profileId: string }) {
         >
           <ThemeSwatches color={custom ? null : profile.color} onPreset={(c) => choosePresetColor(profileId, c)} custom={custom} onCustom={startCustom} />
         </Row>
+        <Row title="UniVerse themes" description="Built-in UniVerse looks. Pick one to apply it to this profile.">
+          <UniverseThemePresets profileId={profileId} stored={stored} />
+        </Row>
         {custom && shown ? (
           <Box pad="l">
             <ThemeEditor theme={custom} full={{ shown, followsApp }} onChange={change} />
@@ -110,6 +115,36 @@ export function ThemeSection({ profileId }: { profileId: string }) {
         ) : null}
       </Group>
     </>
+  );
+}
+
+export function UniverseThemePresets({ profileId, stored }: { profileId: string; stored: ProfileTheme | null | undefined }) {
+  return (
+    <View style={{ flexDirection: "row", flexWrap: "wrap", gap: space.m }}>
+      {UNIVERSE_THEMES.map((preset) => (
+        <PresetButton key={preset.id} preset={preset} selected={!!stored && JSON.stringify(stored) === JSON.stringify(preset.theme)} onPress={() => {
+          setProfileTheme(profileId, preset.theme);
+          capture("universe_theme_applied", { theme: preset.id });
+        }} />
+      ))}
+    </View>
+  );
+}
+
+function PresetButton({ preset, selected, onPress }: { preset: UniverseThemePreset; selected: boolean; onPress: () => void }) {
+  return (
+    <View tooltip={preset.name}>
+      <Pressable onPress={onPress} accessibilityRole="radio" accessibilityState={{ selected }} accessibilityLabel={preset.name}>
+        {({ pressed }) => (
+          <View style={{ transform: [{ scale: pressed ? PRESSED_SCALE : 1 }], alignItems: "center", gap: space.xxs }}>
+            <Swatch animated size={swatch.size} selected={selected} ring={themeAccent(preset.theme)} fill={themeAccent(preset.theme)} />
+            <Text size="caption" tone={selected ? "textPrimary" : "textSecondary"}>
+              {preset.name}
+            </Text>
+          </View>
+        )}
+      </Pressable>
+    </View>
   );
 }
 

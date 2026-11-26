@@ -22,6 +22,8 @@ export function SuggestionIcon({ suggestion: s, color }: { suggestion: Suggestio
       return <Symbol name="magnifyingglass" size={SUGGESTION.icon} color={tint} style={ICON_BOX} />;
     case "calc":
       return <Symbol name="equal.circle" size={SUGGESTION.calcIcon} color={tint} style={ICON_BOX} />;
+    case "timer":
+      return <Symbol name="timer" size={SUGGESTION.icon} color={tint} style={ICON_BOX} />;
     case "action":
       return <Symbol name={s.icon ?? "command"} size={SUGGESTION.icon} color={tint} style={ICON_BOX} />;
     case "extension":
@@ -44,6 +46,8 @@ function labels(s: Suggestion): [string, string | null] {
       return [s.bang ? `Search ${s.engine} for ${s.query}` : s.query, null];
     case "calc":
       return [s.value, s.expression];
+    case "timer":
+      return [`Start ${s.label} timer`, "Timer"];
     case "action":
     case "create":
       return [s.title, null];

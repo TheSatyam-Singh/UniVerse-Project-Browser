@@ -1,6 +1,7 @@
 export * from "./anonymousIdentity.ts";
 export * from "./appUrls.ts";
 export * from "./bangs.ts";
+export * from "./boosts.ts";
 export * from "./calculator.ts";
 export * from "./cleanUrl.ts";
 export * from "./engines.ts";
@@ -18,6 +19,7 @@ export * from "./quickCreate.ts";
 export * from "./siteSearch.ts";
 export * from "./suggest.ts";
 export * from "./suggestFetcher.ts";
+export * from "./timer.ts";
 export * from "./tabGroups.ts";
 export * from "./textFragment.ts";
 export * from "./theme.ts";

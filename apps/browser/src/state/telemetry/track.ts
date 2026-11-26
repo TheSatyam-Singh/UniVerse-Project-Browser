@@ -3,7 +3,7 @@ import { appInfo } from "./transport";
 import { launchFirstWindow } from "./journeys";
 import type { PanelState } from "../browser/types";
 
-export type SuggestionType = "history" | "bookmark" | "tab" | "url" | "search" | "calc" | "action" | "create" | "extension" | "provider" | "typed";
+export type SuggestionType = "history" | "bookmark" | "tab" | "url" | "search" | "calc" | "timer" | "action" | "create" | "extension" | "provider" | "typed";
 
 type SuggestionLike = { kind: string; tabId?: string; bookmarked?: boolean; visited?: boolean } | undefined;
 
@@ -14,6 +14,7 @@ function suggestionType(s: SuggestionLike): SuggestionType {
       return s.tabId ? "tab" : s.bookmarked ? "bookmark" : s.visited ? "history" : "url";
     case "search":
     case "calc":
+    case "timer":
     case "action":
     case "create":
     case "extension":

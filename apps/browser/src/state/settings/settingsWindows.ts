@@ -15,6 +15,7 @@ export const SETTINGS_PANES = [
   "sync",
   "tabs",
   "appearance",
+  "boosts",
   "privacy",
   "passwords",
   "autofill",

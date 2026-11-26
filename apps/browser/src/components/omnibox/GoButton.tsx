@@ -9,6 +9,7 @@ import { BAR_TYPE, GO_BUTTON } from "./tokens";
 export function destinationLabel(s: Suggestion | undefined): string {
   if (s?.kind === "search") return s.engine;
   if (s?.kind === "calc") return "Copy";
+  if (s?.kind === "timer") return "Start";
   return "Go";
 }
 

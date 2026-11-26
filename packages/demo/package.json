@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite --host 127.0.0.1 --port 5191 --strictPort",
     "build": "vite build",
+    "build:windows": "vite build --config vite.windows.config.ts",
     "preview": "vite preview",
     "typecheck": "tsc -p . && node scripts/icons/check.mjs",
     "icons": "node scripts/icons/regenerate.mjs"

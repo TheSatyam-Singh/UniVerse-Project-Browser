@@ -2,9 +2,11 @@ import { useBrowser, type BrowserState } from "../browser/store";
 import { activeTabId } from "../browser/model";
 import { changedIds } from "../browser/changes";
 import { nextCleanUpAt, noteDeselectedTabs } from "./tabCleanup";
+import { noteTabsArchived } from "../telemetry/usage";
 
 const RECHECK_MS = 30 * 60 * 1000;
 const RETRY_FLOOR_MS = 1000;
+const ARCHIVE_AFTER_MS = 7 * 24 * 60 * 60_000;
 
 let timer: ReturnType<typeof setTimeout> | null = null;
 let unsubscribe: (() => void) | null = null;
@@ -22,19 +24,31 @@ export function nextAutoCleanUpAt(s: BrowserState, now = Date.now()): number | n
   return next;
 }
 
+export function nextAutoArchiveAt(s: BrowserState, now = Date.now()): number {
+  let next = now + Math.min(ARCHIVE_AFTER_MS, RECHECK_MS);
+  for (const id of s.windowOrder) next = Math.min(next, nextCleanUpAt(s, id, ARCHIVE_AFTER_MS));
+  return next;
+}
+
 function schedule(floor = 0) {
   if (timer) clearTimeout(timer);
   timer = null;
   const now = Date.now();
-  const at = nextAutoCleanUpAt(useBrowser.getState(), now);
-  if (at !== null) timer = setTimeout(cleanUpDue, Math.max(floor, at - now));
+  const clean = nextAutoCleanUpAt(useBrowser.getState(), now);
+  const archive = nextAutoArchiveAt(useBrowser.getState(), now);
+  const at = clean === null ? archive : Math.min(clean, archive);
+  timer = setTimeout(cleanUpDue, Math.max(floor, at - now));
 }
 
 function cleanUpDue() {
   timer = null;
   const s = useBrowser.getState();
-  const after = inactiveForMs(s);
-  if (after !== null) for (const id of s.windowOrder) useBrowser.getState().cleanUpTabs(id, { inactiveForMs: after });
+  const clean = inactiveForMs(s);
+  for (const id of s.windowOrder) {
+    const archived = useBrowser.getState().archiveInactiveTabs(id, ARCHIVE_AFTER_MS);
+    if (archived) noteTabsArchived(archived);
+    if (clean !== null) useBrowser.getState().cleanUpTabs(id, { inactiveForMs: clean });
+  }
   schedule(RETRY_FLOOR_MS);
 }
 

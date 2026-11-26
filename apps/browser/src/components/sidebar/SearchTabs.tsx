@@ -6,6 +6,8 @@ import { Divider, FadeLabel, font, ListRow, Panel, radius, SearchField, space, S
 import { useTheme } from "../ui/theme";
 import { useTabs } from "../../state/tabs/hooks";
 import { restoreClosed } from "../../state/windows/actions";
+import { restoreArchivedTab } from "../../state/spaces/actions";
+import { useArchivedTabs } from "../../state/spaces/hooks";
 import { useClosedGroups, useClosedTabs } from "../../state/sidebar/hooks";
 import { searchCandidates, type Row } from "../../state/sidebar/searchTabs";
 import { setSidebarUi, useSidebarUi } from "../../state/sidebar/sidebarUi";
@@ -41,24 +43,35 @@ function SearchPanel({ windowId, windowWidth }: { windowId: string; windowWidth:
   const tabs = useTabs((t) => t);
   const closedTabs = useClosedTabs();
   const closedGroups = useClosedGroups();
+  const archivedTabs = useArchivedTabs();
   const sections = useMemo(() => {
-    const { open, closed } = searchCandidates(windowId);
+    const { open, closed, archived } = searchCandidates(windowId);
     const q = query.trim();
-    if (!q) return [{ title: "Open Tabs", rows: open }, { title: "Recently Closed", rows: closed.slice(0, 8) }];
+    if (!q)
+      return [
+        { title: "Open Tabs", rows: open },
+        { title: "Recently Closed", rows: closed.slice(0, 8) },
+        ...(archived.length ? [{ title: "Archived", rows: archived.slice(0, 8) }] : []),
+      ];
     const rank = (rows: Row[]) =>
       rows
         .map((r) => ({ r, score: Math.max(fuzzyScore(q, r.title), fuzzyScore(q, hostOf(r.url)) * 0.9, fuzzyScore(q, r.url) * 0.6) }))
         .filter((x) => x.score > 0)
         .sort((a, b) => b.score - a.score)
         .map((x) => x.r);
-    return [{ title: "Open Tabs", rows: rank(open) }, { title: "Recently Closed", rows: rank(closed).slice(0, 8) }];
-  }, [query, tabs, closedTabs, closedGroups, windowId]);
+    return [
+      { title: "Open Tabs", rows: rank(open) },
+      { title: "Recently Closed", rows: rank(closed).slice(0, 8) },
+      { title: "Archived", rows: rank(archived).slice(0, 8) },
+    ];
+  }, [query, tabs, closedTabs, closedGroups, archivedTabs, windowId]);
   const rows = sections.flatMap((s) => s.rows);
   const close = () => setSidebarUi({ searchTabs: null });
   const choose = (row: Row | undefined) => {
     if (!row) return;
     close();
     if (row.kind === "tab") switchToTab(row.id);
+    else if (row.kind === "archived") restoreArchivedTab(windowId, row.id);
     else restoreClosed(row.id, windowId);
   };
   const move = (delta: number) => {
@@ -136,6 +149,7 @@ function ResultRow({ row, selected, onHover, onPress }: { row: Row; selected: bo
           </Text>
         ) : null}
         {row.kind === "closed" ? <Symbol name="clock.arrow.circlepath" size={12} color={theme.textTertiary} style={{ width: 16, height: 16 }} /> : null}
+        {row.kind === "archived" ? <Symbol name="archivebox" size={12} color={theme.textTertiary} style={{ width: 16, height: 16 }} /> : null}
     </ListRow>
   );
 }

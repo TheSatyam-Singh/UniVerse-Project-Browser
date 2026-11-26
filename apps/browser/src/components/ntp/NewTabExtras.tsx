@@ -3,6 +3,9 @@ import { useWindow, useWindowId } from "../../state/browser/hooks";
 import { tourAnchorRef } from "../onboarding/tour/anchors";
 import { CheckInBanner } from "./CheckInBanner";
 import { BetaBanner } from "./BetaBanner";
+import { QuickTools } from "./QuickTools";
+import { ShortcutsRow } from "./ShortcutsRow";
+import { SurfCard } from "./SurfCard";
 import { PersonalizeButton } from "./Personalize";
 import { ReleaseNotesPage, ReleaseNotesPostcard } from "./Postcard";
 import { TelemetryAsk } from "./TelemetryAsk";
@@ -10,7 +13,7 @@ import { closeReleaseNotes, openReleaseNotes, retireReleaseNotes, usePendingRele
 
 export type Frame = { x: number; y: number; width: number; height: number };
 
-export function NewTabExtras({ size, bar }: { size: { width: number; height: number }; bar: Frame }) {
+export function NewTabExtras({ size, bar, tabId }: { size: { width: number; height: number }; bar: Frame; tabId: string }) {
   const windowId = useWindowId();
   const incognito = useWindow(windowId, (w) => w?.kind === "private");
   const pending = usePendingReleaseNotes();
@@ -22,6 +25,13 @@ export function NewTabExtras({ size, bar }: { size: { width: number; height: num
       <View ref={tourAnchorRef(windowId, "commandBar")} style={{ position: "absolute", left: bar.x, top: bar.y, width: bar.width, height: bar.height }} pointerEvents="none" />
       <CheckInBanner windowId={windowId} />
       <BetaBanner windowId={windowId} />
+      <SurfCard windowId={windowId} />
+      {incognito ? null : (
+        <>
+          <ShortcutsRow tabId={tabId} bar={bar} />
+          <QuickTools windowId={windowId} bar={bar} />
+        </>
+      )}
       <TelemetryAsk windowId={windowId} size={size} bar={bar} />
       {incognito ? null : <PersonalizeButton windowId={windowId} />}
       {pending && !incognito && !page ? (

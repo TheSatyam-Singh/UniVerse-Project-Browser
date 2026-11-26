@@ -2,6 +2,18 @@ import { type SettingSection } from "./types";
 import type { SettingsPane } from "../../../state/settings/settingsWindows";
 
 export const toolRows = {
+  boosts: [
+    {
+      section: "Boosts",
+      rows: {
+        boosts: {
+          title: "Boosts",
+          description: "Restyle any site with your own CSS, and share a boost as JSON.",
+          keywords: ["boost", "custom css", "restyle", "user style", "theme a site"],
+        },
+      },
+    },
+  ],
   shortcuts: [
     {
       section: "Keyboard Shortcuts",
@@ -224,4 +236,4 @@ export const toolRows = {
       },
     },
   ],
-} satisfies Pick<Record<SettingsPane, SettingSection[]>, "shortcuts" | "liveFolders" | "calendar" | "engines" | "advanced">;
+} satisfies Pick<Record<SettingsPane, SettingSection[]>, "shortcuts" | "liveFolders" | "calendar" | "engines" | "advanced" | "boosts">;

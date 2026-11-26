@@ -146,7 +146,7 @@ export function NewTabPage({ tabId, toolbar = true }: { tabId: string; toolbar?:
           <View pointerEvents="none" style={{ ...StyleSheet.absoluteFillObject, borderRadius: NTP_BAR.radius, borderWidth: NTP_BAR.border, borderColor: theme.ntpBarBorder }} />
         </Surface>
       </View>
-      <NewTabExtras size={size} bar={bar} />
+      <NewTabExtras size={size} bar={bar} tabId={tabId} />
     </View>
   );
 }

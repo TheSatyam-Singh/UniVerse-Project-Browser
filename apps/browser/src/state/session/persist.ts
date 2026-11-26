@@ -19,6 +19,9 @@ import { isRegularWindow } from "../windows/small";
 import { sessionWithPinChoiceStamps } from "../pins/pinChoices";
 import { isFields, isString, isStringList } from "../../lib/decode";
 import { pageFromDisk, pinFromDisk, splitsChecked, savedPage, sessionWithSplitSlots, sessionWithTabPages, sessionWithTabPins, slotsFromDisk } from "./savedShapes";
+import { ARCHIVED_DOCUMENT, ARCHIVED_VERSION, parseArchivedDoc, savedArchivedTabs } from "../spaces/archived";
+import { parseSessionsDoc, savedSessions, SESSIONS_DOCUMENT, SESSIONS_VERSION } from "../spaces/sessions";
+import { parseSpacesDoc, savedActiveSpaceId, savedSpaces, SPACES_DOCUMENT, SPACES_VERSION } from "../spaces/spaces";
 
 const SAVE_DELAY_MS = 800;
 const SESSION_VERSION = 11;
@@ -111,7 +114,26 @@ const DOWNLOADS_FIELDS = {
   ),
 };
 
-const DOCS: Doc[] = [doc("downloads.json", DOWNLOADS_VERSION, DOWNLOADS_FIELDS), doc(SESSION_DOCUMENT, SESSION_VERSION, SESSION_FIELDS)];
+const SPACES_FIELDS = {
+  spaces: field(["spaces", "windows", "tabs"], savedSpaces),
+  activeSpaceId: field(["activeSpaceId", "spaces", "windows"], savedActiveSpaceId),
+};
+
+const ARCHIVED_FIELDS = {
+  archivedTabs: field(["archivedTabs"], savedArchivedTabs),
+};
+
+const SESSIONS_FIELDS = {
+  sessions: field(["sessions"], savedSessions),
+};
+
+const DOCS: Doc[] = [
+  doc("downloads.json", DOWNLOADS_VERSION, DOWNLOADS_FIELDS),
+  doc(SESSION_DOCUMENT, SESSION_VERSION, SESSION_FIELDS),
+  doc(SPACES_DOCUMENT, SPACES_VERSION, SPACES_FIELDS),
+  doc(ARCHIVED_DOCUMENT, ARCHIVED_VERSION, ARCHIVED_FIELDS),
+  doc(SESSIONS_DOCUMENT, SESSIONS_VERSION, SESSIONS_FIELDS),
+];
 
 const strings = (v: unknown): string[] => (Array.isArray(v) ? v.filter(isString) : []);
 const has = (o: SavedObject, keys: readonly string[]) => keys.every((k) => isString(o[k]));
@@ -259,9 +281,12 @@ export function loadSession({ restoreSession }: LaunchOverrides = {}): (HydrateD
   const session = parseSession(read(SESSION_DOCUMENT));
   if (!session) return null;
   const downloads = savedDownloads({ profiles: session.profiles ?? {} });
+  const spaces = parseSpacesDoc(read(SPACES_DOCUMENT));
+  const archived = parseArchivedDoc(read(ARCHIVED_DOCUMENT));
+  const sessions = parseSessionsDoc(read(SESSIONS_DOCUMENT));
   const restore = restoreSession ?? session.settings?.restoreSession !== false;
   const data = restore ? session : closedForLaunch(session);
-  return { ...data, downloads, windowsAgainstAutoHideTabs: restore ? session.windowsAgainstAutoHideTabs : 0 };
+  return { ...data, downloads, ...(spaces ?? {}), ...(archived ?? {}), ...(sessions ?? {}), windowsAgainstAutoHideTabs: restore ? session.windowsAgainstAutoHideTabs : 0 };
 }
 
 let flush: () => void = () => {};

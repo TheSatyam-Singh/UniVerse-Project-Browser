@@ -30,6 +30,7 @@ BOOL gDisplayMediaPicker = YES;
 }
 
 static BOOL gSelectionPopover = YES;
+static BOOL gFingerprintProtection = YES;
 static char kScriptFramesKey;
 
 static NSDictionary *DisplayMediaAudioOffer(NSDictionary *message) {
@@ -65,6 +66,7 @@ void AnswerHello(ArdiaCoreTab *tab, NSString *profile, NSString *frameId, BOOL m
     if (gDisplayMediaPicker) config[@"displayMediaPicker"] = @YES;
     if (main && ArdiaFieldTimingEnabled()) config[@"fieldTiming"] = @YES;
     if (main) config[@"selectionPopover"] = @(gSelectionPopover);
+    if (main) config[@"fingerprintProtection"] = @(gFingerprintProtection);
     config[@"peek"] = gPeekModifier;
     config[@"split"] = SplitLinkModifier();
     config[@"peekOtherSites"] = @([ArdiaTabRegistry viewForTab:to].peeksLinksToOtherSites);
@@ -103,6 +105,10 @@ NSMutableOrderedSet<NSString *> *ScriptFramesOf(ArdiaCoreTab *tab) {
   if (enabled == gSelectionPopover) return;
   gSelectionPopover = enabled;
   for (ArdiaWebView *view in LiveViews().allObjects) [view pushSelectionPopover];
+}
+
++ (void)setFingerprintProtectionEnabled:(BOOL)enabled {
+  gFingerprintProtection = enabled;
 }
 
 - (void)tab:(ArdiaCoreTab *)tab

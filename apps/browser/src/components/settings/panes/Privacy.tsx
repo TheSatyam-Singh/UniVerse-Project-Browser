@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 import { Image, ScrollView, View } from "react-native";
 import { currentEngineProfile } from "../../../state/browser/current";
 import { useSettings } from "../../../state/browser/hooks";
-import { Button, Checkbox, DialogActions, DialogTitle, PopUp, Sheet, space, Text, Toggle } from "../../ui";
+import { Button, Checkbox, DialogActions, DialogTitle, PopUp, Sheet, space, Text, TextField, Toggle } from "../../ui";
 import { Favicon } from "../../favicon/Favicon";
 import { Group, ProfilePicker, Row, SectionHeader, useSettingsProfile } from "../Form";
 import { setting, type SettingId } from "../settingsIndex";
@@ -132,6 +132,8 @@ export function PrivacyPane() {
         </>
       )}
 
+      <CookiesSection />
+      <FingerprintSection />
       <SitePermissions />
       <AppLinks />
       <SectionHeader anchor="privacy.commandScrollZoom" description={null} />
@@ -152,6 +154,55 @@ export function PrivacyPane() {
 }
 
 const RULES_LOADED = { marginTop: space.xl } as const;
+
+function CookiesSection() {
+  const autoDeleteCookies = useSettings((s) => s.autoDeleteCookies);
+  const keepHosts = useSettings((s) => s.cookieKeepHosts);
+  const [site, setSite] = useState("");
+  const add = () => {
+    const host = site.trim().toLowerCase();
+    if (!host || keepHosts.includes(host)) return;
+    updateSettings({ cookieKeepHosts: [...keepHosts, host] });
+    setSite("");
+  };
+  const remove = (host: string) => updateSettings({ cookieKeepHosts: keepHosts.filter((h) => h !== host) });
+  return (
+    <>
+      <SectionHeader title="Cookies" description="A site's cookies are cleared when its last tab closes, unless the site is kept." />
+      <Group>
+        <Row anchor="privacy.autoDeleteCookies">
+          <Toggle value={autoDeleteCookies} onChange={(v) => updateSettings({ autoDeleteCookies: v })} />
+        </Row>
+        {autoDeleteCookies && (
+          <>
+            <Row title={<TextField value={site} onChangeText={setSite} placeholder="example.com" onSubmit={add} />}>
+              <Button title="Keep" disabled={!site.trim()} onPress={add} />
+            </Row>
+            {keepHosts.map((host) => (
+              <Row key={host} icon={<Favicon url={`https://${host}`} />} title={host}>
+                <Button title="Remove" onPress={() => remove(host)} />
+              </Row>
+            ))}
+          </>
+        )}
+      </Group>
+    </>
+  );
+}
+
+function FingerprintSection() {
+  const fingerprintProtection = useSettings((s) => s.fingerprintProtection);
+  return (
+    <>
+      <SectionHeader title="Fingerprinting" description="Sites see slightly different canvas and audio readings on every page, so they can't use them to follow you around." />
+      <Group>
+        <Row anchor="privacy.fingerprintProtection">
+          <Toggle value={fingerprintProtection} onChange={(v) => updateSettings({ fingerprintProtection: v })} />
+        </Row>
+      </Group>
+    </>
+  );
+}
 const LISTS = { maxHeight: 420, marginTop: space.m } as const;
 const SITE_LIST = { maxHeight: 380, marginTop: space.l } as const;
 

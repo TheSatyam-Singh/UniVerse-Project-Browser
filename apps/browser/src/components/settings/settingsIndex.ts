@@ -15,6 +15,7 @@ const PANE_LOOKS: Record<SettingsPane, { title: string; icon: string }> = {
   sync: { title: "Sync", icon: "arrow.triangle.2.circlepath" },
   tabs: { title: "Tabs", icon: "square.on.square" },
   appearance: { title: "Appearance", icon: "circle.lefthalf.filled" },
+  boosts: { title: "Boosts", icon: "paintbrush" },
   privacy: { title: "Privacy & Security", icon: "hand.raised" },
   passwords: { title: "Passwords", icon: "key" },
   autofill: { title: "Autofill", icon: "creditcard" },

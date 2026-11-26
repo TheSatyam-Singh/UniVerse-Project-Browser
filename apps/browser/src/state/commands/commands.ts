@@ -39,6 +39,8 @@ import { togglePageEngine } from "../engines/actions";
 import { goBack, goForward } from "../tabs/navigation";
 import { awaitsFirstPage } from "../tabs/pendingAddress";
 import { openSplitPane } from "../splits/actions";
+import { archiveTabs, createSpace, saveSessionWithPrompt } from "../spaces/actions";
+import { openRestoreSessionMenu } from "../spaces/sessionMenu";
 import { isAppCommand, LITTLE_ARDIA_PAGE_COMMANDS, settingChange, variantArg } from "./commandCatalog";
 import { APP_COMMAND_HANDLERS } from "./appCommands";
 import { runSidebarCommand } from "../sidebar/commands";
@@ -232,6 +234,17 @@ export function runCommand({ command, arg, windowId: requested }: CommandEvent, 
       return s.toggleTabLayout(windowId);
     case "openSplitPane":
       return void openSplitPane(windowId);
+    case "newSpace":
+      return void createSpace(windowId ?? "");
+    case "saveSession":
+      return void saveSessionWithPrompt(windowId ?? "");
+    case "restoreSession":
+      return void openRestoreSessionMenu(windowId ?? "");
+    case "archiveTab": {
+      const id = targeted ?? activeTabId(s, windowId ?? "");
+      if (id) archiveTabs(windowId ?? "", [id]);
+      return;
+    }
     case "focusNextPane":
       return s.focusPane(windowId, 1);
     case "focusPreviousPane":

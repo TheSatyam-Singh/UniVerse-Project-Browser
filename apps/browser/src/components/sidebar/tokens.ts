@@ -138,3 +138,6 @@ export function groupSurface(color: GroupColor | null | undefined, tokens: Sideb
 
 export const SIDEBAR_MIN_WIDTH = 160;
 export const SIDEBAR_MAX_WIDTH = 400;
+
+export const SPACE_BAR_HEIGHT = 30;
+export const SPACE_DOT = 8;

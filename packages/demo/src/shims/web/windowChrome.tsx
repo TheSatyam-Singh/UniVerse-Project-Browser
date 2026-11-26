@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from "react";
 import { useBrowser } from "../../../../../apps/browser/src/state/browser/store";
+import { isWindowsShell } from "../../windows/hostObject";
 
 const DEFAULT_CENTER: [number, number] = [25, 27];
 const SPACING = 23;
@@ -27,6 +28,7 @@ let center: { at: [number, number]; trailing: boolean } = { at: DEFAULT_CENTER, 
 const watchers = new Set<() => void>();
 
 export function setTrafficLightsCenter(_windowId: string, next: [number, number] | null, trailing: boolean) {
+  if (isWindowsShell()) return Promise.resolve();
   center = { at: next ?? DEFAULT_CENTER, trailing: !!next && trailing };
   for (const watcher of watchers) watcher();
   return Promise.resolve();
@@ -61,6 +63,7 @@ export function TrafficLights() {
     () => center,
   );
   const theme = useBrowser((s) => (s.ui.appDark ? "dark" : "light"));
+  if (isWindowsShell()) return null;
   return (
     <div aria-hidden style={{ position: "absolute", left: 0, right: 0, top: 0, pointerEvents: "none", zIndex: 1000 }}>
       {LIGHTS.map((name, i) => (

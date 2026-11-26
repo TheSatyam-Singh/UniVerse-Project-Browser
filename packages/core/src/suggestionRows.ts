@@ -20,6 +20,8 @@ export function suggestionKey(s: Suggestion): string {
       return `search:${s.url}`;
     case "calc":
       return `calc:${s.expression}`;
+    case "timer":
+      return `timer:${s.seconds}`;
     case "action":
       return `action:${s.id}`;
     case "create":

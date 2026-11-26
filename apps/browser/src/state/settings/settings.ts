@@ -1,8 +1,11 @@
 import {
   allEngines,
+  BOOSTS_SCHEMA,
+  type Boost,
   controllingExtensionEngine,
   engineById,
   extensionEngineId,
+  isBoostList,
   makeCustomEngine,
   resolveInput,
   validateEngine,
@@ -66,6 +69,7 @@ export const SETTING_SPECS = {
   restoreSession: flag(true),
   searchEngine: text("google", SYNCED),
   customSearchUrl: text("", SYNCED),
+  aiSearchUrl: text("", SYNCED),
   customSearchEngines: shaped<CustomSearchEngine[]>([], (v) => Array.isArray(v) && v.every((e) => hasStrings(e, ["id", "name", "keyword", "url"])), engineRecords(["id", "name", "keyword", "url"]), SYNCED),
   extensionSearchEngines: shaped<ExtensionSearchEngine[]>(
     [],
@@ -101,6 +105,10 @@ export const SETTING_SPECS = {
   cleanUpInactiveTabsAfterMinutes: shaped<number | null>(null, (v) => v === null || isWidth(v), { type: ["number", "null"], exclusiveMinimum: 0 }, SYNCED),
   suggestCleanUp: flag(true, SYNCED),
   mutedSites: shaped<string[]>([], isStringList, STRING_LIST, SYNCED),
+  autoDeleteCookies: flag(false, SYNCED),
+  cookieKeepHosts: shaped<string[]>([], isStringList, STRING_LIST, SYNCED),
+  fingerprintProtection: flag(true, SYNCED),
+  surfBestScore: shaped<number>(0, (v) => typeof v === "number" && Number.isInteger(v) && v >= 0, { type: "integer", minimum: 0 }, SYNCED),
   showUnreadCounts: flag(false, SYNCED),
   showTopAppBadges: flag(false, SYNCED),
   unreadHiddenSites: shaped<string[]>([], isStringList, STRING_LIST, SYNCED),
@@ -158,6 +166,7 @@ export const SETTING_SPECS = {
   protectedVideoInWebKit: flag(true),
   launchActions: shaped<string[]>([], (v) => isStringList(v) && v.length <= 20, { type: "array", items: { type: "string" }, maxItems: 20 }),
   omniboxProviders: shaped<ProviderEntry[]>([], isProviderEntryList, PROVIDERS_SCHEMA),
+  boosts: shaped<Boost[]>([], isBoostList, BOOSTS_SCHEMA, SYNCED),
 };
 
 type Specs = typeof SETTING_SPECS;

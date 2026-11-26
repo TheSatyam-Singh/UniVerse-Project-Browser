@@ -22,6 +22,8 @@ function rows(items: Suggestion[]): string[] {
         return `${i.suggested ? "suggest" : "search"}:${i.query}`;
       case "calc":
         return `calc:${i.value}`;
+      case "timer":
+        return `timer:${i.seconds}`;
       case "action":
         return `action:${i.id}`;
       case "create":

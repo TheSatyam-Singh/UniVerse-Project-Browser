@@ -18,6 +18,26 @@ export const privacyRows = {
       },
     },
     {
+      section: "Cookies",
+      rows: {
+        autoDeleteCookies: {
+          title: "Delete cookies when a site's last tab closes",
+          description: "Cookies for a site are cleared once no tab for it is open, unless the site is kept.",
+          keywords: ["cookies", "delete cookies", "clear cookies", "auto delete", "tracking", "sign out"],
+        },
+      },
+    },
+    {
+      section: "Fingerprinting",
+      rows: {
+        fingerprintProtection: {
+          title: "Fingerprint protection",
+          description: "Adds tiny noise to canvas and audio signals so sites can't build a stable fingerprint of this Mac.",
+          keywords: ["fingerprint", "fingerprinting", "canvas", "audio", "tracking", "farbling"],
+        },
+      },
+    },
+    {
       section: "Site permissions",
       rows: {
         sitePermissions: {

@@ -1,12 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ScrollView, View } from "react-native";
+import { Pressable, ScrollView, View } from "react-native";
 import { useTab } from "../../state/browser/hooks";
 import { tabDestination } from "../../state/pages/urls";
 import { pdfFileOf } from "../../state/pdf/pdfUrls";
-import { loadPdfDocument, type PdfDocumentInfo, type PdfOutlineItem } from "../../state/pdf/pdfDocument";
+import { loadPdfDocument, paragraphsOf, type PdfDocumentInfo, type PdfOutlineItem } from "../../state/pdf/pdfDocument";
+import { HIGHLIGHT_COLORS, usePdfAnnotations, type HighlightColor } from "../../state/pdf/pdfAnnotations";
 import { openExternalURL } from "../../platform/app";
 import { sharePage } from "../../platform/share";
-import { Button, SearchField, Segmented, Text, useTheme, space, radius, withAlpha } from "../ui";
+import { Button, Checkbox, PopUp, SearchField, Segmented, Text, TextField, useTheme, space, radius, withAlpha } from "../ui";
 
 const ISSUES_URL = "https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/issues/new?labels=pdf-viewer&title=PDF+viewer+issue";
 const ZOOM_STEPS = [0.5, 0.75, 1, 1.25, 1.5, 2, 3];
@@ -74,8 +75,15 @@ export function PdfViewerPage({ tabId }: { tabId: string }) {
   const [page, setPage] = useState(1);
   const [zoom, setZoom] = useState(1);
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [sidebarTab, setSidebarTab] = useState<"thumbs" | "outline">("thumbs");
+  const [sidebarTab, setSidebarTab] = useState<"thumbs" | "outline" | "notes" | "form">("thumbs");
   const [findOpen, setFindOpen] = useState(false);
+  const [highlightMode, setHighlightMode] = useState(false);
+  const [highlightColor, setHighlightColor] = useState<HighlightColor>("yellow");
+  const highlights = usePdfAnnotations((s) => (pdfUrl ? (s.highlights[pdfUrl] ?? []) : []));
+  const fieldValues = usePdfAnnotations((s) => (pdfUrl ? (s.fieldValues[pdfUrl] ?? {}) : {}));
+  const toggleHighlight = usePdfAnnotations((s) => s.toggleHighlight);
+  const removeHighlight = usePdfAnnotations((s) => s.removeHighlight);
+  const setFieldValue = usePdfAnnotations((s) => s.setFieldValue);
   const [query, setQuery] = useState("");
   const [matchIndex, setMatchIndex] = useState(0);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -148,6 +156,7 @@ export function PdfViewerPage({ tabId }: { tabId: string }) {
         <Button variant="text" title={zoomLabel} look="toolbar" onPress={() => setZoom(1)} />
         <Button variant="icon" icon="plus.magnifyingglass" tooltip="Zoom in" disabled={zoom >= ZOOM_STEPS[ZOOM_STEPS.length - 1]!} onPress={() => zoomStep(1)} />
         <Button variant="icon" icon="magnifyingglass" tooltip="Find in document" active={findOpen} onPress={() => setFindOpen(!findOpen)} />
+        <Button variant="icon" icon="highlighter" tooltip="Highlight" active={highlightMode} onPress={() => setHighlightMode(!highlightMode)} />
         <Button variant="icon" icon="arrow.down.doc" tooltip="Download" disabled={!pdfUrl} onPress={() => pdfUrl && void sharePage(pdfUrl, title)} />
         <Button variant="icon" icon="square.and.arrow.up" tooltip="Open in system viewer" disabled={!pdfUrl} onPress={() => pdfUrl && void openExternalURL(pdfUrl)} />
         <Button variant="icon" icon="ellipsis" tooltip="More" active={moreOpen} onPress={() => setMoreOpen(!moreOpen)} />
@@ -164,6 +173,21 @@ export function PdfViewerPage({ tabId }: { tabId: string }) {
         </Text>
         <Button variant="text" title="Report an issue" look="toolbar" onPress={() => void openExternalURL(ISSUES_URL)} />
       </View>
+      {highlightMode && (
+        <View style={{ flexDirection: "row", gap: space.s, alignItems: "center", paddingHorizontal: space.m, paddingVertical: space.s, borderBottomWidth: 1, borderBottomColor: theme.divider }}>
+          {(Object.keys(HIGHLIGHT_COLORS) as HighlightColor[]).map((c) => (
+            <Pressable
+              key={c}
+              onPress={() => setHighlightColor(c)}
+              style={{ width: 22, height: 22, borderRadius: 11, backgroundColor: HIGHLIGHT_COLORS[c], borderWidth: highlightColor === c ? 2 : 1, borderColor: highlightColor === c ? theme.textPrimary : theme.divider }}
+              accessibilityLabel={`${c} highlight`}
+            />
+          ))}
+          <Text size="caption" tone="textSecondary">
+            Tap a paragraph to highlight it. Tap again to remove.
+          </Text>
+        </View>
+      )}
       {findOpen && (
         <View style={{ flexDirection: "row", gap: space.s, alignItems: "center", paddingHorizontal: space.m, paddingVertical: space.s, borderBottomWidth: 1, borderBottomColor: theme.divider }}>
           <SearchField value={query} onChangeText={(t) => { setQuery(t); setMatchIndex(0); }} placeholder="Find in document" autoFocus width={260} />
@@ -183,6 +207,8 @@ export function PdfViewerPage({ tabId }: { tabId: string }) {
                 options={[
                   { value: "thumbs", title: "Pages" },
                   { value: "outline", title: "Outline" },
+                  { value: "notes", title: "Notes" },
+                  { value: "form", title: "Form" },
                 ]}
                 value={sidebarTab}
                 onChange={setSidebarTab}
@@ -201,14 +227,83 @@ export function PdfViewerPage({ tabId }: { tabId: string }) {
                     />
                   ))}
                 </View>
-              ) : doc.outline.length > 0 ? (
-                <View style={{ padding: space.s }}>
-                  <OutlineTree items={doc.outline} depth={0} onJump={jumpToPage} />
+              ) : sidebarTab === "outline" ? (
+                doc.outline.length > 0 ? (
+                  <View style={{ padding: space.s }}>
+                    <OutlineTree items={doc.outline} depth={0} onJump={jumpToPage} />
+                  </View>
+                ) : (
+                  <View style={{ padding: space.m }}>
+                    <Text size="caption" tone="textSecondary">
+                      This document has no outline.
+                    </Text>
+                  </View>
+                )
+              ) : sidebarTab === "notes" ? (
+                <View style={{ padding: space.s, gap: space.s }}>
+                  {highlights.length === 0 ? (
+                    <View style={{ padding: space.m }}>
+                      <Text size="caption" tone="textSecondary">
+                        No highlights yet. Turn on Highlight and tap a paragraph to add one.
+                      </Text>
+                    </View>
+                  ) : (
+                    highlights.map((h) => {
+                      const para = paragraphsOf(doc.pages[h.page - 1]?.text ?? "")[h.para] ?? "";
+                      return (
+                        <View key={h.id} style={{ flexDirection: "row", gap: space.s, alignItems: "center", padding: space.s, backgroundColor: withAlpha(HIGHLIGHT_COLORS[h.color], 0.25), borderRadius: radius.control }}>
+                          <Button variant="text" title={`p${h.page} · ${para.slice(0, 48)}${para.length > 48 ? "…" : ""}`} look="panel" onPress={() => jumpToPage(h.page)} />
+                          <Button variant="icon" icon="trash" tooltip="Remove highlight" onPress={() => removeHighlight(pdfUrl, h.id)} />
+                        </View>
+                      );
+                    })
+                  )}
+                </View>
+              ) : doc.fields.length > 0 ? (
+                <View style={{ padding: space.s, gap: space.m }}>
+                  <View style={{ paddingHorizontal: space.s }}>
+                    <Text size="caption" tone="textSecondary">
+                      Filled values stay in this viewer for now — export to a filled PDF is coming next.
+                    </Text>
+                  </View>
+                  {doc.fields.map((f) => {
+                    const stored = fieldValues[f.name];
+                    if (f.kind === "text") {
+                      return (
+                        <View key={`${f.page}-${f.name}`} style={{ gap: space.xs, paddingHorizontal: space.s }}>
+                          <Text size="caption" tone="textSecondary">
+                            {f.name} · p{f.page}
+                          </Text>
+                          <TextField value={typeof stored === "string" ? stored : f.value} onChangeText={(v) => setFieldValue(pdfUrl, f.name, v)} placeholder={f.name} />
+                        </View>
+                      );
+                    }
+                    if (f.kind === "checkbox") {
+                      const checked = typeof stored === "boolean" ? stored : f.value !== "Off";
+                      return (
+                        <View key={`${f.page}-${f.name}`} style={{ paddingHorizontal: space.s }}>
+                          <Checkbox value={checked} onChange={(v) => setFieldValue(pdfUrl, f.name, v)} label={`${f.name} · p${f.page}`} />
+                        </View>
+                      );
+                    }
+                    return (
+                      <View key={`${f.page}-${f.name}`} style={{ gap: space.xs, paddingHorizontal: space.s }}>
+                        <Text size="caption" tone="textSecondary">
+                          {f.name} · p{f.page}
+                        </Text>
+                        <PopUp
+                          value={typeof stored === "string" ? stored : f.value}
+                          options={f.options.map((o) => ({ value: o, title: o }))}
+                          onChange={(v) => setFieldValue(pdfUrl, f.name, v)}
+                        />
+                      </View>
+                    );
+                  })}
                 </View>
               ) : (
                 <View style={{ padding: space.m }}>
                   <Text size="caption" tone="textSecondary">
-                    This document has no outline.
+                    This document has no fillable form fields.
                   </Text>
                 </View>
               )}
@@ -248,19 +343,33 @@ export function PdfViewerPage({ tabId }: { tabId: string }) {
                 <Text size="caption" tone="textSecondary" style={{ marginBottom: space.s }}>
                   Page {p.page} of {doc.pageCount}
                 </Text>
-                <Text size="body" style={{ fontSize: BASE_FONT * zoom, lineHeight: BASE_FONT * zoom * 1.6 }}>
-                  {splitMatches(p.text, query).map((seg, i) =>
-                    seg.match ? (
-                      <Text key={i} style={{ backgroundColor: theme.searchFlash, fontSize: BASE_FONT * zoom, lineHeight: BASE_FONT * zoom * 1.6 }}>
-                        {seg.text}
-                      </Text>
-                    ) : (
-                      <Text key={i} style={{ fontSize: BASE_FONT * zoom, lineHeight: BASE_FONT * zoom * 1.6 }}>
-                        {seg.text}
-                      </Text>
-                    ),
-                  )}
-                </Text>
+                {paragraphsOf(p.text).map((para, pi) => {
+                  const hl = highlights.find((h) => h.page === p.page && h.para === pi);
+                  const body = (
+                    <Text size="body" style={{ fontSize: BASE_FONT * zoom, lineHeight: BASE_FONT * zoom * 1.6, backgroundColor: hl ? withAlpha(HIGHLIGHT_COLORS[hl.color], 0.35) : undefined }}>
+                      {splitMatches(para, query).map((seg, i) =>
+                        seg.match ? (
+                          <Text key={i} style={{ backgroundColor: theme.searchFlash, fontSize: BASE_FONT * zoom, lineHeight: BASE_FONT * zoom * 1.6 }}>
+                            {seg.text}
+                          </Text>
+                        ) : (
+                          <Text key={i} style={{ fontSize: BASE_FONT * zoom, lineHeight: BASE_FONT * zoom * 1.6 }}>
+                            {seg.text}
+                          </Text>
+                        ),
+                      )}
+                    </Text>
+                  );
+                  return highlightMode ? (
+                    <Pressable key={pi} onPress={() => toggleHighlight(pdfUrl, p.page, pi, highlightColor)} style={{ marginBottom: space.s }}>
+                      {body}
+                    </Pressable>
+                  ) : (
+                    <View key={pi} style={{ marginBottom: space.s }}>
+                      {body}
+                    </View>
+                  );
+                })}
                 {p.page === 1 && (
                   <Text size="caption" tone="textSecondary" style={{ marginTop: space.m }}>
                     Visual page rendering is coming next — this build reads the document text. Use the system viewer for the exact layout.

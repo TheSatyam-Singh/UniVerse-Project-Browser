@@ -5,7 +5,8 @@ const { useBrowser } = await import("../browser/store.ts");
 const { tabMenuItems } = await import("./tabMenu.ts");
 const { multiTabMenuItems } = await import("./multiTabMenu.ts");
 const { groupMenuItems } = await import("./groupMenu.ts");
-const { sidebarMenuItems } = await import("./sidebarMenu.ts");
+const { sidebarMenuItems, openSidebarMenu } = await import("./sidebarMenu.ts");
+const { useSidebarUi } = await import("./sidebarUi.ts");
 const { tileFolderContextItems } = await import("./tileFolderUi.ts");
 const { openTabMenu } = await import("./tabMenu.ts");
 const { openMultiMenu } = await import("./multiTabMenu.ts");
@@ -260,6 +261,7 @@ test("the sidebar background menu: new things, then the sidebar toggles, Close A
   const { w, ids } = windowWith("a", "b");
   assert.deepEqual(top(sidebarMenuItems(S(), w)), [
     "New Tab [plus.app] ⌘T",
+    "Notes [note.text]",
     "Reopen Closed Tab ⇧⌘T (off)",
     "---",
     "New Group [folder.badge.plus]",
@@ -282,6 +284,19 @@ test("the sidebar background menu: new things, then the sidebar toggles, Close A
   S().updateSettings({ sidebarSide: "left" });
   S().closeTabs([ids[1]]);
   assert.ok(top(sidebarMenuItems(S(), w)).includes("Reopen Closed Tab ⇧⌘T"));
+});
+
+test("the sidebar background menu: Notes opens the notes panel", async () => {
+  const { w } = windowWith("a");
+  const shell = shellNativeModules.ArdiaMenus;
+  const real = shell.showMenu;
+  shell.showMenu = () => Promise.resolve("notes");
+  try {
+    await openSidebarMenu(w);
+  } finally {
+    shell.showMenu = real;
+  }
+  assert.equal(useSidebarUi.getState().notes, w);
 });
 
 test("a Top Apps folder: unpin its tabs, rename, then remove the folder", () => {

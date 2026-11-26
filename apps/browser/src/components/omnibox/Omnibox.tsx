@@ -13,6 +13,8 @@ import { useWindowUiOf } from "../../state/windows/hooks";
 import { defaultSearchEngine } from "../../state/settings/settings";
 import { runBarAction, runBarExtension } from "../../state/omnibox/runBar";
 import { createBangSubmitter, mayBeBang } from "../../state/omnibox/bangs";
+import { startTimer } from "../../state/timer/timer";
+import { showToast } from "../../state/app/toasts";
 import { traceOmnibox, useOmniboxDriver } from "./devDriver";
 import { claimFocusTag, commandBarFocus, heroBarFocus } from "../../state/focus/focusClaims";
 import { registerHeroBar, saveNtpQuery, type BarDismissal, type BarSnapshot } from "../../state/omnibox/barState";
@@ -183,6 +185,11 @@ export function Omnibox({
         if (disposition !== "current") return go(s.url, disposition);
         copyText(s.value);
         dispatch({ kind: "calculated", text: s.value });
+        return;
+      case "timer":
+        startTimer(s.seconds, s.label, windowId);
+        showToast(windowId, "Timer started", s.label);
+        dismiss();
         return;
       case "action":
         dismiss();

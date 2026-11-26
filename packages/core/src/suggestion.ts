@@ -25,6 +25,7 @@ export type Suggestion =
     }
   | { kind: "search"; query: string; url: string; engine: string; suggested?: boolean; bang?: true }
   | { kind: "calc"; expression: string; value: string; url: string }
+  | { kind: "timer"; seconds: number; label: string }
   | { kind: "action"; id: string; title: string; icon?: string; hint?: string }
   | { kind: "create"; id: string; title: string; url: string; site: string }
   | { kind: "extension"; id: string; title: string; icon: string | null; open: "action" | "options" }

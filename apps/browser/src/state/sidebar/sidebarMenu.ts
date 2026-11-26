@@ -16,6 +16,7 @@ import { pinnedFoldMenuItem, runPinnedFold } from "./pinnedFold";
 import { addSharedFolder } from "../sharedFolders/actions";
 import { canAddSharedFolder } from "../sharedFolders/removal";
 import { toggleSidebarSide } from "../settings/actions";
+import { setSidebarUi } from "./sidebarUi";
 
 const store = () => useBrowser.getState();
 
@@ -25,6 +26,7 @@ export function sidebarMenuItems(s: BrowserState, windowId: string): MenuItem[] 
   return sections(
     [
       { id: "newTab", title: "New Tab", symbol: "plus.app", ...menuShortcut("newTab", s) },
+      { id: "notes", title: "Notes", symbol: "note.text" },
       { id: "reopen", title: "Reopen Closed Tab", enabled: !!lastClosedEntry(s, windowId), ...menuShortcut("reopenClosedTab", s) },
     ],
     [
@@ -50,7 +52,7 @@ export async function openSidebarMenu(windowId: string) {
   const s = store();
   if (choice === "newTab") {
     if (!toggleNewTabBar(windowId)) s.newTab(windowId, { newTabCommand: true });
-  } else if (choice === "reopen") s.reopenClosed(windowId);
+  } else if (choice === "notes") setSidebarUi({ notes: windowId }); else if (choice === "reopen") s.reopenClosed(windowId);
   else if (choice === "newGroup") {
     const id = s.newTab(windowId);
     if (id) newGroupWithSelection(windowId, [id]);

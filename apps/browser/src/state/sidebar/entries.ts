@@ -4,6 +4,7 @@ import { hiddenEmptyCard } from "../omnibox/newTabBarPolicy";
 import { splitRowPanes, splitTabIds, splitTabIdsOf } from "../splits/splits";
 import { groupIndex, splitIndex, stableList } from "../browser/structure";
 import { tileCells } from "../pins/tileFolders";
+import { spaceVisibleTabIds } from "../spaces/spaces";
 import { entryKey, parseEntry } from "./entryKey";
 
 type SidebarEntries = { tiles: string[]; cells: string[]; pinned: string[]; list: string[] };
@@ -11,7 +12,7 @@ type SidebarEntries = { tiles: string[]; cells: string[]; pinned: string[]; list
 const memo = new Map<string, { inputs: unknown[]; result: SidebarEntries }>();
 
 export function sidebarEntries(s: BrowserState, windowId: string, profileId?: string): SidebarEntries {
-  const inputs = [s.tabs, s.windows, s.groups, s.splits, s.settings.newTabOpens];
+  const inputs = [s.tabs, s.windows, s.groups, s.splits, s.spaces, s.activeSpaceId, s.settings.newTabOpens];
   const key = profileId ? `${windowId}|${profileId}` : windowId;
   const cached = memo.get(key);
   if (cached && cached.inputs.every((v, i) => v === inputs[i])) return cached.result;
@@ -36,6 +37,7 @@ function computeEntries(s: BrowserState, windowId: string, profileId?: string): 
   const list: string[] = [];
   const rootGroups = groupIndex(s.groups);
   const splits = splitIndex(s.splits);
+  const visible = spaceVisibleTabIds(s, windowId, profileId);
   const seen = new Set<string>();
   for (const id of viewTabIds(s, windowId, profileId)) {
     const tab = s.tabs[id]!;
@@ -49,6 +51,7 @@ function computeEntries(s: BrowserState, windowId: string, profileId?: string): 
       }
       continue;
     }
+    if (visible && !visible.has(id)) continue;
     const groupId = rootGroups.get(id)?.id;
     const entry = groupId ? entryKey("group", groupId) : splitEntry(s, id, splits);
     if (seen.has(entry)) continue;
@@ -74,7 +77,7 @@ export function numberedTabs(s: BrowserState, windowId: string): string[] {
   return [...tiles, ...pinned.flatMap(rowTab), ...list.flatMap(rowTab)];
 }
 
-const groupMemo = new WeakMap<object, { tabs: BrowserState["tabs"]; splits: BrowserState["splits"]; groups: BrowserState["groups"]; result: string[] }>();
+const groupMemo = new WeakMap<object, { tabs: BrowserState["tabs"]; splits: BrowserState["splits"]; groups: BrowserState["groups"]; spaces: BrowserState["spaces"]; activeSpaceId: BrowserState["activeSpaceId"]; result: string[] }>();
 
 const childIndex = new WeakMap<object, Map<string, BrowserState["groups"][string][]>>();
 const NO_CHILDREN: BrowserState["groups"][string][] = [];
@@ -127,13 +130,15 @@ export function groupEntries(s: BrowserState, groupId: string): string[] {
   const g = s.groups[groupId];
   if (!g) return [];
   const cached = groupMemo.get(g);
-  if (cached && cached.tabs === s.tabs && cached.splits === s.splits && cached.groups === s.groups) return cached.result;
+  if (cached && cached.tabs === s.tabs && cached.splits === s.splits && cached.groups === s.groups && cached.spaces === s.spaces && cached.activeSpaceId === s.activeSpaceId) return cached.result;
   const splits = splitIndex(s.splits);
   const childOf = new Map<string, string>();
   for (const c of childGroups(s.groups, groupId)) for (const id of c.tabIds) childOf.set(id, c.id);
+  const visible = g.pinned ? null : spaceVisibleTabIds(s, g.windowId);
   const seen = new Set<string>();
   const out: string[] = [];
   for (const id of g.tabIds) {
+    if (visible && !visible.has(id)) continue;
     const child = childOf.get(id);
     const entry = child ? entryKey("group", child) : splitEntry(s, id, splits);
     if (!seen.has(entry)) {
@@ -142,7 +147,7 @@ export function groupEntries(s: BrowserState, groupId: string): string[] {
     }
   }
   const result = stableList(cached?.result, out);
-  groupMemo.set(g, { tabs: s.tabs, splits: s.splits, groups: s.groups, result });
+  groupMemo.set(g, { tabs: s.tabs, splits: s.splits, groups: s.groups, spaces: s.spaces, activeSpaceId: s.activeSpaceId, result });
   return result;
 }
 

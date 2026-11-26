@@ -22,6 +22,7 @@ import { startsOffScreen } from "../../state/sidebar/geometry";
 import { toggleNewTabBar } from "../../state/omnibox/newTabBar";
 import { DOCK_SHARE, DOCKED_BOTTOM, GLOW_ROOM, pageLayout, tilesFitDock, type SidebarGeometry } from "./pageLayout";
 import { PageRows } from "./PageRows";
+import { AiSidebarRow } from "./AiSidebar";
 import { NewTabRow } from "./NewTabRow";
 
 const NONE: string[] = [];
@@ -195,6 +196,7 @@ export const SidebarPage = memo(function SidebarPage({ profileId, slot, paging, 
                     ) : null}
                     {docked && newTabShown ? (
                       <View style={{ paddingHorizontal: layout.sidebarInset, paddingTop: layout.rowGap, paddingBottom: DOCKED_BOTTOM }}>
+                        <AiSidebarRow windowId={windowId} />
                         <NewTabRow windowId={windowId} />
                       </View>
                     ) : null}

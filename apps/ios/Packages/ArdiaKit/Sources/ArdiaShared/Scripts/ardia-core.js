@@ -173,6 +173,7 @@ __define("packages/core/src/index.ts", function (exports, __require) {
   __exportAll(exports, __require("packages/core/src/anonymousIdentity.ts"));
   __exportAll(exports, __require("packages/core/src/appUrls.ts"));
   __exportAll(exports, __require("packages/core/src/bangs.ts"));
+  __exportAll(exports, __require("packages/core/src/boosts.ts"));
   __exportAll(exports, __require("packages/core/src/calculator.ts"));
   __exportAll(exports, __require("packages/core/src/cleanUrl.ts"));
   __exportAll(exports, __require("packages/core/src/engines.ts"));
@@ -190,10 +191,13 @@ __define("packages/core/src/index.ts", function (exports, __require) {
   __exportAll(exports, __require("packages/core/src/siteSearch.ts"));
   __exportAll(exports, __require("packages/core/src/suggest.ts"));
   __exportAll(exports, __require("packages/core/src/suggestFetcher.ts"));
+  __exportAll(exports, __require("packages/core/src/timer.ts"));
   __exportAll(exports, __require("packages/core/src/tabGroups.ts"));
   __exportAll(exports, __require("packages/core/src/textFragment.ts"));
   __exportAll(exports, __require("packages/core/src/theme.ts"));
   __exportAll(exports, __require("packages/core/src/webStore.ts"));
+
+
 
 
 
@@ -334,7 +338,7 @@ const ENGINE_PREFIX = /^(view-source:)?chrome:(?:\/\/)?/i;
 const ABOUT_PAGE = /^about:(blank|srcdoc)([?#]|$)/i;
 const ABOUT_ALIAS = /^about:([a-z][a-z0-9-]*)/i;
 
-const APP_PAGE_HOSTS = ["history", "bookmarks", "downloads"]         ;
+const APP_PAGE_HOSTS = ["history", "bookmarks", "downloads", "pdf", "reader", "surf"]         ;
                                                           
 
 function split(url        , prefix        )                                                            {
@@ -638,6 +642,102 @@ function fillBangTemplate(template        , terms        )         {
   const question = template.indexOf("?");
   const escaped = escapeSearchTerms(terms, question >= 0 && at > question);
   return template.split(BANG_PLACEHOLDER).join(escaped);
+}
+
+});
+__define("packages/core/src/boosts.ts", function (exports, __require) {
+  __export(exports, "isBoost", () => isBoost);
+  __export(exports, "isBoostList", () => isBoostList);
+  __export(exports, "BOOSTS_SCHEMA", () => BOOSTS_SCHEMA);
+  __export(exports, "newBoostId", () => newBoostId);
+  __export(exports, "normalizeBoostHost", () => normalizeBoostHost);
+  __export(exports, "boostMatchesHost", () => boostMatchesHost);
+  __export(exports, "boostsForHost", () => boostsForHost);
+  __export(exports, "boostShareText", () => boostShareText);
+  __export(exports, "parseBoostShare", () => parseBoostShare);
+                          
+                                                                                   
+                               
+                                          
+                                              
+                      
+  
+
+const isRecord = (value         )                                   =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+const isString = (value         )                  => typeof value === 'string';
+
+                                                                                              
+
+function isBoost(value         )                 {
+  return (
+    isRecord(value) &&
+    isString(value.id) &&
+    isString(value.name) &&
+    isString(value.host) &&
+    isString(value.css) &&
+    typeof value.enabled === 'boolean'
+  );
+}
+
+function isBoostList(value         )                   {
+  return Array.isArray(value) && value.every(isBoost);
+}
+
+const BOOSTS_SCHEMA             = {
+  type: 'array',
+  items: {
+    type: 'object',
+    properties: {
+      id: { type: 'string' },
+      name: { type: 'string' },
+      host: { type: 'string' },
+      css: { type: 'string' },
+      enabled: { type: 'boolean' },
+    },
+    required: ['id', 'name', 'host', 'css', 'enabled'],
+  },
+};
+
+function newBoostId()         {
+  return `boost-${Date.now().toString(36)}-${Math.floor(Math.random() * 0xffffff).toString(36)}`;
+}
+
+function normalizeBoostHost(host        )         {
+  return host.trim().toLowerCase().replace(/^www\./, '');
+}
+
+function boostMatchesHost(boost       , pageHost        )          {
+  const wanted = normalizeBoostHost(boost.host);
+  if (!wanted) return false;
+  const host = normalizeBoostHost(pageHost);
+  return host === wanted || host.endsWith(`.${wanted}`);
+}
+
+function boostsForHost(boosts                  , pageHost        )          {
+  return boosts.filter((b) => b.enabled && boostMatchesHost(b, pageHost));
+}
+
+function boostShareText(boost       )         {
+  return JSON.stringify({ name: boost.name, host: boost.host, css: boost.css }, null, 2);
+}
+
+function parseBoostShare(text        )                 {
+  let parsed         ;
+  try {
+    parsed = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  const entries = Array.isArray(parsed) ? parsed : [parsed];
+  if (!entries.length) return null;
+  const out          = [];
+  for (const entry of entries) {
+    if (!isRecord(entry) || !isString(entry.name) || !isString(entry.host) || !isString(entry.css)) return null;
+    if (!entry.name.trim() || !normalizeBoostHost(entry.host) || !entry.css.trim()) return null;
+    out.push({ id: newBoostId(), name: entry.name.trim(), host: normalizeBoostHost(entry.host), css: entry.css, enabled: true });
+  }
+  return out;
 }
 
 });
@@ -2697,6 +2797,7 @@ const { hostLowerOfPage, hostOfPage, hostPart, originOfPage, pageKey } = __requi
 const { globalProviderRows, providerUrl, safeProviderRows } = __require("packages/core/src/providerRows.ts");
 const { matchQuickCreate } = __require("packages/core/src/quickCreate.ts");
 const { scopedSearchUrl } = __require("packages/core/src/siteSearch.ts");
+const { parseTimer } = __require("packages/core/src/timer.ts");
                                                                                                       
 const { actionRow, createRow, dedupeSuggestions, Output, pageSuggestion } = __require("packages/core/src/suggestionRows.ts");
 
@@ -2811,6 +2912,7 @@ function buildSuggestions(raw        , source                  , options        
   const search             = { kind: "search", query, url: searchUrl(engine, query), engine: engine.name };
   const typedUrl = fixupUrl(query);
   const calc = calculate(query);
+  const timer = parseTimer(query);
   const creates = matchQuickCreate(raw.trimStart());
   const actionRows = query.length >= 4 ? 4 : 2;
   const actionMatches = matchActions(query, actions, actionRows).filter((m) => m.exact || m.score >= 50);
@@ -2832,6 +2934,7 @@ function buildSuggestions(raw        , source                  , options        
   out.push(first);
   out.push(search);
   if (calc) out.push({ kind: "calc", expression: calc.expression, value: calc.display, url: searchUrl(engine, calc.expression) });
+  if (timer) out.push({ kind: "timer", seconds: timer.seconds, label: timer.label });
   out.push(...actionMatches.map((m) => actionRow(m.action)));
   out.push(...extensionMatches.rows);
   out.push(...creates.map(createRow));
@@ -3065,6 +3168,8 @@ function suggestionKey(s            )         {
       return `search:${s.url}`;
     case "calc":
       return `calc:${s.expression}`;
+    case "timer":
+      return `timer:${s.seconds}`;
     case "action":
       return `action:${s.id}`;
     case "create":
@@ -3239,6 +3344,71 @@ class TopList {
     if (items.length > this.size) items.pop();
     if (items.length === this.size) this.floor = items[items.length - 1] .s;
   }
+}
+
+});
+__define("packages/core/src/timer.ts", function (exports, __require) {
+  __export(exports, "humanizeDuration", () => humanizeDuration);
+  __export(exports, "parseTimer", () => parseTimer);
+const UNIT_SECONDS                         = {
+  s: 1,
+  sec: 1,
+  secs: 1,
+  second: 1,
+  seconds: 1,
+  m: 60,
+  min: 60,
+  mins: 60,
+  minute: 60,
+  minutes: 60,
+  h: 3600,
+  hr: 3600,
+  hrs: 3600,
+  hour: 3600,
+  hours: 3600,
+};
+
+const PAIR = /(\d+(?:\.\d+)?)\s*(s|sec|secs|second|seconds|m|min|mins|minute|minutes|h|hr|hrs|hour|hours)(?![a-z])/gi;
+const FULL_UNIT_PHRASE = /^\s*\d+(?:\.\d+)?\s*(second|seconds|minute|minutes|hour|hours)\s*$/i;
+
+                                                             
+
+function humanizeDuration(totalSeconds        )         {
+  const seconds = Math.round(totalSeconds);
+  if (seconds >= 3600) {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const hourPart = `${hours} hour${hours === 1 ? '' : 's'}`;
+    return minutes ? `${hourPart} ${minutes} minute${minutes === 1 ? '' : 's'}` : hourPart;
+  }
+  if (seconds >= 60) {
+    const minutes = Math.floor(seconds / 60);
+    const rest = seconds % 60;
+    const minutePart = `${minutes} minute${minutes === 1 ? '' : 's'}`;
+    return rest ? `${minutePart} ${rest} second${rest === 1 ? '' : 's'}` : minutePart;
+  }
+  return `${seconds} second${seconds === 1 ? '' : 's'}`;
+}
+
+function parseTimer(raw        )                     {
+  const query = raw.trim();
+  if (!query || query.length > 100) return null;
+  const lower = query.toLowerCase();
+  const mentionsTimer = /\btimer\b/.test(lower);
+  if (!mentionsTimer && !FULL_UNIT_PHRASE.test(query)) return null;
+  const stripped = lower.replace(/\btimer\b/g, ' ');
+  let total = 0;
+  let found = false;
+  for (const match of stripped.matchAll(PAIR)) {
+    const amount = Number(match[1]);
+    const unit = UNIT_SECONDS[match[2] .toLowerCase()];
+    if (!Number.isFinite(amount) || unit === undefined) continue;
+    total += amount * unit;
+    found = true;
+  }
+  if (!found || total <= 0) return null;
+  const seconds = Math.min(Math.max(Math.round(total), 1), 86400);
+  return { seconds, label: humanizeDuration(seconds) };
 }
 
 });

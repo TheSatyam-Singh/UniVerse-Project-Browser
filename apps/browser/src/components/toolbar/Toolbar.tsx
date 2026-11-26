@@ -21,16 +21,21 @@ import { closePane, openSplitPane, showSplitMenu } from "../../state/splits/acti
 import { useEasedColor, type ToolbarPalette } from "../ui/toolbarColors";
 import { useSitePalette } from "./useSitePalette";
 import { setToolbarExtensionsWidth } from "../../state/windows/layout";
+import { internalPageOf } from "../../state/pages/urls";
+import { useReader } from "../../state/reader/reader";
 import { SIDEBAR_FIELD } from "../sidebar/geometry";
 import { FieldSiteButton, SidebarFieldFill } from "../sidebar/SidebarField";
 import { showUrlBarMenu } from "../../state/omnibox/paste";
 import { ToolbarExtensions, useToolbarExtensionsWidth } from "../extensions/ToolbarExtensions";
+import { TimerChip, TIMER_CHIP_WIDTH } from "./TimerChip";
+import { useTimerState } from "../../state/timer/timer";
 import { GlassFill, useGlass } from "../ui/Glass";
 import { TranslateButton } from "../site/TranslateControls";
 import { ZoomIndicator } from "../site/ZoomControls";
 import { useShortcutHint, withShortcut } from "../../state/commands/commandShortcuts";
 import { buttonMotion, curve, usePressScaleMotion } from "../ui/motion";
 import { HistoryButton, ReloadButton } from "./NavButtons";
+import { AccountButton } from "../account/AccountButton";
 import { ProgressBar, TabProgressBar } from "./ProgressBar";
 import { TOOLBAR_MOTION } from "./tokens";
 import { useToolbarRow } from "./useToolbarRow";
@@ -80,6 +85,8 @@ export function Toolbar({
   const history = useHistoryAvailability(tabId);
   const row = useToolbarRow();
   const extensionsWidth = useToolbarExtensionsWidth(windowId, Infinity);
+  const timerActive = useTimerState((s) => s.endsAt !== null);
+  const timerOffset = timerActive ? TIMER_CHIP_WIDTH + 8 : 0;
   useEffect(() => setToolbarExtensionsWidth(windowId, extensionsWidth), [windowId, extensionsWidth]);
   const dim = useRef(new Animated.Value(focused ? 1 : 0.5)).current;
   const dimmedFor = useRef(focused);
@@ -98,7 +105,7 @@ export function Toolbar({
     const nav = (center: number | null) => ({ style: place(center), hit });
     return { top, sidebarButton: place(geometry.sidebarButton), back: nav(geometry.back), forward: nav(geometry.forward), reload: nav(geometry.reload) };
   }, [geometry, row]);
-  const right = urlFieldRight(inSplit, extensionsWidth, row);
+  const right = urlFieldRight(inSplit, extensionsWidth + timerOffset + (inSplit ? 0 : row.button + 2), row);
   const urlStyle = useMemo(() => ({ position: "absolute" as const, left: geometry.urlLeft, right, top: urlFieldOf(row).top }), [geometry.urlLeft, right, row]);
   if (!tab) return <View style={{ height: row.height }} />;
 
@@ -120,7 +127,9 @@ export function Toolbar({
         <HistoryButton place={at.back} tabId={tab.id} windowId={tab.windowId} direction={-1} disabled={!history.back} palette={palette} onFocus={focus} />
         <HistoryButton place={at.forward} tabId={tab.id} windowId={tab.windowId} direction={1} disabled={!history.forward} palette={palette} onFocus={focus} />
         <ReloadButton place={at.reload} tab={tab} loading={isLoading} palette={palette} onFocus={focus} />
-        <ToolbarExtensions tabId={tab.id} windowId={windowId} palette={palette} top={row.center - row.extensionButton / 2} right={inSplit ? 8 + 2 * row.button : 8} />
+        <ToolbarExtensions tabId={tab.id} windowId={windowId} palette={palette} top={row.center - row.extensionButton / 2} right={inSplit ? 8 + 2 * row.button : 8 + row.button + 2} />
+        <TimerChip palette={palette} top={row.center - 14} right={(inSplit ? 8 + 2 * row.button : 8 + row.button + 2) + extensionsWidth + 8} />
+        {!inSplit && <AccountButton windowId={windowId} top={row.center - row.button / 2} size={row.button} />}
         {tab.url ? (
           <ToolbarUrlField tab={tab} palette={palette} windowId={windowId} inSplit={inSplit} onFocus={focus} style={urlStyle} />
         ) : null}
@@ -219,6 +228,7 @@ export const ToolbarUrlField = memo(function ToolbarUrlField({ tab, palette, win
         {hovered && (
           <>
             <PageButton tab={tab} palette={palette} windowId={windowId} />
+            <ReaderButton tab={tab} palette={palette} windowId={windowId} />
             {!inSplit && (
               <Button variant="icon" toolbar
                 palette={palette}
@@ -265,6 +275,7 @@ export const SidebarUrlField = memo(function SidebarUrlField({ tab, palette, win
       <ToolbarRowContext.Provider value={TOOLBAR_ROWS.regular}>
         <FieldButtons tab={tab} palette={palette} onFocus={onFocus} popover={popover} toggleSiteControls={toggleSiteControls} accessory={accessory}>
           {hovered && <PageButton tab={tab} palette={palette} windowId={windowId} />}
+          {hovered && <ReaderButton tab={tab} palette={palette} windowId={windowId} />}
         </FieldButtons>
       </ToolbarRowContext.Provider>
       {progress !== null ? (
@@ -283,6 +294,12 @@ type PageButtonProps = { tab: ToolbarTab; palette: ToolbarPalette; windowId: str
 
 function PageButton(props: PageButtonProps) {
   return useBookmarksShown() ? <BookmarkButton {...props} /> : <CopyUrlButton {...props} />;
+}
+
+function ReaderButton({ tab, palette }: PageButtonProps) {
+  const openReader = useReader((s) => s.openReader);
+  if (internalPageOf(tab.url)) return null;
+  return <Button variant="icon" toolbar palette={palette} icon="book" look="field" onPress={() => void openReader(tab.id)} tooltip="Reader" />;
 }
 
 function CopyUrlButton({ tab, palette }: PageButtonProps) {

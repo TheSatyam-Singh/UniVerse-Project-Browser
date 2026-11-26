@@ -6,11 +6,12 @@ import { sharedTabsIn, sharesTabs } from "../tabs/tabShare";
 
 export type Row =
   | { kind: "tab"; id: string; title: string; url: string; favicon: string | null; icon: string | null; where: string | null; current: boolean }
-  | { kind: "closed"; id: string; title: string; url: string; favicon: string | null; icon: string | null; detail: string };
+  | { kind: "closed"; id: string; title: string; url: string; favicon: string | null; icon: string | null; detail: string }
+  | { kind: "archived"; id: string; title: string; url: string; favicon: string | null; icon: string | null; detail: string };
 
-function candidates(s: BrowserState, windowId: string): { open: Row[]; closed: Row[] } {
+function candidates(s: BrowserState, windowId: string): { open: Row[]; closed: Row[]; archived: Row[] } {
   const w = s.windows[windowId];
-  if (!w) return { open: [], closed: [] };
+  if (!w) return { open: [], closed: [], archived: [] };
   const profileId = w.profileId;
   const shared = sharesTabs(s) ? sharedTabsIn(s.tabs, windowId) : null;
   const lastUsed = (t: Tab) => shared?.lastUsed(t) ?? t.lastActiveAt;
@@ -45,7 +46,11 @@ function candidates(s: BrowserState, windowId: string): { open: Row[]; closed: R
   ]
     .sort((a, b) => b.at - a.at)
     .map(({ at: _, ...row }) => row);
-  return { open, closed };
+  const archived: Row[] = s.archivedTabs
+    .filter((a) => a.tab.profileId === profileId)
+    .sort((a, b) => b.archivedAt - a.archivedAt)
+    .map((a) => ({ kind: "archived" as const, id: a.id, title: tabTitle(a.tab), url: a.tab.url, favicon: a.tab.favicon, icon: a.tab.customIcon, detail: "Archived" }));
+  return { open, closed, archived };
 }
 
 export const searchCandidates = (windowId: string) => candidates(useBrowser.getState(), windowId);

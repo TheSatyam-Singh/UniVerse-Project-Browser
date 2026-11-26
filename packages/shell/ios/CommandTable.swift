@@ -26,6 +26,10 @@ enum CommandTable {
     case toggleSidebarSide
     case toggleSidebar
     case openSplitPane
+    case newSpace
+    case saveSession
+    case restoreSession
+    case archiveTab
     case useSelectionForFind
     case findAndReplace
     case jumpToSelection
@@ -137,6 +141,10 @@ enum CommandTable {
     "toggleSidebarSide": "Sidebar on Right",
     "toggleSidebar": "Auto-Hide Tabs",
     "openSplitPane": "Open Split Pane",
+    "newSpace": "New Space",
+    "saveSession": "Save Session…",
+    "restoreSession": "Restore Session…",
+    "archiveTab": "Archive Tab",
     "useSelectionForFind": "Use Selection for Find",
     "findAndReplace": "Find and Replace…",
     "jumpToSelection": "Jump to Selection",
