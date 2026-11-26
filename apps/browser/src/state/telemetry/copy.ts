@@ -132,7 +132,7 @@ export const WHATS_SENT: { title: string; items: string[] }[] = [
       "How long it took, step by step (starting up, starting its helper, connecting to UniVerse Project Browser, finding the tab, the command itself, waiting for the page to settle), plus counts and sizes: browser calls, steps in a batch, how many coding agents the install gave the agent skill to or skipped, the length of a page snapshot and of the output, how many requests an action sent, how many reading tabs it had to open again, and whether the output was cut short, the input humanized, it gave up waiting for its helper, it set a viewport size, it reloaded a crashed page or UniVerse Project Browser refused it a tab. Times, counts and yes or no only",
       "Its version, macOS version, chip and Python version, with this Mac's install ID",
       "After a crash: the error's type (with its message only when it's one of Python's fixed ones, like “division by zero”), and the module, function and line number of each step in the stack trace",
-      "Nothing from commands pointed at a test browser (--port, --ws), and nothing at all with DO_NOT_TRACK=1 or ARDIA_TELEMETRY=0 set",
+      "Nothing from commands pointed at a test browser (--port, --ws), and nothing at all with DO_NOT_TRACK=1 set or telemetry turned off",
     ],
   },
   {
