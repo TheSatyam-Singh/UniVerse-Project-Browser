@@ -48,7 +48,7 @@ export function LiveFoldersPane() {
       </Group>
       {isMocked ? (
         <Text size="caption" tone="warning" style={NOTE_TOP}>
-          Development build: services are served by ARDIA_TEST liveMock.
+          Development build: services are served by the test live mock.
         </Text>
       ) : null}
     </View>
