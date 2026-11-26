@@ -403,6 +403,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
 				PRODUCT_BUNDLE_IDENTIFIER = com.universe.projectbrowser;
 				PRODUCT_NAME = UniVerse-Project-Browser;
+				EXECUTABLE_NAME = "UniVerse Project Browser";
 				SDKROOT = macosx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -438,6 +439,7 @@
 				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
 				PRODUCT_BUNDLE_IDENTIFIER = com.universe.projectbrowser;
 				PRODUCT_NAME = UniVerse-Project-Browser;
+				EXECUTABLE_NAME = "UniVerse Project Browser";
 				SDKROOT = macosx;
 				SWIFT_VERSION = 5.0;
 			};

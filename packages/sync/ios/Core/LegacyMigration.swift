@@ -8,6 +8,7 @@ public enum LegacyName {
   public static let bundleId = "com.netnyahoo.browser"
   public static let appFileName = "Netnyahoo.app"
   public static let appName = "Netnyahoo"
+  public static let newAppFileName = "UniVerse-Project-Browser.app"
 
   public static let syncMagic = "NNS1"
   public static let syncSalt = "netnyahoo-sync/v1"
@@ -233,11 +234,11 @@ extension LegacyMigration {
     let macOS = executable.deletingLastPathComponent(), contents = macOS.deletingLastPathComponent()
     let old = contents.deletingLastPathComponent(), name = executable.lastPathComponent
     guard macOS.lastPathComponent == "MacOS", contents.lastPathComponent == "Contents", old.lastPathComponent == LegacyName.appFileName,
-      !old.path.contains("/AppTranslocation/"), "\(name).app" != old.lastPathComponent,
+      !old.path.contains("/AppTranslocation/"), LegacyName.newAppFileName != old.lastPathComponent,
       let folder = realpath(old.deletingLastPathComponent().path, nil) else { return }
     let resolvedFolder = String(cString: folder)
     free(folder)
-    let new = old.deletingLastPathComponent().appendingPathComponent("\(name).app")
+    let new = old.deletingLastPathComponent().appendingPathComponent(LegacyName.newAppFileName)
     let log = { (message: String) in NSLog("UniVerse Project Browser: renaming \(old.path): \(message)") }
     var info = stat()
     let isIn = { (bundle: URL) in (running() ?? "").hasPrefix("\(resolvedFolder)/\(bundle.lastPathComponent)/") }
