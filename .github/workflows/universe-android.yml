@@ -15,21 +15,7 @@
 name: Android
 
 on:
-  pull_request:
-    paths:
-      - "apps/android/**"
-      - "apps/ios/Packages/ArdiaKit/Sources/ArdiaShared/Scripts/**"
-      - "packages/sync/**"
-      - "packages/core/**"
-      - ".github/workflows/universe-android.yml"
-  push:
-    branches: [master]
-    paths:
-      - "apps/android/**"
-      - "apps/ios/Packages/ArdiaKit/Sources/ArdiaShared/Scripts/**"
-      - "packages/sync/**"
-      - "packages/core/**"
-      - ".github/workflows/universe-android.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
