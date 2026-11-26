@@ -151,7 +151,8 @@ test("a slow answer is dropped after the timeout", async (t) => {
 
 test("every switch and experiment native and engine code read by name is in the registry", async () => {
   const { execFileSync } = await import("node:child_process");
-  const root = new URL("../../../../", import.meta.url).pathname;
+  const { fileURLToPath } = await import("node:url");
+  const root = fileURLToPath(new URL("../../../../", import.meta.url));
   const pattern = String.raw`(switchOn|experimentOn|SwitchOn|ExperimentOn)\("[A-Za-z]+"\)`;
   const hits = execFileSync("git", ["grep", "-hoE", pattern, "--", ":(glob)packages/*/ios/**", "engine", "apps/browser/macos"], { cwd: root, encoding: "utf8" });
   const read = hits.trim().split("\n").map((hit) => hit.match(/^(\w+)\("(\w+)"\)$/));
