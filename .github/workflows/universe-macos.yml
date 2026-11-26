@@ -150,7 +150,7 @@ jobs:
         env:
           ARDIACORE_PREBUILT_REPO: ardia-browser/ardia
         run: |
-          if ! framework=$(packages/universecore/scripts/fetch-engine.sh); then
+          if ! framework=$(packages/universecore/scripts/fetch-engine.sh --nearest); then
             echo "::error::no engine for ${TREE:0:12}: build it here and publish it with scripts/publish-engine.sh, then commit prebuilt-engines.tsv"
             exit 1
           fi
