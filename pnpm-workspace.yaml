@@ -16,3 +16,4 @@ patchedDependencies:
 
 allowBuilds:
   esbuild: false
+  canvas: false
