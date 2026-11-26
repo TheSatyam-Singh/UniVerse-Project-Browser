@@ -1,0 +1,11 @@
+--- a/build/pdf.mjs
++++ b/build/pdf.mjs
+@@ -3892,7 +3892,7 @@
+       if (this.#mainThreadWorkerMessageHandler) {
+         return this.#mainThreadWorkerMessageHandler;
+       }
+-      const worker = await import( /*webpackIgnore: true*/this.workerSrc);
++      const worker = await import("./pdf.worker.mjs");
+       return worker.WorkerMessageHandler;
+     };
+     return (0,_shared_util_js__WEBPACK_IMPORTED_MODULE_0__.shadow)(this, "_setupFakeWorkerGlobal", loader());

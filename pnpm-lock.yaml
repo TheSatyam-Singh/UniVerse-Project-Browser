@@ -7,6 +7,7 @@ settings:
 patchedDependencies:
   expo-constants@18.0.14: 3f8b2c29ae86b933377cfad3fe90c5fef442c0547389feee513a4a0cdfd9c914
   expo-modules-core@3.0.30: d3ba40cbc4cb461abac8d329e3451da91f6686dfeb5273206222bfca819ac821
+  pdfjs-dist@4.2.67: d18998c05cb165b09fb897b73a1892172a7411f8c8028400dbb7d3d596de049e
   react-native-macos@0.81.9: bce594080b42a3caab4f7d151eea1a21536c9efd0ec960eb9a1f8b5c37d18c46
 
 importers:
@@ -48,7 +49,7 @@ importers:
         version: 3.0.30(patch_hash=d3ba40cbc4cb461abac8d329e3451da91f6686dfeb5273206222bfca819ac821)(react-native@0.81.6(@babel/core@7.29.7)(@react-native-community/cli@20.2.0(typescript@5.9.3))(@react-native/metro-config@0.81.6(@babel/core@7.29.7))(@types/react@19.1.17)(react@19.1.4))(react@19.1.4)
       pdfjs-dist:
         specifier: 4.2.67
-        version: 4.2.67
+        version: 4.2.67(patch_hash=d18998c05cb165b09fb897b73a1892172a7411f8c8028400dbb7d3d596de049e)
       react:
         specifier: 19.1.4
         version: 19.1.4
@@ -7680,7 +7681,7 @@ snapshots:
   path2d@0.2.2:
     optional: true
 
-  pdfjs-dist@4.2.67:
+  pdfjs-dist@4.2.67(patch_hash=d18998c05cb165b09fb897b73a1892172a7411f8c8028400dbb7d3d596de049e):
     optionalDependencies:
       canvas: 2.11.2
       path2d: 0.2.2
