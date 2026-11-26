@@ -2,22 +2,21 @@
   <img src="apps/site/src/assets/app-icon.png" width="128" height="128" alt="UniVerse Project Browser's app icon">
 </p>
 
-<h1 align="center">Touch grass.</h1>
+<h1 align="center">Your universe, in one window.</h1>
 
 <p align="center">
-  Arc’s sidebar and Dia’s polish on real Chromium.<br>
+  A fast, private browser on real Chromium.<br>
   Free and open source. Ads and trackers stay out.
 </p>
 
 <h3 align="center">
-  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">Download UniVerse Project Browser for Mac</a>
+  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/actions/workflows/universe-macos.yml">Download UniVerse Project Browser for Mac</a>
 </h3>
 
 <p align="center">
-  macOS 14 Sonoma or later · Apple Silicon · Notarized by Apple<br>
-  Like your paint wet? <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">The nightly</a> has every fix the day it’s made, smudges and all.<br>
-  Homebrew: <code>brew install TheSatyam-Singh/tap/universe-project-browser</code><br>
-  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser">github.com/TheSatyam-Singh/UniVerse-Project-Browser</a> · <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">What’s new</a> · <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">All releases</a> · <a href="https://discord.gg/TdhuXrbcA6">Discord</a>
+  macOS 14 Sonoma or later · Apple Silicon · Unsigned build — right-click the app and choose Open on first launch<br>
+  Built by GitHub Actions from this repo. The latest build is the <code>release-unsigned</code> artifact on the newest macOS run.<br>
+  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser">github.com/TheSatyam-Singh/UniVerse-Project-Browser</a>
 </p>
 
 <p align="center">
@@ -85,28 +84,28 @@ Not WebKit. Not Electron. Every window is Chrome’s own, so sites, extensions a
 | Intel Macs | Apple Silicon only. | ✗ No |
 
 <h3 align="center">
-  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases">Download UniVerse Project Browser</a>
+  <a href="https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/actions/workflows/universe-macos.yml">Download UniVerse Project Browser</a>
 </h3>
 
 <p align="center">
   It’s one drag into Applications.<br>
-  Not on a Mac? Watch › Custom › Releases up top and GitHub tells you when it is.
+  The build is unsigned, so right-click the app and choose Open the first time.
 </p>
 
 ---
 
 ## Platforms
 
-One browser for **macOS, Windows and Android**, built by GitHub Actions from this repo.
+Built by GitHub Actions from this repo. All workflows run only when started by hand (Actions → pick a workflow → Run workflow).
 
 | Platform | Status | Built by |
 | --- | --- | --- |
-| macOS | Shipping — the app in this tree (`apps/browser`, React Native macOS shell on the Chromium framework). Apple Silicon, macOS 14+. | `.github/workflows/release.yml` (Release workflow, macOS runner) |
-| Android | Shipping — the Kotlin app in `apps/android/` (Compose UI, `com.universe.projectbrowser.android`). CI builds debug and release. | `.github/workflows/android.yml` (Android workflow, Ubuntu runner, Temurin Java 21) |
-| Windows | Planned — a new `apps/windows/` WebView2 shell. Nothing in the tree yet, and no Windows workflow yet. | Not wired up |
-| iOS | Present in the tree (`apps/ios/`), but out of this merge’s scope — do not break it. | `.github/workflows/ios.yml`, `.github/workflows/ios-release.yml` |
+| macOS | Shipping — the app in this tree (`apps/browser`, React Native macOS shell on the Chromium framework). Apple Silicon, macOS 14+. | `.github/workflows/universe-macos.yml` (macOS runner) |
+| Android | Shipping — the Kotlin app in `apps/android/` (Compose UI, `com.universe.projectbrowser.android`). CI builds debug and release. | `.github/workflows/universe-android.yml` (Ubuntu runner, Temurin Java 21) |
+| iOS | Present in the tree (`apps/ios/`), but out of scope for now — do not break it. | `.github/workflows/universe-ios.yml` |
+| Windows | Not in this tree — there is no Windows app or Windows workflow yet. | Not wired up |
 
-The site (`apps/site`) deploys from `.github/workflows/deploy.yml`.
+The typecheck gate is `.github/workflows/universe-typecheck.yml`.
 
 ## Signed builds: secrets to add on GitHub
 
@@ -114,7 +113,7 @@ Signed builds need secrets the repo does not ship. Add them under the repo’s
 **Settings › Secrets and variables › Actions** (never commit a secret, and never paste one
 into a chat, an issue or a log). The names below are the ones the workflows already read.
 
-**macOS — Developer ID + notarization + Sparkle** (read by `release.yml`):
+**macOS — Developer ID + notarization + Sparkle** (read by `universe-macos.yml`):
 
 | Secret | What it is |
 | --- | --- |
@@ -127,20 +126,20 @@ into a chat, an issue or a log). The names below are the ones the workflows alre
 | `NOTARY_ISSUER` | That API key’s issuer ID |
 | `HOMEBREW_TAP_TOKEN` | A token that can push to the Homebrew tap repo, for `update-tap.sh` |
 
-Without the macOS secrets, `release.yml` still builds, but it cannot sign, notarize or publish a
+Without the macOS secrets, `universe-macos.yml` still builds, but it cannot sign, notarize or publish a
 release; dry runs pass with `ALLOW_MISSING_NOTARY=1`.
 
-**Android — keystore** (for a signed release build; `android.yml` currently builds
+**Android — keystore** (for a signed release build; `universe-android.yml` currently builds
 `assembleRelease` unsigned, and reads no secrets yet):
 
 | Secret | What it is |
 | --- | --- |
-| `ANDROID_KEYSTORE` | Your release keystore file, base64-encoded |
+| `ANDROID_KEYSTORE_BASE64` | Your release keystore file, base64-encoded |
 | `ANDROID_KEYSTORE_PASSWORD` | The keystore’s password |
 | `ANDROID_KEY_ALIAS` | The key alias inside the keystore |
 | `ANDROID_KEY_PASSWORD` | That key’s password |
 
-Wire these into `android.yml` (a signing step before `assembleRelease`) before publishing a
+Wire these into `universe-android.yml` (a signing step before `assembleRelease`) before publishing a
 signed APK/AAB.
 
 **Windows — optional, for when the Windows shell lands:**
@@ -285,15 +284,13 @@ Feature parity with Dia (everything but its AI) is tracked row by row in
 
 ## License
 
-UniVerse Project Browser is derived from [Ardia](https://github.com/mantrakp04/ardia) and
-[Nook](https://github.com/nook-browser/Nook), and is distributed under the
-[GNU General Public License v3](LICENSE). It cannot be closed-sourced: its engine carries
-Helium's GPL-3.0 patches, and Nook's code is GPL-3.0.
+UniVerse Project Browser is derived from [Ardia](https://github.com/mantrakp04/ardia), and is
+distributed under the [GNU General Public License v3](LICENSE). It cannot be closed-sourced:
+its engine carries Helium's GPL-3.0 patches.
 
 - Ardia's own source files are under the [Apache License 2.0](LICENSE.Apache-2.0) (copyright
   Mantra Patel; see [NOTICE](NOTICE) for Ardia's attributions). Apache-2.0 code may be combined
   into a GPL-3.0 work, so those files keep that licence on their own.
-- Nook's code is under the GPL-3.0; its copyright notices are kept with it.
 - The browser builds on Chromium, carries a few of the Chromium Embedded Framework's patches to
   Chromium (BSD-3-Clause), and bundles uBlock Origin, each under its own license; see
   [NOTICE](NOTICE).
