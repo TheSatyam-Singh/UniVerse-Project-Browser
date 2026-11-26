@@ -4,7 +4,7 @@ import { test } from "node:test";
 globalThis.require = createRequire(import.meta.url);
 let csv = [];
 globalThis.acTestNativeModules = {
-  ArdiaImport: {
+  UniVerseImport: {
     chooseImportFile: async () => "/scratch/passwords.csv",
     importPasswordsCSV: async () => JSON.stringify(csv),
   },

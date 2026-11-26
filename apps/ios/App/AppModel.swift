@@ -1,5 +1,5 @@
-import ArdiaBrowser
-import ArdiaSync
+import UniVerseBrowser
+import UniVerseSync
 import Foundation
 import Observation
 import SwiftData
@@ -63,7 +63,7 @@ final class AppModel {
     blocker = ContentBlocker(
       settings: blocking,
       directory: URL.cachesDirectory.appending(path: "Blocking", directoryHint: .isDirectory),
-      filterLists: isDemo ? .demo(directory: URL.temporaryDirectory.appending(path: "ArdiaDemoFilters", directoryHint: .isDirectory), defaults: defaults) : nil
+      filterLists: isDemo ? .demo(directory: URL.temporaryDirectory.appending(path: "UniVerseDemoFilters", directoryHint: .isDirectory), defaults: defaults) : nil
     )
     preferences = BrowsingPreferences(defaults: defaults)
     web = WebEngine(tabs: tabs, blocker: blocker, preferences: preferences)
@@ -75,6 +75,6 @@ final class AppModel {
   }
 
   static func launch() -> AppModel {
-    AppModel(isDemo: ProcessInfo.processInfo.arguments.contains("-ArdiaDemo") || UserDefaults.standard.bool(forKey: "ArdiaDemo"))
+    AppModel(isDemo: ProcessInfo.processInfo.arguments.contains("-UniVerseDemo") || UserDefaults.standard.bool(forKey: "UniVerseDemo"))
   }
 }

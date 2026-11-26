@@ -12,9 +12,9 @@ MAX_DEADLINE = 5.0
 
 def decide_env(message: dict, base=None) -> dict:
     env = dict(os.environ if base is None else base)
-    for variable in ("ARDIA_EVENT", "ARDIA_WINDOW_ID", "ARDIA_TAB_ID", "ARDIA_PROFILE", "ARDIA_URL", "ARDIA_TITLE"):
+    for variable in ("UNIVERSE_EVENT", "UNIVERSE_WINDOW_ID", "UNIVERSE_TAB_ID", "UNIVERSE_PROFILE", "UNIVERSE_URL", "UNIVERSE_TITLE"):
         env.pop(variable, None)
-    env["ARDIA_EVENT"] = str(message.get("event", ""))
+    env["UNIVERSE_EVENT"] = str(message.get("event", ""))
     return env
 
 

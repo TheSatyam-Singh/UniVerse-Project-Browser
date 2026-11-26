@@ -68,7 +68,7 @@ fi
 framework_src="$chromium_framework"
 [ "$phase" = sign ] && framework_src="$archive/Products/Applications/UniVerse-Project-Browser.app/Contents/Frameworks/Chromium Framework.framework"
 [ "$phase" = sign ] && { [ -d "$archive" ] || die "no $archive: run --phase build first"; }
-framework_engine="${ARDIACORE_FRAMEWORK_ENGINE:-}"
+framework_engine="${UNIVERSECORE_FRAMEWORK_ENGINE:-}"
 provisioning_profile="${RELEASE_PROVISIONING_PROFILE:-}"
 read -r -a extra_build_settings <<<"${RELEASE_BUILD_SETTINGS:-}"
 
@@ -109,29 +109,29 @@ if [ -n "$dirty" ]; then
   echo "$dirty" >&2
 fi
 
-[ -d "$framework_src" ] || die "no ArdiaCore framework at $framework_src (engine/ardiacore/apply.sh, then build chrome_framework)"
+[ -d "$framework_src" ] || die "no UniVerseCore framework at $framework_src (engine/universecore/apply.sh, then build chrome_framework)"
 [ "$phase" = sign ] || [[ " $(lipo -archs "$framework_src/Versions/Current/Chromium Framework" 2>/dev/null) " == *" arm64 "* ]] \
-  || die "the ArdiaCore framework at $framework_src has no arm64 slice"
+  || die "the UniVerseCore framework at $framework_src has no arm64 slice"
 if [ "$phase" = sign ]; then
   [ -n "$provisioning_profile" ] || die "--phase sign exports the ad hoc archive --phase build made: set RELEASE_PROVISIONING_PROFILE"
 elif [ -n "$framework_engine" ]; then
-  [ -n "${ARDIACORE_FRAMEWORK:-}" ] || die "ARDIACORE_FRAMEWORK_ENGINE names the engine key (engine/engine-key.sh) a prebuilt ARDIACORE_FRAMEWORK was built from; set both or neither"
+  [ -n "${UNIVERSECORE_FRAMEWORK:-}" ] || die "UNIVERSECORE_FRAMEWORK_ENGINE names the engine key (engine/engine-key.sh) a prebuilt UNIVERSECORE_FRAMEWORK was built from; set both or neither"
   [ "$framework_engine" = "$("$root/engine/engine-key.sh")" ] \
-    || die "ARDIACORE_FRAMEWORK_ENGINE is $framework_engine but HEAD's engine key is $("$root/engine/engine-key.sh"): that framework wasn't built from this commit's engine"
+    || die "UNIVERSECORE_FRAMEWORK_ENGINE is $framework_engine but HEAD's engine key is $("$root/engine/engine-key.sh"): that framework wasn't built from this commit's engine"
 fi
-if [ "$phase" = all ] && [ -z "${ARDIACORE_FRAMEWORK:-}" ]; then
+if [ "$phase" = all ] && [ -z "${UNIVERSECORE_FRAMEWORK:-}" ]; then
   "$root/scripts/lib/engine-fresh.sh" "$framework_src" "$chromium_src" || exit 1
 fi
 
 engine_source=""
 if [ "$phase" != build ]; then
   engine_tree="$("$root/engine/engine-key.sh")"
-  engine_release="$(awk -v t="$engine_tree" '$1 == t { print $2; exit }' "$ardiacore/prebuilt-engines.tsv")"
+  engine_release="$(awk -v t="$engine_tree" '$1 == t { print $2; exit }' "$universecore/prebuilt-engines.tsv")"
   [ "$rc" = 1 ] || [ -n "$engine_release" ] \
     || die "packages/universecore/prebuilt-engines.tsv lists no published engine for this engine key (${engine_tree:0:12}): publish it with scripts/publish-engine.sh, commit the table line, then release"
   case "$engine_release" in engine-*) engine_tag="$engine_release" ;; *) engine_tag="v$engine_release" ;; esac
   [ -n "$engine_release" ] \
-    && engine_source="$REPO_URL/releases/download/$engine_tag/ArdiaCore-${engine_tree:0:12}-source.tar.xz"
+    && engine_source="$REPO_URL/releases/download/$engine_tag/UniVerseCore-${engine_tree:0:12}-source.tar.xz"
 
   identity_name="Developer ID Application"
   identity="$(security find-identity -v -p codesigning | awk -v n="$identity_name" 'index($0, n) { print $2; exit }')"

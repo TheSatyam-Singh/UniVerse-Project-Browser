@@ -3,7 +3,7 @@ import Foundation
 enum MotionDemo {
   static let arguments = ProcessInfo.processInfo.arguments
 
-  static var isDemo: Bool { arguments.contains("-ArdiaDemo") }
+  static var isDemo: Bool { arguments.contains("-UniVerseDemo") }
 
   static let pagerFreeze: CGFloat? = isDemo ? value("-BrowsePagerFreeze").flatMap(Double.init).map { CGFloat($0) } : nil
 

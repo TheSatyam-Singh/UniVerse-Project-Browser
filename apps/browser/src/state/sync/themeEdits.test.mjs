@@ -12,7 +12,7 @@ const folder = new Map();
 let heldScope = null;
 let releaseRead = null;
 globalThis.acTestNativeModules = {
-  ArdiaSync: {
+  UniVerseSync: {
     newDeviceId: () => "devC",
     deviceName: () => "Test Mac",
     createPhrase: async () => true,

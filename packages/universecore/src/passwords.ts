@@ -4,7 +4,7 @@ import { nativeModule } from "./nativeModules";
 export type SavedPassword = { origin: string; username: string; created: number; modified: number };
 export type PasswordExportStatus = "succeeded" | "cancelled" | "writeFailed" | "reauthFailed" | "inProgress";
 
-const Passwords = nativeModule("ArdiaPasswords");
+const Passwords = nativeModule("UniVersePasswords");
 
 export const savePassword = async (profile: string, origin: string, username: string, password: string) =>
   !!(await decodeReply<{ ok: true }>(Passwords.save(profile, origin, username, password)));

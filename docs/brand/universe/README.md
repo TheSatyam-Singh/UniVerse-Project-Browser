@@ -21,6 +21,6 @@ Two oil-painted hills (sage `#71955A`, forest `#203F32`) under a sun (`#E6BC62`)
 The site's header icon, favicon and share image are cut from the same files (`apps/site`).
 
 The `engine/chromium/src` files replace Chromium's own: `engine/chromium/apply.sh` copies every file there outside
-`chrome/browser/ardia` over the tree's, so a change ships only after `scripts/agent/engine-build` (the paks and the
+`chrome/browser/universe` over the tree's, so a change ships only after `scripts/agent/engine-build` (the paks and the
 helpers are rebuilt, not the framework's binary; `release.sh` refuses a framework older than them). Commit them with
 the rest of a re-run.

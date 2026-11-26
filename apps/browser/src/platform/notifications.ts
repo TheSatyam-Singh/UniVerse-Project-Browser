@@ -2,7 +2,7 @@ import { nativeModule, type NotificationOptions, type NotificationResponse } fro
 
 export type { NotificationResponse };
 
-const Notifications = nativeModule("ArdiaNotifications");
+const Notifications = nativeModule("UniVerseNotifications");
 
 export const notificationPermission = () => Notifications.notificationPermission();
 export const requestNotificationPermission = () => Notifications.requestNotificationPermission();

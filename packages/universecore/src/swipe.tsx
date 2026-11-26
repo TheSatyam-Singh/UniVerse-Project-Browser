@@ -76,8 +76,8 @@ export type SwipeModule = {
 };
 type NativeComponent = React.ComponentType<NativeProps & { ref?: React.Ref<NativeHandle> }>;
 
-const Module = nativeModule("ArdiaSwipe");
-const Native = requireNativeViewManager<NativeProps>("ArdiaSwipe") as unknown as NativeComponent;
+const Module = nativeModule("UniVerseSwipe");
+const Native = requireNativeViewManager<NativeProps>("UniVerseSwipe") as unknown as NativeComponent;
 let AnimatedNative: NativeComponent | undefined;
 const animatedNative = () => (AnimatedNative ??= Animated.createAnimatedComponent(Native) as unknown as NativeComponent);
 

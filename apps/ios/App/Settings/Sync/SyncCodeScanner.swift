@@ -1,5 +1,5 @@
 import AVFoundation
-import ArdiaDesign
+import UniVerseDesign
 import SwiftUI
 import VisionKit
 

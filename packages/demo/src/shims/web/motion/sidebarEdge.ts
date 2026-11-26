@@ -42,7 +42,7 @@ function check(pointer: PointerSample | null = currentPointer()) {
     const x = pointer?.clientX ?? -1;
     const y = pointer?.clientY ?? -1;
     const point: [number, number] = frame ? [x - frame.left, y - frame.top] : [x, y];
-    emitNativeEvent("ArdiaAppWindows", "onWindowEvent", { type: "sidebarEdge", id, over: now, point });
+    emitNativeEvent("UniVerseAppWindows", "onWindowEvent", { type: "sidebarEdge", id, over: now, point });
   }
 }
 
@@ -81,6 +81,6 @@ export function watchSidebarEdge(id: string, on: boolean, hold: number, right: b
   if (watched.size) check();
 }
 
-provideNativeModule("ArdiaAppWindows", {
+provideNativeModule("UniVerseAppWindows", {
   watchSidebarEdge: async (id: string, on: boolean, hold: number, right: boolean) => watchSidebarEdge(id, on, hold, right),
 });

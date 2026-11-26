@@ -13,23 +13,23 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
  extern const int kCcompressedProtocolJSON;
  #endif
  
-+#include "ardia/core/ac_content_hooks.h"  // nogncheck
++#include "universe/core/ac_content_hooks.h"  // nogncheck
 +
-+bool (*g_ardia_devtools_token_factory)(
++bool (*g_universe_devtools_token_factory)(
 +    const content::DevToolsSocketFactory* factory) = nullptr;
-+bool (*g_ardia_devtools_token_accepts)(
++bool (*g_universe_devtools_token_accepts)(
 +    const content::DevToolsSocketFactory* factory,
 +    std::string_view token) = nullptr;
-+void (*g_ardia_devtools_token_server)(
++void (*g_universe_devtools_token_server)(
 +    const content::DevToolsSocketFactory* factory,
 +    std::string_view browser_path,
 +    int port,
 +    size_t connections) = nullptr;
-+bool (*g_ardia_devtools_active_target)(
++bool (*g_universe_devtools_active_target)(
 +    const content::DevToolsSocketFactory* factory,
 +    std::string_view token,
 +    std::string* target_id) = nullptr;
-+std::unique_ptr<ArdiaDevToolsTokenClient> (*g_ardia_devtools_token_client)(
++std::unique_ptr<UniVerseDevToolsTokenClient> (*g_universe_devtools_token_client)(
 +    const content::DevToolsSocketFactory* factory,
 +    content::DevToolsAgentHostClient* client,
 +    content::DevToolsAgentHost* host) = nullptr;
@@ -42,7 +42,7 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
            "Not implemented, only used in Devtools and is behind a switch."
        })");
 +
-+void SplitArdiaPath(std::string_view full,
++void SplitUniVersePath(std::string_view full,
 +                    std::string_view* path,
 +                    std::string_view* token) {
 +  *path = full;
@@ -68,9 +68,9 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
          std::unique_ptr<DevToolsSocketFactory>(socket_factory),
          std::move(ip_address));
    } else {
-+    if (handler && handler->ardia_token_mode_ &&
-+        g_ardia_devtools_token_server) {
-+      g_ardia_devtools_token_server(socket_factory, "", 0, 0);
++    if (handler && handler->universe_token_mode_ &&
++        g_universe_devtools_token_server) {
++      g_universe_devtools_token_server(socket_factory, "", 0, 0);
 +    }
      TerminateOnUI(std::move(thread),
                    std::unique_ptr<ServerWrapper>(server_wrapper),
@@ -81,18 +81,18 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
        int connection_id,
 -      scoped_refptr<DevToolsAgentHost> agent_host)
 +      scoped_refptr<DevToolsAgentHost> agent_host,
-+      const DevToolsSocketFactory* ardia_token_factory = nullptr)
++      const DevToolsSocketFactory* universe_token_factory = nullptr)
        : task_runner_(std::move(task_runner)),
          server_wrapper_(server_wrapper),
          connection_id_(connection_id),
          agent_host_(agent_host) {
      CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M159);
-+    if (ardia_token_factory) {
-+      if (g_ardia_devtools_token_client) {
-+        ardia_token_client_ = g_ardia_devtools_token_client(
-+            ardia_token_factory, this, agent_host_.get());
++    if (universe_token_factory) {
++      if (g_universe_devtools_token_client) {
++        universe_token_client_ = g_universe_devtools_token_client(
++            universe_token_factory, this, agent_host_.get());
 +      }
-+      if (!ardia_token_client_) {
++      if (!universe_token_client_) {
 +        agent_host_ = nullptr;
 +        return;
 +      }
@@ -105,26 +105,26 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
 +  bool attached() const { return attached_; }
 +
 +  bool MayAttachToURL(const GURL& url, bool is_webui) override {
-+    return ardia_token_client_
-+               ? ardia_token_client_->MayAttachToURL(url, is_webui)
++    return universe_token_client_
++               ? universe_token_client_->MayAttachToURL(url, is_webui)
 +               : DevToolsAgentHostClient::MayAttachToURL(url, is_webui);
    }
  
 +  bool MayAttachToRenderFrameHost(
 +      RenderFrameHost* render_frame_host) override {
-+    return ardia_token_client_
-+               ? ardia_token_client_->MayAttachToRenderFrameHost(
++    return universe_token_client_
++               ? universe_token_client_->MayAttachToRenderFrameHost(
 +                     render_frame_host)
 +               : DevToolsAgentHostClient::MayAttachToRenderFrameHost(
 +                     render_frame_host);
 +  }
 +
 +  bool MayReadLocalFiles() override {
-+    return !ardia_token_client_ && DevToolsAgentHostClient::MayReadLocalFiles();
++    return !universe_token_client_ && DevToolsAgentHostClient::MayReadLocalFiles();
 +  }
 +
 +  bool MayWriteLocalFiles() override {
-+    return !ardia_token_client_ &&
++    return !universe_token_client_ &&
 +           DevToolsAgentHostClient::MayWriteLocalFiles();
 +  }
 +
@@ -141,7 +141,7 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
 -                       base::Unretained(server_wrapper_), connection_id_,
 -                       std::string(message.begin(), message.end())));
 +    std::string text(message.begin(), message.end());
-+    if (ardia_token_client_ && !ardia_token_client_->FilterEvent(text)) {
++    if (universe_token_client_ && !universe_token_client_->FilterEvent(text)) {
 +      return;
 +    }
 +    SendToSocket(std::move(text));
@@ -154,14 +154,14 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
 +    if (!agent_host_) {
 +      return;
 +    }
-+    if (ardia_token_client_) {
++    if (universe_token_client_) {
 +      std::string command(message.begin(), message.end());
 +      std::string reply;
-+      if (!ardia_token_client_->FilterCommand(command, &reply)) {
++      if (!universe_token_client_->FilterCommand(command, &reply)) {
 +        if (!reply.empty()) {
 +          SendToSocket(std::move(reply));
 +        }
-+        if (ardia_token_client_->ShouldClose()) {
++        if (universe_token_client_->ShouldClose()) {
 +          task_runner_->PostTask(
 +              FROM_HERE, base::BindOnce(&ServerWrapper::Close,
 +                                        base::Unretained(server_wrapper_),
@@ -180,7 +180,7 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
    const raw_ptr<ServerWrapper> server_wrapper_;
    const int connection_id_;
    scoped_refptr<DevToolsAgentHost> agent_host_;
-+  std::unique_ptr<ArdiaDevToolsTokenClient> ardia_token_client_;
++  std::unique_ptr<UniVerseDevToolsTokenClient> universe_token_client_;
 +  bool attached_ = false;
 +
 +  void SendToSocket(std::string text) {
@@ -197,8 +197,8 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
    // by the targets. It is essential that this happens before we issue delete
    // soon for the server wrapper.
    connection_to_client_.clear();
-+  if (ardia_token_mode_ && socket_factory_ && g_ardia_devtools_token_server) {
-+    g_ardia_devtools_token_server(socket_factory_.get(), "", 0, 0);
++  if (universe_token_mode_ && socket_factory_ && g_universe_devtools_token_server) {
++    g_universe_devtools_token_server(socket_factory_.get(), "", 0, 0);
 +  }
    TerminateOnUI(std::move(thread_), std::move(server_wrapper_),
                  std::move(socket_factory_));
@@ -208,9 +208,9 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
  
    server_->SetSendBufferSize(connection_id, kSendBufferSizeForDevTools);
 +
-+  if (base::StartsWith(info.path, "/ardia/", base::CompareCase::SENSITIVE)) {
++  if (base::StartsWith(info.path, "/universe/", base::CompareCase::SENSITIVE)) {
 +    GetUIThreadTaskRunner({})->PostTask(
-+        FROM_HERE, base::BindOnce(&DevToolsHttpHandler::OnArdiaRequest,
++        FROM_HERE, base::BindOnce(&DevToolsHttpHandler::OnUniVerseRequest,
 +                                  handler_, connection_id, info));
 +    return;
 +  }
@@ -223,7 +223,7 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
    if (mode_ ==
 -      DevToolsAgentHost::RemoteDebuggingServerMode::kWithApprovalOnly) {
 +          DevToolsAgentHost::RemoteDebuggingServerMode::kWithApprovalOnly ||
-+      ardia_token_mode_) {
++      universe_token_mode_) {
      Send404(connection_id);
      return;
    }
@@ -233,17 +233,17 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
    SendJson(connection_id, net::HTTP_OK, list_value, "");
 +}
 +
-+void DevToolsHttpHandler::OnArdiaRequest(
++void DevToolsHttpHandler::OnUniVerseRequest(
 +    int connection_id,
 +    const net::HttpServerRequestInfo& info) {
 +  std::string_view path;
 +  std::string_view token;
-+  SplitArdiaPath(info.path, &path, &token);
++  SplitUniVersePath(info.path, &path, &token);
 +  std::string target_id;
-+  if (!ardia_token_mode_ || info.method != "GET" ||
-+      info.headers.count("origin") || path != "/ardia/active" ||
-+      !g_ardia_devtools_active_target ||
-+      !g_ardia_devtools_active_target(socket_factory_.get(), token,
++  if (!universe_token_mode_ || info.method != "GET" ||
++      info.headers.count("origin") || path != "/universe/active" ||
++      !g_universe_devtools_active_target ||
++      !g_universe_devtools_active_target(socket_factory_.get(), token,
 +                                      &target_id)) {
 +    Send404(connection_id);
 +    return;
@@ -261,7 +261,7 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
    if (mode_ ==
 -      DevToolsAgentHost::RemoteDebuggingServerMode::kWithApprovalOnly) {
 +          DevToolsAgentHost::RemoteDebuggingServerMode::kWithApprovalOnly ||
-+      ardia_token_mode_) {
++      universe_token_mode_) {
      Send404(connection_id);
      return;
    }
@@ -271,7 +271,7 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
    if (mode_ ==
 -      DevToolsAgentHost::RemoteDebuggingServerMode::kWithApprovalOnly) {
 +          DevToolsAgentHost::RemoteDebuggingServerMode::kWithApprovalOnly ||
-+      ardia_token_mode_) {
++      universe_token_mode_) {
      Send404(connection_id);
      return;
    }
@@ -279,7 +279,7 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
    if (!thread_)
      return;
  
-+  if (ardia_token_mode_ && request.headers.count("origin")) {
++  if (universe_token_mode_ && request.headers.count("origin")) {
 +    Send403(connection_id, "Connection rejected");
 +    return;
 +  }
@@ -293,13 +293,13 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
      return;
 +  }
 +
-+  net::HttpServerRequestInfo ardia_routed;
-+  if (ardia_token_mode_) {
++  net::HttpServerRequestInfo universe_routed;
++  if (universe_token_mode_) {
 +    std::string_view path;
 +    std::string_view token;
-+    SplitArdiaPath(request.path, &path, &token);
-+    if (!g_ardia_devtools_token_accepts ||
-+        !g_ardia_devtools_token_accepts(socket_factory_.get(), token)) {
++    SplitUniVersePath(request.path, &path, &token);
++    if (!g_universe_devtools_token_accepts ||
++        !g_universe_devtools_token_accepts(socket_factory_.get(), token)) {
 +      Send403(connection_id, "Connection rejected");
 +      return;
 +    }
@@ -310,11 +310,11 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
 +      Send500(connection_id, "Invalid WebSocket handshake");
 +      return;
 +    }
-+    ardia_routed = request;
-+    ardia_routed.path = std::string(path);
++    universe_routed = request;
++    universe_routed.path = std::string(path);
    }
 +  const net::HttpServerRequestInfo& routed =
-+      ardia_token_mode_ ? ardia_routed : request;
++      universe_token_mode_ ? universe_routed : request;
  
    // If we require user approval, we do not require guid.
    if (mode_ ==
@@ -337,8 +337,8 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
 -    AcceptWebSocket(connection_id, request);
 +    auto browser_client = std::make_unique<DevToolsAgentHostClientImpl>(
 +        thread_->task_runner(), server_wrapper_.get(), connection_id,
-+        browser_agent, ardia_token_mode_ ? socket_factory_.get() : nullptr);
-+    if (ardia_token_mode_ && !browser_client->attached()) {
++        browser_agent, universe_token_mode_ ? socket_factory_.get() : nullptr);
++    if (universe_token_mode_ && !browser_client->attached()) {
 +      Send403(connection_id, "Connection rejected");
 +      return;
 +    }
@@ -368,8 +368,8 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
 -          thread_->task_runner(), server_wrapper_.get(), connection_id, agent);
 +  auto client = std::make_unique<DevToolsAgentHostClientImpl>(
 +      thread_->task_runner(), server_wrapper_.get(), connection_id, agent,
-+      ardia_token_mode_ ? socket_factory_.get() : nullptr);
-+  if (ardia_token_mode_ && !client->attached()) {
++      universe_token_mode_ ? socket_factory_.get() : nullptr);
++  if (universe_token_mode_ && !client->attached()) {
 +    Send403(connection_id, "Connection rejected");
 +    return;
 +  }
@@ -384,8 +384,8 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
  
  void DevToolsHttpHandler::OnClose(int connection_id) {
    auto removed_count = connection_to_client_.erase(connection_id);
-+  if (removed_count > 0 && ardia_token_mode_) {
-+    ReportArdiaTokenServer();
++  if (removed_count > 0 && universe_token_mode_) {
++    ReportUniVerseTokenServer();
 +  }
    if (delegate_ && removed_count > 0 &&
        mode_ ==
@@ -394,8 +394,8 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
      const base::FilePath& debug_frontend_dir,
      DevToolsAgentHost::RemoteDebuggingServerMode mode)
      : mode_(mode), delegate_(delegate) {
-+  ardia_token_mode_ = g_ardia_devtools_token_factory &&
-+                      g_ardia_devtools_token_factory(socket_factory.get());
++  universe_token_mode_ = g_universe_devtools_token_factory &&
++                      g_universe_devtools_token_factory(socket_factory.get());
    browser_guid_ =
        delegate_->IsBrowserTargetDiscoverable()
            ? kBrowserUrlPrefix
@@ -403,14 +403,14 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
    server_wrapper_ = std::move(server_wrapper);
    socket_factory_ = std::move(socket_factory);
    server_ip_address_ = std::move(ip_address);
-+  if (ardia_token_mode_) {
-+    ReportArdiaTokenServer();
++  if (universe_token_mode_) {
++    ReportUniVerseTokenServer();
 +  }
  }
  
-+void DevToolsHttpHandler::ReportArdiaTokenServer() {
-+  if (g_ardia_devtools_token_server && socket_factory_) {
-+    g_ardia_devtools_token_server(
++void DevToolsHttpHandler::ReportUniVerseTokenServer() {
++  if (g_universe_devtools_token_server && socket_factory_) {
++    g_universe_devtools_token_server(
 +        socket_factory_.get(), browser_guid_,
 +        server_ip_address_ ? server_ip_address_->port() : 0,
 +        connection_to_client_.size());
@@ -424,8 +424,8 @@ diff --git a/content/browser/devtools/devtools_http_handler.cc b/content/browser
        DevToolsAgentHost::RemoteDebuggingServerMode::kWithApprovalOnly) {
      delegate_->SetActiveWebSocketConnections(connection_to_client_.size());
    }
-+  if (ardia_token_mode_) {
-+    ReportArdiaTokenServer();
++  if (universe_token_mode_) {
++    ReportUniVerseTokenServer();
 +  }
    thread_->task_runner()->PostTask(
        FROM_HERE, base::BindOnce(&ServerWrapper::AcceptWebSocket,
@@ -437,7 +437,7 @@ diff --git a/content/browser/devtools/devtools_http_handler.h b/content/browser/
                           const std::string& host,
                           DevToolsAgentHost::List agent_hosts,
                           bool for_tab);
-+  void OnArdiaRequest(int connection_id,
++  void OnUniVerseRequest(int connection_id,
 +                      const net::HttpServerRequestInfo& info);
    void OnDiscoveryPageRequest(int connection_id);
    void OnFrontendResourceRequest(int connection_id, std::string_view path);
@@ -446,7 +446,7 @@ diff --git a/content/browser/devtools/devtools_http_handler.h b/content/browser/
        DevToolsManagerDelegate::AcceptConnectionResult result);
  
    void DecompressAndSendJsonProtocol(int connection_id);
-+  void ReportArdiaTokenServer();
++  void ReportUniVerseTokenServer();
  
    // Returns the front end url without the host at the beginning.
    std::string GetFrontendURLInternal(
@@ -454,7 +454,7 @@ diff --git a/content/browser/devtools/devtools_http_handler.h b/content/browser/
        const std::string& host);
  
    DevToolsAgentHost::RemoteDebuggingServerMode mode_;
-+  bool ardia_token_mode_ = false;
++  bool universe_token_mode_ = false;
    std::set<std::string> remote_allow_origins_;
    // The thread used by the devtools handler to run server socket.
    std::unique_ptr<base::Thread> thread_;
@@ -465,15 +465,15 @@ diff --git a/content/browser/devtools/devtools_agent_host_impl.cc b/content/brow
  #include <io.h>
  #endif
  
-+#include "ardia/core/ac_content_hooks.h"  // nogncheck
++#include "universe/core/ac_content_hooks.h"  // nogncheck
 +
-+bool (*g_ardia_devtools_may_attach)(content::DevToolsAgentHostClient* root_client,
++bool (*g_universe_devtools_may_attach)(content::DevToolsAgentHostClient* root_client,
 +                                    content::DevToolsAgentHost* host) = nullptr;
-+void (*g_ardia_devtools_session_attached)(
++void (*g_universe_devtools_session_attached)(
 +    content::DevToolsAgentHostClient* root_client,
 +    content::DevToolsAgentHost* host,
 +    const void* session) = nullptr;
-+void (*g_ardia_devtools_session_detached)(const void* session) = nullptr;
++void (*g_universe_devtools_session_detached)(const void* session) = nullptr;
 +
  namespace content {
  
@@ -482,7 +482,7 @@ diff --git a/content/browser/devtools/devtools_agent_host_impl.cc b/content/brow
    return DevToolsAgentHostImpl::GetForId(id);
  }
  
-+DevToolsAgentHost* ArdiaDevToolsAgentHostForId(const std::string& id) {
++DevToolsAgentHost* UniVerseDevToolsAgentHostForId(const std::string& id) {
 +  auto it = GetDevtoolsInstances().find(id);
 +  return it == GetDevtoolsInstances().end() ? nullptr : it->second;
 +}
@@ -494,8 +494,8 @@ diff --git a/content/browser/devtools/devtools_agent_host_impl.cc b/content/brow
        !manager->delegate()->AllowInspectingTarget(this)) {
      return false;
    }
-+  if (g_ardia_devtools_may_attach &&
-+      !g_ardia_devtools_may_attach(session->GetRootSession()->GetClient(),
++  if (g_universe_devtools_may_attach &&
++      !g_universe_devtools_may_attach(session->GetRootSession()->GetClient(),
 +                                   this)) {
 +    return false;
 +  }
@@ -506,8 +506,8 @@ diff --git a/content/browser/devtools/devtools_agent_host_impl.cc b/content/brow
      NotifyAttached();
    if (manager->delegate())
      manager->delegate()->ClientAttached(session);
-+  if (g_ardia_devtools_session_attached) {
-+    g_ardia_devtools_session_attached(session->GetRootSession()->GetClient(),
++  if (g_universe_devtools_session_attached) {
++    g_universe_devtools_session_attached(session->GetRootSession()->GetClient(),
 +                                      this, session);
 +  }
    return true;
@@ -517,8 +517,8 @@ diff --git a/content/browser/devtools/devtools_agent_host_impl.cc b/content/brow
    std::unique_ptr<DevToolsSession> session_owned =
        std::move(session_by_client_[session->GetClient()]);
    DCHECK_EQ(session, session_owned.get());
-+  if (g_ardia_devtools_session_detached) {
-+    g_ardia_devtools_session_detached(session);
++  if (g_universe_devtools_session_detached) {
++    g_universe_devtools_session_detached(session);
 +  }
    // Make sure we dispose session prior to reporting it to the host.
    session->Dispose();
@@ -530,24 +530,24 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
  #include "ui/gfx/geometry/point_f.h"
  #include "ui/gfx/range/range.h"
  
-+#include "ardia/core/ac_content_hooks.h"  // nogncheck
++#include "universe/core/ac_content_hooks.h"  // nogncheck
 +#include "base/trace_event/trace_id_helper.h"
 +#include "content/browser/devtools/devtools_session.h"
 +#include "content/public/browser/web_contents.h"
 +#include "third_party/blink/public/mojom/drag/drag.mojom.h"
 +#include "ui/latency/latency_info.h"
 +
-+bool (*g_ardia_devtools_may_input)(content::DevToolsAgentHostClient* root_client,
++bool (*g_universe_devtools_may_input)(content::DevToolsAgentHostClient* root_client,
 +                                   content::RenderFrameHost* frame) = nullptr;
 +
  namespace content::protocol {
 +
 +namespace {
 +
-+bool ArdiaMayInject(DevToolsSession* session,
++bool UniVerseMayInject(DevToolsSession* session,
 +                    RenderFrameHostImpl* host,
 +                    RenderWidgetHostImpl* widget) {
-+  if (!g_ardia_devtools_may_input) {
++  if (!g_universe_devtools_may_input) {
 +    return true;
 +  }
 +  WebContents* contents = host ? WebContents::FromRenderFrameHost(host) : nullptr;
@@ -560,17 +560,17 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
 +  contents->ForEachRenderFrameHost([&](RenderFrameHost* frame) {
 +    if (frame->GetRenderWidgetHost() == widget) {
 +      found = true;
-+      allowed = allowed && g_ardia_devtools_may_input(client, frame);
++      allowed = allowed && g_universe_devtools_may_input(client, frame);
 +    }
 +  });
 +  return found && allowed;
 +}
 +
 +
-+bool ArdiaRestrictedSession(DevToolsSession* session) {
-+  return g_ardia_devtools_may_input &&
++bool UniVerseRestrictedSession(DevToolsSession* session) {
++  return g_universe_devtools_may_input &&
 +         (!session ||
-+          !g_ardia_devtools_may_input(session->GetRootSession()->GetClient(),
++          !g_universe_devtools_may_input(session->GetRootSession()->GetClient(),
 +                                      nullptr));
 +}
 +
@@ -585,7 +585,7 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
 +    }
 +
 +    if (mouse_event.GetType() == blink::WebInputEvent::Type::kMouseUp) {
-+      owner_->ardia_press_.reset();
++      owner_->universe_press_.reset();
      }
  
      if (owner_->drag_controller_.HandleMouseEvent(*widget_host_, mouse_event,
@@ -607,7 +607,7 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
 +    if (injected_mouse_dispatched_ &&
 +        mouse_event.GetType() == blink::WebInputEvent::Type::kMouseDown &&
 +        mouse_event.button != blink::WebPointerProperties::Button::kNoButton) {
-+      owner_->ardia_press_.emplace(
++      owner_->universe_press_.emplace(
 +          static_cast<RenderWidgetHost*>(widget_host_.get()),
 +          latency.trace_id());
 +    }
@@ -645,7 +645,7 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
      return;
    }
    auto* host = RenderWidgetHostImpl::From(view->GetRenderWidgetHost());
-+  if (!ArdiaMayInject(handler_->session(), handler_->host_, host)) {
++  if (!UniVerseMayInject(handler_->session(), handler_->host_, host)) {
 +    CancelDragging(
 +        base::BindOnce(&FailSafe<DispatchMouseEventCallback>::sendFailure,
 +                       std::move(callback), Response::InvalidParams("Not allowed")));
@@ -658,7 +658,7 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
        widget_host = target_host;
    }
  
-+  if (!ArdiaMayInject(session(), host_, widget_host)) {
++  if (!UniVerseMayInject(session(), host_, widget_host)) {
 +    callback->sendFailure(Response::InvalidParams("Not allowed"));
 +    return;
 +  }
@@ -670,7 +670,7 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
        widget_host = target_host;
    }
  
-+  if (!ArdiaMayInject(session(), host_, widget_host)) {
++  if (!UniVerseMayInject(session(), host_, widget_host)) {
 +    callback->sendFailure(Response::InvalidParams("Not allowed"));
 +    return;
 +  }
@@ -682,7 +682,7 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
    auto point = *maybe_point;
    RenderWidgetHostImpl* widget_host =
        RenderWidgetHostImpl::From(target->GetRenderWidgetHost());
-+  if (!ArdiaMayInject(session(), host_, widget_host)) {
++  if (!UniVerseMayInject(session(), host_, widget_host)) {
 +    callback->sendFailure(Response::InvalidParams("Not allowed"));
 +    return;
 +  }
@@ -704,15 +704,15 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
 +    RenderFrameHost* source_frame,
 +    const blink::mojom::DragEventSourceInfo* event_info,
 +    bool* intercepted) {
-+  if (ArdiaRestrictedSession(session())) {
++  if (UniVerseRestrictedSession(session())) {
 +    const void* source_widget =
 +        source_frame ? source_frame->GetRenderWidgetHost() : nullptr;
-+    if (!source_widget || !event_info || !session() || !ardia_press_ ||
++    if (!source_widget || !event_info || !session() || !universe_press_ ||
 +        event_info->press_event_id == -1 ||
 +        !event_info->trigger_from_debugger ||
-+        *ardia_press_ !=
++        *universe_press_ !=
 +            std::make_pair(source_widget, event_info->press_event_id) ||
-+        !g_ardia_devtools_may_input(session()->GetRootSession()->GetClient(),
++        !g_universe_devtools_may_input(session()->GetRootSession()->GetClient(),
 +                                    source_frame)) {
 +      return;
 +    }
@@ -724,7 +724,7 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
  
    RenderWidgetHostImpl* widget_host =
        RenderWidgetHostImpl::From(target->GetRenderWidgetHost());
-+  if (!ArdiaMayInject(session(), host_, widget_host)) {
++  if (!UniVerseMayInject(session(), host_, widget_host)) {
 +    callback->sendFailure(Response::InvalidParams("Not allowed"));
 +    return;
 +  }
@@ -735,9 +735,9 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
      std::optional<double> timestamp,
      std::unique_ptr<DispatchTouchEventCallback> callback) {
    if (base::FeatureList::IsEnabled(features::kSyntheticPointerActions)) {
-+    if (g_ardia_devtools_may_input &&
++    if (g_universe_devtools_may_input &&
 +        (!session() ||
-+         !g_ardia_devtools_may_input(session()->GetRootSession()->GetClient(),
++         !g_universe_devtools_may_input(session()->GetRootSession()->GetClient(),
 +                                     nullptr))) {
 +      callback->sendFailure(Response::InvalidParams("Not allowed"));
 +      return;
@@ -749,7 +749,7 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
    }
    RenderWidgetHostImpl* widget_host =
        RenderWidgetHostImpl::From(target->GetRenderWidgetHost());
-+  if (!ArdiaMayInject(session(), host_, widget_host)) {
++  if (!UniVerseMayInject(session(), host_, widget_host)) {
 +    callback->sendFailure(Response::InvalidParams("Not allowed"));
 +    return;
 +  }
@@ -760,7 +760,7 @@ diff --git a/content/browser/devtools/protocol/input_handler.cc b/content/browse
  }
  
  void InputHandler::ClearInputState() {
-+  ardia_press_.reset();
++  universe_press_.reset();
    while (!injectors_.empty())
      (*injectors_.begin())->Cleanup();
    // TODO(dgozman): cleanup touch callbacks as well?
@@ -830,7 +830,7 @@ diff --git a/content/browser/devtools/protocol/input_handler.h b/content/browser
    std::optional<content::WebContents::ScopedIgnoreInputEvents>
        scoped_ignore_input_events_;
    bool intercept_drags_ = false;
-+  std::optional<std::pair<const void*, int64_t>> ardia_press_;
++  std::optional<std::pair<const void*, int64_t>> universe_press_;
    DragController drag_controller_;
    const bool allow_file_access_;
    const bool allow_sending_input_to_browser_ = false;

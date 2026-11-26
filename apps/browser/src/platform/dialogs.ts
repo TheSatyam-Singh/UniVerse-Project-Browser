@@ -1,6 +1,6 @@
 import { nativeModule, type ConfirmOptions, type PromptOptions } from "@universe/shell";
 
-const Dialogs = nativeModule("ArdiaDialogs");
+const Dialogs = nativeModule("UniVerseDialogs");
 
 export const confirm = (options: ConfirmOptions) => Dialogs.confirm(options);
 export const prompt = (options: PromptOptions) => Dialogs.prompt(options);

@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import ExpoModulesCore
 
 final class WindowProfileView: ExpoView {
@@ -28,12 +28,12 @@ final class WindowProfileView: ExpoView {
 
   private func apply() {
     guard let window else { return }
-    if applied?.profile != profile { ArdiaChromeWindowHost.showProfile(profile, in: window) }
+    if applied?.profile != profile { UniVerseChromeWindowHost.showProfile(profile, in: window) }
     if let applied, applied.profile != profile || applied.selection != selection {
-      ArdiaWebView.wakeNeighbourPages(in: window)
+      UniVerseWebView.wakeNeighbourPages(in: window)
     }
     if applied?.neighbours != neighbours, !neighbours.isEmpty, let current = self.window {
-      ArdiaChromeWindowHost.prepareProfiles(neighbours, for: current)
+      UniVerseChromeWindowHost.prepareProfiles(neighbours, for: current)
     }
     applied = (profile, neighbours, selection)
   }

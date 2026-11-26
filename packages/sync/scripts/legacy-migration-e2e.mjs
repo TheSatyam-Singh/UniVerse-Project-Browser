@@ -150,7 +150,7 @@ function seedSynthetic(home, secret) {
     roots: { bookmark_bar: { type: "folder", children: [{ type: "url", name: "Downloads", url: `${oldScheme}downloads`, meta_info: { [oldKey("ac_sync_key")]: "bm-7" } }] } },
     version: 1,
   }));
-  writeFileSync(join(oldData, oldPath("Chromium/ArdiaPictureInPicture.plist")), '<?xml version="1.0"?><plist version="1.0"><array><real>320</real></array></plist>');
+  writeFileSync(join(oldData, oldPath("Chromium/UniVersePictureInPicture.plist")), '<?xml version="1.0"?><plist version="1.0"><array><real>320</real></array></plist>');
   mkdirSync(join(chromium, "NativeMessagingHosts"));
   writeFileSync(join(oldData, oldPath("Chromium/NativeMessagingHosts/.universe-managed.json")), "[]");
   mkdirSync(join(chromium, "Default", oldPath("Chromium/*/UniVerse Project Browser Favicons").split("/").pop()));
@@ -174,9 +174,9 @@ function seedSynthetic(home, secret) {
 }
 
 function run(home, data, crashAfter) {
-  const env = { ...process.env, ARDIA_DATA_DIR: data, ARDIA_LEGACY_SOURCE: home };
-  if (crashAfter) env.ARDIA_LEGACY_CRASH_AFTER = crashAfter;
-  else delete env.ARDIA_LEGACY_CRASH_AFTER;
+  const env = { ...process.env, UNIVERSE_DATA_DIR: data, UNIVERSE_LEGACY_SOURCE: home };
+  if (crashAfter) env.UNIVERSE_LEGACY_CRASH_AFTER = crashAfter;
+  else delete env.UNIVERSE_LEGACY_CRASH_AFTER;
   return spawnSync(bin, ["run"], { env, stdio: ["ignore", "ignore", "pipe"] }).status;
 }
 
@@ -203,7 +203,7 @@ function verify(label, data, secret) {
   check(`${label}: connected account`, JSON.parse(readFileSync(join(data, "Connected Accounts.json"), "utf8")).github === "gh-e2e");
   check(`${label}: sync key`, existsSync(join(data, "sync-key-device-e2e")) && statSync(join(data, "sync-key-device-e2e")).size === 32);
   const prefs = domainJSON(join(data, "Preferences", `${NEW_ID}.plist`));
-  check(`${label}: preferences`, prefs.ACAppIcon === "ocean" && prefs["NSWindow Frame ArdiaSettings"] === "1 2 3 4" && prefs.SUAutomaticallyUpdate === false, JSON.stringify(prefs));
+  check(`${label}: preferences`, prefs.ACAppIcon === "ocean" && prefs["NSWindow Frame UniVerseSettings"] === "1 2 3 4" && prefs.SUAutomaticallyUpdate === false, JSON.stringify(prefs));
   const offer = existsSync(join(data, OFFER)) ? JSON.parse(readFileSync(join(data, OFFER), "utf8")) : null;
   check(`${label}: the offer to be the default browser again`, offer?.version === 1 && offer.askedAt === null, JSON.stringify(offer));
   const journal = JSON.parse(readFileSync(join(data, ".legacy-migration.json"), "utf8"));

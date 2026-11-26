@@ -27,7 +27,7 @@ export {
   type AppBadge,
 } from "@universe/universecore";
 
-const Tabs = nativeModule("ArdiaTabs");
+const Tabs = nativeModule("UniVerseTabs");
 
 export const prepareTabTransfer = (tabId: string) => Tabs.prepareTransfer(tabId);
 export const releaseTabTransfer = (tabId: string) => Tabs.releaseTransfer(tabId);

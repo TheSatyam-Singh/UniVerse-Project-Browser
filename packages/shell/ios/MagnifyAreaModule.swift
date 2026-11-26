@@ -4,7 +4,7 @@ import ExpoModulesCore
 
 public class MagnifyAreaModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaMagnifyArea")
+    Name("UniVerseMagnifyArea")
 
     AsyncFunction("devMagnify") { (windowId: String, x: Double, y: Double, steps: [[String: Any]]) -> [String: Any] in
       #if DEBUG

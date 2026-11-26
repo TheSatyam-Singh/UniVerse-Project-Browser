@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Image, Pressable, View } from "react-native";
-import { create } from "zustand";
+import { dismissBeta } from "../../state/ntp/beta";
+import { useBeta } from "../../state/ntp/beta";
 import { newTab } from "../../state/tabs/actions";
 import { Box, IconTile, ink, space, Symbol, Text } from "../ui";
 import { NtpCard, NtpCardSlot, NtpCardSurface, NtpCardTitle, useCardRetire } from "./NtpCard";
@@ -12,17 +13,14 @@ const ISSUES_URL = "https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/
 const FRAME = { width: 282, height: 86 };
 const ICON_SIZE = 36;
 
-type BetaState = { dismissed: boolean; dismiss: () => void };
-const useBeta = create<BetaState>()((set) => ({ dismissed: false, dismiss: () => set({ dismissed: true }) }));
 
 export function BetaBanner({ windowId }: { windowId: string }) {
   const dismissed = useBeta((s) => s.dismissed);
-  const dismiss = useBeta((s) => s.dismiss);
   const [leaving, retire] = useCardRetire();
   if ((dismissed && !leaving)) return null;
   return (
     <NtpCardSlot width={FRAME.width} height={FRAME.height}>
-      <Card leaving={leaving} windowId={windowId} onClose={() => retire(dismiss)} />
+      <Card leaving={leaving} windowId={windowId} onClose={() => retire(dismissBeta)} />
     </NtpCardSlot>
   );
 }

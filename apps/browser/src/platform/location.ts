@@ -2,7 +2,7 @@ import { nativeModule, type LocationPermission } from "@universe/shell";
 
 export type { LocationPermission };
 
-const Location = nativeModule("ArdiaLocation");
+const Location = nativeModule("UniVerseLocation");
 
 export const locationPermission = () => Location.locationPermission();
 export const requestLocationPermission = () => Location.requestLocationPermission();

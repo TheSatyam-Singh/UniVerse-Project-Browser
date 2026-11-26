@@ -13,11 +13,11 @@ if (!(globalThis as { expo?: unknown }).expo) {
   } catch {}
 }
 const modules = (globalThis as { expo?: { modules?: Record<string, Record<string, (...a: unknown[]) => unknown>> } }).expo?.modules;
-const shell = modules?.ArdiaDocuments;
+const shell = modules?.UniVerseDocuments;
 
 const probeOptions = (() => {
   try {
-    const info = modules?.ArdiaApp?.systemInfo?.() as { isolatedInstance?: boolean } | undefined;
+    const info = modules?.UniVerseApp?.systemInfo?.() as { isolatedInstance?: boolean } | undefined;
     if (!info?.isolatedInstance || typeof shell?.readDocument !== "function") return null;
     const file = shell.readDocument("perf-probe");
     return typeof file === "string" ? file : null;

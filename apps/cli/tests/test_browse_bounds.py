@@ -150,7 +150,7 @@ class TextareaFill(unittest.TestCase):
                 return "L"
 
             async def call(self, function, *args, **kwargs):
-                if "ardiaBrowse.info" in function:
+                if "universeBrowse.info" in function:
                     return {"tag": tag, "type": "text" if tag == "input" else None, "editable": True, "disabled": False, "value": ""}
                 return True
 

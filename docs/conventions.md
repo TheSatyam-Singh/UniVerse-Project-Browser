@@ -8,7 +8,7 @@ How UniVerse Project Browser's code is laid out and written. `apps/browser/src/c
 The app and its engine ship together (a release bundles its engine; a dev build fetches the prebuilt engine matching
 its commit's engine key, `engine/engine-key.sh`), so code never tolerates a mismatched engine.
 
-- No `respondsToSelector` guards for ArdiaCore's API, no optional `?.()` native calls, no always-true `isAvailable`
+- No `respondsToSelector` guards for UniVerseCore's API, no optional `?.()` native calls, no always-true `isAvailable`
   checks, no metadata probes, no aliases for old names, no duplicate overloads. Keep `respondsToSelector` only for
   private AppKit or Chromium classes looked up at runtime.
 - What stays: versioned on-disk data migrations (Netnyahoo → UniVerse Project Browser included), the versioned sync payload (a nightly Mac
@@ -181,7 +181,7 @@ writeDocument(DOC, versionedJson(data, VERSION));
   `telemetry-queue.json`, `telemetry-daily.json`, `release-notes.json`, `onboarding.json`,
   `default-browser-offer.json`, `sync.json`, `sync-extensions.json`, `live.json`, `shared-folders.json`, `universe-cli.json`,
   `bangs-state.json`, `Scripts/status.json`, `air-traffic.json` and `link-sources.json` (all 1).
-- Native code reads through `ArdiaSavedDocument` (packages/universecore/ios), with the same rules: `session.json` and
+- Native code reads through `UniVerseSavedDocument` (packages/universecore/ios), with the same rules: `session.json` and
   `onboarding.json` (any version up to the one JS writes; a test pins each) and `launch-layout.json` (4, written and
   read by native code only, so any other version reads as nothing).
 - The sealed sync files carry their own `version` inside the sealed JSON, because they're written apart from
@@ -198,7 +198,7 @@ writeDocument(DOC, versionedJson(data, VERSION));
 - Components are `PascalCase.tsx`; every other module is `camelCase.ts`. Tests sit next to the code as
   `camelCase.test.mjs` (or `PascalCase.test.mjs` for a component).
 - At most 400 lines per TS/TSX file (`apps/browser/src`, `packages/*/src`), 600 per native file (`packages/*/ios`,
-  `engine/ardiacore/src`, `engine/chromium/src`). Tests, fixtures and generated files (`packages/core/src/bangList.ts`,
+  `engine/universecore/src`, `engine/chromium/src`). Tests, fixtures and generated files (`packages/core/src/bangList.ts`,
   `packages/demo/src/shims/web/symbols/data.ts`, `apps/browser/src/lib/emojiData.ts` from `apps/browser/scripts/emoji-data.mjs`)
   are exempt, and so is `packages/universecore/ios/page_script.js`: it is
   injected as one closure into every frame, and its helpers share builtins captured before page code runs, so
@@ -213,12 +213,12 @@ writeDocument(DOC, versionedJson(data, VERSION));
 ## Names
 
 - App-side ObjC classes and their files are `UniVerse Project Browser<Thing>`; Swift types use plain names (the module namespaces them).
-- The engine's exported ObjC API is `ArdiaCore*`; engine C/C++ is `ac_*`.
-- No `Cef*`/`CEF`/`cef` names, no `AC*` or app-side `ArdiaCore*` classes in `packages/*/ios`.
+- The engine's exported ObjC API is `UniVerseCore*`; engine C/C++ is `ac_*`.
+- No `Cef*`/`CEF`/`cef` names, no `AC*` or app-side `UniVerseCore*` classes in `packages/*/ios`.
 - No `Netnyahoo` or `NN*` names outside migration code (`LegacyMigration.swift`, `legacy.ts`, `*Migration.swift`,
   `*migrations.ts`).
 
-## Translation layer (JS ↔ Expo modules ↔ ArdiaCore ↔ `ac_*`)
+## Translation layer (JS ↔ Expo modules ↔ UniVerseCore ↔ `ac_*`)
 
 - **One way to call the engine:** `engine.call("downloads.pause", args)`, typed from one table
   (`packages/universecore/src/engine/api.ts`); native dispatches by name to the matching `ac_*` call. Only secrets
@@ -233,17 +233,17 @@ writeDocument(DOC, versionedJson(data, VERSION));
   adopt ids and Chrome's int tab ids stay internal, resolved by one native registry. Per-tab operations live on the
   tab's API.
 - **One `PageEngine` protocol** for the Chromium and WebKit page engines: same method names, one event table.
-- **One Expo module per domain** (`ArdiaTabs`, `ArdiaDownloads`, `ArdiaExtensions`, `ArdiaProfiles`,
-  `ArdiaPermissions`, `ArdiaWindows`, `ArdiaMenus`, `ArdiaSystem`, …), each in `<Domain>Module.swift`, registered as
+- **One Expo module per domain** (`UniVerseTabs`, `UniVerseDownloads`, `UniVerseExtensions`, `UniVerseProfiles`,
+  `UniVersePermissions`, `UniVerseWindows`, `UniVerseMenus`, `UniVerseSystem`, …), each in `<Domain>Module.swift`, registered as
   `UniVerse Project Browser<Domain>`.
-- ArdiaShell links ArdiaCore directly and calls it with types: no selector strings or string notifications between
+- UniVerseShell links UniVerseCore directly and calls it with types: no selector strings or string notifications between
   them.
 - **One authority per rule:** the engine's off-the-record flag alone decides private profiles; one helper builds
   profile directory names.
 
 ## Environment variables
 
-Read once, in one place: `ArdiaLaunchConfig` (`packages/universecore/ios`) reads the environment at start and JS gets it
+Read once, in one place: `UniVerseLaunchConfig` (`packages/universecore/ios`) reads the environment at start and JS gets it
 from `platform/launchConfig.ts`. No `getenv`, `ProcessInfo…environment`, `base::Environment` or `process.env` anywhere
 else in app or engine code (scripts and tests outside the app runtime are free to). The engine reads command-line
 switches, never the environment: the app passes `--universe-test=<list>`, `--universe-trace=<list>`,
@@ -254,21 +254,21 @@ still counts:
 
 | File | Read | Why |
 | --- | --- | --- |
-| `engine/ardiacore/src/ardia/core/ac_main_delegate.cc` | `base::Environment` in `EnvironmentThatOpensTheProfile` and `KeepRealProfileClosed` (2 lines, 3 reads) | The profile gate checks for `SSLKEYLOGFILE` and unsets it outside a mock-keychain instance, so nothing records the TLS keys of the real profile. It guards against the environment, so it has to read it. |
-| `engine/chromium/src/chrome/browser/ardia/ac_scripts_policy.cc` | `getenv("HOME")` | Expands `~` in a user script path the way the shell does. |
+| `engine/universecore/src/universe/core/ac_main_delegate.cc` | `base::Environment` in `EnvironmentThatOpensTheProfile` and `KeepRealProfileClosed` (2 lines, 3 reads) | The profile gate checks for `SSLKEYLOGFILE` and unsets it outside a mock-keychain instance, so nothing records the TLS keys of the real profile. It guards against the environment, so it has to read it. |
+| `engine/chromium/src/chrome/browser/universe/ac_scripts_policy.cc` | `getenv("HOME")` | Expands `~` in a user script path the way the shell does. |
 
 | Variable | Value | What it does |
 | --- | --- | --- |
-| `ARDIA_DATA_DIR` | path | The instance's data directory |
-| `ARDIA_BACKGROUND` | `1` | Hidden instance: never activates, windows sit behind the owner's |
-| `ARDIA_REMOTE_DEBUGGING_PORT` | port | CDP port |
-| `ARDIA_INSTANCE` | `key=value,…` | The few other instance settings (downloads dir, update feed, extra Chromium switches, …) |
-| `ARDIA_SWITCHES` | `name=on,…` | The only feature toggle, backed by the registry `platform/killSwitches.ts`: kill switches (on by default, at most 8) and experiments (off by default), each with an owner and `removeBy` |
-| `ARDIA_TRACE` | `pip,visibility,…` | Trace logging per area |
-| `ARDIA_TEST` | `keychain=file,reauth=granted,…` | All test fakes and fixtures |
-| `ARDIA_FEEDBACK_URL` | URL | Where Report a Problem sends (`https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/api/feedback` otherwise); the `universe` CLI reads the same variable (`docs/feedback.md`) |
+| `UNIVERSE_DATA_DIR` | path | The instance's data directory |
+| `UNIVERSE_BACKGROUND` | `1` | Hidden instance: never activates, windows sit behind the owner's |
+| `UNIVERSE_REMOTE_DEBUGGING_PORT` | port | CDP port |
+| `UNIVERSE_INSTANCE` | `key=value,…` | The few other instance settings (downloads dir, update feed, extra Chromium switches, …) |
+| `UNIVERSE_SWITCHES` | `name=on,…` | The only feature toggle, backed by the registry `platform/killSwitches.ts`: kill switches (on by default, at most 8) and experiments (off by default), each with an owner and `removeBy` |
+| `UNIVERSE_TRACE` | `pip,visibility,…` | Trace logging per area |
+| `UNIVERSE_TEST` | `keychain=file,reauth=granted,…` | All test fakes and fixtures |
+| `UNIVERSE_FEEDBACK_URL` | URL | Where Report a Problem sends (`https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/api/feedback` otherwise); the `universe` CLI reads the same variable (`docs/feedback.md`) |
 
-- `ARDIA_TEST` and `ARDIA_TRACE` work only in a test instance (not signed for distribution, a scratch data dir, the
+- `UNIVERSE_TEST` and `UNIVERSE_TRACE` work only in a test instance (not signed for distribution, a scratch data dir, the
   mock keychain); a release build ignores them and logs that once. CDP, argv and extra switches reach Chrome only with
   the mock keychain.
 - An experiment ends by keeping the winning path and deleting the other branch and its toggle. One still being tried
@@ -292,7 +292,7 @@ still counts:
 | `store-shape` | a zustand store not created as `create<T>()(() => init)` (a `set`/`get` creator, or the uncurried form) |
 | `size` | a file over its line cap |
 | `env` | an environment read outside the launch config and the three exempt engine lines |
-| `naming` | a `Cef`, `AC*`/app-side `ArdiaCore*`, `Netnyahoo` or `NN*` name |
+| `naming` | a `Cef`, `AC*`/app-side `UniVerseCore*`, `Netnyahoo` or `NN*` name |
 | `comments` | a comment that isn't a license header or tool directive |
 | `file-names` | a file name breaking the PascalCase/camelCase rule |
 

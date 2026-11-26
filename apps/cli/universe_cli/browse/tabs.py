@@ -33,7 +33,7 @@ def control_socket(state) -> Path | None:
     if getattr(found, "explicit", True) is False:
         return control.announce_path(source)
     root = endpoints.explicit_data_root(state.config.get("data_dir")) if state.config.get("data_dir") else None
-    if root is None or not source.startswith(("--port", "ARDIA_PORT")):
+    if root is None or not source.startswith(("--port", "UNIVERSE_PORT")):
         return None
     return root / control.SOCKET_FILE
 

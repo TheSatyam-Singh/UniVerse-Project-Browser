@@ -48,4 +48,4 @@ export type ReportNative = {
 
 export type ReportVideoProps = ViewProps & { path: string | null; playing: boolean };
 
-export const ReportVideo = requireNativeViewManager<ReportVideoProps>("ArdiaReport");
+export const ReportVideo = requireNativeViewManager<ReportVideoProps>("UniVerseReport");

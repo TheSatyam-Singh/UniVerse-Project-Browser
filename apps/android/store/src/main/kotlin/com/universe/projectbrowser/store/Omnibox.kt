@@ -25,7 +25,7 @@ class Omnibox(
     private val workDispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val clock: StoreClock = StoreClock.system,
 ) : AutoCloseable {
-    private val ownedThread = if (scriptDispatcher == null) Executors.newSingleThreadExecutor { Thread(it, "ArdiaOmnibox") }.asCoroutineDispatcher() else null
+    private val ownedThread = if (scriptDispatcher == null) Executors.newSingleThreadExecutor { Thread(it, "UniVerseOmnibox") }.asCoroutineDispatcher() else null
     private val scriptDispatcher: CoroutineDispatcher = scriptDispatcher ?: ownedThread!!
     private val closeLock = Any()
     private var loadedScript: CoreScript? = null

@@ -180,7 +180,7 @@ private fun ShareActions(model: ShareSheetModel) {
                 title = stringResource(if (model.opensPage) R.string.share_open_in_universe else R.string.share_search_in_universe),
                 icon = if (model.opensPage) UniVerseSymbols.arrowUpForwardAppFill else UniVerseSymbols.magnifyingglass,
                 modifier = Modifier.testTag(ShareTags.OPEN),
-                onClick = model::openInArdia,
+                onClick = model::openInUniVerse,
             )
         }
         val targets = model.sendTargets

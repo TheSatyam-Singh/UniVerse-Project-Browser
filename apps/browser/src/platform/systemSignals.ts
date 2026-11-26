@@ -3,8 +3,8 @@ import { nativeModule, type MovedDownload, type SystemSignal } from "@universe/s
 
 export type { MovedDownload };
 
-let bound: ReturnType<typeof nativeModule<"ArdiaSystemSignals">> | null = null;
-const Signals = () => (bound ??= nativeModule("ArdiaSystemSignals"));
+let bound: ReturnType<typeof nativeModule<"UniVerseSystemSignals">> | null = null;
+const Signals = () => (bound ??= nativeModule("UniVerseSystemSignals"));
 
 const sleepListeners = new Set<() => void>();
 const wakeListeners = new Set<() => void>();

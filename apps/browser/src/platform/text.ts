@@ -2,4 +2,4 @@ import { nativeModule } from "@universe/shell";
 
 export { completeInline, translation } from "@universe/shell";
 
-export const startDictation = () => nativeModule("ArdiaShell").startDictation();
+export const startDictation = () => nativeModule("UniVerseShell").startDictation();

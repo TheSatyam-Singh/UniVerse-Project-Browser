@@ -1,4 +1,4 @@
-import ArdiaDesign
+import UniVerseDesign
 import Foundation
 import Observation
 
@@ -58,21 +58,21 @@ final class AppSettings {
 
   static func launch() -> AppSettings {
     let arguments = ProcessInfo.processInfo.arguments
-    let isDemo = arguments.contains("-ArdiaDemo") || UserDefaults.standard.bool(forKey: "ArdiaDemo")
+    let isDemo = arguments.contains("-UniVerseDemo") || UserDefaults.standard.bool(forKey: "UniVerseDemo")
     guard isDemo, let demo = UserDefaults(suiteName: demoSuite) else { return AppSettings(defaults: .standard) }
     demo.removePersistentDomain(forName: demoSuite)
     let settings = AppSettings(
       defaults: demo,
-      finishedOnboarding: !arguments.contains("-ArdiaOnboarding")
+      finishedOnboarding: !arguments.contains("-UniVerseOnboarding")
     )
-    if arguments.contains("-ArdiaRestingStart") { settings.autoOpensKeyboard = false }
-    if let index = arguments.firstIndex(of: "-ArdiaColor"), arguments.indices.contains(index + 1) {
+    if arguments.contains("-UniVerseRestingStart") { settings.autoOpensKeyboard = false }
+    if let index = arguments.firstIndex(of: "-UniVerseColor"), arguments.indices.contains(index + 1) {
       settings.colorChoice = arguments[index + 1]
     }
-    if let index = arguments.firstIndex(of: "-ArdiaInterfaceStyle"), arguments.indices.contains(index + 1) {
+    if let index = arguments.firstIndex(of: "-UniVerseInterfaceStyle"), arguments.indices.contains(index + 1) {
       settings.interfaceStyle = InterfaceStyle(rawValue: arguments[index + 1]) ?? .matchMac
     }
-    if let index = arguments.firstIndex(of: "-ArdiaColorScheme"), arguments.indices.contains(index + 1) {
+    if let index = arguments.firstIndex(of: "-UniVerseColorScheme"), arguments.indices.contains(index + 1) {
       settings.schemeChoice = SchemeChoice(rawValue: arguments[index + 1]) ?? .matchMac
     }
     return settings

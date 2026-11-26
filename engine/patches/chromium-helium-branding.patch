@@ -15,7 +15,7 @@ icons already replaced from universe_resources.txt); it covers what those can't 
 - screenshots save as universe_screenshot*.png; the Web Store's button says "Add to UniVerse Project Browser";
 - chrome://flags: descriptions say UniVerse Project Browser, Helium's flag ids are universe-*, and the updater channel and update server
   flags are gone (the app has its own updater), as are the Proxy server and Proxy bypass list flags (on a real profile
-  ArdiaCore drops --proxy-server from the browser's command line, after chrome://flags apply);
+  UniVerseCore drops --proxy-server from the browser's command line, after chrome://flags apply);
 - cr:chrome-product is UniVerse Project Browser's mark (traced from docs/brand/universe/source/mark-small.png), as are the product
   vector icons and logos universe_resources.txt copies in;
 - Helium's indigo palette is undone (helium-color-scheme.patch reversed): chrome:// pages and dialogs use

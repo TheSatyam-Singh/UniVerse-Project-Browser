@@ -16,7 +16,7 @@ class LaunchAndPagerTest {
     fun launchArgumentsParseTheIphoneNamesFromExtrasOfAnyType() {
         val launch = LaunchArguments.parse(
             mapOf(
-                "ArdiaDemo" to "YES",
+                "UniVerseDemo" to "YES",
                 "BrowseQuery" to "pastéis de nata",
                 "BrowseSurface" to "browsing",
                 "BrowseTab" to 3,
@@ -24,12 +24,12 @@ class LaunchAndPagerTest {
                 "BrowseReader" to "1",
                 "BrowseIncognito" to false,
                 "BrowseDelay" to "2.5",
-                "ArdiaDeck" to "deck,wait:1,close",
-                "ArdiaOnboarding" to "YES",
-                "ArdiaOpenSheet" to "spaces",
+                "UniVerseDeck" to "deck,wait:1,close",
+                "UniVerseOnboarding" to "YES",
+                "UniVerseOpenSheet" to "spaces",
                 "BrowsePlus" to true,
                 "BrowseOverlay" to "wiki",
-                "ArdiaRestingStart" to true,
+                "UniVerseRestingStart" to true,
                 "BrowsePagerFreeze" to "-0.4",
                 "BrowsePagerScript" to true,
                 "BrowseLoadFreeze" to 0.6,
@@ -58,7 +58,7 @@ class LaunchAndPagerTest {
 
     @Test
     fun motionCaptureArgumentsOnlyCountInDemoModeAndDefaultsHold() {
-        val launch = LaunchArguments.parse(mapOf("BrowsePagerFreeze" to "0.5", "BrowsePagerScript" to true, "ArdiaDemo" to "NO"))
+        val launch = LaunchArguments.parse(mapOf("BrowsePagerFreeze" to "0.5", "BrowsePagerScript" to true, "UniVerseDemo" to "NO"))
         assertFalse(launch.isDemo)
         assertNull(launch.pagerFreeze)
         assertFalse(launch.pagerScript)

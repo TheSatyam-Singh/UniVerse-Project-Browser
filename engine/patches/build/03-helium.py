@@ -50,7 +50,7 @@ SKIP = {
     'ungoogled-chromium/fix-building-without-mdns-and-service-discovery.patch':
         'empties DnsSdDeviceLister; the Cast dialog needs mDNS (enable_mdns stays true)',
     'helium/macos/change-keychain-name.patch':
-        'renames the Safe Storage item; every user\'s passwords and cookies are encrypted with "Ardia Safe Storage"',
+        'renames the Safe Storage item; every user\'s passwords and cookies are encrypted with "UniVerse Safe Storage"',
     'helium/macos/change-product-dir-name.patch': 'moves the fallback product dir to net.imput.helium',
     'rebel/macos/sparkle-integration.patch': 'Sparkle inside the framework; the app has its own updater',
     'helium/macos/updater/fixup-sparkle-glue.patch': 'Sparkle inside the framework',

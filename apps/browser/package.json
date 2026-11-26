@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "dev": "react-native start",
-    "macos": "xcodebuild -workspace macos/UniVerse-Project-Browser.xcworkspace -scheme UniVerse-macOS -derivedDataPath build -destination 'platform=macOS,arch=arm64' -quiet -configuration Debug && open -n --env ARDIA_DATA_DIR=\"${ARDIA_DATA_DIR:-$HOME/Library/Application Support/UniVerse Project Browser Dev}\" build/Build/Products/Debug/UniVerse-Project-Browser.app",
+    "macos": "xcodebuild -workspace macos/UniVerse-Project-Browser.xcworkspace -scheme UniVerse-macOS -derivedDataPath build -destination 'platform=macOS,arch=arm64' -quiet -configuration Debug && open -n --env UNIVERSE_DATA_DIR=\"${UNIVERSE_DATA_DIR:-$HOME/Library/Application Support/UniVerse Project Browser Dev}\" build/Build/Products/Debug/UniVerse-Project-Browser.app",
     "pods": "cd macos && pod install",
     "build": "xcodebuild -workspace macos/UniVerse-Project-Browser.xcworkspace -scheme UniVerse-macOS -derivedDataPath build -destination 'platform=macOS,arch=arm64' -quiet -configuration Release",
     "typecheck": "tsc -p .",

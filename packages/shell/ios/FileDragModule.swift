@@ -5,7 +5,7 @@ import ServiceManagement
 
 public class FileDragModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaFileDrag")
+    Name("UniVerseFileDrag")
 
     View(FileDragView.self) {
       Events("onMiddleClick")

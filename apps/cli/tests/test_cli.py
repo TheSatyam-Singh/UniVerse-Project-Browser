@@ -18,7 +18,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from universe_cli import automation_cli, browsing, cli, endpoint
 
 SCRATCH = Path.home() / "universe-scratch"
-ENV_NAMES = ("ARDIA_PORT", "ARDIA_WS", "ARDIA_CDP_URL", "ARDIA_DATA_DIR", "AGENT_BROWSER_CDP")
+ENV_NAMES = ("UNIVERSE_PORT", "UNIVERSE_WS", "UNIVERSE_CDP_URL", "UNIVERSE_DATA_DIR", "AGENT_BROWSER_CDP")
 
 
 def scratch_dir() -> Path:
@@ -130,17 +130,17 @@ class Browse(unittest.TestCase):
         self.assertEqual(self.browse("--json", "--data-dir", "/d", "browse", "get", "url"), ["--json", "--data-dir", "/d", "get", "url"])
 
     def test_env_fills_in_when_no_flag(self):
-        self.assertEqual(self.browse("browse", "snapshot", ARDIA_PORT="9351"), ["--port", "9351", "snapshot"])
-        self.assertEqual(self.browse("browse", "snapshot", ARDIA_WS="ws://h/devtools/browser/x", ARDIA_PORT="9351"), ["--ws", "ws://h/devtools/browser/x", "snapshot"])
+        self.assertEqual(self.browse("browse", "snapshot", UNIVERSE_PORT="9351"), ["--port", "9351", "snapshot"])
+        self.assertEqual(self.browse("browse", "snapshot", UNIVERSE_WS="ws://h/devtools/browser/x", UNIVERSE_PORT="9351"), ["--ws", "ws://h/devtools/browser/x", "snapshot"])
 
     def test_flag_beats_env(self):
         for argv in (["--port", "1", "browse", "snapshot"], ["browse", "snapshot", "--port", "1"], ["browse", "--cdp", "1", "snapshot"], ["browse", "--ws", "ws://h/devtools/browser/x", "snapshot"]):
-            got = self.browse(*argv, ARDIA_PORT="9351", ARDIA_WS="ws://e/devtools/browser/y")
+            got = self.browse(*argv, UNIVERSE_PORT="9351", UNIVERSE_WS="ws://e/devtools/browser/y")
             self.assertNotIn("9351", got, argv)
             self.assertNotIn("ws://e/devtools/browser/y", got, argv)
 
     def test_command_owned_port_is_not_the_endpoint(self):
-        self.assertEqual(self.browse("browse", "stream", "enable", "--port", "9000", ARDIA_PORT="9351"), ["--port", "9351", "stream", "enable", "--port", "9000"])
+        self.assertEqual(self.browse("browse", "stream", "enable", "--port", "9000", UNIVERSE_PORT="9351"), ["--port", "9351", "stream", "enable", "--port", "9000"])
 
     def test_flags_browse_doesnt_take(self):
         with clean_env():
@@ -155,17 +155,17 @@ class Resolve(unittest.TestCase):
             return endpoint.resolve(ws=ws, port=port)
 
     def test_precedence(self):
-        env = {"ARDIA_WS": "ws://e", "ARDIA_PORT": "2", "ARDIA_CDP_URL": "ws://c"}
+        env = {"UNIVERSE_WS": "ws://e", "UNIVERSE_PORT": "2", "UNIVERSE_CDP_URL": "ws://c"}
         self.assertEqual(self.resolved(ws="ws://f", **env), ("ws", "ws://f", "--ws"))
         self.assertEqual(self.resolved(port=1, **env), ("port", 1, "--port"))
-        self.assertEqual(self.resolved(**env), ("ws", "ws://e", "ARDIA_WS"))
-        self.assertEqual(self.resolved(ARDIA_PORT="2", ARDIA_CDP_URL="ws://c"), ("port", 2, "ARDIA_PORT"))
-        self.assertEqual(self.resolved(ARDIA_CDP_URL="ws://c"), ("ws", "ws://c", "ARDIA_CDP_URL"))
+        self.assertEqual(self.resolved(**env), ("ws", "ws://e", "UNIVERSE_WS"))
+        self.assertEqual(self.resolved(UNIVERSE_PORT="2", UNIVERSE_CDP_URL="ws://c"), ("port", 2, "UNIVERSE_PORT"))
+        self.assertEqual(self.resolved(UNIVERSE_CDP_URL="ws://c"), ("ws", "ws://c", "UNIVERSE_CDP_URL"))
 
     def test_bad_env_port(self):
         with self.assertRaises(endpoint.EndpointError) as caught:
-            self.resolved(ARDIA_PORT="nine")
-        self.assertIn("ARDIA_PORT must be a port number", str(caught.exception))
+            self.resolved(UNIVERSE_PORT="nine")
+        self.assertIn("UNIVERSE_PORT must be a port number", str(caught.exception))
 
 
 class RemovedExec(unittest.TestCase):
@@ -250,7 +250,7 @@ class BrowsingCommands(unittest.TestCase):
         connection.close()
 
     def cli(self, *argv):
-        with clean_env(ARDIA_DATA_DIR=str(self.data)):
+        with clean_env(UNIVERSE_DATA_DIR=str(self.data)):
             return run_cli(*argv)
 
     def test_pinned_json(self):

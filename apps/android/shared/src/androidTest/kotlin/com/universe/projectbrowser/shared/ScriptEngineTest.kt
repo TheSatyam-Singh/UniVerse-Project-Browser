@@ -18,11 +18,11 @@ class ScriptEngineTest {
             assets,
             listOf(SharedScript.SYNC, SharedScript.CORE),
             listOf(
-                "ArdiaSync.__probe = async (n) => { const listing = await __host.read(JSON.stringify(n)); return { n, listing: JSON.parse(listing) }; };",
-                "ArdiaSync.__fail = async () => { await null; throw new Error('nope'); };",
-                "ArdiaSync.__never = () => new Promise(() => {});",
-                "ArdiaSync.__hostThrows = () => { try { __host.boom(); return 'no'; } catch (e) { return String(e.message); } };",
-                "ArdiaSync.__text = (s) => s + '\\u00e9\\ud83d\\ude00';",
+                "UniVerseSync.__probe = async (n) => { const listing = await __host.read(JSON.stringify(n)); return { n, listing: JSON.parse(listing) }; };",
+                "UniVerseSync.__fail = async () => { await null; throw new Error('nope'); };",
+                "UniVerseSync.__never = () => new Promise(() => {});",
+                "UniVerseSync.__hostThrows = () => { try { __host.boom(); return 'no'; } catch (e) { return String(e.message); } };",
+                "UniVerseSync.__text = (s) => s + '\\u00e9\\ud83d\\ude00';",
             ),
         ).use { engine ->
             engine.register("read") { args -> "{\"echo\":${args[0]}}" }
@@ -40,7 +40,7 @@ class ScriptEngineTest {
 
     @Test
     fun letInALoopGetsItsOwnBindingInBytecodeAndSource() {
-        ScriptEngine(assets, listOf(SharedScript.SYNC), listOf("ArdiaSync.__loop = () => { const f = []; for (let i = 0; i < 3; i++) f.push(() => i); return f.map((g) => g()); };")).use { engine ->
+        ScriptEngine(assets, listOf(SharedScript.SYNC), listOf("UniVerseSync.__loop = () => { const f = []; for (let i = 0; i < 3; i++) f.push(() => i); return f.map((g) => g()); };")).use { engine ->
             assertEquals("[0,1,2]", engine.call(SharedScript.SYNC, "__loop"))
         }
     }

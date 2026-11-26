@@ -35,9 +35,9 @@ field() {
 port="$(python3 -c 'import socket; s = socket.socket(); s.bind(("127.0.0.1", 0)); print(s.getsockname()[1])')"
 python3 -m http.server "$port" --bind 127.0.0.1 --directory "$root/apps/cli/tests/fixtures/browse" >/dev/null 2>&1 &
 server=$!
-open -g -n --env ARDIA_BACKGROUND=1 --env "ARDIA_DATA_DIR=$data" ${metro:+--env "ARDIA_INSTANCE=jsLocation=$metro"} \
+open -g -n --env UNIVERSE_BACKGROUND=1 --env "UNIVERSE_DATA_DIR=$data" ${metro:+--env "UNIVERSE_INSTANCE=jsLocation=$metro"} \
   --stdout "$data/app.out.log" --stderr "$data/app.out.log" "$app"
-control="$data/Chromium/ArdiaControl.json"
+control="$data/Chromium/UniVerseControl.json"
 for _ in $(seq 1 300); do [ -s "$control" ] && break; sleep 0.2; done
 [ -s "$control" ] || { echo "FAIL  the universe command's token server starts  (no $control after 60 s)"; exit 1; }
 pid="$(field pid <"$control")"

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-globalThis.acTestNativeModules = { ArdiaSharedFolders: { location: () => ({ path: "/scratch", iCloudAvailable: true, iCloudPath: "/scratch" }) } };
+globalThis.acTestNativeModules = { UniVerseSharedFolders: { location: () => ({ path: "/scratch", iCloudAvailable: true, iCloudPath: "/scratch" }) } };
 const { useBrowser } = await import("../browser/store.ts");
 const { tabMenuItems } = await import("./tabMenu.ts");
 const { multiTabMenuItems } = await import("./multiTabMenu.ts");
@@ -232,7 +232,7 @@ test("a group's colour menu: None, Neutral, the site's colour, then the palette;
   const g = S().groupTabs([ids[1]], { name: "G", pinned: false });
   const items = groupMenuItems(S(), w, g);
   assert.deepEqual(sub(items, "color").slice(0, 4), ["None", "Neutral ✓", "Match Site Color (off)", "---"]);
-  const shell = shellNativeModules.ArdiaMenus;
+  const shell = shellNativeModules.UniVerseMenus;
   const real = shell.showMenu;
   shell.showMenu = (shown) => Promise.resolve(shown.find((it) => it.id === "color").children.find((it) => it.title === "Blue").id);
   try {
@@ -245,7 +245,7 @@ test("a group's colour menu: None, Neutral, the site's colour, then the palette;
 
 test("Move to Window › New Window moves the tab to a new window", async () => {
   const { w, ids } = windowWith("a", "b");
-  const shell = shellNativeModules.ArdiaMenus;
+  const shell = shellNativeModules.UniVerseMenus;
   const real = shell.showMenu;
   shell.showMenu = (shown) => Promise.resolve(shown.find((it) => it.id === "moveToWindow").children.at(-1).id);
   try {
@@ -288,7 +288,7 @@ test("the sidebar background menu: new things, then the sidebar toggles, Close A
 
 test("the sidebar background menu: Notes opens the notes panel", async () => {
   const { w } = windowWith("a");
-  const shell = shellNativeModules.ArdiaMenus;
+  const shell = shellNativeModules.UniVerseMenus;
   const real = shell.showMenu;
   shell.showMenu = () => Promise.resolve("notes");
   try {
@@ -313,7 +313,7 @@ test("a rebound key moves the hint with it, and an alternate keeps its pair only
 });
 
 async function whileMenuIsUp(open, meanwhile, choice) {
-  const shell = shellNativeModules.ArdiaMenus;
+  const shell = shellNativeModules.UniVerseMenus;
   const real = shell.showMenu;
   let pick;
   shell.showMenu = () => new Promise((resolve) => (pick = resolve));

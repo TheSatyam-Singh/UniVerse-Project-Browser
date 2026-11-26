@@ -14,12 +14,12 @@ apps/ios/
   App/                         the app target (a synchronized folder: new files need no project change)
   Widgets/                     the widget extension
   Share/                       the share extension
-  Action/                      the Open in UniVerse Project Browser action extension (target ArdiaOpen)
-  Packages/ArdiaKit/           the app's logic, a Swift package testable on the Mac host (`swift test`)
-    Sources/ArdiaShared        JavaScriptCore runtime for the TypeScript shared with the Mac
-    Sources/ArdiaSync          the sync device: folder access, keys, the cycle, the synced snapshot
-    Sources/ArdiaBrowser       tabs, history, archive, SwiftData models, WebKit, content blocking, omnibox
-    Sources/ArdiaDesign        design tokens and shared SwiftUI components
+  Action/                      the Open in UniVerse Project Browser action extension (target UniVerseOpen)
+  Packages/UniVerseKit/           the app's logic, a Swift package testable on the Mac host (`swift test`)
+    Sources/UniVerseShared        JavaScriptCore runtime for the TypeScript shared with the Mac
+    Sources/UniVerseSync          the sync device: folder access, keys, the cycle, the synced snapshot
+    Sources/UniVerseBrowser       tabs, history, archive, SwiftData models, WebKit, content blocking, omnibox
+    Sources/UniVerseDesign        design tokens and shared SwiftUI components
   scripts/bundle-shared.mjs    bundles packages/sync and packages/core for JavaScriptCore
   scripts/asc.mjs              App Store Connect client for the TestFlight release
 ```
@@ -34,7 +34,7 @@ Targets: iOS 27, iPhone only, Swift 6 with strict concurrency. The app target de
 - **TypeScript.** The merge (`packages/sync/src/scope.ts`, `hlc.ts`, `canon.ts`, `order.ts`) and the omnibox
   (`packages/core/src`: URL fixup, search engines, bangs, calculator, suggestions) run in JavaScriptCore.
   `node apps/ios/scripts/bundle-shared.mjs` strips the types (Node's own `stripTypeScriptTypes`, no dependencies) and
-  writes `ardia-sync.js` and `ardia-core.js` into `ArdiaShared/Scripts`. The bundles are checked in, so Xcode needs no
+  writes `universe-sync.js` and `universe-core.js` into `UniVerseShared/Scripts`. The bundles are checked in, so Xcode needs no
   Node; `--check` fails when one is out of date, and the sync and core test scripts run it. The entries are
   `packages/sync/src/companion/index.ts` (the iPhone's adapters and cycle) and `packages/core/src/mobile.ts`.
   The bundler handles the import and export forms these packages use; it refuses any other.
@@ -85,7 +85,7 @@ the folder or the Mac's format changes, and a Mac that has never heard of the iP
 Arc Search's shape, measured from its App Store screenshots, preview videos and a teardown of version 1.49 (springs,
 sizes, copy), on Apple's controls, in the Mac's colours:
 
-- **Colours.** `ProfileLook` (`ArdiaDesign`) is the Mac's profile look: its nine profile colours with their swatches
+- **Colours.** `ProfileLook` (`UniVerseDesign`) is the Mac's profile look: its nine profile colours with their swatches
   (plum is the default, as on the Mac) and the Mac's window tint for each (`windowTint`, the same sums as
   `lib/windowTint.ts`, checked against the Mac's values in `ProfileLookTests`). Settings › Appearance › Color picks one
   of the nine, as the Mac's theme editor does; with sync on, Match My Mac (the default) follows the selected profile's
@@ -219,18 +219,18 @@ sizes, copy), on Apple's controls, in the Mac's colours:
 
 ## Demo mode and launch arguments
 
-`-ArdiaDemo YES` runs on an in-memory store with `SyncSnapshot.demo` (a MacBook Pro and a Mac Studio, three
-spaces: Personal, Work with its own phone tabs, and Side Project) and never touches real data. `-ArdiaSpace <name>`
+`-UniVerseDemo YES` runs on an in-memory store with `SyncSnapshot.demo` (a MacBook Pro and a Mac Studio, three
+spaces: Personal, Work with its own phone tabs, and Side Project) and never touches real data. `-UniVerseSpace <name>`
 starts in that space. Captures can be driven without touch:
 `-BrowseQuery <text>`, `-BrowseSurface browsing`, `-BrowseTab <n>`, `-BrowseToolbar`, `-BrowseReader`,
-`-BrowseIncognito`, `-BrowseDelay <s>`, `-ArdiaDeck <script>`, `-ArdiaOnboarding YES`,
-`-ArdiaOpenSheet archive|spaces`, `-BrowsePlus` (taps the plus after twice the delay),
+`-BrowseIncognito`, `-BrowseDelay <s>`, `-UniVerseDeck <script>`, `-UniVerseOnboarding YES`,
+`-UniVerseOpenSheet archive|spaces`, `-BrowsePlus` (taps the plus after twice the delay),
 `-BrowseOverlay <text>` (search over the page), `-BrowseCollapsed` (the bar collapsed to its pill after the delay),
-`-BrowseOpen <url>` (opens a page, for example `http://neverssl.com` for Not Secure), `-ArdiaRestingStart` (the start screen without the tray),
-`-ArdiaColor <name>` (the colour picked in Settings), `-ArdiaInterfaceStyle glass|classic`,
-`-ArdiaColorScheme light|dark`, `-ArdiaSettingsPage <route>` (for example `appearance`, `siteSettings`, `searchEngine`,
-`about`), `-ArdiaOpenSheet history|bookmarks|downloads` and `-ArdiaNoSitePermissions` (demo mode otherwise seeds
-three allowed sites). `-ArdiaDeckQuery <text>` types into the closed Duo's deck search. `-ArdiaDuoCanvas open|half`
+`-BrowseOpen <url>` (opens a page, for example `http://neverssl.com` for Not Secure), `-UniVerseRestingStart` (the start screen without the tray),
+`-UniVerseColor <name>` (the colour picked in Settings), `-UniVerseInterfaceStyle glass|classic`,
+`-UniVerseColorScheme light|dark`, `-UniVerseSettingsPage <route>` (for example `appearance`, `siteSettings`, `searchEngine`,
+`about`), `-UniVerseOpenSheet history|bookmarks|downloads` and `-UniVerseNoSitePermissions` (demo mode otherwise seeds
+three allowed sites). `-UniVerseDeckQuery <text>` types into the closed Duo's deck search. `-UniVerseDuoCanvas open|half`
 (DEBUG) draws the app at the open Duo's 669 by 951 pt inside a larger screen, open or half open, for an iPad
 simulator built with `TARGETED_DEVICE_FAMILY=1,2` on the `xcodebuild` command line (never in the project). The Duo
 simulator itself folds without a person: the `agent-device` `fold closed|half-open|open` command, then
@@ -241,7 +241,7 @@ previous tab), `-BrowsePagerScript` plays a scripted swipe (cancel, edge, commit
 
 ## Tests
 
-- `swift test --package-path apps/ios/Packages/ArdiaKit` runs the package's Swift Testing suites on the Mac host:
+- `swift test --package-path apps/ios/Packages/UniVerseKit` runs the package's Swift Testing suites on the Mac host:
   sync end to end over a real vault with a fake Mac, the browser layer (tabs, archive, blocking converter, omnibox,
   reader extraction in a real WKWebView), and the JavaScriptCore bridge.
 - `SyncThroughICloudTests` gives the fake Mac and the phone a folder each and carries files between them the way
@@ -252,7 +252,7 @@ previous tab), `-BrowsePagerScript` plays a scripted swipe (cancel, edge, commit
 - `pnpm --filter @universe/sync test` includes the companion's tests and checks the bundles are current.
 - The app's own states are checked in the simulator (see the agent notes below).
 - CI (`.github/workflows/ios.yml`, on GitHub's `xcode-27` runner with Xcode 27.1) builds the `UniVerse Project Browser` scheme for the
-  simulator without signing and runs the ArdiaKit and `packages/sync` Swift tests and the bundle check, on pull
+  simulator without signing and runs the UniVerseKit and `packages/sync` Swift tests and the bundle check, on pull
   requests and pushes to `main` that touch `apps/ios`, `packages/sync`, `packages/core` or the workflow.
 
 ## Left for a person
@@ -292,13 +292,13 @@ are `.widgets`, `.share` and `.open`, and they share the app group `group.com.un
 - **Default browser.** iOS lists an app under Settings, Apps, Default Apps, Browser App only when it is signed with
   `com.apple.developer.web-browser`, and Apple grants that per App ID on request: the account holder fills in
   https://developer.apple.com/contact/request/default-browser-entitlement/ for `com.universe.projectbrowser.ios`. One build
-  setting, `ARDIA_DEFAULT_BROWSER` (`NO` in `project.yml`), decides both halves: `YES` signs with
-  `Config/UniVerse Project Browser-DefaultBrowser.entitlements` and sets `ArdiaDefaultBrowser` in Info.plist, which turns on the
+  setting, `UNIVERSE_DEFAULT_BROWSER` (`NO` in `project.yml`), decides both halves: `YES` signs with
+  `Config/UniVerse Project Browser-DefaultBrowser.entitlements` and sets `UniVerseDefaultBrowser` in Info.plist, which turns on the
   onboarding step and the Settings row; `NO` signs with `Config/UniVerse.entitlements` and hides them, so the app never
   sends anyone to a list it isn't on. Until Apple grants it, signing with `YES` fails ("requires approval from
   Apple"). Once granted, pass `default_browser=true` (`--default-browser`), then make `YES` the default. The release
   script checks that the Info.plist value and the signed entitlement agree. The simulator needs no grant:
-  `xcodebuild ... ARDIA_DEFAULT_BROWSER=YES` there exercises the whole flow.
+  `xcodebuild ... UNIVERSE_DEFAULT_BROWSER=YES` there exercises the whole flow.
 - **Am I the default.** iOS answers `UIApplication.isDefault(.webBrowser)` four times a year, so `DefaultBrowserStatus`
   keeps the last answer and asks only on returning from the Settings button or after 100 days. A web link that
   arrives from another app also proves it. The simulator ignores the Settings deep link and opens Settings where it
@@ -318,8 +318,8 @@ are `.widgets`, `.share` and `.open`, and they share the app group `group.com.un
 ## Agent notes
 
 - Build into your own derived data under your scratch folder:
-  `xcodebuild -project apps/ios/Ardia.xcodeproj -scheme Ardia -destination 'platform=iOS Simulator,id=<udid>' -derivedDataPath <scratch>/dd -quiet build`.
-  Package tests: `swift test --package-path apps/ios/Packages/ArdiaKit --scratch-path <scratch>/spm`.
+  `xcodebuild -project apps/ios/UniVerse.xcodeproj -scheme UniVerse -destination 'platform=iOS Simulator,id=<udid>' -derivedDataPath <scratch>/dd -quiet build`.
+  Package tests: `swift test --package-path apps/ios/Packages/UniVerseKit --scratch-path <scratch>/spm`.
 - Simulators: clone the project's simulator for yourself (`xcrun simctl clone "iPhone 18 Pro (tandem)" "UniVerse Project Browser <you>"`),
   boot it headless (`xcrun simctl boot`; never open Simulator.app), install and launch with `simctl`, capture with
   `xcrun simctl io <udid> screenshot`, and delete your clone when you're done.

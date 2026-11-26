@@ -15,9 +15,9 @@ from pathlib import Path
 CLI = Path(__file__).resolve().parents[1]
 REPO = CLI.parents[1]
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "browse"
-APP = os.environ.get("ARDIA_BROWSE_E2E_APP")
-JS_LOCATION = os.environ.get("ARDIA_BROWSE_E2E_JS")
-SCRATCH = Path(os.environ.get("ARDIA_BROWSE_E2E_DIR", str(Path.home() / "universe-scratch" / "browse-impl" / "e2e")))
+APP = os.environ.get("UNIVERSE_BROWSE_E2E_APP")
+JS_LOCATION = os.environ.get("UNIVERSE_BROWSE_E2E_JS")
+SCRATCH = Path(os.environ.get("UNIVERSE_BROWSE_E2E_DIR", str(Path.home() / "universe-scratch" / "browse-impl" / "e2e")))
 
 
 def ref_for(snapshot: str, needle: str) -> str:
@@ -54,7 +54,7 @@ def wait_for(check, seconds: float, what: str):
     raise AssertionError(f"timed out waiting for {what}")
 
 
-@unittest.skipUnless(APP, "set ARDIA_BROWSE_E2E_APP to a built UniVerse-Project-Browser.app (never /Applications) to run the end-to-end test")
+@unittest.skipUnless(APP, "set UNIVERSE_BROWSE_E2E_APP to a built UniVerse-Project-Browser.app (never /Applications) to run the end-to-end test")
 class BrowseEndToEnd(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -252,7 +252,7 @@ class BrowseEndToEnd(unittest.TestCase):
         return keychain
 
     def test_auth_login_types_into_the_saved_origin(self):
-        env = {"ARDIA_BROWSE_KEYCHAIN": self.scratch_keychain()}
+        env = {"UNIVERSE_BROWSE_KEYCHAIN": self.scratch_keychain()}
         session = "vault-ok"
         self.browse("auth", "save", "site", "--url", self.url("auth.html"), "--username", "me@example.com", "--password-stdin",
                     session=session, extra_env=env, stdin="s3cret!\n")
@@ -263,7 +263,7 @@ class BrowseEndToEnd(unittest.TestCase):
         self.assertEqual(state, {"leaked": [], "user": "me@example.com", "pw": "s3cret!"})
 
     def test_auth_login_stops_when_focus_moves_into_another_frame(self):
-        env = {"ARDIA_BROWSE_KEYCHAIN": self.scratch_keychain()}
+        env = {"UNIVERSE_BROWSE_KEYCHAIN": self.scratch_keychain()}
         session = "vault-race"
         self.browse("auth", "save", "race", "--url", self.url("auth.html"), "--username", "me@example.com", "--password-stdin",
                     session=session, extra_env=env, stdin="s3cret!\n")
@@ -302,7 +302,7 @@ class BrowseEndToEnd(unittest.TestCase):
         self.assertEqual((state["value"], state["otherValue"]), ("", ""))
 
     def test_auth_login_never_follows_a_replaced_field(self):
-        env = {"ARDIA_BROWSE_KEYCHAIN": self.scratch_keychain()}
+        env = {"UNIVERSE_BROWSE_KEYCHAIN": self.scratch_keychain()}
         session = "vault-replace"
         self.browse("auth", "save", "swap", "--url", self.url("replace.html"), "--password-selector", "#q", "--password-stdin",
                     session=session, extra_env=env, stdin="s3cret!\n")
@@ -876,7 +876,7 @@ SESSION_JS = (
 )
 
 
-@unittest.skipUnless(APP, "set ARDIA_BROWSE_E2E_APP to a built UniVerse-Project-Browser.app (never /Applications) to run the end-to-end test")
+@unittest.skipUnless(APP, "set UNIVERSE_BROWSE_E2E_APP to a built UniVerse-Project-Browser.app (never /Applications) to run the end-to-end test")
 class BrowseTokenPath(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -890,13 +890,13 @@ class BrowseTokenPath(unittest.TestCase):
         cls.http_port = free_port()
         cls.server = subprocess.Popen([sys.executable, "-I", "-c", SERVE, str(cls.http_port)], cwd=FIXTURES, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         log = str(cls.data / "app.out.log")
-        metro = ["--env", f"ARDIA_INSTANCE=jsLocation={JS_LOCATION}", "--env", "ARDIA_TRACE=visibility"] if JS_LOCATION else []
-        subprocess.run(["open", "-g", "-n", "--env", "ARDIA_BACKGROUND=1", "--env", f"ARDIA_DATA_DIR={cls.data}", *metro,
+        metro = ["--env", f"UNIVERSE_INSTANCE=jsLocation={JS_LOCATION}", "--env", "UNIVERSE_TRACE=visibility"] if JS_LOCATION else []
+        subprocess.run(["open", "-g", "-n", "--env", "UNIVERSE_BACKGROUND=1", "--env", f"UNIVERSE_DATA_DIR={cls.data}", *metro,
                         "--stdout", log, "--stderr", log, APP], check=True, timeout=30)
-        control = cls.data / "Chromium" / "ArdiaControl.json"
+        control = cls.data / "Chromium" / "UniVerseControl.json"
         cls.pid = None
         try:
-            wait_for(control.exists, 60, "ArdiaControl.json")
+            wait_for(control.exists, 60, "UniVerseControl.json")
             cls.pid = json.loads(control.read_text())["pid"]
             wait_for(lambda: BrowseEndToEnd.fetch_ok(f"http://127.0.0.1:{cls.http_port}/login.html"), 10, "the fixture server")
             wait_for(lambda: subprocess.run([sys.executable, "-m", "universe_cli", "--data-dir", str(cls.data), "tabs", "--flat"], capture_output=True,

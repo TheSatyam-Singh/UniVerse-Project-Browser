@@ -7,7 +7,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PageScriptsTest {
-    private val iphoneWeb = File("../../ios/Packages/ArdiaKit/Sources/ArdiaBrowser/Web")
+    private val iphoneWeb = File("../../ios/Packages/UniVerseKit/Sources/UniVerseBrowser/Web")
     private val assets = File("src/main/assets/universe-browser")
 
     private fun swiftScript(file: String, marker: String): List<String> {
@@ -30,7 +30,7 @@ class PageScriptsTest {
         assertEquals(iphone.size, android.size)
         val different = iphone.indices.filter { iphone[it] != android[it] }
         assertEquals(1, different.size)
-        assertTrue(iphone[different[0]].contains("window.webkit.messageHandlers.ardiaPage"))
+        assertTrue(iphone[different[0]].contains("window.webkit.messageHandlers.universePage"))
         assertTrue(android[different[0]].contains("window.${PageScripts.BRIDGE_NAME}"))
         assertTrue(android[different[0]].contains("\"${PageScripts.NIGHT_SHADE_MESSAGE}\""))
     }

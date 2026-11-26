@@ -16,7 +16,7 @@ static NSPoint FakeMouseLocation(id self, SEL _cmd) {
 
 static void MarkHover(void) {
   Class view = NSClassFromString(@"RCTView");
-  SEL mark = NSSelectorFromString(@"ardia_markHoverDirty");
+  SEL mark = NSSelectorFromString(@"universe_markHoverDirty");
   if (view && [view respondsToSelector:mark]) ((void (*)(id, SEL))objc_msgSend)(view, mark);
 }
 
@@ -113,7 +113,7 @@ static void Poll(void) {
 
 __attribute__((constructor)) static void InputInit(void) {
   NSString *exe = NSProcessInfo.processInfo.arguments.firstObject.lastPathComponent;
-  NSString *dir = NSProcessInfo.processInfo.environment[@"ARDIA_DATA_DIR"];
+  NSString *dir = NSProcessInfo.processInfo.environment[@"UNIVERSE_DATA_DIR"];
   if (![exe isEqualToString:@"UniVerse Project Browser"] || !dir) return;
   gInbox = [dir stringByAppendingPathComponent:@"film-input.json"];
   gOutbox = [dir stringByAppendingPathComponent:@"film-input-done.json"];

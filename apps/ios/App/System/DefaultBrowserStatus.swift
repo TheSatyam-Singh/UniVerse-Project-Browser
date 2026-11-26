@@ -12,7 +12,7 @@ final class DefaultBrowserStatus {
     static let isAwaitingSettingsReturn = "defaultBrowser.isAwaitingSettingsReturn"
   }
 
-  static let isOffered = Bundle.main.object(forInfoDictionaryKey: "ArdiaDefaultBrowser") as? String == "YES"
+  static let isOffered = Bundle.main.object(forInfoDictionaryKey: "UniVerseDefaultBrowser") as? String == "YES"
   static let askInterval: TimeInterval = 100 * 24 * 60 * 60
   private static let log = Logger(subsystem: "com.universe.projectbrowser.ios", category: "default-browser")
 

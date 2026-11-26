@@ -61,7 +61,7 @@ the pins into `pyproject.toml`).
   exactly the paths and SHA-256 of a version we shipped (`universe_cli/skill_hashes.json`, frozen, written from git
   history by `apps/cli/scripts/skill-hashes.py`, which `--check`s it). Anything else, a foreign skill named universe
   included, is refused with the folder's path; `--replace` removes that one folder (a link itself, never its target)
-  and installs fresh. Each folder it wrote goes into `$ARDIA_CLI_HOME/skills.json`. `universe skills refresh` never
+  and installs fresh. Each folder it wrote goes into `$UNIVERSE_CLI_HOME/skills.json`. `universe skills refresh` never
   adopts: it rewrites every marked folder in that list and every marked user-level folder above, prints
   `skipped <folder>` for the rest, refuses a linked subfolder, and keeps only our folders in the list. `install.sh` runs it after
   each upgrade, so installed copies follow the CLI. Both also install cua-driver's skill next to ours (see Computer
@@ -73,13 +73,13 @@ the pins into `pyproject.toml`).
   `docs/config.md`, The universe command). Never needs UniVerse Project Browser running.
 - `universe theme new|use|list|check` makes, picks and checks themes: colours, type, metrics, layout and icons (see
   `docs/config.md`, Themes).
-- `universe run COMMAND [ARG]` runs one of UniVerse Project Browser's commands over `<data dir>/ArdiaControl.sock` (see
+- `universe run COMMAND [ARG]` runs one of UniVerse Project Browser's commands over `<data dir>/UniVerseControl.sock` (see
   `docs/automation.md`).
 - `universe commands` lists the commands `run` takes (see `docs/automation.md`).
 - `universe windows` lists the windows and their tabs (see `docs/automation.md`). With `--json` each tab also has
   `targetId`, the DevTools page target `universe browse` attaches to (null when the tab's page isn't loaded), and
   `pageGeneration`, bumped whenever that target changes (a slept tab reloading). The app asks each live tab through
-  ArdiaCore's `devToolsCall` (`Target.getTargetInfo`, engine call `engine.cliTabTargets`); an older build leaves both
+  UniVerseCore's `devToolsCall` (`Target.getTargetInfo`, engine call `engine.cliTabTargets`); an older build leaves both
   out. A tab a page opened whose first page is still loading isn't asked and has a null `targetId` until that page
   commits: the DevTools attach counts as a touch of its blank initial document, after which Chrome and the tab show
   about:blank instead of the pending address (`awaitsFirstDocument`; `packages/universecore/scripts/pending-address-check.mjs
@@ -100,7 +100,7 @@ the pins into `pyproject.toml`).
   title can't drive the terminal (an OSC 52 clipboard write, say): see Terminal output.
 - `universe events [EVENT…]` streams browser events (see `docs/automation.md`).
 - `universe on EVENT[,EVENT…] -- PROGRAM` runs a program for each event (see `docs/automation.md`). PROGRAM's output goes
-  to the terminal untouched; event data such as `ARDIA_TITLE` and `ARDIA_URL` comes from pages, so a program that
+  to the terminal untouched; event data such as `UNIVERSE_TITLE` and `UNIVERSE_URL` comes from pages, so a program that
   prints it should escape control characters, as the CLI's own output does.
 - `universe hooks run|install|uninstall|list` runs the hooks in `hooks.json`, at login through a LaunchAgent (see
   `docs/automation.md`).
@@ -145,11 +145,11 @@ flag before it; arguments after `on`'s `--` are never touched. A command that do
 says so and exits 2 (`universe: windows doesn't take --port`). For `browse` the flags go to the front of browse's own
 arguments, where its parser reads them; `browse` takes `--port`, `--ws`, `--data-dir` and `--json`, not `--timeout`.
 
-Each has an environment variable, and a flag wins over it: `ARDIA_PORT`, `ARDIA_WS`, `ARDIA_DATA_DIR`. The
-endpoint comes from `--ws`, else `--port`, else `$ARDIA_WS`, else `$ARDIA_PORT`, else `$ARDIA_CDP_URL`, else
-`<data dir>/Chromium/ArdiaControl.json` (see How it finds UniVerse Project Browser). For `browse`, `ARDIA_WS` or `ARDIA_PORT` is
+Each has an environment variable, and a flag wins over it: `UNIVERSE_PORT`, `UNIVERSE_WS`, `UNIVERSE_DATA_DIR`. The
+endpoint comes from `--ws`, else `--port`, else `$UNIVERSE_WS`, else `$UNIVERSE_PORT`, else `$UNIVERSE_CDP_URL`, else
+`<data dir>/Chromium/UniVerseControl.json` (see How it finds UniVerse Project Browser). For `browse`, `UNIVERSE_WS` or `UNIVERSE_PORT` is
 passed as `--ws`/`--port` only when its arguments have none of `--ws`, `--port` and `--cdp` (a `--port` after
-`stream` is the stream's own), so the session is keyed on the endpoint it really uses. A bad `ARDIA_PORT` exits 2.
+`stream` is the stream's own), so the session is keyed on the endpoint it really uses. A bad `UNIVERSE_PORT` exits 2.
 
 The CLI never quits UniVerse Project Browser: every DevTools WebSocket it opens (`browse`, `scripts test`; `universe_cli/guard.py`) checks
 each outgoing message and refuses fragmented sends, so `Browser.close`, `Browser.crash` and `Browser.crashGpuProcess`
@@ -175,7 +175,7 @@ no tab uses the user's active one, and text output stops at about 12,000 charact
 Each session has a background daemon that owns the CDP connection, the refs, the tabs it opened and the tracked
 mouse position, so a humanized path starts where the last one ended. `universe browse` talks to it over a Unix socket.
 
-- Everything lives in `<data dir>/Browse/` (`--data-dir`, else `$ARDIA_DATA_DIR`, else the installed app's, with
+- Everything lives in `<data dir>/Browse/` (`--data-dir`, else `$UNIVERSE_DATA_DIR`, else the installed app's, with
   `--port` and `--ws` too). The folder is created 0700 and must be a real folder the
   user owns (`O_NOFOLLOW`, checked by `fstat`); every file in it is opened relative to it.
 - A session's files are named by `sha256(namespace, endpoint, session)`, never by the session name, which must match
@@ -204,7 +204,7 @@ mouse position, so a humanized path starts where the last one ended. `universe b
   (console or errors, network log, HAR, route, trace, record, stream, init scripts, emulation; an action's own network
   watch, see Changes after actions, ends with the action and never counts), the daemon drops the
   CDP connection so the control pill goes away, but keeps its state. The next command reconnects: it re-reads and
-  re-checks `ArdiaControl.json` (or `/json/version`) and refuses, ending the session, if the browser instance
+  re-checks `UniVerseControl.json` (or `/json/version`) and refuses, ending the session, if the browser instance
   (`pid:generation:browser path`, or the browser WebSocket path) changed. Admission and the idle check run on one
   event loop under the command lock, so a disconnect never races a command.
 - **Connection loss is terminal.** When UniVerse Project Browser closes the connection itself (Stop, control turned off, UniVerse Project Browser quit),
@@ -243,7 +243,7 @@ mouse position, so a humanized path starts where the last one ended. `universe b
   cancels them) before it touches the browser. Every answer is sanitized (registered tokens and any `token=` query
   are masked in each JSON field and in the text) before it's written, and the daemon refuses to send an answer over
   256 MB.
-- While disconnected the daemon watches `ArdiaControl.json` every 2 s and exits when it disappears or names another
+- While disconnected the daemon watches `UniVerseControl.json` every 2 s and exits when it disappears or names another
   instance. It also exits after `--idle-timeout`/`AGENT_BROWSER_IDLE_TIMEOUT_MS` (default 1 h) without commands, and
   on `close`. It takes a lease on its CLI version like `universe` does.
 - Sessions (`--session`, `AGENT_BROWSER_SESSION`, default `default`; `--namespace`) are command-state namespaces on
@@ -468,7 +468,7 @@ final value).
 `open` without a session tab opens a new background tab in the sidebar (`Target.createTarget` at `about:blank`,
 init scripts registered, then `Page.navigate`); later `open`s navigate the session's tab. A session that has
 never had a tab uses the user's active tab for any command that needs one, with the rule `tab active` uses:
-on the token path `GET /ardia/active?token=…` (the page shown in UniVerse Project Browser's last focused window); on `--port`/`--ws`
+on the token path `GET /universe/active?token=…` (the page shown in UniVerse Project Browser's last focused window); on `--port`/`--ws`
 test servers, or when that route fails, the page that's visible and focused, else one that's visible (each tab is
 probed through a flat session and an isolated world, then detached). It errors (`no_tab`) only when there's no such
 page, as on New Tab. Once a session's tab closes it doesn't move on to whatever the user is looking at: commands
@@ -496,7 +496,7 @@ session opened or uses each. `tab <id>` takes `tN`, a label, a target id or that
 `tab_asleep`). When a tab's page is replaced, the session follows it only where the app's `targetId` says it went,
 keeping whether it borrowed or opened the tab; otherwise it's `tab_gone` and the agent re-picks. `alert` and `beforeunload`
 dialogs are accepted, as in agent-browser, unless `--no-auto-dialog`. `get cdp-url` refuses any URL that carries a
-token or other credentials, however it was chosen (the token path, `--ws`, `$ARDIA_CDP_URL`); it prints only a
+token or other credentials, however it was chosen (the token path, `--ws`, `$UNIVERSE_CDP_URL`); it prints only a
 plain `--port`/`--ws` URL. After `frame <iframe>`, if that iframe goes away, commands fail with `frame_gone` until
 `frame main` or another `frame`, instead of falling back to the main document.
 
@@ -783,8 +783,8 @@ The policy also refuses some uses of methods it allows (`ac_cli_token_policy.cc`
 never in a user's window, so nothing has to be restored in place or held off the screen (five reviews found each
 version of that unsound: e7f251520 and the commits before it).
 
-- **The automation window.** One per profile, made on first use (`OffscreenWindowFor`, `ArdiaHost.mm`): an
-  `ArdiaCoreWindow` that is `internal` (never ordered on screen, hidden from extensions, not in `universe windows`) and
+- **The automation window.** One per profile, made on first use (`OffscreenWindowFor`, `UniVerseHost.mm`): an
+  `UniVerseCoreWindow` that is `internal` (never ordered on screen, hidden from extensions, not in `universe windows`) and
   `automation`, 1280×800. The token policy treats a tab in an internal window as not a web target; the automation
   window is the exception (`IsPrivilegedContents`), and only tabs the command created ever get into it.
 - **Going off-screen.** `set viewport` first asks the app, over the control socket, to take the session's tab there
@@ -806,7 +806,7 @@ version of that unsound: e7f251520 and the commits before it).
   from a page that never had an override.
 - **Ending.** `close` and `tab close` close the off-screen tab like any tab the session opened. A session keeps
   every tab it took off-screen (`State.offscreen`), and the engine is the authority for the rest: on the token path
-  `Target.getTargets` and `Target.getTargetInfo` mark a target in an automation window `"ardiaOffscreen": true`, so
+  `Target.getTargets` and `Target.getTargetInfo` mark a target in an automation window `"universeOffscreen": true`, so
   `--show`, `reset` and `set viewport` from a session that didn't move it (another session, or the same session's new
   daemon) take the off-screen path too. Each tab the command created has an owner in the engine
   (`ac_cli_owned_tabs.cc`): the token connection that created it, then whichever one last set its viewport
@@ -819,7 +819,7 @@ version of that unsound: e7f251520 and the commits before it).
   moved off-screen whose viewport was never set: 5 s after the last connection goes it closes every tab in the
   automation windows (`noteCliConnections`, `cliCloseOffscreenTabs`). Off-screen tabs aren't in the store, so
   `session.json` never has them, and Chrome's restore list never gets one either: `LiveTabSkipsRestore`
-  (`g_ardia_live_tab_skips_restore`, `ac_seams.mm`) answers yes for a tab in an automation window, so neither a
+  (`g_universe_live_tab_skips_restore`, `ac_seams.mm`) answers yes for a tab in an automation window, so neither a
   closed tab nor the window snapshot a quit takes (`TabRestoreService::BrowserClosing`) records it, and an
   automation window with no other tab records no window. A crashed page stays off-screen with no row; `reload`
   brings it back there.
@@ -874,14 +874,14 @@ field. The check runs after each `DOM.focus` has returned (so a page's focus han
 before that character's key events; for a field in an iframe it also checks the top document's focus is on that
 frame. `tests/fixtures/browse/auth.html#steal` moves focus into a cross-origin iframe on focus; the end-to-end test
 checks no character reaches it. Any process running as the user can read items `/usr/bin/security` created (Keychain lets that tool read its
-own items without a prompt), the same boundary as `ArdiaControl.json`. `ARDIA_BROWSE_KEYCHAIN` points it at another
+own items without a prompt), the same boundary as `UniVerseControl.json`. `UNIVERSE_BROWSE_KEYCHAIN` points it at another
 keychain file, for tests.
 
 `plugin add <npm-name[@version] | owner/repo[#ref]>` pins the exact version (`npm view`) or commit (`git ls-remote`),
 installs it with `npm install --ignore-scripts` into `Browse/plugins/<name>/`, and records it in
 `Browse/plugins/registry.json`. Plugins run only through `plugin run` or `auth login --credential-provider`, over
 agent-browser's `agent-browser.plugin.v1` protocol (one JSON request on stdin: `protocol`, `capability`, `type`,
-`request`; one reply on stdout: `protocol`, `success`, `data` or `error`), with `ARDIA_*` and `AGENT_BROWSER_*` removed
+`request`; one reply on stdout: `protocol`, `success`, `data` or `error`), with `UNIVERSE_*` and `AGENT_BROWSER_*` removed
 from their environment and a 60 s limit.
 
 ### Testing it
@@ -890,12 +890,12 @@ from their environment and a 60 s limit.
 built app (never `/Applications`):
 
 ```sh
-ARDIA_BROWSE_E2E_APP=<build>/UniVerse-Project-Browser.app python -m unittest apps/cli/tests/test_browse_e2e.py
+UNIVERSE_BROWSE_E2E_APP=<build>/UniVerse-Project-Browser.app python -m unittest apps/cli/tests/test_browse_e2e.py
 ```
 
 A Debug build takes its JavaScript from Metro, and the token instance has no DevTools port to find it by, so name it:
-`ARDIA_BROWSE_E2E_JS=localhost:8081`. Without it that instance never turns control on and `BrowseTokenPath` times out
-waiting for `ArdiaControl.json`.
+`UNIVERSE_BROWSE_E2E_JS=localhost:8081`. Without it that instance never turns control on and `BrowseTokenPath` times out
+waiting for `UniVerseControl.json`.
 
 `apps/cli/scripts/token-smoke.sh <UniVerse-Project-Browser.app> <universe command> [metro host:port]` is the short version: one hidden
 instance on the token connection, then `read <url>`, `open <url>`, `read` and a refused `cookies`. The release smoke
@@ -903,8 +903,8 @@ test runs it with the release's own CLI tarball against the release candidate, s
 against a real token connection.
 
 It serves `tests/fixtures/browse` on 127.0.0.1, launches one hidden instance with a DevTools port (`ac launch
---no-wait`) and one on the token path (`open -g -n`, `ARDIA_BACKGROUND=1`, control on in `session.json`), both under
-`~/universe-scratch/browse-impl/e2e` (`ARDIA_BROWSE_E2E_DIR`), runs the core loop, the probe (humanized with
+--no-wait`) and one on the token path (`open -g -n`, `UNIVERSE_BACKGROUND=1`, control on in `session.json`), both under
+`~/universe-scratch/browse-impl/e2e` (`UNIVERSE_BROWSE_E2E_DIR`), runs the core loop, the probe (humanized with
 `--humanize`), instant input by default, the hidden-tab refusal, refs across an idle disconnect, `fill` on every typed
 input and the snapshot of them (`form.html`), the changes report with a dialog and a POST that carries a token in its
 query (`form.html`; the fixture server answers 501), `snapshot --diff`, auto-attach on both paths, site notes, the
@@ -922,7 +922,7 @@ For daily reports, `universe pinned` and `universe history` read files in UniVer
 through a progress handler that aborts past it, row fetching capped at 200,000); the worker deletes its temp snapshot
 in its own `finally`, and at exit a hook sets a closing flag first (workers check it before making a temp folder and
 at every backup or copy step), waits up to 1 s for live workers, then deletes any temp folder still registered. The
-data dir is `--data-dir`, else `$ARDIA_DATA_DIR`, else the installed app's. Both run the same `ArdiaControl.json`
+data dir is `--data-dir`, else `$UNIVERSE_DATA_DIR`, else the installed app's. Both run the same `UniVerseControl.json`
 checks as the token path first (regular file, owned, 0600, live pid), so they work only while UniVerse Project Browser runs with control
 on (exit 2 otherwise). Neither reads cookies, passwords, Login Data or Web Data. Text output is one line per row;
 `--json` prints the rows.
@@ -962,11 +962,11 @@ Builds go through esbuild: `--bundle --format=iife --platform=browser --target=c
 minified, so relative imports bundle in and no `tsconfig.json` is read (no `paths` aliases). Types are stripped, not
 checked. Every input esbuild reports in its metafile must be a `.ts .tsx .mts .cts .js .jsx .mjs .cjs .css` source
 (JSON, text and other loader types are refused), a regular file with no other hard links, and inside the script's
-own folder tree; nothing may come from UniVerse Project Browser's data dir (the `--data-dir`/`$ARDIA_DATA_DIR` one and the installed
+own folder tree; nothing may come from UniVerse Project Browser's data dir (the `--data-dir`/`$UNIVERSE_DATA_DIR` one and the installed
 app's), even inside the tree. Both are decided by file identity (`st_dev`, `st_ino` of each ancestor after
 resolving symlinks), not by path spelling, since APFS is case-insensitive. A script directly in the home folder or
 `/` may import nothing. Otherwise the build fails
-before anything is injected or published, so a script can't bundle `ArdiaControl.json` or other files and send
+before anything is injected or published, so a script can't bundle `UniVerseControl.json` or other files and send
 them to a page. `data:` imports are allowed. The tarball ships esbuild in `universe_cli/bin/esbuild` and an installed
 CLI uses only that one; from the repo (`python -m universe_cli`) it falls back to
 `node_modules/@esbuild/darwin-arm64/bin/esbuild` in a parent folder of the package, then `esbuild` on PATH. It never
@@ -1002,12 +1002,12 @@ looks in the cwd.
   closes the target it made, unless `--keep`. `@inject-into content` is tested in the page's world, with a warning.
   Exit 0 ran without uncaught exceptions and `--expect` truthy, 1 otherwise, 2 UniVerse Project Browser unreachable.
 - `universe scripts install FILE [--data-dir DIR]`, `universe scripts uninstall NAME [--data-dir DIR]` (by `@name` or id),
-  `universe scripts list [--json] [--data-dir DIR]`. Install and uninstall need control on (the `ArdiaControl.json`
+  `universe scripts list [--json] [--data-dir DIR]`. Install and uninstall need control on (the `UniVerseControl.json`
   checks, else the exit-2 line); list doesn't.
 
 ### Install contract with the app
 
-The data dir is `--data-dir`, else `$ARDIA_DATA_DIR`, else `~/Library/Application Support/com.universe.projectbrowser`.
+The data dir is `--data-dir`, else `$UNIVERSE_DATA_DIR`, else `~/Library/Application Support/com.universe.projectbrowser`.
 
 1. The CLI takes an exclusive `flock` on `<data dir>/Scripts/.lock` (polled, 30 s deadline). The app takes a shared
    one while it reads and validates. `Scripts/`, `Scripts/scripts/`, record folders and `extension/` must be real
@@ -1030,7 +1030,7 @@ The data dir is `--data-dir`, else `$ARDIA_DATA_DIR`, else `~/Library/Applicatio
 4. It writes `Scripts/generation` (temp file and rename): one more than the largest of `Scripts/generation`,
    `extension/generation` and the last reported one. A crashed run is repaired by the next install or
    uninstall (they rebuild from the records) or `list`: when its data dir was named (`--data-dir`,
-   `$ARDIA_DATA_DIR`) or has a live control file, it takes the lock, rebuilds the extension from the records if
+   `$UNIVERSE_DATA_DIR`) or has a live control file, it takes the lock, rebuilds the extension from the records if
    they disagree (`manifest.json` entries, the `js/` files and their bytes), and otherwise publishes
    `Scripts/generation = extension/generation` when the extension is ahead, rebuilds when it is behind, and
    publishes the next generation when there are no records and no `extension/` but `status.json` still reports the
@@ -1049,16 +1049,16 @@ The data dir is `--data-dir`, else `$ARDIA_DATA_DIR`, else `~/Library/Applicatio
 
 1. `--ws URL`, a browser WebSocket URL.
 2. `--port N`, a plain DevTools server on 127.0.0.1 (`/json/version`). For test servers only.
-3. `$ARDIA_WS`, like `--ws`, then `$ARDIA_PORT`, like `--port`.
-4. `$ARDIA_CDP_URL`, like `--ws`.
-5. `<data dir>/Chromium/ArdiaControl.json`, with `--data-dir` or `$ARDIA_DATA_DIR`, else the installed app's
-   `~/Library/Application Support/com.universe.projectbrowser/Chromium/ArdiaControl.json`.
+3. `$UNIVERSE_WS`, like `--ws`, then `$UNIVERSE_PORT`, like `--port`.
+4. `$UNIVERSE_CDP_URL`, like `--ws`.
+5. `<data dir>/Chromium/UniVerseControl.json`, with `--data-dir` or `$UNIVERSE_DATA_DIR`, else the installed app's
+   `~/Library/Application Support/com.universe.projectbrowser/Chromium/UniVerseControl.json`.
 
-The active-page route is `GET http://127.0.0.1:P/ardia/active?token=<token>`: `{"targetId": "<id>"}`, or `null` when
+The active-page route is `GET http://127.0.0.1:P/universe/active?token=<token>`: `{"targetId": "<id>"}`, or `null` when
 New Tab or an UniVerse Project Browser view is showing; anything else is a 404. The CLI calls it directly (no proxy, no Origin header)
 with the token redacted like everywhere else, and falls back to the visibility check if it fails.
 
-The app writes `ArdiaControl.json` when the setting is on:
+The app writes `UniVerseControl.json` when the setting is on:
 `{"port":P,"browser":"/devtools/browser/<guid>","token":"…","pid":…,"generation":N}`. The CLI opens it without
 following links and trusts it only when it's a regular file the user owns, mode 0600, and `pid` is alive. It connects
 to `ws://127.0.0.1:P<browser>?token=<token>`; pydoll keeps the query on every `/devtools/page/<id>` URL, so page
@@ -1073,13 +1073,13 @@ two parts with an explicit flush between them gets through; that gap is accepted
 ## Crash reports and usage
 
 `universe_cli/telemetry.py` records crash reports and usage only while the app's "Share anonymous crash reports and usage
-stats" is on for the data dir the command resolved (`--data-dir`, else `$ARDIA_DATA_DIR`, else the installed app's):
+stats" is on for the data dir the command resolved (`--data-dir`, else `$UNIVERSE_DATA_DIR`, else the installed app's):
 `<data dir>/telemetry.json`, the app's own saved choice, must say `"sharing": true` with an `installId` (and, during a
 14-day watch, a `sharingUntil` still in the future). That id is the events' `distinct_id`, so the command's events join
 the install's. The CLI reads only the fields it needs and ignores the rest, at any `version`, so a newer app format never
 silently stops CLI telemetry. Nothing is sent when the file is missing, unreadable or says sharing is off, with `DO_NOT_TRACK` set (anything but empty, `0` or `false`) or
-`ARDIA_TELEMETRY=0` (or `false`, `off`, `no`), for a command pointed at a test endpoint (`--port`, `--ws`, `--cdp`,
-`ARDIA_PORT`, `ARDIA_WS`, `ARDIA_CDP_URL`, `AGENT_BROWSER_CDP`), or from a checkout (version `0.0.0.dev0`). `universe
+`UNIVERSE_TELEMETRY=0` (or `false`, `off`, `no`), for a command pointed at a test endpoint (`--port`, `--ws`, `--cdp`,
+`UNIVERSE_PORT`, `UNIVERSE_WS`, `UNIVERSE_CDP_URL`, `AGENT_BROWSER_CDP`), or from a checkout (version `0.0.0.dev0`). `universe
 --version` records nothing.
 
 The wire format is the app's: OTLP log records (`otlp.ts` `eventRecord`/`logsRequest`) posted as `application/json`
@@ -1141,7 +1141,7 @@ the next command deletes the spool, and so does a flusher. The browse daemon onl
 sends it. Turning sharing off in the app stops new events at once; what's already spooled goes at the next `universe`
 run.
 
-`ARDIA_TELEMETRY_URL` is for tests only: a loopback `http://` URL (`127.0.0.1`, `localhost` or `[::1]`) gets the
+`UNIVERSE_TELEMETRY_URL` is for tests only: a loopback `http://` URL (`127.0.0.1`, `localhost` or `[::1]`) gets the
 posts instead of github.com/TheSatyam-Singh/UniVerse-Project-Browser, from a checkout too, and any other value turns telemetry off. `tests/test_telemetry.py`
 runs against a local stub with fixture data dirs.
 
@@ -1154,7 +1154,7 @@ once runs of whitespace are folded into one space; the description is required a
 scrubbing; `--kind` is `bug` (the default), `slow`, `idea` or `other`; `--command` names the command that misbehaved.
 
 Sending a report is consent for that report, so it goes out whether or not the app's sharing is on. With sharing on
-(`telemetry.json` for `--data-dir`, `$ARDIA_DATA_DIR` or the installed app's data dir; from a checkout, only an
+(`telemetry.json` for `--data-dir`, `$UNIVERSE_DATA_DIR` or the installed app's data dir; from a checkout, only an
 explicit data dir is read) the report carries the install id, so it joins that install's events; otherwise a one-time
 UUIDv4 made for that report. `session_id` is the same one the events carry. It posts to `https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/api/feedback`
 with `X-Universe-Key` (the CLI key): `kind`, `title`, `description`, `source: "cli"`, `install_id`, `session_id`,
@@ -1188,17 +1188,17 @@ formats (`ghp_…`, `github_pat_…`, `sk-…`, `sk_live_…`, `xox?-…`, `glpa
 `<secret>`; card numbers that pass the Luhn check as `<number>`; and the name in `/Users/<name>` and `/home/<name>`.
 A title or description with nothing left but those placeholders is refused (exit 2). The raw length isn't sent.
 
-When it isn't sent, the report is kept, scrubbed, in `$ARDIA_CLI_HOME/Usage/feedback.jsonl` (newest 200, with the
+When it isn't sent, the report is kept, scrubbed, in `$UNIVERSE_CLI_HOME/Usage/feedback.jsonl` (newest 200, with the
 reason and any reference the service gave), and the line says exactly why: `DO_NOT_TRACK=… is set`,
-`ARDIA_TELEMETRY=… is set`, `ARDIA_PORT points universe at a test browser` (any of the test endpoint variables), a
-checkout build (`0.0.0.dev0`, which never sends to github.com/TheSatyam-Singh/UniVerse-Project-Browser), an `ARDIA_FEEDBACK_URL` that isn't loopback, the daily
+`UNIVERSE_TELEMETRY=… is set`, `UNIVERSE_PORT points universe at a test browser` (any of the test endpoint variables), a
+checkout build (`0.0.0.dev0`, which never sends to github.com/TheSatyam-Singh/UniVerse-Project-Browser), an `UNIVERSE_FEEDBACK_URL` that isn't loopback, the daily
 limit, the network failing (with the system's reason), or the service's HTTP status and message. At most 20 reports a
 rolling day go out per CLI home, and the same kind, title and description twice in a day is sent once
-(`$ARDIA_CLI_HOME/Usage/usage.json`, under `usage.lock`); a report that fails gives its slot back, and when another
-`universe` holds that lock the report is kept with that reason. From a checkout without `ARDIA_CLI_HOME`, nothing is
+(`$UNIVERSE_CLI_HOME/Usage/usage.json`, under `usage.lock`); a report that fails gives its slot back, and when another
+`universe` holds that lock the report is kept with that reason. From a checkout without `UNIVERSE_CLI_HOME`, nothing is
 counted or saved, and the line says so.
 
-`ARDIA_FEEDBACK_URL` is for tests: a loopback `http://` URL gets the reports instead of github.com/TheSatyam-Singh/UniVerse-Project-Browser, from a checkout too
+`UNIVERSE_FEEDBACK_URL` is for tests: a loopback `http://` URL gets the reports instead of github.com/TheSatyam-Singh/UniVerse-Project-Browser, from a checkout too
 (an origin alone gets `/api/feedback` added); any other value keeps reports on the Mac. `tests/test_feedback.py` runs
 against a stub of the service and, when `node` is there, against `node infra/feedback/server.mjs --local <tmp dir>`.
 
@@ -1206,7 +1206,7 @@ The owner reads them on dash.ardia.dev › Feedback, and each opens a GitHub iss
 
 Every command (but `feedback` and `star`) also leaves its name and, when it failed, its exit code in that state's
 `recent` list (five at most), for the next report's `recent_commands`. From a checkout (`0.0.0.dev0`) nothing is recorded
-unless `ARDIA_CLI_HOME` is set, so tests never touch the installed CLI's state.
+unless `UNIVERSE_CLI_HOME` is set, so tests never touch the installed CLI's state.
 
 A task is a stretch of `universe browse` work: it starts with a successful command that does something (`open`, `click`,
 `fill`, `type`, `press`, `select`, `find`, `eval`, `batch`, `script`, `read`, `scroll`, `back`…, not `snapshot` or
@@ -1218,7 +1218,7 @@ sixth task starts after five finished ones, the CLI prints once, on stderr after
 > UniVerse Project Browser here: if this helped, you may ask the user once whether they'd like to star github.com/TheSatyam-Singh/UniVerse-Project-Browser.
 > Only if they say yes, run `universe star`.
 
-It records `star.prompted_at` first, so it never shows twice. `ARDIA_STAR_PROMPT=0`
+It records `star.prompted_at` first, so it never shows twice. `UNIVERSE_STAR_PROMPT=0`
 (or `false`, `off`, `no`) and CI (`CI`, `GITHUB_ACTIONS`, `BUILDKITE`, `JENKINS_URL`) keep it quiet; tasks still count.
 
 `universe star` runs `gh api --method PUT /user/starred/TheSatyam-Singh/UniVerse-Project-Browser --silent` when `gh` is on the PATH (no prompts,
@@ -1241,7 +1241,7 @@ on first use from cua's GitHub release, pinned in `computer.py`: `VERSION`, `DRI
 `cua-driver-rs-<V>-darwin-arm64.tar.gz` asset, about 85 MB) and `SKILLS_SHA256` (`cua-driver-rs-v<V>-skills.tar.gz`).
 A download is https only (redirects too), checked against the pinned digest before anything is extracted (a mismatch
 installs nothing), and extracted with no links, special files or entries outside the archive's folder. Only the
-signed `CuaDriver.app`, `LICENSE` and `THIRD_PARTY_NOTICES.md` are kept, in `$ARDIA_CLI_HOME/cua-driver/<V>/`; the
+signed `CuaDriver.app`, `LICENSE` and `THIRD_PARTY_NOTICES.md` are kept, in `$UNIVERSE_CLI_HOME/cua-driver/<V>/`; the
 app is stored as `CuaDriver` (no `.app`) so LaunchServices never sees a second copy. It must be Cua AI's: bundle id
 `com.trycua.driver`, the pinned version, and `codesign --verify --deep --strict` against
 `identifier "com.trycua.driver" and anchor apple generic and certificate leaf[subject.OU] = "YCK386LBJ7"`. The
@@ -1256,7 +1256,7 @@ macOS ties Accessibility and Screen Recording to the app that asks. cua-driver's
 `/Applications/CuaDriver.app` (hardcoded upstream): `cua-driver mcp` starts it with `open -n -g
 /Applications/CuaDriver.app --args serve`, and `permissions grant` asks for the switches from inside it, so the
 grants land on `com.trycua.driver`, never on the terminal, the agent or universe. `universe computer setup` therefore
-copies the verified app there, links `$ARDIA_CLI_BIN_DIR/cua-driver` (default `~/.local/bin`) to a shim that runs
+copies the verified app there, links `$UNIVERSE_CLI_BIN_DIR/cua-driver` (default `~/.local/bin`) to a shim that runs
 `universe computer` (cua's skill calls `cua-driver`), turns cua-driver's telemetry off (`cua-driver telemetry disable`, saved in `~/.cua-driver/config.json`; the daemon starts through
 LaunchServices and never sees our environment), then runs `cua-driver permissions grant` when it has a terminal.
 A `CuaDriver.app` that universe didn't put there (cua's own installer, another version) is kept and used as it is, and
@@ -1264,9 +1264,9 @@ a `cua-driver` command that isn't our link is kept too. Replacing universe's cop
 team keeps the grants (TCC matches the designated requirement).
 
 Putting the app in place is one recoverable operation. Setup and refresh hold an flock on
-`$ARDIA_CLI_HOME/cua-driver/.applications.lock` (up to 120 s, then they give up with an error). The verified app is
+`$UNIVERSE_CLI_HOME/cua-driver/.applications.lock` (up to 120 s, then they give up with an error). The verified app is
 copied with `ditto` to `/Applications/.CuaDriver.app.universe-new` and checked again; then the record
-(`$ARDIA_CLI_HOME/cua-driver/applications.json`: path, version, the new copy's CDHash) is written as `pending`,
+(`$UNIVERSE_CLI_HOME/cua-driver/applications.json`: path, version, the new copy's CDHash) is written as `pending`,
 keeping the previous record inside it. Only then does universe stop the old daemon (after verifying the old app), rename
 the old app to `.CuaDriver.app.universe-old`, rename the new one into place, commit the record, delete the old copy and
 register the app with LaunchServices. A failure before the swap changes nothing; a failure during it puts the old
@@ -1278,7 +1278,7 @@ signature codesign rejects), and removes leftover `.universe-new` and `.universe
 recovery is pending, and setup and refresh exit 1; the next run tries again. An app counts as universe's only with a
 committed record whose path and CDHash match.
 
-The shim runs `$ARDIA_CLI_HOME/current/bin/universe` when that resolves inside `$ARDIA_CLI_HOME`, else the launcher of
+The shim runs `$UNIVERSE_CLI_HOME/current/bin/universe` when that resolves inside `$UNIVERSE_CLI_HOME`, else the launcher of
 the installation that is running (`<root>/bin/universe` next to `<root>/python`). It never takes whatever `universe` is first
 on PATH: with neither, setup and `mcp-config` refuse and say why.
 
@@ -1298,7 +1298,7 @@ When universe's copy in `/Applications` is older than the pin, it says to run se
 rest) are refused.
 
 `universe computer mcp-config --target general|claude-code|codex|cursor|opencode` prints the MCP entry, which runs
-`$ARDIA_CLI_HOME/current/bin/universe computer mcp` so it keeps working across upgrades: `claude mcp add-json --scope
+`$UNIVERSE_CLI_HOME/current/bin/universe computer mcp` so it keeps working across upgrades: `claude mcp add-json --scope
 user cua-driver '…'` for Claude Code, `codex mcp add cua-driver -- … computer mcp` for Codex, and the JSON to paste
 for the others.
 
@@ -1310,7 +1310,7 @@ is universe's (path and CDHash match the record) and older than the pin, it stop
 
 `universe skills install` puts cua-driver's own skill (`SKILL.md` plus its references, `LINUX.md` and `WINDOWS.md`
 left out) in a `cua-driver` folder next to each `universe` folder, from the pinned skills asset (cached in
-`$ARDIA_CLI_HOME/cua-driver/<V>/skills`). It writes the same `.universe-skill` marker with `"skill": "cua-driver"` and
+`$UNIVERSE_CLI_HOME/cua-driver/<V>/skills`). It writes the same `.universe-skill` marker with `"skill": "cua-driver"` and
 the upstream tag, under the same rules as ours: files written by rename, only files its marker listed removed,
 links never followed. A `cua-driver` folder or link without our marker (cua's installer links
 `~/.cua-driver/skills/cua-driver` into each agent) is left alone and reported as `kept`. Our `universe` marker records
@@ -1323,14 +1323,14 @@ records no companions. Our `SKILL.md` has one line pointing native-app work at `
 
 Change `VERSION`, `DRIVER_SHA256` and `SKILLS_SHA256` at the top of `universe_cli/computer.py`, taking the digests
 from the release's `SHA256SUMS` and checking them against your own download (`shasum -a 256`), then run
-`universe computer --version` against a scratch `ARDIA_CLI_HOME`, the tests, and `universe computer --help` for new or
+`universe computer --version` against a scratch `UNIVERSE_CLI_HOME`, the tests, and `universe computer --help` for new or
 renamed subcommands (`DRIVER_COMMANDS`, `DAEMON_COMMANDS`). Pick a release at least a week or two old: cua ships
 several a day. The bump ships with the next CLI release; `install.sh` then updates universe's copy in `/Applications`.
 
 ## Install and upgrade
 
-The app runs `install.sh` with its own environment minus every `ARDIA_*` variable, plus `ARDIA_CLI_HOME`,
-`ARDIA_CLI_BIN_DIR` and `ARDIA_CLI_URL` from its `ARDIA_INSTANCE` keys `cliHome`, `cliBinDir` and `cliUrl`
+The app runs `install.sh` with its own environment minus every `UNIVERSE_*` variable, plus `UNIVERSE_CLI_HOME`,
+`UNIVERSE_CLI_BIN_DIR` and `UNIVERSE_CLI_URL` from its `UNIVERSE_INSTANCE` keys `cliHome`, `cliBinDir` and `cliUrl`
 (`CliInstaller.swift`).
 
 `install.sh [--version V] [--sha256 DIGEST] [--uninstall]` (run with `/bin/sh`; `--help`):
@@ -1340,27 +1340,27 @@ The app runs `install.sh` with its own environment minus every `ARDIA_*` variabl
   takes the latest release that has the asset. `--sha256` is the only
   digest it trusts (the app passes `UniVerse-Project-Browser.app/Contents/Resources/universe-cli.sha256`, which the signed bundle pins), and
   a download needs it: a `.sha256` from the same release would only prove the tarball came from wherever the tarball
-  came from. Only a `file://` `ARDIA_CLI_URL` (tests) may go without it, reading `<url>.sha256`. A Debug build has no
+  came from. Only a `file://` `UNIVERSE_CLI_URL` (tests) may go without it, reading `<url>.sha256`. A Debug build has no
   pinned digest, so it installs only that way.
 - Verifies the digest, refuses entries outside `universe-cli-<V>/`, `..` paths, hard links and links pointing outside the
-  tree, plus names with control characters, backslashes or ` -> `, extracts to `$ARDIA_CLI_HOME/<V>.partial`, checks
+  tree, plus names with control characters, backslashes or ` -> `, extracts to `$UNIVERSE_CLI_HOME/<V>.partial`, checks
   the extracted tree again (`find`, no line parsing), renames it to `<V>`, and swaps `current` atomically.
 - It keeps the current and the previous version, and any version a running `universe` uses: `universe_cli` writes
   `<V>/.leases/<pid>` when it starts (from the launcher or `python -m universe_cli`) and removes it at exit. A lease
   counts only while a process with that pid runs and started no later than the lease was written (`ps -o lstart`
   against the lease's mtime), so a reused pid doesn't pin a version.
-- Links `$ARDIA_CLI_BIN_DIR/universe` (default `~/.local/bin`) to `current/bin/universe`. It replaces only a link that
-  already points into `$ARDIA_CLI_HOME` and refuses anything else. With the default bin dir off the login shell's
+- Links `$UNIVERSE_CLI_BIN_DIR/universe` (default `~/.local/bin`) to `current/bin/universe`. It replaces only a link that
+  already points into `$UNIVERSE_CLI_HOME` and refuses anything else. With the default bin dir off the login shell's
   PATH, it adds `export PATH="$HOME/.local/bin:$PATH"` to `~/.zprofile` once.
 - A version that is already current is a no-op. Two runs never overlap: each takes a flock on
-  `$ARDIA_CLI_HOME/.lock` through fd 9 (`/usr/bin/lockf -s -t 120 9`). The kernel drops it when the run exits, even on
+  `$UNIVERSE_CLI_HOME/.lock` through fd 9 (`/usr/bin/lockf -s -t 120 9`). The kernel drops it when the run exits, even on
   SIGKILL; a run that waits 120 s prints `error another install is still running`. Uninstall leaves the empty `.lock`
   file, since deleting a lock file other runs may have open would split the lock.
 - Output for the app, one line each: `step resolve|download|verify|install|link`, `version <v>`, `path <rc file>`,
   then `installed <bin path>` or `uninstalled`, or `error <message>` with exit 1.
 
-`$ARDIA_CLI_HOME` defaults to `~/Library/Application Support/UniVerse Project Browser/CLI`. The installed version is
-`basename "$(readlink "$ARDIA_CLI_HOME/current")"`; the app reads that link to decide whether to upgrade, and after an
+`$UNIVERSE_CLI_HOME` defaults to `~/Library/Application Support/UniVerse Project Browser/CLI`. The installed version is
+`basename "$(readlink "$UNIVERSE_CLI_HOME/current")"`; the app reads that link to decide whether to upgrade, and after an
 app update it runs `install.sh --version <app version> --sha256 <pinned digest>` in the background. The CLI never
 updates itself. After switching `current` to a new version, `install.sh` runs `current/bin/universe skills refresh`
 (stdin, output and the lock's fd closed; its result ignored), which brings the agent skill copies up to date.
@@ -1390,20 +1390,20 @@ universe browse --port <port> get title
 scripts/agent/ac quit /tmp/universe-cli-test
 ```
 
-The `ArdiaControl.json` path needs the app's token server: Chrome's plain server accepts `?token=` on the browser
+The `UniVerseControl.json` path needs the app's token server: Chrome's plain server accepts `?token=` on the browser
 socket but answers 500 on page sockets with a query. For the installer:
 
 ```sh
 apps/cli/scripts/build.sh 0.0.1 /tmp/universe-cli-out
-HOME=/tmp/universe-cli-home ARDIA_CLI_URL=file:///tmp/universe-cli-out/universe-cli-0.0.1-macos-arm64.tar.gz \
+HOME=/tmp/universe-cli-home UNIVERSE_CLI_URL=file:///tmp/universe-cli-out/universe-cli-0.0.1-macos-arm64.tar.gz \
   /bin/sh apps/cli/install.sh
 HOME=/tmp/universe-cli-home universe skills install --target claude-code
 ```
 
 `universe scripts test` needs a running instance; it reaches cross-origin iframes on both paths, and over `--port` also frames that show an extension's page. Install and the
-helpers need the token path: an instance launched without `ARDIA_REMOTE_DEBUGGING_PORT` (the app doesn't start its
+helpers need the token path: an instance launched without `UNIVERSE_REMOTE_DEBUGGING_PORT` (the app doesn't start its
 control server when the port switch is set) and with control on, for example a scratch dir whose `session.json` has
-`"settings": {"cliControl": true}`, opened with `open -g -n --env ARDIA_BACKGROUND=1 --env ARDIA_DATA_DIR=<dir>`.
+`"settings": {"cliControl": true}`, opened with `open -g -n --env UNIVERSE_BACKGROUND=1 --env UNIVERSE_DATA_DIR=<dir>`.
 Unit tests (matching parity with node, import confinement, store rollback and recovery, symlink refusal; config
 and theme commands against the schemas in `tests/fixtures`: a hand-written `config.schema.json` that uses every keyword
 of the subset, and `theme.schema.json` as the app's `themeSchema` writes it):

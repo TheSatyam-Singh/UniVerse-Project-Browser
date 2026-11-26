@@ -11,8 +11,8 @@ const NOT_LANDED = "The password store didn't take the change";
 const answers = { "https://refused.example": REFUSED, "https://slow.example": NOT_LANDED, "https://broken.example": "Not authenticated" };
 let csv = [];
 globalThis.acTestNativeModules = {
-  ArdiaImport: { chooseImportFile: async () => "/scratch/passwords.csv", importPasswordsCSV: async () => JSON.stringify(csv) },
-  ArdiaPasswords: {
+  UniVerseImport: { chooseImportFile: async () => "/scratch/passwords.csv", importPasswordsCSV: async () => JSON.stringify(csv) },
+  UniVersePasswords: {
     save: async (_profile, origin) => {
       if (answers[origin]) throw new Error(answers[origin]);
       return JSON.stringify({ ok: true });

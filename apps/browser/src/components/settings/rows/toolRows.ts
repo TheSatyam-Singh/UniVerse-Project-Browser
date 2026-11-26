@@ -224,7 +224,7 @@ export const toolRows = {
     {
       section: "Web engine",
       rows: {
-        chromium: { advanced: true, title: "Chromium", keywords: ["engine", "version", "universecore", "ardiacore"] },
+        chromium: { advanced: true, title: "Chromium", keywords: ["engine", "version", "universecore", "universecore"] },
         widevine: { advanced: true, title: "Widevine (protected video)", keywords: ["drm", "netflix", "disney", "spotify"] },
       },
     },

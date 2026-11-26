@@ -10,7 +10,7 @@ from universe_cli import endpoint
 from universe_cli.caller import Caller
 from universe_cli.caller import current as current_caller
 
-SOCKET_FILE = "ArdiaControl.sock"
+SOCKET_FILE = "UniVerseControl.sock"
 SUN_PATH_MAX = 103
 MAX_LINE = 1024 * 1024
 CONNECT_TIMEOUT = 5.0

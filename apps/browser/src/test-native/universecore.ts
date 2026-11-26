@@ -305,7 +305,7 @@ function withStrips<Fake extends FakeDomain>(fake: Fake): Fake {
 const loginKey = (args: { origin: string; username: string }) => `${args.origin}\n${args.username}`;
 
 const fakeModules = {
-  ArdiaEngine: domain(
+  UniVerseEngine: domain(
     "engine",
     {
       components: () => [],
@@ -327,7 +327,7 @@ const fakeModules = {
     },
     { inputIdleSeconds: () => 3600 },
   ),
-  ArdiaTabs: withStrips(domain(
+  UniVerseTabs: withStrips(domain(
     "tabs",
     {
       routeLinkTabs: () => linkRoute.next,
@@ -345,8 +345,8 @@ const fakeModules = {
       discardOffered: async (adoptId: string) => (discardedOffers.push(adoptId), true),
     },
   )),
-  ArdiaWindows: domain("windows", { list: () => [], dev: () => "" }),
-  ArdiaDownloads: domain("downloads", {
+  UniVerseWindows: domain("windows", { list: () => [], dev: () => "" }),
+  UniVerseDownloads: domain("downloads", {
     cancel: ({ id }) => (cancelledDownloads.push(id), null),
     pause: () => null,
     resume: () => null,
@@ -354,13 +354,13 @@ const fakeModules = {
     settings: () => ({ folder: "", askWhereToSave: false, managed: false }),
     setSettings: () => ({ folder: "", askWhereToSave: false, managed: false }),
   }),
-  ArdiaPermissions: domain("permissions", {
+  UniVersePermissions: domain("permissions", {
     resolve: ({ id, result, remember }) => (resolvedPermissions.push({ id, result, remember }), null),
     resolveExternalApp: () => null,
     externalAppAllowances: () => [],
     removeExternalAppAllowance: () => null,
   }),
-  ArdiaProfiles: domain("profiles", {
+  UniVerseProfiles: domain("profiles", {
     loaded: () => {
       if (!profilesLoadedCall.known) throw Object.assign(new Error("profiles.loaded isn't a call"), { code: "ERR_UNKNOWN_CALL" });
       return { profiles: [...loadedEngineProfiles] };
@@ -369,7 +369,7 @@ const fakeModules = {
     deleteData: ({ profile }) => (deletedProfileData.push(profile), { remaining: profileDataLeft.get(profile) ?? [] }),
     clearBrowsingData: () => null,
   }),
-  ArdiaSites: domain("sites", {
+  UniVerseSites: domain("sites", {
     setSetting: () => null,
     origins: () => [],
     reset: () => null,
@@ -377,7 +377,7 @@ const fakeModules = {
     zoomLevels: () => ({}),
     setZoom: () => null,
   }),
-  ArdiaPasswords: domain(
+  UniVersePasswords: domain(
     "passwords",
     {
       list: () => ({
@@ -413,7 +413,7 @@ const fakeModules = {
       },
     },
   ),
-  ArdiaAutofill: domain(
+  UniVerseAutofill: domain(
     "autofill",
     {
       settings: () => ({ addresses: true, cards: true }),
@@ -427,7 +427,7 @@ const fakeModules = {
     },
     { saveCard: async () => JSON.stringify({ id: `card-${++autofillIds}` }) },
   ),
-  ArdiaExtensions: domain("extensions", {
+  UniVerseExtensions: domain("extensions", {
     list: async ({ profile }) => ({ extensions: (await extensionEngine()?.list(profile)) ?? [] }),
     install: async ({ profile, path }) => {
       const engine = extensionEngine();
@@ -453,13 +453,13 @@ const fakeModules = {
     syncState: () => ({ ready: false, extensions: [], pending: [], settling: [], queued: [], intents: [] }),
     syncApply: () => ({ state: "pending" }),
   }),
-  ArdiaSearch: domain("search", {
+  UniVerseSearch: domain("search", {
     engines: () => ({ list: { engines: [] } }),
     setEngineName: () => null,
     suggest: (args) => testGlobals.acTestSuggest?.(args) ?? { status: 200, body: JSON.stringify([args.url, []]) },
     stopSuggest: () => null,
   }),
-  ArdiaMedia: domain("media", {
+  UniVerseMedia: domain("media", {
     displayMediaSources: () => [],
     selectDevice: () => null,
     cancelDeviceChooser: () => null,
@@ -474,30 +474,30 @@ const fakeModules = {
     changeCaptureSource: () => false,
     stopCapture: () => false,
   }),
-  ArdiaContentBlocker: domain("contentBlocker", {
+  UniVerseContentBlocker: domain("contentBlocker", {
     setEnabled: () => null,
     setListEnabled: () => null,
     isAllowed: () => false,
     setAllowed: () => null,
   }),
-  ArdiaHistory: domain("history", {
+  UniVerseHistory: domain("history", {
     query: ({ profile, ...args }) => queryHistory(profile, args),
     add: ({ profile, ...args }) => addHistoryVisits(profile, args),
     import: ({ profile, ...args }) => importHistoryRows(profile, args),
     deleteUrls: ({ profile, ...args }) => deleteHistoryUrls(profile, args),
     watch: ({ profile }) => (historyWatches.push(profile), null),
   }),
-  ArdiaBookmarks: domain("bookmarks", {
+  UniVerseBookmarks: domain("bookmarks", {
     tree: ({ profile }) => ({ bar: treeOf(chromeBookmarks(profile), "bar"), other: treeOf(chromeBookmarks(profile), "other") }),
     apply: ({ profile, ...args }) => applyBookmarkOps(profile, args),
     watch: () => null,
   }),
-  ArdiaFavicons: domain("favicons", {
+  UniVerseFavicons: domain("favicons", {
     get: ({ profile, ...args }) => faviconsFor(profile, args),
     set: () => ({ stored: true }),
     fetch: () => null,
   }),
-  ArdiaWebView: domain("webView", {
+  UniVerseWebView: domain("webView", {
     setDisplayMediaPicker: () => null,
     setPeekModifier: () => null,
     setSplitLinkModifier: () => null,
@@ -510,7 +510,7 @@ const fakeModules = {
     setVideoUpscalingTestConditions: () => null,
     videoUpscalingState: () => null,
   }),
-  ArdiaWebKit: domain("webKit", {
+  UniVerseWebKit: domain("webKit", {
     endPrivateSession: ({ session }) => (endedWebKitSessions.push(session), null),
     removeDownloadStaging: ({ path }) => (removedStagings.push(path), stagingRemovals.ok),
     cookieStoreKey: ({ profile }) => profile,
@@ -518,14 +518,14 @@ const fakeModules = {
     passkeyAccess: () => ({ entitled: false, status: "entitlementRequired" }),
     requestPasskeyAccess: () => ({ entitled: false, status: "entitlementRequired" }),
   }),
-  ArdiaSwipe: {
+  UniVerseSwipe: {
     haptic: () => {},
     switchPager: () => Promise.resolve(false),
     stepPager: () => Promise.resolve(false),
     selectPager: () => Promise.resolve(false),
     pagerState: () => null,
     devPagerState: () => Promise.resolve(null),
-    devSimulate: () => unfaked("ArdiaSwipe", "devSimulate"),
+    devSimulate: () => unfaked("UniVerseSwipe", "devSimulate"),
   },
 };
 

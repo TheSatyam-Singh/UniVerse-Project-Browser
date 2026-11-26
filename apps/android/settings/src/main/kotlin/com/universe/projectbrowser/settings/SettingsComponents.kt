@@ -374,7 +374,7 @@ fun FootnoteText(text: String, modifier: Modifier = Modifier, color: Color = Sys
 }
 
 @Composable
-fun warningInk(): Color = legibleInk(ardiaOrange)
+fun warningInk(): Color = legibleInk(universeOrange)
 
 @Composable
 fun problemInk(): Color = legibleInk(SystemPalette.red.current)
@@ -382,7 +382,7 @@ fun problemInk(): Color = legibleInk(SystemPalette.red.current)
 @Composable
 fun goodInk(): Color = legibleInk(SystemPalette.green.current)
 
-private val ardiaOrange = Color(0xFFFF9500)
+private val universeOrange = Color(0xFFFF9500)
 
 @Composable
 fun ConfirmDialog(

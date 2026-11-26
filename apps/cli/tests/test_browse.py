@@ -931,7 +931,7 @@ class VaultTest(unittest.TestCase):
         secret = 'pä ss"w\\ord'
         root = folder / "data"
         root.mkdir()
-        with mock.patch.dict(os.environ, {"ARDIA_BROWSE_KEYCHAIN": str(keychain)}), mock.patch("subprocess.run", spy):
+        with mock.patch.dict(os.environ, {"UNIVERSE_BROWSE_KEYCHAIN": str(keychain)}), mock.patch("subprocess.run", spy):
             meta = vault.save(root, "site", {"url": "https://example.com/login", "username": "me", "password_stdin": True}, lambda: secret + "\n")
             self.assertEqual(vault.read_secret("site", meta["utf8"]), secret)
             self.assertEqual(vault.listing(root)[0]["origins"], ["https://example.com"])

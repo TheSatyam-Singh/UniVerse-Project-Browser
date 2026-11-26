@@ -29,7 +29,7 @@ export type SavedCard = {
 };
 export type CardInput = { id?: string; name?: string; expMonth?: number; expYear?: number };
 
-const Autofill = nativeModule("ArdiaAutofill");
+const Autofill = nativeModule("UniVerseAutofill");
 
 export const saveCard = async (profile: string, card: CardInput, number?: string) =>
   (await decodeReply<{ id: string }>(Autofill.saveCard(profile, card, number ?? null))).id;

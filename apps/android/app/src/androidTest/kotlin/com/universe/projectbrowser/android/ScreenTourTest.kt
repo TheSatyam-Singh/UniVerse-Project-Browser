@@ -36,7 +36,7 @@ class ScreenTourTest(private val theme: String, private val state: TourState) {
 
     @Test
     fun capture() {
-        val arguments = mapOf<String, Any>(LaunchArguments.ARDIA_RESTING_START to true) + state.arguments
+        val arguments = mapOf<String, Any>(LaunchArguments.UNIVERSE_RESTING_START to true) + state.arguments
         session = AppTest.launch(arguments)
         AppTest.waitUntil("the search start after launch") { model.surface == AppModel.Surface.Search }
         try {
@@ -139,7 +139,7 @@ class ScreenTourTest(private val theme: String, private val state: TourState) {
             }
             val next = 12 + SettingsRoute.entries.size
             add(TourState(next, "sync-connect") { present(AppModel.Sheet.SyncSetup) })
-            val onboarding = mapOf<String, Any>(LaunchArguments.ARDIA_ONBOARDING to true)
+            val onboarding = mapOf<String, Any>(LaunchArguments.UNIVERSE_ONBOARDING to true)
             add(TourState(next + 1, "onboarding-welcome", onboarding) { showOnboarding() })
             add(TourState(next + 2, "onboarding-blocking", onboarding) {
                 showOnboarding()

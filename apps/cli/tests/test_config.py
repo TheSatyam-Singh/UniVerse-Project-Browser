@@ -79,7 +79,7 @@ class Sandbox(unittest.TestCase):
         for folder in (self.home, self.data, self.installed):
             folder.mkdir()
         patches = [
-            mock.patch.dict(os.environ, {"HOME": str(self.home), "ARDIA_DATA_DIR": str(self.data)}),
+            mock.patch.dict(os.environ, {"HOME": str(self.home), "UNIVERSE_DATA_DIR": str(self.data)}),
             mock.patch.object(endpoint, "INSTALLED_DATA_DIR", self.installed),
         ]
         for name in ("VISUAL", "EDITOR"):
@@ -134,18 +134,18 @@ class Paths(Sandbox):
         self.assertEqual(out.strip(), str(other / "config"))
 
     def test_default_is_home_config(self):
-        with mock.patch.dict(os.environ, {"ARDIA_DATA_DIR": ""}):
+        with mock.patch.dict(os.environ, {"UNIVERSE_DATA_DIR": ""}):
             out, _ = self.ok("config", "path")
         self.assertEqual(out.strip(), str(self.home / ".config" / "universe"))
 
     def test_xdg_config_home_is_ignored(self):
-        with mock.patch.dict(os.environ, {"ARDIA_DATA_DIR": "", "XDG_CONFIG_HOME": str(self.temp / "xdg")}):
+        with mock.patch.dict(os.environ, {"UNIVERSE_DATA_DIR": "", "XDG_CONFIG_HOME": str(self.temp / "xdg")}):
             out, _ = self.ok("config", "path")
         self.assertEqual(out.strip(), str(self.home / ".config" / "universe"))
 
     def test_schema_from_installed_app_without_data_dir(self):
         self.install_schemas(self.installed / "config-schema")
-        with mock.patch.dict(os.environ, {"ARDIA_DATA_DIR": ""}):
+        with mock.patch.dict(os.environ, {"UNIVERSE_DATA_DIR": ""}):
             where = config_files.places()
             self.assertEqual(config_files.find_schema(where, "config.schema.json").path, self.installed / "config-schema" / "config.schema.json")
 

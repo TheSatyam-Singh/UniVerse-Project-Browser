@@ -48,12 +48,12 @@ class FakeRenderer:
             return dict(self.counts, activeFrame=False)
         if "draggable" in function:
             return self.draggable
-        if "ardiaBrowse.info" in function:
+        if "universeBrowse.info" in function:
             return {"connected": True}
-        if "ardiaBrowse.rect" in function:
+        if "universeBrowse.rect" in function:
             quad = QUADS[args[0].backend_id]
             return {"x": quad[0], "y": quad[1], "width": quad[2] - quad[0], "height": quad[5] - quad[1]}
-        if "ardiaBrowse.viewport" in function:
+        if "universeBrowse.viewport" in function:
             return {"width": 1280, "height": 800, "scrollX": 0, "scrollY": 0, "docWidth": 1280, "docHeight": 800}
         return None
 
@@ -261,7 +261,7 @@ const context = { addEventListener: (type, listener) => (listeners[type] = liste
 context.globalThis = context;
 vm.createContext(context);
 vm.runInContext(process.argv[1], context);
-const watch = () => vm.runInContext("ardiaBrowse.inputWatch().dragstart", context);
+const watch = () => vm.runInContext("universeBrowse.inputWatch().dragstart", context);
 const start = (prevented) => {
   const event = { isTrusted: true, defaultPrevented: false };
   listeners.dragstart.forEach((listener) => listener(event));

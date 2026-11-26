@@ -62,7 +62,7 @@ final class WebKitDownloads: NSObject, WKDownloadDelegate {
     ?? URL(fileURLWithPath: NSHomeDirectory()).appendingPathComponent("Downloads")
 
   private func resolveDestination(for profile: String, completion: @escaping (URL, Bool) -> Void) {
-    ArdiaEngineBridge.call("ac_downloads_settings", profile: ArdiaHost.baseProfile(of: profile), args: nil) { [weak self] json in
+    UniVerseEngineBridge.call("ac_downloads_settings", profile: UniVerseHost.baseProfile(of: profile), args: nil) { [weak self] json in
       let parsed = (try? JSONSerialization.jsonObject(with: Data(json.utf8))) as? [String: Any]
       let folder = (parsed?["folder"] as? String).flatMap { $0.isEmpty ? nil : URL(fileURLWithPath: $0, isDirectory: true) }
       let ask = parsed?["askWhereToSave"] as? Bool ?? (folder == nil)
@@ -114,7 +114,7 @@ final class WebKitDownloads: NSObject, WKDownloadDelegate {
   private func item(for download: WKDownload) -> Item? { byDownload[ObjectIdentifier(download)].flatMap { items[$0] } }
 
   private func report(_ item: Item) {
-    ArdiaEvents.emit("downloads.changed", data: [
+    UniVerseEvents.emit("downloads.changed", data: [
       "id": item.id, "url": item.url, "filename": item.filename, "path": item.path, "state": item.phase.state,
       "paused": item.phase.isPaused,
       "received": Double(item.received), "total": Double(item.total), "speed": item.speed, "mimeType": item.mimeType,

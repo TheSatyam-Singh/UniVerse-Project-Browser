@@ -7,13 +7,13 @@ export type WindowProfileProps = ViewProps & {
   selection?: string;
   neighbours: string[];
 };
-export const WindowProfile = requireNativeViewManager<WindowProfileProps>("ArdiaWindowProfile");
+export const WindowProfile = requireNativeViewManager<WindowProfileProps>("UniVerseWindowProfile");
 
 export const WindowDragRegion = requireNativeViewManager<
   ViewProps & { titleBarDoubleClick?: boolean; onRegionDoubleClick?: () => void; clickable?: boolean; onRegionClick?: () => void }
->("ArdiaAppWindows");
+>("UniVerseAppWindows");
 
-export const OutsidePressArea = requireNativeViewManager<ViewProps & { onOutsidePress?: (event: { nativeEvent: { timestamp?: number } }) => void }>("ArdiaOutsidePressArea");
+export const OutsidePressArea = requireNativeViewManager<ViewProps & { onOutsidePress?: (event: { nativeEvent: { timestamp?: number } }) => void }>("UniVerseOutsidePressArea");
 
 export type SymbolProps = ViewProps & {
   name: string;
@@ -22,7 +22,7 @@ export type SymbolProps = ViewProps & {
   color?: string;
 };
 
-export const Symbol = requireNativeViewManager<SymbolProps>("ArdiaSymbol");
+export const Symbol = requireNativeViewManager<SymbolProps>("UniVerseSymbol");
 
 export type FadeLabelProps = ViewProps & {
   text: string;
@@ -33,9 +33,9 @@ export type FadeLabelProps = ViewProps & {
   fadeWidth?: number;
 };
 
-export const FadeLabel = requireNativeViewManager<FadeLabelProps>("ArdiaFadeLabel");
+export const FadeLabel = requireNativeViewManager<FadeLabelProps>("UniVerseFadeLabel");
 
-export const ActivitySpinner = requireNativeViewManager<ViewProps>("ArdiaActivitySpinner");
+export const ActivitySpinner = requireNativeViewManager<ViewProps>("UniVerseActivitySpinner");
 
 export type ContextMenuAreaProps = ViewProps & {
   onContextMenu?: () => void;
@@ -43,7 +43,7 @@ export type ContextMenuAreaProps = ViewProps & {
 };
 
 const NativeContextMenuArea = requireNativeViewManager<Omit<ContextMenuAreaProps, "onContextMenu"> & { onContextMenu?: () => void }>(
-  "ArdiaContextMenuArea",
+  "UniVerseContextMenuArea",
 );
 
 export function ContextMenuArea(props: ContextMenuAreaProps) {
@@ -69,7 +69,7 @@ type NativeSurfaceProps = Omit<SurfaceProps, "shadowColor" | "shadowOpacity" | "
   surfaceShadowOffset?: [number, number];
 };
 
-const NativeSurface = requireNativeViewManager<NativeSurfaceProps>("ArdiaSurface");
+const NativeSurface = requireNativeViewManager<NativeSurfaceProps>("UniVerseSurface");
 
 export function Surface({ shadowColor, shadowOpacity, shadowRadius, shadowOffset, ...props }: SurfaceProps) {
   return (
@@ -89,7 +89,7 @@ export type VisualEffectProps = ViewProps & {
   cornerRadius?: number;
 };
 
-export const VisualEffect = requireNativeViewManager<VisualEffectProps>("ArdiaVisualEffect");
+export const VisualEffect = requireNativeViewManager<VisualEffectProps>("UniVerseVisualEffect");
 
 export type GlassEffectProps = ViewProps & {
   cornerRadius?: number;
@@ -100,13 +100,13 @@ export type GlassEffectProps = ViewProps & {
 
 export type GlassEffectNative = { isLiquidGlass(): boolean };
 
-const GlassEffectModule = nativeModule("ArdiaGlassEffect");
+const GlassEffectModule = nativeModule("UniVerseGlassEffect");
 
 export const isLiquidGlass = (): boolean => GlassEffectModule.isLiquidGlass();
 
-export const GlassEffect = requireNativeViewManager<GlassEffectProps>("ArdiaGlassEffect");
+export const GlassEffect = requireNativeViewManager<GlassEffectProps>("UniVerseGlassEffect");
 
-export const GlassGroup = requireNativeViewManager<ViewProps & { strength?: number }>("ArdiaGlassGroup");
+export const GlassGroup = requireNativeViewManager<ViewProps & { strength?: number }>("UniVerseGlassGroup");
 
 export type PopoverBubbleProps = ViewProps & {
   material?: "popover" | "menu" | "hudWindow" | "sheet" | "toolTip";
@@ -131,7 +131,7 @@ type NativePopoverBubbleProps = Omit<PopoverBubbleProps, "shadowOpacity" | "shad
   bubbleShadowOffsetY?: number;
 };
 
-const NativePopoverBubble = requireNativeViewManager<NativePopoverBubbleProps>("ArdiaPopoverBubble");
+const NativePopoverBubble = requireNativeViewManager<NativePopoverBubbleProps>("UniVersePopoverBubble");
 
 export function PopoverBubble({ shadowOpacity, shadowRadius, shadowOffsetY, ...props }: PopoverBubbleProps) {
   return <NativePopoverBubble {...props} bubbleShadowOpacity={shadowOpacity} bubbleShadowRadius={shadowRadius} bubbleShadowOffsetY={shadowOffsetY} />;
@@ -144,7 +144,7 @@ export type DockSelectionNative = {
   iconAccent(uri: string): Promise<string | null>;
 };
 
-const DockSelectionModule = nativeModule("ArdiaDockSelection");
+const DockSelectionModule = nativeModule("UniVerseDockSelection");
 
 export const iconTheme = (source: { uri: string } | { emoji: string }): Promise<IconTheme | null> =>
   DockSelectionModule.iconTheme("uri" in source ? source.uri : null, "emoji" in source ? source.emoji : null);
@@ -165,4 +165,4 @@ export type DockSelectionProps = ViewProps & {
   colorRing?: boolean;
 };
 
-export const DockSelection = requireNativeViewManager<DockSelectionProps>("ArdiaDockSelection");
+export const DockSelection = requireNativeViewManager<DockSelectionProps>("UniVerseDockSelection");

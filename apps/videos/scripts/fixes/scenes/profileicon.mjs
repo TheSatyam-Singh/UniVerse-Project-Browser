@@ -33,7 +33,7 @@ function writePick(data) {
 export default {
   session: "session-0244n3-profiles.json",
   minWidth: 800,
-  env: { ARDIA_TEST: "appMenu" },
+  env: { UNIVERSE_TEST: "appMenu" },
   setup: `ac.openSettings("profiles", "default"); return sleep(2500).then(() => done({ icon: st().profiles.default.icon }));`,
   external: async (instance, side) => {
     const s = new Script();

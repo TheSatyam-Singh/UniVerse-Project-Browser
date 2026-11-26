@@ -2,8 +2,8 @@
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../../.." && pwd)
-repo=${ARDIACORE_PREBUILT_REPO:-TheSatyam-Singh/UniVerse-Project-Browser}
-assets=${ARDIACORE_PREBUILT_ASSETS:-https://github.com/$repo/releases/download}
+repo=${UNIVERSECORE_PREBUILT_REPO:-TheSatyam-Singh/UniVerse-Project-Browser}
+assets=${UNIVERSECORE_PREBUILT_ASSETS:-https://github.com/$repo/releases/download}
 table="$here/../prebuilt-engines.tsv"
 store="$root/apps/browser/build-universecore/prebuilt"
 name="Chromium Framework"

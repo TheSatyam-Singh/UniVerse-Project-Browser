@@ -5,7 +5,7 @@ diff --git a/chrome/BUILD.gn b/chrome/BUILD.gn
        "//chrome/browser:startup_data",
        "//chrome/browser/lifetime",
        "//chrome/browser/mac",
-+      "//chrome/browser/ardia:exports",  # Ardia: engine/chromium
++      "//chrome/browser/universe:exports",  # UniVerse: engine/chromium
        "//chrome/common:buildflags",
        "//chrome/common:version_header",
        "//chrome/common/profiler",

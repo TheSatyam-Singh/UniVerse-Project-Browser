@@ -95,8 +95,8 @@ python3 -I harness/bench.py stop
   of a changed CLI can run next to a plan still using the old one.
 - **Each UniVerse Project Browser-side run** does the following, in order:
   1. Starts the task's server.
-  2. Reuses or launches one hidden instance: `open -g -n` with `ARDIA_BACKGROUND=1`, its own `ARDIA_DATA_DIR`, a
-     DevTools port and `ARDIA_TEST=cdpTabsVisible`.
+  2. Reuses or launches one hidden instance: `open -g -n` with `UNIVERSE_BACKGROUND=1`, its own `UNIVERSE_DATA_DIR`, a
+     DevTools port and `UNIVERSE_TEST=cdpTabsVisible`.
   3. Stops leftover `universe browse` daemons and wipes the site notes. Every run is cold unless `--keep-notes`.
   4. Resets the task and opens `start_url` as the only tab.
   5. Installs the skill into a fresh workdir.
@@ -242,6 +242,6 @@ Each run does the following, in order:
 
 One run: `python3 -I harness/bench.py run calendar claude try-1 --side betterwright --results …`.
 
-Scratch lives in `BENCH_HOME` (default `~/universe-scratch/bench-proper`): `app/`, `cli/`, `devbin/`, `data-ardia/`,
+Scratch lives in `BENCH_HOME` (default `~/universe-scratch/bench-proper`): `app/`, `cli/`, `devbin/`, `data-universe/`,
 `work/`, `state/`, `logs/` and `results/`, plus `app-lane<k>/`, `data-universe-lane<k>/` and `codex-home-lane<k>/`
 for extra lanes.

@@ -10,10 +10,10 @@ test("each kind the native side builds or reads is one the JS parser knows", () 
   for (const name of readdirSync(NATIVE).filter((f) => /\.(mm|swift)$/.test(f))) {
     const source = readFileSync(new URL(name, NATIVE), "utf8");
     for (const m of source.matchAll(/offerTab:\w+ prefix:@"(\w+)"/g)) found.add(m[1]);
-    if (name === "ArdiaTabParking.mm") for (const m of source.matchAll(/stringWithFormat:@"(\w+):%@"/g)) found.add(m[1]);
+    if (name === "UniVerseTabParking.mm") for (const m of source.matchAll(/stringWithFormat:@"(\w+):%@"/g)) found.add(m[1]);
     for (const m of source.matchAll(/"(\w+):\\\(/g)) if (name.startsWith("WebKitHub")) found.add(m[1]);
     for (const m of source.matchAll(/\[_adoptId hasPrefix:@"(\w+):"\]/g)) found.add(m[1]);
-    if (name === "ArdiaWebView+Transfer.mm") for (const m of source.matchAll(/\[kind isEqualToString:@"(\w+)"\]/g)) found.add(m[1]);
+    if (name === "UniVerseWebView+Transfer.mm") for (const m of source.matchAll(/\[kind isEqualToString:@"(\w+)"\]/g)) found.add(m[1]);
   }
   assert.ok(found.size >= 5, `found ${[...found]}`);
   for (const kind of found) assert.ok(adoptKind(`${kind}:x`), `native kind "${kind}" is unknown to adoptIds.ts`);

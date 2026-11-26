@@ -908,12 +908,12 @@ Measured from a 13 s recording of the user's Dia (3024 × 1964, YouTube video, d
 window 468 × 263 pt at (1034, 43), where the user had left it. Dia draws its own video PiP window (`PIP.VideoPIPContentController`,
 `PIPWindowController`) and keeps where it was last left (`LastVideoPIPPosition`); the first-ever default wasn't
 recovered (UniVerse Project Browser keeps Chrome's: a fifth of the work area, bottom right). UniVerse Project Browser restyles Chrome's own window
-to these numbers (`chrome/browser/ardia/pip/` (`engine/chromium`)); a same-crop comparison is in the table.
+to these numbers (`chrome/browser/universe/pip/` (`engine/chromium`)); a same-crop comparison is in the table.
 - **At rest**: only the video. Corners circular, **6 pt** (the outline fits a circle to 0.1 px at 2×), with a 1 pt rim
   of white **17 %** just inside the edge (content + 32…40 levels) and a faint shadow that follows the rounded corners
   (the backdrop is 3–4 levels darker next to the window, with a 1 px dark contact line). No title, host label or badge.
   UniVerse Project Browser: Chrome's square, transparent window gets its content view clipped to 6 pt, the rim drawn over it and its
-  shadow invalidated (`ArdiaPiPController.mm`); measured on a window capture: 6.0 pt radius, rim + 32…36 levels.
+  shadow invalidated (`UniVersePiPController.mm`); measured on a window capture: 6.0 pt radius, rim + 32…36 levels.
 - **Appears** about 125 ms after the tab switch, at full opacity (one black frame, then the video): no fade, no slide.
 - **Hover**: an even black scrim at **35 %** over the whole video (content × 0.645, same pixels before and after),
   fading in over **200 ms**, ease-in-out (2, 7, 14, 24, 40, 55, 69, 80, 90, 96, 99 % at 60 fps).
@@ -985,11 +985,11 @@ on its window.
   `LastVideoPIPPosition`. A thrown window is remembered by its corner and a dropped one by its frame.
 - **Tilt**: Dia also tilts the window while it's dragged (`dragAngleAnimation`, 0.005 × speed).
 
-**UniVerse Project Browser** (`ArdiaPiPController.mm`, the maths in `ArdiaPiPThrowMath.h`, tested by `pnpm -C packages/universecore test`)
+**UniVerse Project Browser** (`UniVersePiPController.mm`, the maths in `UniVersePiPThrowMath.h`, tested by `pnpm -C packages/universecore test`)
 does the same on Chrome's video PiP window, using the same thresholds, corner rule, 10 pt inset and spring. It
 differs in a few places:
 - Chrome's window can't tilt.
-- The window is remembered by its frame (Chrome's `ArdiaPictureInPicture.plist`), not by its corner.
+- The window is remembered by its frame (Chrome's `UniVersePictureInPicture.plist`), not by its corner.
 - A drag or swipe past a screen side keeps UniVerse Project Browser's 28 pt peek stash rather than Dia's off-screen one.
 - A swipe whose fingers rested more than 0.1 s before lifting doesn't throw.
 - Its screen is the one the window overlaps most.

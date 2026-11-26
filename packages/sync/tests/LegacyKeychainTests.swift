@@ -2,7 +2,7 @@ import CommonCrypto
 import Foundation
 import Security
 import XCTest
-@testable import ArdiaSyncCore
+@testable import UniVerseSyncCore
 
 final class LegacyKeychainTests: XCTestCase {
   var dir: URL!

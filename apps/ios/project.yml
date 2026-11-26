@@ -1,4 +1,4 @@
-name: Ardia
+name: UniVerse
 options:
   bundleIdPrefix: com.universe.projectbrowser
   deploymentTarget:
@@ -18,37 +18,37 @@ settings:
     STRING_CATALOG_GENERATE_SYMBOLS: YES
     LOCALIZATION_PREFERS_STRING_CATALOGS: YES
 packages:
-  ArdiaKit:
-    path: Packages/ArdiaKit
+  UniVerseKit:
+    path: Packages/UniVerseKit
 targets:
-  Ardia:
+  UniVerse:
     type: application
     platform: iOS
     sources:
       - path: App
         type: syncedFolder
     dependencies:
-      - package: ArdiaKit
-        product: ArdiaShared
-      - package: ArdiaKit
-        product: ArdiaSync
-      - package: ArdiaKit
-        product: ArdiaBrowser
-      - package: ArdiaKit
-        product: ArdiaDesign
-      - target: ArdiaWidgets
-      - target: ArdiaShare
-      - target: ArdiaOpen
+      - package: UniVerseKit
+        product: UniVerseShared
+      - package: UniVerseKit
+        product: UniVerseSync
+      - package: UniVerseKit
+        product: UniVerseBrowser
+      - package: UniVerseKit
+        product: UniVerseDesign
+      - target: UniVerseWidgets
+      - target: UniVerseShare
+      - target: UniVerseOpen
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.universe.projectbrowser.ios
-        PRODUCT_NAME: Ardia
+        PRODUCT_NAME: UniVerse
         GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_FILE: Config/Ardia-Info.plist
-        CODE_SIGN_ENTITLEMENTS: $(ARDIA_ENTITLEMENTS_$(ARDIA_DEFAULT_BROWSER))
-        ARDIA_DEFAULT_BROWSER: NO
-        ARDIA_ENTITLEMENTS_NO: Config/Ardia.entitlements
-        ARDIA_ENTITLEMENTS_YES: Config/Ardia-DefaultBrowser.entitlements
+        INFOPLIST_FILE: Config/UniVerse-Info.plist
+        CODE_SIGN_ENTITLEMENTS: $(UNIVERSE_ENTITLEMENTS_$(UNIVERSE_DEFAULT_BROWSER))
+        UNIVERSE_DEFAULT_BROWSER: NO
+        UNIVERSE_ENTITLEMENTS_NO: Config/UniVerse.entitlements
+        UNIVERSE_ENTITLEMENTS_YES: Config/UniVerse-DefaultBrowser.entitlements
         TARGETED_DEVICE_FAMILY: "1"
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
@@ -65,63 +65,63 @@ targets:
         INFOPLIST_KEY_LSApplicationCategoryType: public.app-category.productivity
         INFOPLIST_KEY_UIFileSharingEnabled: YES
         INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace: YES
-  ArdiaWidgets:
+  UniVerseWidgets:
     type: app-extension
     platform: iOS
     sources:
       - path: Widgets
         type: syncedFolder
     dependencies:
-      - package: ArdiaKit
-        product: ArdiaBrowser
-      - package: ArdiaKit
-        product: ArdiaDesign
+      - package: UniVerseKit
+        product: UniVerseBrowser
+      - package: UniVerseKit
+        product: UniVerseDesign
       - sdk: WidgetKit.framework
       - sdk: SwiftUI.framework
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.universe.projectbrowser.ios.widgets
-        PRODUCT_NAME: ArdiaWidgets
+        PRODUCT_NAME: UniVerseWidgets
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_FILE: Config/Widgets-Info.plist
         CODE_SIGN_ENTITLEMENTS: Config/Widgets.entitlements
         TARGETED_DEVICE_FAMILY: "1"
         INFOPLIST_KEY_CFBundleDisplayName: UniVerse Project Browser
         SKIP_INSTALL: YES
-  ArdiaShare:
+  UniVerseShare:
     type: app-extension
     platform: iOS
     sources:
       - path: Share
         type: syncedFolder
     dependencies:
-      - package: ArdiaKit
-        product: ArdiaBrowser
-      - package: ArdiaKit
-        product: ArdiaDesign
+      - package: UniVerseKit
+        product: UniVerseBrowser
+      - package: UniVerseKit
+        product: UniVerseDesign
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.universe.projectbrowser.ios.share
-        PRODUCT_NAME: ArdiaShare
+        PRODUCT_NAME: UniVerseShare
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_FILE: Config/Share-Info.plist
         CODE_SIGN_ENTITLEMENTS: Config/Share.entitlements
         TARGETED_DEVICE_FAMILY: "1"
         INFOPLIST_KEY_CFBundleDisplayName: UniVerse Project Browser
         SKIP_INSTALL: YES
-  ArdiaOpen:
+  UniVerseOpen:
     type: app-extension
     platform: iOS
     sources:
       - path: Action
         type: syncedFolder
     dependencies:
-      - package: ArdiaKit
-        product: ArdiaDesign
+      - package: UniVerseKit
+        product: UniVerseDesign
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.universe.projectbrowser.ios.open
-        PRODUCT_NAME: ArdiaOpen
+        PRODUCT_NAME: UniVerseOpen
         GENERATE_INFOPLIST_FILE: YES
         INFOPLIST_FILE: Config/Open-Info.plist
         CODE_SIGN_ENTITLEMENTS: Config/Open.entitlements
@@ -130,10 +130,10 @@ targets:
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         SKIP_INSTALL: YES
 schemes:
-  Ardia:
+  UniVerse:
     build:
       targets:
-        Ardia: all
+        UniVerse: all
     run:
       config: Debug
     archive:

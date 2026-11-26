@@ -28,7 +28,7 @@ Only go further when the report doesn't answer the question:
 - DAU/WAU/MAU trends or splits by version, channel, macOS or chip: the `daily_active` queries in
   [queries.md](queries.md). WAU and MAU are calendar week (ISO, Monday) and calendar month, in UTC, not rolling.
 
-If `~/.config/ardia/telemetry.env` is missing, the report says so; ask the owner for it.
+If `~/.config/universe/telemetry.env` is missing, the report says so; ask the owner for it.
 
 Copies on 0.2.17 or earlier send their opt-in events to PostHog Cloud, which nothing reads; the report
 names those versions when they still check for updates.

@@ -24,7 +24,7 @@ static NSInteger FakeWindowNumberAtPoint(id self, SEL _cmd, NSPoint point, NSInt
 
 static void MarkHover(void) {
   Class view = NSClassFromString(@"RCTView");
-  SEL mark = NSSelectorFromString(@"ardia_markHoverDirty");
+  SEL mark = NSSelectorFromString(@"universe_markHoverDirty");
   if (view && [view respondsToSelector:mark]) ((void (*)(id, SEL))objc_msgSend)(view, mark);
 }
 

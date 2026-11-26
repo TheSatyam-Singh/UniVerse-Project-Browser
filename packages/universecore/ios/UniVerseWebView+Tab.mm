@@ -1,0 +1,388 @@
+#import "UniVerseWebViewInternal.h"
+#import "UniVerseEarlyWindow.h"
+
+#import <objc/runtime.h>
+
+using namespace universe_web_view;
+
+namespace {
+
+const char kPageReportsKey = 0;
+BOOL gLittleUniverseOpensNewTabLinks = NO;
+const CFTimeInterval kNewTabLinkSeconds = 2;
+const NSUInteger kNewTabLinksKept = 4;
+const int kNewTabLinkTries = 8;
+const CFTimeInterval kHiddenNewTabLinkSeconds = 1;
+}
+
+@interface UniVerseStashedPageReports : NSObject {
+ @public
+  NSString *url;
+  UniVersePageReports reports;
+}
+@end
+
+@implementation UniVerseStashedPageReports
+@end
+
+@implementation UniVerseWebView (Tab)
+
+- (UniVerseCoreAdoption)windowTakes:(UniVerseCoreTab *)tab {
+  UniVerseCoreWindow *coreWindow = _standalone ? nil : self.controller.coreWindow;
+  return coreWindow ? [coreWindow canAdoptTab:tab] : UniVerseCoreAdoptionAdopted;
+}
+
+- (BOOL)holdTransferOf:(UniVerseCoreTab *)tab {
+  const UniVerseCoreAdoption adoption = [self windowTakes:tab];
+  if (adoption == UniVerseCoreAdoptionBusy) {
+    __weak UniVerseWebView *weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [weakSelf ensureTab];
+    });
+  } else if (adoption == UniVerseCoreAdoptionRefused) {
+    [self waitForWindow];
+    [self emit:@"transferRefused" payload:@{@"from" : [UniVerseWindowController holding:tab].appWindowId ?: @""}];
+  }
+  return adoption != UniVerseCoreAdoptionAdopted;
+}
+
+- (UniVerseCoreAdoption)adoptIntoWindow {
+  if (_standalone) return UniVerseCoreAdoptionAdopted;
+  UniVerseWindowController *controller = self.controller;
+  if (!controller.coreWindow) return UniVerseCoreAdoptionAdopted;
+  if ([[controller.coreWindow tabsForProfile:_tab.profile] containsObject:_tab]) return UniVerseCoreAdoptionAdopted;
+  UniVerseWindowController *source = [UniVerseWindowController holding:_tab];
+  _life.moving = YES;
+  controller.hostChanges++;
+  source.hostChanges++;
+  const UniVerseCoreAdoption adoption = [controller.coreWindow adoptTab:_tab];
+  source.hostChanges--;
+  controller.hostChanges--;
+  _life.moving = NO;
+  if (adoption == UniVerseCoreAdoptionAdopted && _tabIndex >= 0) [self placeTab];
+  return adoption;
+}
+
+- (void)adoptMovedPage {
+  UniVerseCoreTab *tab = _tab;
+  const UniVerseCoreAdoption adoption = [self adoptIntoWindow];
+  if (adoption == UniVerseCoreAdoptionBusy) {
+    __weak UniVerseWebView *weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      UniVerseWebView *view = weakSelf;
+      if (view && view->_tab == tab && view.window) [view adoptMovedPage];
+    });
+  } else if (adoption == UniVerseCoreAdoptionRefused) {
+    [self emit:@"transferRefused" payload:@{@"from" : [UniVerseWindowController holding:tab].appWindowId ?: @""}];
+  }
+}
+
+- (void)attach:(UniVerseCoreTab *)tab {
+  NSAssert(_life.canAttach(_tab != nil), @"a closed view, or one that has a tab, was given another tab");
+  if (!_life.canAttach(_tab != nil) || [self windowTakes:tab] != UniVerseCoreAdoptionAdopted) return;
+  if (TraceVisibility()) NSLog(@"[universecore-vis] %@ attach tab=%d visible=%d", _transferKey, (int)tab.tabId, _visible);
+  const BOOL shownEarly = [UniVerseEarlyWindow holdsPage:tab];
+  [LiveViews() addObject:self];
+  InstallControlPressMonitor();
+  _tab = tab;
+  _life.attached();
+  tab.delegate = self;
+  [UniVerseTabRegistry setView:self forTab:tab];
+  [self markTemporary];
+  [self pushPeekModifier];
+  [self pushSelectionPopover];
+  [self bindRestoreKey];
+  [self takePageReports];
+  [tab deliverHeldPageMessages];
+  [self userSightChanged];
+  [self adoptIntoWindow];
+  NSView *page = tab.view;
+  if (page.superview != self) {
+    if (!page.window || page.window != self.window) [page removeFromSuperview];
+    [self addSubview:page];
+    [UniVerseEarlyWindow pageMoved:tab];
+  }
+  if (NSView *devtools = tab.devToolsView) [self devToolsChanged:devtools];
+  [self layoutPage];
+  [self applyPainting];
+  if (!shownEarly && (_life.creatingURL.length || tab.loading)) [self holdLittlePage];
+  if (_muted) tab.muted = YES;
+  if (_pageBackgroundColor) tab.pageBackgroundColor = _pageBackgroundColor;
+  if (_contentsBackgroundColor) tab.contentsBackgroundColor = _contentsBackgroundColor;
+  if (_pageColor) tab.pageColor = _pageColor;
+  if (_life.pendingURL) {
+    [self loadNow:_life.pendingURL userInitiated:_life.pendingUserInitiated];
+    _life.pendingURL = nil;
+  }
+  [self emit:@"ready" payload:@{}];
+  universe_host::ReleaseHeldEvents(tab);
+  [self emitNavigation];
+  if (_extensionHost.length && tab && tab.preferredSize.width > 0)
+    [self tab:tab preferredSizeDidChange:tab.preferredSize];
+  [self emitMedia];
+  [self tabDidChangeFavicon:tab];
+  if (_tabIndex >= 0) [self placeTab];
+  if (UniVerseWindowController *controller = self.controller)
+    [UniVerseTabStrip changedInWindow:controller profile:tab.profile cause:NSNull.null];
+}
+
+- (void)detach {
+  if (!_tab) return;
+  if (TraceVisibility()) NSLog(@"[universecore-vis] %@ detach tab=%d", _transferKey, (int)_tab.tabId);
+  [self revealLittlePage:NO];
+  if (_tab.delegate == self) _tab.delegate = nil;
+  [UniVerseTabRegistry setView:nil forTab:_tab];
+  [UniVerseWebView noteShown:_tab];
+  [self stashPageReports];
+  AcceptDrops(_tab.view, YES);
+  if (_tab.view.superview == self) [_tab.view removeFromSuperview];
+  [self dropDevTools];
+  [self resetBlocked:NO];
+  [self endReveal];
+  [self dropFront];
+  [self finishFrameHold];
+  [self finishStandIn];
+  [self stopHolding];
+  _standIn.lentTo = nil;
+  _tab = nil;
+  _life.detached();
+  _focus.onActivate = NO;
+  _focus.page = UniVersePageFocus::Unknown;
+  _focus.devTools = nil;
+  _life.handingOff = NO;
+  _leave.active = NO;
+  _leave.generation++;
+}
+
+- (void)stashPageReports {
+  UniVerseStashedPageReports *stash = [UniVerseStashedPageReports new];
+  stash->url = _tab.url ?: @"";
+  stash->reports = _reports;
+  if (!_tab.closed) objc_setAssociatedObject(_tab, &kPageReportsKey, stash, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  [self takeReports:nil];
+}
+
+- (void)takePageReports {
+  UniVerseStashedPageReports *stash = objc_getAssociatedObject(_tab, &kPageReportsKey);
+  objc_setAssociatedObject(_tab, &kPageReportsKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  [self takeReports:stash && [stash->url isEqual:_tab.url ?: @""] ? stash : nil];
+}
+
+- (void)takeReports:(UniVerseStashedPageReports *)stash {
+  const BOOL seen = _reports.seenByUser;
+  _reports = stash ? stash->reports : UniVersePageReports{};
+  if (!stash) _reports.seenByUser = seen;
+}
+
+- (void)placeTab {
+  UniVerseWindowController *controller = self.controller;
+  if (!_tab || !controller.coreWindow) return;
+  controller.hostChanges++;
+  [controller.coreWindow placeTab:_tab index:(int)_tabIndex pinned:_pinned];
+  controller.hostChanges--;
+}
+
++ (void)setLittleUniverseOpensNewTabLinks:(BOOL)enabled {
+  gLittleUniverseOpensNewTabLinks = enabled;
+}
+
+- (void)openedTab:(UniVerseCoreTab *)tab adoptId:(NSString *)adoptId disposition:(NSString *)disposition {
+  [self announceOpenedTab:tab adoptId:adoptId disposition:disposition link:NO tries:0];
+}
+
+- (void)openedLinkTab:(UniVerseCoreTab *)tab adoptId:(NSString *)adoptId disposition:(NSString *)disposition {
+  [self announceOpenedTab:tab adoptId:adoptId disposition:disposition link:[disposition isEqualToString:@"foreground"] tries:0];
+}
+
+- (BOOL)opensNewTabLinksInPlace {
+  return gLittleUniverseOpensNewTabLinks && [self.window.identifier isEqualToString:@"universe.window.small"];
+}
+
+- (void)announceOpenedTab:(UniVerseCoreTab *)tab
+                  adoptId:(NSString *)adoptId
+              disposition:(NSString *)disposition
+                     link:(BOOL)link
+                    tries:(int)tries {
+  if (tab.closed) return;
+  NSString *url = tab.url;
+  if ((!url.length || [url isEqualToString:@"about:blank"]) && tries < 20) {
+    __weak UniVerseWebView *weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 25 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
+      [weakSelf announceOpenedTab:tab adoptId:adoptId disposition:disposition link:link tries:tries + 1];
+    });
+    return;
+  }
+  if (link && _tab) return [self matchLinkTab:tab adoptId:adoptId disposition:disposition firstURL:url ?: @"" hidden:tries > 0 tries:0];
+  [self emitOpenedTab:tab adoptId:adoptId disposition:disposition clicked:NO linkWait:nil];
+}
+
+- (void)matchLinkTab:(UniVerseCoreTab *)tab
+             adoptId:(NSString *)adoptId
+         disposition:(NSString *)disposition
+            firstURL:(NSString *)firstURL
+              hidden:(BOOL)hidden
+               tries:(int)tries {
+  if (tab.closed) return;
+  NSString *clicked = _tab ? [self takeNewTabLinkFor:@[ firstURL, tab.url ?: @"" ]] : nil;
+  if (!clicked && hidden && _tab) clicked = [self takeNewTabLinkNoted:kHiddenNewTabLinkSeconds];
+  if (clicked && self.opensNewTabLinksInPlace) {
+    if ([UniVerseTabRegistry takeOffered:adoptId] == tab) [tab close];
+    [self emit:@"openWindow" payload:@{@"url" : clicked, @"disposition" : @"current", @"userGesture" : @YES, @"linkWait" : @"matched"}];
+    return;
+  }
+  const BOOL activated = tries > 0 || MayHoldUserActivation(self.window);
+  const BOOL retry = !clicked && _tab && activated && tries < kNewTabLinkTries;
+  if (!retry)
+    PeekTrace(@{
+      @"event" : @"linkTab",
+      @"url" : tab.url ?: @"",
+      @"first" : firstURL,
+      @"hidden" : @(hidden),
+      @"clicked" : @(clicked != nil),
+      @"activated" : @(activated),
+      @"tries" : @(tries)
+    });
+  if (clicked) return [self emitOpenedTab:tab adoptId:adoptId disposition:disposition clicked:YES linkWait:@"matched"];
+  if (retry) {
+    __weak UniVerseWebView *weakSelf = self;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 25 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
+      [weakSelf matchLinkTab:tab adoptId:adoptId disposition:disposition firstURL:firstURL hidden:hidden tries:tries + 1];
+    });
+    return;
+  }
+  [self emitOpenedTab:tab adoptId:adoptId disposition:disposition clicked:NO linkWait:tries >= kNewTabLinkTries ? @"timedOut" : @"skipped"];
+}
+
+- (void)dropStaleNewTabLinks {
+  const CFTimeInterval now = CACurrentMediaTime();
+  [_newTabLinks filterUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(NSDictionary *link, NSDictionary *bindings) {
+                  return now - [link[@"at"] doubleValue] < kNewTabLinkSeconds;
+                }]];
+}
+
+- (void)noteNewTabLink:(NSString *)url {
+  if (!url.length) return;
+  [self dropStaleNewTabLinks];
+  if (!_newTabLinks) _newTabLinks = [NSMutableArray array];
+  [_newTabLinks addObject:@{@"url" : url, @"at" : @(CACurrentMediaTime())}];
+  if (_newTabLinks.count > kNewTabLinksKept) [_newTabLinks removeObjectsInRange:NSMakeRange(0, _newTabLinks.count - kNewTabLinksKept)];
+}
+
+- (nullable NSString *)takeNewTabLinkFor:(NSArray<NSString *> *)urls {
+  [self dropStaleNewTabLinks];
+  for (NSUInteger i = 0; i < _newTabLinks.count; i++) {
+    NSString *url = _newTabLinks[i][@"url"];
+    if (![urls containsObject:url]) continue;
+    [_newTabLinks removeObjectAtIndex:i];
+    return url;
+  }
+  return nil;
+}
+
+- (nullable NSString *)takeNewTabLinkNoted:(CFTimeInterval)within {
+  [self dropStaleNewTabLinks];
+  NSDictionary *newest = _newTabLinks.lastObject;
+  if (!newest || CACurrentMediaTime() - [newest[@"at"] doubleValue] > within) return nil;
+  [_newTabLinks removeLastObject];
+  return newest[@"url"];
+}
+
+- (void)emitOpenedTab:(UniVerseCoreTab *)tab
+              adoptId:(NSString *)adoptId
+          disposition:(NSString *)disposition
+              clicked:(BOOL)clicked
+             linkWait:(nullable NSString *)linkWait {
+  NSString *url = tab.url;
+  NSMutableDictionary *payload = [@{
+    @"url" : url ?: @"",
+    @"disposition" : disposition,
+    @"adoptId" : adoptId,
+    @"userGesture" : @YES,
+    @"postBody" : @NO,
+    @"fromClick" : @(clicked),
+  } mutableCopy];
+  if (tab.profile.offTheRecord) payload[@"profile"] = universe_host::OriginalProfileNameOf(tab.profile);
+  if (clicked) payload[@"point"] = RecentClickPoint(self);
+  if (linkWait) payload[@"linkWait"] = linkWait;
+  [self emit:@"openWindow" payload:payload];
+}
+
+- (void)tabRemovedFromWindow:(UniVerseCoreWindow *)window {
+  if (_life.moving || _life.closed() || !_tab) return;
+  {
+    UniVerseCoreTab *removed = _tab;
+    __weak UniVerseWebView *weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      UniVerseWebView *view = weakSelf;
+      if (view && view->_tab == removed && removed.closed) [view detach];
+    });
+  }
+}
+
+- (void)tabActivatedByChrome:(BOOL)chromes {
+  if (TraceVisibility()) NSLog(@"[universecore-vis] %@ chrome-activated tab=%d byChrome=%d", _transferKey, _tab ? (int)_tab.tabId : -1, chromes);
+  if (_standalone) return;
+  [self requestFocusRestore];
+  if (_sent.navigationQueued) [self emitNavigation];
+}
+
+- (void)devToolsChanged:(NSView *)devToolsView {
+  if (_devtoolsView && _devtoolsView != devToolsView && _devtoolsView.superview == self) {
+    AcceptDrops(_devtoolsView, YES);
+    [_devtoolsView removeFromSuperview];
+  }
+  _devtoolsView = devToolsView;
+  if (devToolsView && devToolsView.superview != self) {
+    [devToolsView removeFromSuperview];
+    NSView *page = _tab.view;
+    if (page.superview == self) [self addSubview:devToolsView positioned:NSWindowBelow relativeTo:page];
+    else [self addSubview:devToolsView];
+    AcceptDrops(devToolsView, _visible);
+  }
+  [self layoutPage];
+}
+
+- (void)dropDevTools {
+  AcceptDrops(_devtoolsView, YES);
+  if (_devtoolsView.superview == self) [_devtoolsView removeFromSuperview];
+  _devtoolsView = nil;
+}
+
+- (void)tabWillClose:(UniVerseCoreTab *)tab {
+  [UniVerseEarlyWindow dropPage:tab];
+  if (_life.closed() || tab != _tab) return;
+  [self detach];
+  [self emit:@"windowClose" payload:@{}];
+}
+
+- (void)tab:(UniVerseCoreTab *)tab rendererGone:(NSString *)status code:(int)code {
+  _reports.crashed = YES;
+  [self resetPageMedia];
+  [self emit:@"crashed" payload:@{@"status" : @(code), @"reason" : status ?: @"unknown", @"code" : @(code)}];
+}
+
+- (void)resolveUnresponsive:(BOOL)terminate {
+  [_tab resolveUnresponsive:terminate];
+}
+
+- (NSString *)discard:(BOOL)unload {
+  if (unload) return @"unsupported";
+  if (!_tab) return @"refused";
+  if (_tab.discarded) return @"already";
+  return [_tab discard] && _tab.discarded ? @"discarded" : @"refused";
+}
+
+- (void)tabDidChangeDiscarded:(UniVerseCoreTab *)tab {
+  if (tab.discarded) [self emit:@"discarded" payload:@{@"url" : tab.url ?: @"", @"reason" : tab.discardReason ?: @""}];
+  else [self emit:@"ready" payload:@{}];
+}
+
+- (void)tabBecameUnresponsive:(UniVerseCoreTab *)tab {
+  [self emit:@"unresponsive" payload:@{}];
+}
+
+- (void)tabBecameResponsive:(UniVerseCoreTab *)tab {
+  [self emit:@"responsive" payload:@{}];
+}
+
+@end

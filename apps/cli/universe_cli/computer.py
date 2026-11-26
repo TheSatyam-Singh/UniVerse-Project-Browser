@@ -124,7 +124,7 @@ def download(url: str, dest: Path) -> None:
     if not url.startswith("https://"):
         raise Refused(f"refused a download that isn't https: {url}")
     opener = urllib.request.build_opener(HttpsOnly)
-    request = urllib.request.Request(url, headers={"User-Agent": f"ardia/{__version__}"})
+    request = urllib.request.Request(url, headers={"User-Agent": f"universe/{__version__}"})
     with opener.open(request, timeout=DOWNLOAD_TIMEOUT_S) as response, open(dest, "wb") as out:
         shutil.copyfileobj(response, out, 1 << 20)
 
@@ -527,7 +527,7 @@ def place_app(source: Path, env=None) -> str:
 
 def bin_dir(env=None) -> Path:
     env = os.environ if env is None else env
-    return Path(env.get("ARDIA_CLI_BIN_DIR") or Path.home() / ".local" / "bin").expanduser()
+    return Path(env.get("UNIVERSE_CLI_BIN_DIR") or Path.home() / ".local" / "bin").expanduser()
 
 
 def trusted_launcher(env=None) -> Path | None:
@@ -551,7 +551,7 @@ def universe_command(env=None) -> str:
     launcher = trusted_launcher(env)
     if launcher is None:
         raise Refused(
-            "can't find the installed universe launcher ($ARDIA_CLI_HOME/current/bin/universe), and won't take whatever "
+            "can't find the installed universe launcher ($UNIVERSE_CLI_HOME/current/bin/universe), and won't take whatever "
             "universe is first on PATH; install the universe command from UniVerse Project Browser (Settings › Advanced) and run this again"
         )
     return str(launcher)

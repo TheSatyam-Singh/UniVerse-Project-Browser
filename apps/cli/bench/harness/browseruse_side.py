@@ -78,7 +78,7 @@ def harness_env(opts, home):
 def agent_env(opts, home, extra=None):
     env = universe_side.agent_env({"cli": "installed"}, extra)
     env = {k: v for k, v in env.items() if not k.startswith(STRIPPED_ENV_PREFIXES)}
-    keep = [p for p in env["PATH"].split(":") if p and Path(p) not in (universe_side.DEV_BIN, universe_side.INSTALLED_ARDIA.parent)]
+    keep = [p for p in env["PATH"].split(":") if p and Path(p) not in (universe_side.DEV_BIN, universe_side.INSTALLED_UNIVERSE.parent)]
     env["PATH"] = ":".join([str(bin_dir(opts))] + keep)
     env.update(harness_env(opts, home))
     return env

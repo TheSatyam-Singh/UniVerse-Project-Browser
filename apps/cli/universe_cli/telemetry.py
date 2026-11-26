@@ -11,7 +11,7 @@ from universe_cli import __version__
 LOGS_URL = "https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/otel/v1/logs"
 INGEST_KEY_HEADER = "X-Universe-Key"
 CLI_INGEST_KEY = "ak_cli_67adb8ebc49841125eda860e"
-TEST_URL_ENV = "ARDIA_TELEMETRY_URL"
+TEST_URL_ENV = "UNIVERSE_TELEMETRY_URL"
 EVENTS_SCOPE = "universe.analytics"
 SERVICE_NAME = "universe-cli"
 LIB = "universe-cli"
@@ -46,7 +46,7 @@ FLUSH_DEADLINE_S = 30
 LOCK_ATTEMPTS = 5
 LOCK_RETRY_S = 0.002
 TEST_ENDPOINT_FLAGS = frozenset({"--port", "--ws", "--cdp"})
-TEST_ENDPOINT_ENV = ("ARDIA_WS", "ARDIA_PORT", "ARDIA_CDP_URL", "AGENT_BROWSER_CDP")
+TEST_ENDPOINT_ENV = ("UNIVERSE_WS", "UNIVERSE_PORT", "UNIVERSE_CDP_URL", "AGENT_BROWSER_CDP")
 INSTALL_ID = re.compile(r"^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$")
 LOOPBACK_URL = re.compile(r"^http://(?:127\.0\.0\.1|localhost|\[::1\]):\d{1,5}/[\x21-\x7e]{0,200}$")
 COMMAND_NAME = re.compile(r"^[a-z][a-z0-9-]{0,31}$")
@@ -90,7 +90,7 @@ def opted_out(env) -> bool:
     do_not_track = (env.get("DO_NOT_TRACK") or "").strip().lower()
     if do_not_track not in ("", "0", "false"):
         return True
-    return (env.get("ARDIA_TELEMETRY") or "").strip().lower() in OFF_VALUES
+    return (env.get("UNIVERSE_TELEMETRY") or "").strip().lower() in OFF_VALUES
 
 
 def logs_url(env) -> str | None:

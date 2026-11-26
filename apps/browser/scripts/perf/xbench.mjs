@@ -30,7 +30,7 @@
 //                          moment input comes. off: run now, with the Mac in use (competitors' windows show on screen)
 //     --away <secs>        idle time that counts as away (default 600)
 //     --window <x,y>       the windows' top-left corner (default 40,80)
-//     --env <name>=K=V     repeatable: extra environment for one browser's instances (universe=ARDIA_INSTANCE=chromiumSwitches=…)
+//     --env <name>=K=V     repeatable: extra environment for one browser's instances (universe=UNIVERSE_INSTANCE=chromiumSwitches=…)
 //     --launch-tab on|off  UniVerse Project Browser's template session names its active tab as launchTab, as a user's session written
 //                          with that kill switch on does (default on)
 //     --allow-focus        record a browser making itself the active app instead of stopping (only for an A/B the
@@ -51,7 +51,7 @@
 // ~/Library), the CDP port, and UniVerse Project Browser's background-mode switches for all: --disable-backgrounding-occluded-windows
 // --mute-audio. Chromium browsers: --user-data-dir --no-first-run --no-default-browser-check --password-store=basic
 // --use-mock-keychain --window-size --window-position. Chrome and Helium also --restore-last-session (UniVerse Project Browser and Dia
-// restore by default). UniVerse Project Browser: ARDIA_BACKGROUND=1, ARDIA_DATA_DIR, ARDIA_REMOTE_DEBUGGING_PORT, onboarding done.
+// restore by default). UniVerse Project Browser: UNIVERSE_BACKGROUND=1, UNIVERSE_DATA_DIR, UNIVERSE_REMOTE_DEBUGGING_PORT, onboarding done.
 //
 // Rows:
 //   launch → page painted (link)  link     `open -a <app> <url>` with the browser closed: the URL's first-contentful-paint
@@ -472,7 +472,7 @@ class Instance {
   env() {
     const env = { HOME: this.home, CFFIXED_USER_HOME: this.home };
     if (isUniverse(this.name)) {
-      Object.assign(env, { ARDIA_BACKGROUND: "1", ARDIA_DATA_DIR: join(this.home, "data"), ARDIA_REMOTE_DEBUGGING_PORT: String(port),
+      Object.assign(env, { UNIVERSE_BACKGROUND: "1", UNIVERSE_DATA_DIR: join(this.home, "data"), UNIVERSE_REMOTE_DEBUGGING_PORT: String(port),
         ...launchVariables({ instance: { updateFeed: `${base()}/appcast.xml` } }) });
     }
     const extra = opt.env.filter((e) => e.startsWith(`${this.name}=`)).map((e) => e.slice(this.name.length + 1))

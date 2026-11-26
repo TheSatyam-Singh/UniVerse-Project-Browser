@@ -33,7 +33,7 @@ cdhash() { codesign -dvvv "$1" 2>&1 | sed -n 's/^CDHash=//p'; }
 
 fw="$app/Contents/Frameworks"
 [ -d "$fw/Chromium Framework.framework" ] && [ ! -e "$fw/Chromium Embedded Framework.framework" ] && ok=1 || ok=0
-check "the engine is ArdiaCore (Chrome's framework, no CEF)" $ok \
+check "the engine is UniVerseCore (Chrome's framework, no CEF)" $ok \
   "$(plutil -extract CFBundleShortVersionString raw "$fw/Chromium Framework.framework/Resources/Info.plist" 2>/dev/null)"
 if [ -d "$old" ]; then
   legacy_id="$("$root/scripts/lib/legacy-name.sh" bundleId)"
@@ -189,7 +189,7 @@ node "$root/packages/universecore/scripts/popup-check.mjs" "$app" "$work/popup-c
 cli_tarball="$dist/universe-cli-$version-macos-arm64.tar.gz"
 if [ -f "$cli_tarball" ]; then
   mkdir -p "$work/cli" && tar -xzf "$cli_tarball" -C "$work/cli"
-  ARDIA_CLI_HOME="$work/cli-home" "$root/apps/cli/scripts/token-smoke.sh" "$app" "$(ls "$work"/cli/*/bin/universe)" || status=1
+  UNIVERSE_CLI_HOME="$work/cli-home" "$root/apps/cli/scripts/token-smoke.sh" "$app" "$(ls "$work"/cli/*/bin/universe)" || status=1
 elif [ -z "${SMOKE_APP:-}" ]; then
   check "the release has $(basename "$cli_tarball")" 0
 fi

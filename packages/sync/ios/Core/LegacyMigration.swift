@@ -27,18 +27,22 @@ enum Renamed {
   }
 
   static let safeStorage = KeychainItem(
-    oldService: "Netnyahoo Safe Storage", newService: "Ardia Safe Storage", account: ("Netnyahoo", "Ardia"),
-    label: { _ in "Ardia Safe Storage" }, accessible: nil, critical: true)
+    oldService: "Ardia Safe Storage", newService: "UniVerse Safe Storage", account: ("Ardia", "UniVerse"),
+    label: { _ in "UniVerse Safe Storage" }, accessible: nil, critical: true)
+  static let safeStorageLegacy = KeychainItem(
+    oldService: "Netnyahoo Safe Storage", newService: "UniVerse Safe Storage", account: ("Netnyahoo", "UniVerse"),
+    label: { _ in "UniVerse Safe Storage" }, accessible: nil, critical: false)
   static let connectedAccounts = KeychainItem(
     oldService: "Netnyahoo Connected Accounts", newService: "UniVerse Project Browser Connected Accounts", account: nil,
     label: { "UniVerse Project Browser: \($0)" }, accessible: nil, critical: false)
   static let syncKey = KeychainItem(
     oldService: "Netnyahoo Sync Key", newService: "UniVerse Project Browser Sync Key", account: nil,
     label: { _ in "UniVerse Project Browser Sync Key" }, accessible: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly, critical: false)
-  static let keychain = [safeStorage, connectedAccounts, syncKey]
+  static let keychain = [safeStorage, safeStorageLegacy, connectedAccounts, syncKey]
 
   static let paths: [(old: String, new: String)] = [
-    ("Chromium/NetnyahooPictureInPicture.plist", "Chromium/ArdiaPictureInPicture.plist"),
+    ("Chromium/ArdiaPictureInPicture.plist", "Chromium/UniVersePictureInPicture.plist"),
+    ("Chromium/NetnyahooPictureInPicture.plist", "Chromium/UniVersePictureInPicture.plist"),
     ("Chromium/NativeMessagingHosts/.netnyahoo-managed.json", "Chromium/NativeMessagingHosts/.universe-managed.json"),
     ("Chromium/*/Netnyahoo Favicons", "Chromium/*/UniVerse Project Browser Favicons"),
   ]
@@ -63,7 +67,7 @@ enum Renamed {
     "NNPictureInPictureZoom": "ACPictureInPictureZoom",
     "NNUpdateFeedURL": "ACUpdateFeedURL",
   ]
-  static let defaultsKeyPrefixes = [("NSWindow Frame Netnyahoo", "NSWindow Frame Ardia")]
+  static let defaultsKeyPrefixes = [("NSWindow Frame Ardia", "NSWindow Frame UniVerse"), ("NSWindow Frame Netnyahoo", "NSWindow Frame UniVerse")]
   static let menuTitleWords = [("Small Yahu", "Little UniVerse"), ("Netnyahoo", "UniVerse Project Browser")]
 }
 

@@ -65,7 +65,7 @@ export type Tab = {
   unseen?: true;
 };
 
-export type AdoptKind = "restore" | "clone" | "tab" | "ardiacore" | "webkit" | "link";
+export type AdoptKind = "restore" | "clone" | "tab" | "universecore" | "webkit" | "link";
 export type AdoptId = `${AdoptKind}:${string}`;
 
 export type Navigation = { url: string; seq: number; userInitiated?: boolean };

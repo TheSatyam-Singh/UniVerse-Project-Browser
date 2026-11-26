@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import UniVerseBrowser
 import SwiftUI
 import UIKit
 

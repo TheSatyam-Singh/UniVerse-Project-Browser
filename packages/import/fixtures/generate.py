@@ -12,7 +12,7 @@ Don't open the Firefox places.sqlite fixture with the sqlite3 CLI: that checkpoi
 file, and the tests rely on rows that only exist in the WAL. Regenerate if it happens.
 
 Test secrets (also in secrets.json):
-  Chromium-family "Safe Storage" secret: ardia-fixture-secret
+  Chromium-family "Safe Storage" secret: universe-fixture-secret
   Firefox default profile primary password: (none)
   Firefox "Work" profile primary password: hunter2
 """
@@ -34,7 +34,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SUPPORT = os.path.join(HERE, "home", "Library", "Application Support")
 MISC = os.path.join(HERE, "misc")
 
-CHROMIUM_SECRET = b"ardia-fixture-secret"
+CHROMIUM_SECRET = b"universe-fixture-secret"
 CHROMIUM_KEY = hashlib.pbkdf2_hmac("sha1", CHROMIUM_SECRET, b"saltysalt", 1003, 16)
 WRONG_KEY = hashlib.pbkdf2_hmac("sha1", b"some-other-secret", b"saltysalt", 1003, 16)
 
@@ -380,7 +380,7 @@ def build_chrome():
     write(os.path.join(d, "Google Profile Picture.png"), PNG_1PX)
     t = BASE_UNIX - 86400 * 100
     chromium_bookmarks(os.path.join(d, "Bookmarks"),
-                       bar=[bookmark("Ardia", "https://ardia.example/", t, "00000000-0000-4000-8000-000000000101"),
+                       bar=[bookmark("UniVerse", "https://ardia.example/", t, "00000000-0000-4000-8000-000000000101"),
                             folder("Dev", [
                                 bookmark("Swift Forums", "https://forums.swift.example/", t, "00000000-0000-4000-8000-000000000102"),
                                 folder("Docs", [bookmark("SQLite — Docs", "https://sqlite.example/docs.html", t,
@@ -1384,7 +1384,7 @@ BOOKMARKS_HTML_CHROME = """<!DOCTYPE NETSCAPE-Bookmark-file-1>
 <DL><p>
     <DT><H3 ADD_DATE="1700000000" LAST_MODIFIED="1700000100" PERSONAL_TOOLBAR_FOLDER="true">Bookmarks bar</H3>
     <DL><p>
-        <DT><A HREF="https://ardia.example/" ADD_DATE="1700000001" ICON="data:image/png;base64,AAAA">Ardia</A>
+        <DT><A HREF="https://ardia.example/" ADD_DATE="1700000001" ICON="data:image/png;base64,AAAA">UniVerse</A>
         <DT><H3 ADD_DATE="1700000002" LAST_MODIFIED="0">Empty folder</H3>
         <DL><p>
         </DL><p>

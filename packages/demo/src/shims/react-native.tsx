@@ -54,7 +54,7 @@ function assignRef<T>(ref: ForwardedRef<T>, value: T | null) {
   else if (ref) ref.current = value;
 }
 
-export const NATIVE_CHANGE = Symbol("ardiaNativeChange");
+export const NATIVE_CHANGE = Symbol("universeNativeChange");
 
 export const TextInput = forwardRef<unknown, MacTextInputProps>(function MacTextInput({ keyDownEvents, onKeyDown, ...props }, ref) {
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {

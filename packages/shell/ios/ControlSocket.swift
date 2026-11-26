@@ -4,8 +4,8 @@ import Foundation
 
 final class ControlSocket {
   static let shared = ControlSocket()
-  static let socketName = "ArdiaControl.sock"
-  static let lockName = "ArdiaControl.sock.lock"
+  static let socketName = "UniVerseControl.sock"
+  static let lockName = "UniVerseControl.sock.lock"
   static let maxConnections = 16
   static let maxPathBytes = 103
   static let acceptsPerCallback = 8

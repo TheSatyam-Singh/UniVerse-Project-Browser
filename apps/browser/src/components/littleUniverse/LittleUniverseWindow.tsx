@@ -26,7 +26,7 @@ import { SMALL_BAR_HEIGHT, SMALL_LIGHTS_CENTER } from "../../state/windows/small
 import { HistoryButton } from "../toolbar/NavButtons";
 import { toolbarPalette } from "../ui/toolbarColors";
 import { useHistoryAvailability } from "../../state/tabs/navigation";
-import { LITTLE_ARDIA_PINCH, LITTLE_ARDIA_SWIPE_CLOSE, NAV_CENTER_PAST_ZOOM, smallBarRow, TRAFFIC_LIGHT_PITCH } from "./tokens";
+import { LITTLE_UNIVERSE_PINCH, LITTLE_UNIVERSE_SWIPE_CLOSE, NAV_CENTER_PAST_ZOOM, smallBarRow, TRAFFIC_LIGHT_PITCH } from "./tokens";
 import { perLook } from "../ui/tokens";
 
 const NAV_LEFT = SMALL_LIGHTS_CENTER[0] + 2 * TRAFFIC_LIGHT_PITCH + NAV_CENTER_PAST_ZOOM - SMALL_BAR_BUTTON / 2;
@@ -83,7 +83,7 @@ function useLittleUniversePinch(windowId: string) {
     },
     idle: () => leaving.current || isWindowClosing(windowId),
     begin: () => scale.stopAnimation(),
-    follow: (magnification) => scale.setValue(pinchScale(magnification, LITTLE_ARDIA_PINCH.smallest, LITTLE_ARDIA_PINCH.largest)),
+    follow: (magnification) => scale.setValue(pinchScale(magnification, LITTLE_UNIVERSE_PINCH.smallest, LITTLE_UNIVERSE_PINCH.largest)),
     settle,
     open: () => {
       notePinch("littleUniverse", "open");
@@ -104,12 +104,12 @@ function useLittleUniversePinch(windowId: string) {
 
 function useLittleUniverseSwipeClose(windowId: string) {
   const [x] = useState(() => new Animated.Value(0));
-  const opacity = useMemo(() => x.interpolate({ inputRange: [0, LITTLE_ARDIA_SWIPE_CLOSE.fadeOver], outputRange: [1, 0], extrapolate: "clamp" }), [x]);
+  const opacity = useMemo(() => x.interpolate({ inputRange: [0, LITTLE_UNIVERSE_SWIPE_CLOSE.fadeOver], outputRange: [1, 0], extrapolate: "clamp" }), [x]);
   const settle = () => pinchSettle([{ value: x, to: 0 }]);
   const close = () => {
     noteSwipeClose(true);
     if (reduceMotion() === true) return closeLittleUniverse(windowId);
-    Animated.timing(x, { toValue: LITTLE_ARDIA_SWIPE_CLOSE.fadeOver, duration: LITTLE_ARDIA_SWIPE_CLOSE.leaveMs, useNativeDriver: true }).start(() => {
+    Animated.timing(x, { toValue: LITTLE_UNIVERSE_SWIPE_CLOSE.fadeOver, duration: LITTLE_UNIVERSE_SWIPE_CLOSE.leaveMs, useNativeDriver: true }).start(() => {
       closeLittleUniverse(windowId);
       if (!isWindowClosing(windowId)) x.setValue(0);
     });
@@ -119,7 +119,7 @@ function useLittleUniverseSwipeClose(windowId: string) {
     if (e.phase === "swipe") return close();
     if (e.phase === "began") return x.stopAnimation();
     if (e.phase === "changed") return x.setValue(Math.max(0, e.distance));
-    if (e.phase === "ended" && (e.distance >= LITTLE_ARDIA_SWIPE_CLOSE.distance || (e.distance > 0 && e.velocity >= LITTLE_ARDIA_SWIPE_CLOSE.velocity))) return close();
+    if (e.phase === "ended" && (e.distance >= LITTLE_UNIVERSE_SWIPE_CLOSE.distance || (e.distance > 0 && e.velocity >= LITTLE_UNIVERSE_SWIPE_CLOSE.velocity))) return close();
     if (e.phase === "ended" || e.phase === "cancelled") {
       noteSwipeClose(false);
       settle();

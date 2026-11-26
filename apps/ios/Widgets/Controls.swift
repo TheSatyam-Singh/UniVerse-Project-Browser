@@ -2,27 +2,27 @@ import AppIntents
 import SwiftUI
 import WidgetKit
 
-nonisolated protocol ArdiaControlIntent: AppIntent {}
+nonisolated protocol UniVerseControlIntent: AppIntent {}
 
-nonisolated extension ArdiaControlIntent {
+nonisolated extension UniVerseControlIntent {
   func perform() async throws -> some IntentResult {
     .result()
   }
 }
 
-nonisolated struct SearchControlIntent: ArdiaControlIntent {
+nonisolated struct SearchControlIntent: UniVerseControlIntent {
   static let title: LocalizedStringResource = "Search"
   static let isDiscoverable = false
   static let supportedModes: IntentModes = .foreground
 }
 
-nonisolated struct VoiceSearchControlIntent: ArdiaControlIntent {
+nonisolated struct VoiceSearchControlIntent: UniVerseControlIntent {
   static let title: LocalizedStringResource = "Voice Search"
   static let isDiscoverable = false
   static let supportedModes: IntentModes = .foreground
 }
 
-nonisolated struct IncognitoControlIntent: ArdiaControlIntent {
+nonisolated struct IncognitoControlIntent: UniVerseControlIntent {
   static let title: LocalizedStringResource = "New Incognito Tab"
   static let isDiscoverable = false
   static let supportedModes: IntentModes = .foreground

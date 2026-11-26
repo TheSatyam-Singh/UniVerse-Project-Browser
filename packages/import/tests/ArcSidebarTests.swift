@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ArdiaImportCore
+@testable import UniVerseImportCore
 
 final class ArcSidebarTests: XCTestCase {
   private func sidebar() throws -> ArcSidebar {

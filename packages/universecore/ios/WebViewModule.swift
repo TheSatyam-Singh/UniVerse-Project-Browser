@@ -18,22 +18,22 @@ public class WebViewModule: Module {
   }
 
   static let calls = CallTable(domain: "webView", handlers: [
-    "setDisplayMediaPicker": setting { ArdiaWebView.setDisplayMediaPicker(try $0.bool("enabled")) },
-    "setPeekModifier": setting { ArdiaWebView.setPeekModifier(try $0.text("modifier")) },
-    "setSplitLinkModifier": setting { ArdiaWebView.setSplitLinkModifier(try $0.text("modifier")) },
-    "setPeekOtherSiteTabs": setting { ArdiaWebView.setPeekOtherSiteTabs(try $0.strings("tabIds")) },
-    "setSelectionPopover": setting { ArdiaWebView.setSelectionPopoverEnabled(try $0.bool("enabled")) },
-    "setFingerprintProtection": setting { ArdiaWebView.setFingerprintProtectionEnabled(try $0.bool("enabled")) },
-    "setCommandScrollZoom": setting { ArdiaWebView.setCommandScrollZoomEnabled(try $0.bool("enabled")) },
-    "setLittleUniverseOpensNewTabLinks": setting { ArdiaWebView.setLittleUniverseOpensNewTabLinks(try $0.bool("enabled")) },
-    "setAutoPictureInPicture": setting { ArdiaWebView.setAutoPictureInPictureEnabled(try $0.bool("enabled")) },
-    "setVideoUpscaling": setting { ArdiaWebView.setVideoUpscalingEnabled(try $0.bool("enabled")) },
+    "setDisplayMediaPicker": setting { UniVerseWebView.setDisplayMediaPicker(try $0.bool("enabled")) },
+    "setPeekModifier": setting { UniVerseWebView.setPeekModifier(try $0.text("modifier")) },
+    "setSplitLinkModifier": setting { UniVerseWebView.setSplitLinkModifier(try $0.text("modifier")) },
+    "setPeekOtherSiteTabs": setting { UniVerseWebView.setPeekOtherSiteTabs(try $0.strings("tabIds")) },
+    "setSelectionPopover": setting { UniVerseWebView.setSelectionPopoverEnabled(try $0.bool("enabled")) },
+    "setFingerprintProtection": setting { UniVerseWebView.setFingerprintProtectionEnabled(try $0.bool("enabled")) },
+    "setCommandScrollZoom": setting { UniVerseWebView.setCommandScrollZoomEnabled(try $0.bool("enabled")) },
+    "setLittleUniverseOpensNewTabLinks": setting { UniVerseWebView.setLittleUniverseOpensNewTabLinks(try $0.bool("enabled")) },
+    "setAutoPictureInPicture": setting { UniVerseWebView.setAutoPictureInPictureEnabled(try $0.bool("enabled")) },
+    "setVideoUpscaling": setting { UniVerseWebView.setVideoUpscalingEnabled(try $0.bool("enabled")) },
     "setVideoUpscalingTestConditions": setting { args in
       var conditions: [String: NSNumber] = [:]
       for key in ["lowPower", "thermalPressure"] { if let on = try args.optionalBool(key) { conditions[key] = NSNumber(value: on) } }
-      ArdiaWebView.setVideoUpscalingTestConditions(conditions)
+      UniVerseWebView.setVideoUpscalingTestConditions(conditions)
     },
-    "videoUpscalingState": { _, reply in reply.ok(ArdiaWebView.videoUpscalingState()) },
+    "videoUpscalingState": { _, reply in reply.ok(UniVerseWebView.videoUpscalingState()) },
   ])
 }
 

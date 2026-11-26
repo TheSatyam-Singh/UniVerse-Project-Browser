@@ -249,12 +249,12 @@ export function writeSwitches(dataDir, text) {
 
 export async function launch(app, dataDir, port) {
   const binary = binaryOf(realpathSync(app));
-  writeSwitches(dataDir, process.env.ARDIA_SWITCHES);
+  writeSwitches(dataDir, process.env.UNIVERSE_SWITCHES);
   if (pidsOf(binary).length) throw new Error(`an instance of ${app} is already running`);
   const launchedAt = Date.now();
   const env = appEnv(app, {
-    ARDIA_BACKGROUND: "1", ARDIA_DATA_DIR: dataDir, ARDIA_REMOTE_DEBUGGING_PORT: String(port),
-    ...(process.env.ARDIA_SWITCHES ? { ARDIA_SWITCHES: process.env.ARDIA_SWITCHES } : {}),
+    UNIVERSE_BACKGROUND: "1", UNIVERSE_DATA_DIR: dataDir, UNIVERSE_REMOTE_DEBUGGING_PORT: String(port),
+    ...(process.env.UNIVERSE_SWITCHES ? { UNIVERSE_SWITCHES: process.env.UNIVERSE_SWITCHES } : {}),
   });
   execFileSync("open", ["-g", "-n", ...Object.entries(env).flatMap(([k, v]) => ["--env", `${k}=${v}`]), app]);
   for (let i = 0; i < 200; i++) {

@@ -1,5 +1,5 @@
-import ArdiaBrowser
-import ArdiaDesign
+import UniVerseBrowser
+import UniVerseDesign
 import SwiftUI
 
 struct AddFilterListSheet: View {
@@ -73,7 +73,7 @@ struct AddFilterListSheet: View {
       .sensoryFeedback(.success, trigger: added)
       .sensoryFeedback(.error, trigger: failures)
     }
-    .tint(Color.ardiaAccentText)
+    .tint(Color.universeAccentText)
     .presentationDetents([.medium, .large])
     .presentationDragIndicator(.hidden)
   }

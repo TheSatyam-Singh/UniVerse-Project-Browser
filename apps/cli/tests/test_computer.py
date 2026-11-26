@@ -109,7 +109,7 @@ class Sandbox(unittest.TestCase):
         self.served: dict[str, Path] = {}
         self.downloads: list[str] = []
         patches = [
-            mock.patch.dict(os.environ, {"HOME": str(self.home), "ARDIA_CLI_HOME": str(self.cli_home), "ARDIA_CLI_BIN_DIR": str(self.home / "bin"), "DO_NOT_TRACK": "1"}),
+            mock.patch.dict(os.environ, {"HOME": str(self.home), "UNIVERSE_CLI_HOME": str(self.cli_home), "UNIVERSE_CLI_BIN_DIR": str(self.home / "bin"), "DO_NOT_TRACK": "1"}),
             mock.patch.object(Path, "home", classmethod(lambda cls: self.home)),
             mock.patch.object(Path, "cwd", classmethod(lambda cls: self.project)),
             mock.patch.object(computer, "APPLICATIONS", self.applications),
@@ -704,7 +704,7 @@ class CuaSkills(Sandbox):
         status, out, _ = quiet(skills.install, ["claude-code"], False)
         self.assertEqual(status, 1)
         self.assertIn(f"error {self.cua()}", out)
-        self.assertTrue((self.home / ".claude/skills/ardia/SKILL.md").is_file())
+        self.assertTrue((self.home / ".claude/skills/universe/SKILL.md").is_file())
         self.assertNotIn("companions", json.loads((self.home / ".claude/skills/universe" / skills.MARKER).read_text()))
         self.serve_skills()
         self.assertEqual(quiet(skills.refresh)[0], 0)

@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ArdiaSyncCore
+@testable import UniVerseSyncCore
 
 final class SharedFolderDirectoryTests: XCTestCase {
   private var scratch: URL!

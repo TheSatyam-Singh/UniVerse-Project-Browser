@@ -24,9 +24,9 @@ export { WIDEVINE_COMPONENT_ID } from "@universe/universecore";
 export const engineInfo = () => call("engine.info");
 export const listComponents = () => call("engine.components");
 
-const Shell = nativeModule("ArdiaShell");
-const App = nativeModule("ArdiaApp");
-const Updater = nativeModule("ArdiaUpdater");
+const Shell = nativeModule("UniVerseShell");
+const App = nativeModule("UniVerseApp");
+const Updater = nativeModule("UniVerseUpdater");
 
 export const setAppearance = (mode: AppearanceMode) => Shell.setAppearance(mode);
 export const isDarkAppearance = () => Shell.isDarkAppearance();

@@ -2,8 +2,8 @@ import { nativeModule, type RecordingResult, type ReportEvent, type UploadReply 
 
 export type { RecordingResult, ReportEvent, UploadReply };
 
-let bound: ReturnType<typeof nativeModule<"ArdiaReport">> | null = null;
-const Report = () => (bound ??= nativeModule("ArdiaReport"));
+let bound: ReturnType<typeof nativeModule<"UniVerseReport">> | null = null;
+const Report = () => (bound ??= nativeModule("UniVerseReport"));
 
 export const draftDirectory = () => Report().draftDirectory();
 export const fileSize = (path: string) => Report().fileSize(path);

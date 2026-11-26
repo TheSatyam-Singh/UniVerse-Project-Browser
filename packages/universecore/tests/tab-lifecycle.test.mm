@@ -1,4 +1,4 @@
-#import "../ios/ArdiaTabLifecycle.h"
+#import "../ios/UniVerseTabLifecycle.h"
 
 #include <cstdio>
 
@@ -14,7 +14,7 @@ static int failures = 0;
 int main() {
   @autoreleasepool {
     {
-      ArdiaTabLifecycle life;
+      UniVerseTabLifecycle life;
       CHECK(life.canCreate());
       const NSUInteger epoch = life.beginCreating();
       CHECK(!life.canCreate());
@@ -26,7 +26,7 @@ int main() {
       CHECK(life.closed());
     }
     {
-      ArdiaTabLifecycle life;
+      UniVerseTabLifecycle life;
       life.beginCreating();
       life.attached();
       life.close();
@@ -34,30 +34,30 @@ int main() {
       CHECK(life.closed() && !life.canCreate());
     }
     {
-      ArdiaTabLifecycle life;
+      UniVerseTabLifecycle life;
       life.close();
       CHECK(life.closed() && !life.canCreate() && !life.canAttach(false));
     }
     {
-      ArdiaTabLifecycle life;
+      UniVerseTabLifecycle life;
       life.beginCreating();
       life.attached();
       const NSUInteger before = life.createEpoch;
       life.handOff();
       life.detached();
-      CHECK(life.phase == ArdiaTabPhase::Waiting && life.canCreate() && life.createEpoch > before);
+      CHECK(life.phase == UniVerseTabPhase::Waiting && life.canCreate() && life.createEpoch > before);
     }
     {
-      ArdiaTabLifecycle life;
+      UniVerseTabLifecycle life;
       const NSUInteger epoch = life.beginCreating();
       CHECK(life.isCurrent(epoch));
       life.leaveCreating();
-      CHECK(life.phase == ArdiaTabPhase::Waiting && life.canCreate());
+      CHECK(life.phase == UniVerseTabPhase::Waiting && life.canCreate());
       const NSUInteger next = life.beginCreating();
       CHECK(next > epoch && !life.isCurrent(epoch) && life.isCurrent(next));
     }
     {
-      ArdiaTabLifecycle life;
+      UniVerseTabLifecycle life;
       life.beginCreating();
       life.attached();
       CHECK(!life.canAttach(true));

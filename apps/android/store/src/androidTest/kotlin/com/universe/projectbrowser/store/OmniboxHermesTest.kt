@@ -115,7 +115,7 @@ class OmniboxHermesTest {
         }
         val medians = samples.map { it.sorted()[it.size / 2] / 1_000_000.0 }
         val slowest = keystrokes.zip(medians).maxBy { it.second }
-        Log.i("ArdiaTiming", "store omnibox keystroke medians ms: ${keystrokes.zip(medians)}")
+        Log.i("UniVerseTiming", "store omnibox keystroke medians ms: ${keystrokes.zip(medians)}")
         assertTrue("\"${slowest.first}\" took ${slowest.second} ms of thread time at the median", slowest.second < 16.0)
     }
 
@@ -141,7 +141,7 @@ class OmniboxHermesTest {
             model.update("site1")
             withTimeout(500) { model.result.first { it.query == "site1" } }
             val millis = (System.nanoTime() - start) / 1_000_000.0
-            Log.i("ArdiaTiming", "first keystroke during the history load answered in $millis ms")
+            Log.i("UniVerseTiming", "first keystroke during the history load answered in $millis ms")
             assertTrue(millis < 100)
             assertTrue(!model.candidatesComplete.value)
             withTimeout(10_000) { model.candidatesComplete.first { it } }

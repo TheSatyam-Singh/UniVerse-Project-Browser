@@ -1,4 +1,4 @@
-#import "../ios/ArdiaTransferLedger.h"
+#import "../ios/UniVerseTransferLedger.h"
 
 #include <cstdio>
 #include <thread>
@@ -15,7 +15,7 @@ static int failures = 0;
 int main() {
   @autoreleasepool {
     {
-      ArdiaTransferLedger *ledger = [ArdiaTransferLedger new];
+      UniVerseTransferLedger *ledger = [UniVerseTransferLedger new];
       const NSInteger held = [ledger holdForReload:@"t"];
       const NSInteger moved = [ledger prepare:@"t"];
       CHECK(moved != held);
@@ -23,7 +23,7 @@ int main() {
       CHECK([ledger isPrepared:@"t"]);
     }
     {
-      ArdiaTransferLedger *ledger = [ArdiaTransferLedger new];
+      UniVerseTransferLedger *ledger = [UniVerseTransferLedger new];
       const NSInteger held = [ledger holdForReload:@"t"];
       CHECK([ledger park:@"t"] == held);
       CHECK([ledger expireReloadHold:@"t" generation:held]);
@@ -32,7 +32,7 @@ int main() {
       CHECK(![ledger expireReloadHold:@"t" generation:held]);
     }
     {
-      ArdiaTransferLedger *ledger = [ArdiaTransferLedger new];
+      UniVerseTransferLedger *ledger = [UniVerseTransferLedger new];
       const NSInteger held = [ledger holdForReload:@"t"];
       CHECK([ledger expireReloadHold:@"t" generation:held]);
       const NSInteger moved = [ledger prepare:@"t"];
@@ -41,7 +41,7 @@ int main() {
       CHECK([ledger parkedGeneration:@"t"] == moved);
     }
     {
-      ArdiaTransferLedger *ledger = [ArdiaTransferLedger new];
+      UniVerseTransferLedger *ledger = [UniVerseTransferLedger new];
       const NSInteger first = [ledger prepare:@"t"];
       CHECK([ledger isPrepared:@"t"]);
       CHECK([ledger drop:@"t"] == first);
@@ -50,7 +50,7 @@ int main() {
       CHECK(![ledger retireParked:@"t" generation:first]);
     }
     {
-      ArdiaTransferLedger *ledger = [ArdiaTransferLedger new];
+      UniVerseTransferLedger *ledger = [UniVerseTransferLedger new];
       const NSInteger first = [ledger prepare:@"t"];
       CHECK([ledger park:@"t"] == first);
       const NSInteger second = [ledger prepare:@"t"];
@@ -62,7 +62,7 @@ int main() {
       CHECK([ledger parkedGeneration:@"t"] == 0);
     }
     {
-      ArdiaTransferLedger *ledger = [ArdiaTransferLedger new];
+      UniVerseTransferLedger *ledger = [UniVerseTransferLedger new];
       const NSInteger first = [ledger prepare:@"t"];
       CHECK([ledger park:@"t"] == first);
       CHECK([ledger drop:@"t"] == first);
@@ -73,14 +73,14 @@ int main() {
       CHECK([ledger parkedGeneration:@"t"] == second);
     }
     {
-      ArdiaTransferLedger *ledger = [ArdiaTransferLedger new];
+      UniVerseTransferLedger *ledger = [UniVerseTransferLedger new];
       [ledger prepare:@"t"];
       [ledger park:@"t"];
       [ledger claim:@"t"];
       CHECK(![ledger isPrepared:@"t"] && [ledger parkedGeneration:@"t"] == 0);
     }
     {
-      ArdiaTransferLedger *ledger = [ArdiaTransferLedger new];
+      UniVerseTransferLedger *ledger = [UniVerseTransferLedger new];
       std::thread js([ledger] {
         for (int i = 0; i < 20000; i++) {
           NSString *key = i % 2 ? @"a" : @"b";

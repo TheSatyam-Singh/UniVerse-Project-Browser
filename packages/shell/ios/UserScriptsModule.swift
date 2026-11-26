@@ -3,7 +3,7 @@ import Foundation
 
 public class UserScriptsModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaUserScripts")
+    Name("UniVerseUserScripts")
     Events("onChange")
 
     OnCreate {

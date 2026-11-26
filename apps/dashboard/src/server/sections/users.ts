@@ -2,7 +2,7 @@ import { DATA_START_MS, windowFor, type RangeKey } from "../../lib/range";
 import { compareVersions, DAILY_COUNT_SINCE, DAILY_COUNT_START_MS, isNightly, sendsDailyCount } from "../../lib/versions";
 import { num, query, str } from "../clickhouse";
 import { github, type Release } from "../github";
-import { APP, APP_SOURCE, ARDIA_VERSION, DAILY, FIRST, bucket, compareStart, dayBucket, isCurrent, isPrevious, prop, since } from "../sql";
+import { APP, APP_SOURCE, UNIVERSE_VERSION, DAILY, FIRST, bucket, compareStart, dayBucket, isCurrent, isPrevious, prop, since } from "../sql";
 import { dayBuckets, fill, floorDay, windowInfo } from "../series";
 
 const DAY = 86_400_000;
@@ -28,7 +28,7 @@ export async function checkRows(signal?: AbortSignal): Promise<CheckRow[]> {
   const rows = await query(
     `SELECT ${dayBucket} AS d, ${prop("version")} AS v, count(), countIf(${FIRST})
      FROM telemetry.events
-     WHERE event = 'update_check' AND ${since(DATA_START_MS)} AND ${ARDIA_VERSION}
+     WHERE event = 'update_check' AND ${since(DATA_START_MS)} AND ${UNIVERSE_VERSION}
      GROUP BY d, v`,
     signal,
   );

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
-unset ARDIA_DATA_DIR ARDIA_INSTANCE ARDIA_TEST ARDIA_TRACE
+unset UNIVERSE_DATA_DIR UNIVERSE_INSTANCE UNIVERSE_TEST UNIVERSE_TRACE
 
 usage="usage: carryover.sh <previous app> <new app> [--back]"
 old="${1:?$usage}"

@@ -41,12 +41,12 @@ Shared code: `Model.swift` (`ImportKind`, `ImportResult` and the other result ty
    above. A failed kind becomes a warning plus an entry in `failed`, and the other kinds still run. Safari, Dia tabs,
    HTML and CSV have their own module functions (`importSafariDirect`, `importSafariExport`, `readDiaTabs`,
    `importBookmarksHTML`, `importPasswordsCSV`).
-3. `ios/ImportModule.swift` (Expo module `ArdiaImport`) encodes the result as a JSON string for JS. It keeps
+3. `ios/ImportModule.swift` (Expo module `UniVerseImport`) encodes the result as a JSON string for JS. It keeps
    cookies, addresses and cards back in `ImportVault` (`ios/ImportWriter.swift`) and returns only their counts and
    a one-time `vaultToken`. History can stream in chunks (`onImportEvent`).
 4. `ios/ImportWriter.swift`: `writeImported(token, engineProfile, kinds)` takes the vault entry and sends it to the
-   engine with `ArdiaEngineBridge.callWithSecret` as `ac_cookies_import` and `ac_autofill_import`, in batches of 500
-   (`engine/chromium/src/chrome/browser/ardia/ac_cookies.cc`, `ac_autofill.cc`).
+   engine with `UniVerseEngineBridge.callWithSecret` as `ac_cookies_import` and `ac_autofill_import`, in batches of 500
+   (`engine/chromium/src/chrome/browser/universe/ac_cookies.cc`, `ac_autofill.cc`).
 5. `apps/browser/src/components/import/ImportWindow.tsx` is the wizard: choose, then profiles, then unlock, then
    progress, then done. `apps/browser/src/state/import/apply.ts` writes the JS-side kinds into the store (bookmarks, history, tabs, Arc spaces,
    Dia profiles) and saves passwords with `savePassword` (`@universe/universecore`). For cookies and autofill it calls
@@ -61,7 +61,7 @@ Shared code: `Model.swift` (`ImportKind`, `ImportResult` and the other result ty
   Keychain item. `SafeStorageKeychain.secret` reads it, and macOS shows a system prompt when it does. It runs only from
   `unlockBrowser`, after the user goes through the unlock step (`ENCRYPTED` kinds in `ImportWindow.tsx`).
 - **Agents never trigger it.** The Swift tests pass the fixture key (`Fixtures.chromiumKey`, `importer.setKey`),
-  and app runs set `ARDIA_TEST` `importSecret`. Firefox has no Keychain item; its primary password goes through
+  and app runs set `UNIVERSE_TEST` `importSecret`. Firefox has no Keychain item; its primary password goes through
   `unlockBrowser(id, { primaryPassword })`.
 - Cookie values, addresses and card numbers never reach JS. `ImportResult` and `SafariExport` leave them out of their
   `CodingKeys` and encode only the counts. They're held in `SecretBytes`; `Wire.swift` serialises them into
@@ -104,11 +104,11 @@ sqlite3 CLI: it checkpoints the WAL the tests depend on.
 
 | Key | Effect |
 |---|---|
-| `ARDIA_INSTANCE` `importSourceDir` | Discovery reads browsers from this folder instead of `~/Library/Application Support`. Point it at `<fake home>/Library/Application Support` |
-| `ARDIA_INSTANCE` `importSafariHome` | Safari direct reads from this home. If it isn't set, the home is two levels above `importSourceDir`, and only when that is set |
-| `ARDIA_TEST` `importSecret` | `unlockBrowser` uses this as every browser's Safe Storage secret and never touches the Keychain (test instances only) |
-| `ARDIA_TEST` `importDiaBundleId` | Dia's tabs come from this app instead of `company.thebrowser.dia`: it's the one opened and quit, and discovery offers the tabs when it's installed (test instances only) |
-| `ARDIA_TEST` `importDiaWindows` | A JSON file of `DiaScript.Window`s (`fixtures/dia/applescript-windows.json`) answers in place of the Apple Events, and Automation consent counts as given, so no macOS prompt shows; the app from `importDiaBundleId` is still opened and quit (test instances only) |
+| `UNIVERSE_INSTANCE` `importSourceDir` | Discovery reads browsers from this folder instead of `~/Library/Application Support`. Point it at `<fake home>/Library/Application Support` |
+| `UNIVERSE_INSTANCE` `importSafariHome` | Safari direct reads from this home. If it isn't set, the home is two levels above `importSourceDir`, and only when that is set |
+| `UNIVERSE_TEST` `importSecret` | `unlockBrowser` uses this as every browser's Safe Storage secret and never touches the Keychain (test instances only) |
+| `UNIVERSE_TEST` `importDiaBundleId` | Dia's tabs come from this app instead of `company.thebrowser.dia`: it's the one opened and quit, and discovery offers the tabs when it's installed (test instances only) |
+| `UNIVERSE_TEST` `importDiaWindows` | A JSON file of `DiaScript.Window`s (`fixtures/dia/applescript-windows.json`) answers in place of the Apple Events, and Automation consent counts as given, so no macOS prompt shows; the app from `importDiaBundleId` is still opened and quit (test instances only) |
 
 ## Adding a source or a kind
 

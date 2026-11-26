@@ -39,7 +39,7 @@ object RootTags {
 }
 
 @Composable
-fun ArdiaRoot(model: AppModel, createdAt: Long) {
+fun UniVerseRoot(model: AppModel, createdAt: Long) {
     UniVerseTheme(darkTheme = isSystemInDarkTheme(), look = model.look) {
         RootView(model)
     }

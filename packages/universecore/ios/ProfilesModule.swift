@@ -10,9 +10,9 @@ public class ProfilesModule: Module {
   }
 
   static let calls = CallTable(domain: "profiles", handlers: [
-    "loaded": { _, reply in reply.ok(["profiles": ArdiaHost.loadedProfiles]) },
+    "loaded": { _, reply in reply.ok(["profiles": UniVerseHost.loadedProfiles]) },
     "release": { args, reply in
-      ArdiaHost.releaseProfile(args.profile)
+      UniVerseHost.releaseProfile(args.profile)
       reply.ok()
     },
     "deleteData": { args, reply in PageEngines.deleteProfileData(profile: args.profile) { reply.ok(["remaining": $0]) } },

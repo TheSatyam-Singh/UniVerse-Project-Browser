@@ -1,6 +1,6 @@
 # AGENTS.md
 
-UniVerse Project Browser is a macOS browser: Dia's polish and Arc's sidebar, built on Chrome's own framework (Chromium 157 on Helium) through ArdiaCore, our thin layer,
+UniVerse Project Browser is a macOS browser: Dia's polish and Arc's sidebar, built on Chrome's own framework (Chromium 157 on Helium) through UniVerseCore, our thin layer,
 with no account. This file is how the owner works; follow it.
 You are the owner and long-term maintainer of this codebase, and its design is up to you.
 For the architecture and the test tooling, read `docs/agent-brief.md`.
@@ -15,7 +15,7 @@ For the architecture and the test tooling, read `docs/agent-brief.md`.
   time, interleaved with their control, because sharing the CPU skews them.
 - **Orchestrate.** The main session plans, hands implementation to Opus subagents, and verifies what they
   return (build, run, capture). Give each agent its own files, its own derived-data dir and its own
-  `ARDIA_DATA_DIR`.
+  `UNIVERSE_DATA_DIR`.
 - **Watch the agents.** Every ~30 minutes the main session checks any agent it hasn't heard from (last
   transcript activity, a pending tool call, `/tmp/ac-*.holder`, its processes). A stuck agent means a root
   cause to fix (a lock, a wait, a hang), not just a restart. Send new feedback to the agent that owns
@@ -68,14 +68,14 @@ For the architecture and the test tooling, read `docs/agent-brief.md`.
   `docs/engine-build.md`). When freeing disk space, stay out of `~/chromium-build`.
 - **Never launch or touch `/Applications/UniVerse-Project-Browser.app`** (`Netnyahoo.app` until the owner updates past the rename). The owner is using it.
 - **Never steal focus.** Run builds only as hidden instances:
-  `open -g -n --env ARDIA_BACKGROUND=1 --env ARDIA_DATA_DIR=<throwaway dir> --env ARDIA_REMOTE_DEBUGGING_PORT=<port> <app>`.
+  `open -g -n --env UNIVERSE_BACKGROUND=1 --env UNIVERSE_DATA_DIR=<throwaway dir> --env UNIVERSE_REMOTE_DEBUGGING_PORT=<port> <app>`.
   Never use plain `open`. Background mode logs context menus and file panels instead of showing them.
   Keep test data in a scratch dir, not in `~/Documents`.
 - **Dia is a read-only reference.** You may take screenshots and read its app bundle; never click or type
   in it.
 - **The owner's real browser data is fair game for debugging.** Read the owner's UniVerse Project Browser, Dia and other browser
   profiles when they help reproduce a bug. Copy what you need into a scratch dir and point a hidden instance's
-  `ARDIA_DATA_DIR` at the copy; never write to the live profile or open it in a running app.
+  `UNIVERSE_DATA_DIR` at the copy; never write to the live profile or open it in a running app.
 - **No AI features.** This is the owner's decision. Dia's AI rows in `docs/dia-feature-parity.md`
   stay ⏸.
 
@@ -179,7 +179,7 @@ For the architecture and the test tooling, read `docs/agent-brief.md`.
 - Write simple, concise English. Pinned attention items are goals: show progress and the next step, not the original issue again.
 
 ## Repo map
-`apps/browser` is the React Native macOS app. The native Expo modules are in `packages/{universecore,shell,shaders,import,sync}`; `engine/chromium` is our Chrome-services code (the `ac_*` C calls) and `engine/ardiacore` ArdiaCore's window and tab layer,
+`apps/browser` is the React Native macOS app. The native Expo modules are in `packages/{universecore,shell,shaders,import,sync}`; `engine/chromium` is our Chrome-services code (the `ac_*` C calls) and `engine/universecore` UniVerseCore's window and tab layer,
 and `packages/core` holds the omnibox logic and its tests. `packages/demo` is the app on the web (the site's demo).
 `apps/cli` is the `universe` command, `apps/ios` the iPhone app and `apps/dashboard` the telemetry and triage dashboard.
 `apps/site` is github.com/TheSatyam-Singh/UniVerse-Project-Browser and `apps/videos` holds the Remotion videos. `infra/` holds each service's deploy setup and

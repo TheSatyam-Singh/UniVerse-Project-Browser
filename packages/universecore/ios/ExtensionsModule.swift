@@ -8,7 +8,7 @@ public class ExtensionsModule: Module {
     Self.calls.forwardEvents(to: self)
 
     OnCreate {
-      ArdiaHost.replayInstallPrompts()
+      UniVerseHost.replayInstallPrompts()
     }
 
     Self.calls.function
@@ -25,34 +25,34 @@ public class ExtensionsModule: Module {
   }
 
   static func inspectUnpacked(_ args: CallArgs, _ reply: CallReply) throws {
-    let info = ArdiaServices.inspectUnpacked(try args.text("path"))
+    let info = UniVerseServices.inspectUnpacked(try args.text("path"))
     if let error = info["error"] { return reply.fail("ERR_ENGINE", error as? String ?? "\(error)") }
     reply.ok(info)
   }
 
   static let calls = CallTable(domain: "extensions", handlers: [
-    "list": { args, reply in ArdiaServices.listExtensions(profile: args.profile) { reply.service($0, $1) } },
+    "list": { args, reply in UniVerseServices.listExtensions(profile: args.profile) { reply.service($0, $1) } },
     "inspectUnpacked": inspectUnpacked,
-    "install": { args, reply in ArdiaServices.installExtension(path: try args.text("path"), profile: args.profile) { reply.service($0, $1) } },
-    "installCrx": { args, reply in ArdiaServices.installCrx(path: try args.text("path"), profile: args.profile) { reply.service($0, $1) } },
+    "install": { args, reply in UniVerseServices.installExtension(path: try args.text("path"), profile: args.profile) { reply.service($0, $1) } },
+    "installCrx": { args, reply in UniVerseServices.installCrx(path: try args.text("path"), profile: args.profile) { reply.service($0, $1) } },
     "setEnabled": { args, reply in
-      ArdiaServices.setExtension(try args.text("id"), enabled: try args.bool("enabled"), profile: args.profile) { reply.service($0, $1) }
+      UniVerseServices.setExtension(try args.text("id"), enabled: try args.bool("enabled"), profile: args.profile) { reply.service($0, $1) }
     },
-    "uninstall": { args, reply in ArdiaServices.uninstallExtension(try args.text("id"), profile: args.profile) { reply.service($0, $1) } },
-    "reload": { args, reply in ArdiaServices.reloadExtension(try args.text("id"), profile: args.profile) { reply.service($0, $1) } },
+    "uninstall": { args, reply in UniVerseServices.uninstallExtension(try args.text("id"), profile: args.profile) { reply.service($0, $1) } },
+    "reload": { args, reply in UniVerseServices.reloadExtension(try args.text("id"), profile: args.profile) { reply.service($0, $1) } },
     "configure": { args, reply in
-      ArdiaServices.configureExtension(try args.text("id"), profile: args.profile, options: try args.dict("options")) { reply.service($0, $1) }
+      UniVerseServices.configureExtension(try args.text("id"), profile: args.profile, options: try args.dict("options")) { reply.service($0, $1) }
     },
     "chooseFolder": chooseFolder,
     "resolveInstallPrompt": { args, reply in
-      ArdiaHost.resolveExtensionInstallPrompt(try args.text("requestId"), accepted: try args.bool("accepted"))
+      UniVerseHost.resolveExtensionInstallPrompt(try args.text("requestId"), accepted: try args.bool("accepted"))
       reply.ok()
     },
     "actionStates": { args, reply in
-      reply.ok(ArdiaHost.actionStates(tabId: try args.text("tabId"), extensions: try args.strings("ids")))
+      reply.ok(UniVerseHost.actionStates(tabId: try args.text("tabId"), extensions: try args.strings("ids")))
     },
     "sidePanelUrl": { args, reply in
-      reply.ok(ArdiaHost.sidePanelURL(tabId: try args.text("tabId"), extension: try args.text("extensionId")))
+      reply.ok(UniVerseHost.sidePanelURL(tabId: try args.text("tabId"), extension: try args.text("extensionId")))
     },
     "watchActions": EngineCall.passing("ac_extensions_watch_actions"),
     "syncState": EngineCall.passing("ac_extensions_sync_state"),

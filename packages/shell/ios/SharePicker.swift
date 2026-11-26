@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 
 enum SharePicker {
   private static var current: NSSharingServicePicker?
@@ -9,7 +9,7 @@ enum SharePicker {
     let window = windowId.flatMap { WindowManager.shared.window($0) } ?? NSApp.keyWindow
     guard let link = URL(string: url) else { return done() }
     guard let window, let view = window.contentView else {
-      if link.isFileURL { ArdiaWebView.removeSharedImage(link) }
+      if link.isFileURL { UniVerseWebView.removeSharedImage(link) }
       return done()
     }
     var rect = NSRect(x: view.bounds.midX - 1, y: view.isFlipped ? 40 : view.bounds.maxY - 42, width: 2, height: 2)
@@ -25,7 +25,7 @@ enum SharePicker {
     if LaunchConfig.shared.background {
       log("share sheet (not shown): \(describe(url, title)) window=#\(window.windowNumber) anchor=\(NSStringFromRect(rect))"
         + " services=\(services(for: [link as NSURL]).map(\.title).joined(separator: "|"))")
-      if link.isFileURL { ArdiaWebView.removeSharedImage(link) }
+      if link.isFileURL { UniVerseWebView.removeSharedImage(link) }
       return done()
     }
     delegate.finish()
@@ -139,7 +139,7 @@ private final class ShareDelegate: NSObject, NSSharingServicePickerDelegate, NSS
   }
 
   func sharingServicePicker(_ picker: NSSharingServicePicker, didChoose service: NSSharingService?) {
-    if service == nil, let file { ArdiaWebView.removeSharedImage(file) }
+    if service == nil, let file { UniVerseWebView.removeSharedImage(file) }
     file = nil
     finish()
   }
@@ -151,7 +151,7 @@ private final class ShareDelegate: NSObject, NSSharingServicePickerDelegate, NSS
   }
 
   private func removeSharedImages(in items: [Any]) {
-    items.compactMap { $0 as? URL }.filter(\.isFileURL).forEach(ArdiaWebView.removeSharedImage)
+    items.compactMap { $0 as? URL }.filter(\.isFileURL).forEach(UniVerseWebView.removeSharedImage)
   }
 
   func sharingService(

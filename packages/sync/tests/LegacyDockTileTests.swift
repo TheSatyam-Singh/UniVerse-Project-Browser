@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ArdiaSyncCore
+@testable import UniVerseSyncCore
 
 final class FakeDisk {
   var looked: [String] = []
@@ -48,7 +48,7 @@ final class LegacyDockTileTests: XCTestCase {
   var messages: [String: Any] { tile("com.apple.MobileSMS", "file:///System/Applications/Messages.app/", label: "Messages", guid: 10) }
   var dia: [String: Any] { tile("company.thebrowser.dia", "file:///Applications/Dia.app/", label: "Dia", guid: 11) }
   var oldTile: [String: Any] { tile(LegacyName.bundleId, oldURL, label: LegacyName.appName, guid: 12) }
-  var ardiaTile: [String: Any] { tile(bundleId, "file:///Applications/UniVerse-Project-Browser.app/", label: "UniVerse Project Browser", guid: 13) }
+  var universeTile: [String: Any] { tile(bundleId, "file:///Applications/UniVerse-Project-Browser.app/", label: "UniVerse Project Browser", guid: 13) }
 
   func repoint(_ tiles: [[String: Any]], disk: LegacyDockTile.Disk? = nil) -> LegacyDockTile.Result {
     LegacyDockTile.repointed(tiles, app: app, bundleId: bundleId, label: "UniVerse Project Browser", disk: disk ?? fakeDisk(["/Applications/UniVerse-Project-Browser.app"]))
@@ -79,9 +79,9 @@ final class LegacyDockTileTests: XCTestCase {
     XCTAssertEqual(NSArray(array: [tiles[0], tiles[2]]), NSArray(array: [messages, dia]))
   }
 
-  func testWhenArdiaIsPinnedTooTheOldTileGoes() throws {
-    XCTAssertEqual(NSArray(array: try XCTUnwrap(repoint([oldTile, messages, ardiaTile]).tiles)), NSArray(array: [messages, ardiaTile]))
-    let byFile = with(ardiaTile) {
+  func testWhenUniVerseIsPinnedTooTheOldTileGoes() throws {
+    XCTAssertEqual(NSArray(array: try XCTUnwrap(repoint([oldTile, messages, universeTile]).tiles)), NSArray(array: [messages, universeTile]))
+    let byFile = with(universeTile) {
       $0["bundle-identifier"] = "something.else"
       $0["file-data"] = ["_CFURLString": "file:///Applications/UniVerse-Project-Browser.app", "_CFURLStringType": 15]
     }
@@ -89,7 +89,7 @@ final class LegacyDockTileTests: XCTestCase {
   }
 
   func testNoOldTileChangesNothing() {
-    for tiles in [[messages, dia], [messages, ardiaTile], []] {
+    for tiles in [[messages, dia], [messages, universeTile], []] {
       let result = repoint(tiles)
       XCTAssertNil(result.tiles)
       XCTAssertFalse(result.keptLive)
@@ -164,7 +164,7 @@ final class LegacyDockTileTests: XCTestCase {
   func testOnlyTilesNamedLikeEitherAppAreLookedUp() {
     let disk = FakeDisk()
     let share = tile("", "file:///Volumes/Gone/Folder/", label: "Folder")
-    _ = LegacyDockTile.repointed([messages, dia, share, oldTile, ardiaTile], app: app, bundleId: bundleId, label: "UniVerse Project Browser",
+    _ = LegacyDockTile.repointed([messages, dia, share, oldTile, universeTile], app: app, bundleId: bundleId, label: "UniVerse Project Browser",
                                  disk: disk.disk(["/Applications/UniVerse-Project-Browser.app"]))
     XCTAssertFalse(disk.looked.contains { $0.hasPrefix("/Volumes") || $0.hasPrefix("/System") || $0.hasSuffix("Dia.app") }, "\(disk.looked)")
   }
@@ -174,23 +174,23 @@ final class LegacyDockTileTests: XCTestCase {
     XCTAssertEqual(ids(repoint([localhost]).tiles), [bundleId])
   }
 
-  func testADeadArdiaTileIsntPinnedAndGoesLikeTheOldOne() throws {
+  func testADeadUniVerseTileIsntPinnedAndGoesLikeTheOldOne() throws {
     let downloads = "/Users/me/Downloads/UniVerse-Project-Browser.app"
-    let deadArdia = tile(bundleId, "file://\(downloads)/", label: "UniVerse Project Browser", guid: 30)
-    let result = try XCTUnwrap(repoint([oldTile, messages, deadArdia]).tiles)
+    let deadUniVerse = tile(bundleId, "file://\(downloads)/", label: "UniVerse Project Browser", guid: 30)
+    let result = try XCTUnwrap(repoint([oldTile, messages, deadUniVerse]).tiles)
     XCTAssertEqual(ids(result), [bundleId, "com.apple.MobileSMS"])
     XCTAssertEqual(result[0]["GUID"] as? Int, 12)
     XCTAssertEqual(data(result[0])["file-data"] as? [String: AnyHashable], ["_CFURLString": "file:///Applications/UniVerse-Project-Browser.app/", "_CFURLStringType": 15])
-    let first = try XCTUnwrap(repoint([deadArdia, messages, oldTile]).tiles)
+    let first = try XCTUnwrap(repoint([deadUniVerse, messages, oldTile]).tiles)
     XCTAssertEqual(ids(first), [bundleId, "com.apple.MobileSMS"])
     XCTAssertEqual(first[0]["GUID"] as? Int, 30)
     XCTAssertEqual(data(first[0])["file-data"] as? [String: AnyHashable], ["_CFURLString": "file:///Applications/UniVerse-Project-Browser.app/", "_CFURLStringType": 15])
-    XCTAssertNil(repoint([deadArdia, messages]).tiles)
-    XCTAssertEqual(ids(repoint([oldTile, deadArdia], disk: fakeDisk(["/Applications/UniVerse-Project-Browser.app", downloads])).tiles), [bundleId])
-    XCTAssertEqual(data(try XCTUnwrap(repoint([oldTile, deadArdia], disk: fakeDisk(["/Applications/UniVerse-Project-Browser.app", downloads])).tiles)[0])["file-data"]
+    XCTAssertNil(repoint([deadUniVerse, messages]).tiles)
+    XCTAssertEqual(ids(repoint([oldTile, deadUniVerse], disk: fakeDisk(["/Applications/UniVerse-Project-Browser.app", downloads])).tiles), [bundleId])
+    XCTAssertEqual(data(try XCTUnwrap(repoint([oldTile, deadUniVerse], disk: fakeDisk(["/Applications/UniVerse-Project-Browser.app", downloads])).tiles)[0])["file-data"]
       as? [String: AnyHashable], ["_CFURLString": "file://\(downloads)/", "_CFURLStringType": 15])
-    let unknown = try XCTUnwrap(repoint([oldTile, deadArdia], disk: fakeDisk(["/Applications/UniVerse-Project-Browser.app"], unknown: [downloads])).tiles)
-    XCTAssertEqual(NSArray(array: [unknown[1]]), NSArray(array: [deadArdia]))
+    let unknown = try XCTUnwrap(repoint([oldTile, deadUniVerse], disk: fakeDisk(["/Applications/UniVerse-Project-Browser.app"], unknown: [downloads])).tiles)
+    XCTAssertEqual(NSArray(array: [unknown[1]]), NSArray(array: [deadUniVerse]))
     XCTAssertEqual(data(unknown[0])["file-data"] as? [String: AnyHashable], ["_CFURLString": "file:///Applications/UniVerse-Project-Browser.app/", "_CFURLStringType": 15])
   }
 
@@ -265,7 +265,7 @@ final class LegacyDockTileTests: XCTestCase {
 
   func testNothingToDoIsDoneWithoutARestart() {
     let dock = FakeDock()
-    dock.tiles = [messages, ardiaTile]
+    dock.tiles = [messages, universeTile]
     launch(dock)
     XCTAssertEqual(dock.state, "writes 0, restarts 0, done true")
   }
@@ -350,7 +350,7 @@ final class LegacyDockTileTests: XCTestCase {
     XCTAssertEqual(ids(dock.tiles), ["com.apple.MobileSMS", bundleId])
     let fixed = FakeDock()
     fixed.tiles = [oldTile]
-    fixed.onSynchronize = { if $0 == 2 { fixed.tiles = [self.ardiaTile] } }
+    fixed.onSynchronize = { if $0 == 2 { fixed.tiles = [self.universeTile] } }
     launch(fixed)
     XCTAssertEqual(fixed.state, "writes 0, restarts 0, done true")
     let gone = FakeDock()

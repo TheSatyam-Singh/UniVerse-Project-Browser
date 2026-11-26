@@ -122,7 +122,7 @@ function bip39(entropy) {
 
 const savePassword = (origin, user, password) =>
   `return ac.engine.call("passwords.remove", { profile: "", origin: "${origin}", username: "${user}" }).catch((e) => ({ error: e.message }))
-    .then(() => globalThis.expo.modules.ArdiaPasswords.save("", "${origin}", "${user}", "${password}").then(JSON.parse).catch((e) => ({ error: e.message })));`;
+    .then(() => globalThis.expo.modules.UniVersePasswords.save("", "${origin}", "${user}", "${password}").then(JSON.parse).catch((e) => ({ error: e.message })));`;
 
 fs.mkdirSync(FOLDER, { recursive: true });
 const swift = fs.readFileSync(`${repo}/packages/sync/ios/Core/Wordlist.swift`, "utf8");

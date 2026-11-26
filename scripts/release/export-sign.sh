@@ -38,11 +38,11 @@ mkdir -p "$licenses"
 cp "$root"/LICENSE* "$root/NOTICE" "$licenses/"
 
 echo "==> Sign Chrome's framework"
-entitlements_dir="$ardiacore/scripts/signing"
+entitlements_dir="$universecore/scripts/signing"
 fw="$app/Contents/Frameworks/Chromium Framework.framework"
 fwv="$(cd "$fw/Versions/Current" && pwd -P)" || die "no Chromium Framework.framework in the export"
-"$ardiacore/scripts/strip-engine.sh" "$app" "$dist/symbols"
-"$ardiacore/scripts/prune-bundle.sh" "$app"
+"$universecore/scripts/strip-engine.sh" "$app" "$dist/symbols"
+"$universecore/scripts/prune-bundle.sh" "$app"
 for lib in "$fwv"/Libraries/*.dylib; do sign_as "$identity" "$lib"; done
 for helper in "$fwv"/Helpers/*.app; do
   case "$(basename "$helper")" in

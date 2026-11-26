@@ -1,1 +1,1 @@
-chrome.runtime.onInstalled.addListener(() => console.log("ardiacore spike extension installed"));
+chrome.runtime.onInstalled.addListener(() => console.log("universecore spike extension installed"));

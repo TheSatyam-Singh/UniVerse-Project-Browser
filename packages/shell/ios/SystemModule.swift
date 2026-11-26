@@ -1,12 +1,12 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import ExpoModulesCore
 import ServiceManagement
 import UniformTypeIdentifiers
 
 public class SystemModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaSystem")
+    Name("UniVerseSystem")
 
     Constant("backgroundInstance") { () -> Bool in LaunchConfig.shared.background }
 
@@ -18,7 +18,7 @@ public class SystemModule: Module {
 
     AsyncFunction("setAsDefaultBrowser") { (promise: Promise) in
       if LaunchConfig.shared.background {
-        NSLog("ArdiaSystem: background instance, not setting the default browser")
+        NSLog("UniVerseSystem: background instance, not setting the default browser")
         return promise.resolve(false)
       }
       let app = Bundle.main.bundleURL
@@ -44,7 +44,7 @@ public class SystemModule: Module {
 
     AsyncFunction("setLaunchAtLogin") { (enabled: Bool) in
       if LaunchConfig.shared.background {
-        NSLog("ArdiaSystem: background instance, not changing launch at login")
+        NSLog("UniVerseSystem: background instance, not changing launch at login")
         return
       }
       if enabled {
@@ -59,7 +59,7 @@ public class SystemModule: Module {
     AsyncFunction("openFile") { (path: String) -> Bool in
       guard FileManager.default.fileExists(atPath: path) else { return false }
       if LaunchConfig.shared.background {
-        NSLog("ArdiaSystem: background instance, not opening %@", path)
+        NSLog("UniVerseSystem: background instance, not opening %@", path)
         return true
       }
       return NSWorkspace.shared.open(URL(fileURLWithPath: path))
@@ -68,7 +68,7 @@ public class SystemModule: Module {
     AsyncFunction("revealFile") { (path: String) -> Bool in
       guard FileManager.default.fileExists(atPath: path) else { return false }
       if LaunchConfig.shared.background {
-        NSLog("ArdiaSystem: background instance, not revealing %@", path)
+        NSLog("UniVerseSystem: background instance, not revealing %@", path)
         return true
       }
       NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])

@@ -37,7 +37,7 @@ class Refresh(unittest.TestCase):
         for folder in (self.home, self.project):
             folder.mkdir()
         patches = [
-            mock.patch.dict(os.environ, {"HOME": str(self.home), "ARDIA_CLI_HOME": str(self.cli_home), "DO_NOT_TRACK": "1"}),
+            mock.patch.dict(os.environ, {"HOME": str(self.home), "UNIVERSE_CLI_HOME": str(self.cli_home), "DO_NOT_TRACK": "1"}),
             mock.patch.object(Path, "home", classmethod(lambda cls: self.home)),
             mock.patch.object(Path, "cwd", classmethod(lambda cls: self.project)),
             mock.patch.object(computer, "skill_pack", lambda env=None: {"SKILL.md": b"---\nname: cua-driver\n---\n"}),
@@ -70,13 +70,13 @@ class Refresh(unittest.TestCase):
     def test_auto_installs_for_each_agent_found_and_general_when_none_is(self):
         status, _ = quiet(skills.install_detected)
         self.assertEqual(status, 0)
-        self.assertTrue((self.home / ".agents/skills/ardia/SKILL.md").is_file())
+        self.assertTrue((self.home / ".agents/skills/universe/SKILL.md").is_file())
         (self.home / ".claude").mkdir()
         (self.home / ".cursor").mkdir()
         status, _ = quiet(skills.install_detected)
         self.assertEqual(status, 0)
-        self.assertTrue((self.home / ".claude/skills/ardia/SKILL.md").is_file())
-        self.assertTrue((self.home / ".cursor/skills/ardia/SKILL.md").is_file())
+        self.assertTrue((self.home / ".claude/skills/universe/SKILL.md").is_file())
+        self.assertTrue((self.home / ".cursor/skills/universe/SKILL.md").is_file())
         self.assertFalse((self.home / ".config/opencode/skills/universe").exists())
 
     def test_auto_leaves_a_foreign_folder_and_a_copy_the_user_removed(self):
@@ -102,7 +102,7 @@ class Refresh(unittest.TestCase):
         with contextlib.redirect_stdout(io.StringIO()):
             status = cli.main(["skills", "install", "--auto", "--no-cua"])
         self.assertEqual(status, 0)
-        self.assertTrue((self.home / ".claude/skills/ardia/SKILL.md").is_file())
+        self.assertTrue((self.home / ".claude/skills/universe/SKILL.md").is_file())
         self.assertFalse((self.home / ".claude/skills/cua-driver").exists())
 
     def test_install_remembers_project_and_user_folders(self):

@@ -17,21 +17,21 @@ public class ContentBlockerModule: Module {
   }
 
   static let calls = CallTable(domain: "contentBlocker", handlers: [
-    "state": { _, reply in ArdiaContentBlocker.state { reply.ok($0) } },
-    "setEnabled": { args, reply in ArdiaContentBlocker.setEnabled(try args.bool("enabled"), completion: settled(reply)) },
+    "state": { _, reply in UniVerseContentBlocker.state { reply.ok($0) } },
+    "setEnabled": { args, reply in UniVerseContentBlocker.setEnabled(try args.bool("enabled"), completion: settled(reply)) },
     "setListEnabled": { args, reply in
-      ArdiaContentBlocker.setList(try args.text("id"), enabled: try args.bool("enabled"), completion: settled(reply))
+      UniVerseContentBlocker.setList(try args.text("id"), enabled: try args.bool("enabled"), completion: settled(reply))
     },
-    "isAllowed": { args, reply in ArdiaContentBlocker.isAllowed(host: try args.text("host")) { reply.ok($0) } },
+    "isAllowed": { args, reply in UniVerseContentBlocker.isAllowed(host: try args.text("host")) { reply.ok($0) } },
     "setAllowed": { args, reply in
-      ArdiaContentBlocker.setAllowed(try args.bool("allowed"), host: try args.text("host"), completion: settled(reply))
+      UniVerseContentBlocker.setAllowed(try args.bool("allowed"), host: try args.text("host"), completion: settled(reply))
     },
     "devFailNextMessage": { _, reply in
-      ArdiaContentBlocker.devFailNextMessage()
+      UniVerseContentBlocker.devFailNextMessage()
       reply.ok()
     },
     "devDelayNextLoad": { args, reply in
-      ArdiaContentBlocker.devDelayNextLoad(try args.double("ms"))
+      UniVerseContentBlocker.devDelayNextLoad(try args.double("ms"))
       reply.ok()
     },
   ])

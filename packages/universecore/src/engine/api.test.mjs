@@ -30,9 +30,9 @@ test("every call in api.ts has a handler in its domain's Swift call table, and n
 test("every event in api.ts is emitted natively under that name, and nothing else is", () => {
   const emitted = new Set();
   for (const file of nativeFiles) {
-    for (const [, swift, objc] of native(file).matchAll(/ArdiaEvents\.emit\("([^"]+)"|ArdiaEvents emit:@"([^"]+)"/g)) emitted.add(swift ?? objc);
+    for (const [, swift, objc] of native(file).matchAll(/UniVerseEvents\.emit\("([^"]+)"|UniVerseEvents emit:@"([^"]+)"/g)) emitted.add(swift ?? objc);
   }
-  const bridge = native("ArdiaEngineBridge.mm");
+  const bridge = native("UniVerseEngineBridge.mm");
   const between = (from, to) => bridge.slice(bridge.indexOf(from), bridge.indexOf(to, bridge.indexOf(from)));
   const renamed = new Map([...between("NSString *AppEventOfTopic(", "\n}").matchAll(/isEqualToString:@"([^"]+)"\] \? @"([^"]+)"/g)].map((m) => [m[1], m[2]]));
   for (const [, topic] of between("ForwardedTopics()", "];").matchAll(/@"([^"]+)"/g)) emitted.add(renamed.get(topic) ?? topic);

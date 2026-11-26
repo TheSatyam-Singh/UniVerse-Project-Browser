@@ -1,7 +1,7 @@
 SPDX-License-Identifier: GPL-3.0-only
 Changes code from Helium's helium/core/add-native-bangs.patch (GPL-3.0, The Helium Authors).
 
-Helium's !bangs come from its services (<services base>/bangs.json, behind consent). Ardia never turns the services
+Helium's !bangs come from its services (<services base>/bangs.json, behind consent). UniVerse never turns the services
 on, and its address bar is its own (packages/core), so Chromium's omnibox never uses bangs. LoadBangs now answers at
 once with an empty catalogue whatever the prefs say: no loader is made, no retry is armed and nothing is requested.
 The rest of the bangs code stays and compiles.

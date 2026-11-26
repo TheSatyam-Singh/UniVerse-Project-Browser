@@ -5,8 +5,8 @@ import { tabDestination } from "../../state/pages/urls";
 import { pdfFileOf } from "../../state/pdf/pdfUrls";
 import { loadPdfDocument, paragraphsOf, type PdfDocumentInfo, type PdfOutlineItem } from "../../state/pdf/pdfDocument";
 import { HIGHLIGHT_COLORS, usePdfAnnotations, type HighlightColor } from "../../state/pdf/pdfAnnotations";
-import { openExternalURL } from "../../platform/app";
-import { sharePage } from "../../platform/share";
+import { openExternalURL } from "../../state/app/system";
+import { sharePage } from "../../state/site/share";
 import { Button, Checkbox, PopUp, SearchField, Segmented, Text, TextField, useTheme, space, radius, withAlpha } from "../ui";
 
 const ISSUES_URL = "https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/issues/new?labels=pdf-viewer&title=PDF+viewer+issue";

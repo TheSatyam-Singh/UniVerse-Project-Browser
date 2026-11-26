@@ -6,7 +6,7 @@ export const breadcrumbs = (home: string, ...crumbs: [name: string, url: string]
   itemListElement: [["UniVerse Project Browser", home], ...crumbs].map(([name, item], i) => ({ "@type": "ListItem", position: i + 1, name, item })),
 });
 
-export const aboutArdiaPage = ({ home, url, title, description }: { home: string; url: string; title: string; description: string }) => ({
+export const aboutUniVersePage = ({ home, url, title, description }: { home: string; url: string; title: string; description: string }) => ({
   "@context": "https://schema.org",
   "@type": "WebPage",
   name: title,

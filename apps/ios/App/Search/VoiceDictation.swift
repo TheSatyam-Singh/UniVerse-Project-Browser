@@ -1,5 +1,5 @@
 import AVFoundation
-import ArdiaBrowser
+import UniVerseBrowser
 import Foundation
 import Speech
 

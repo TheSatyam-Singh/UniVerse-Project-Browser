@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ArdiaImportCore
+@testable import UniVerseImportCore
 
 final class ImportTests: XCTestCase {
   let chrome = Fixtures.support("Google/Chrome/Default")

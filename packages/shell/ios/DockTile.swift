@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import CoreImage
 
 enum DockTile {
@@ -25,7 +25,7 @@ enum DockTile {
   static func add() -> Bool {
     guard !isInDock else { return true }
     if LaunchConfig.shared.background {
-      NSLog("ArdiaSystem: background instance, not adding to the Dock")
+      NSLog("UniVerseSystem: background instance, not adding to the Dock")
       return false
     }
     let tile: [String: Any] = [

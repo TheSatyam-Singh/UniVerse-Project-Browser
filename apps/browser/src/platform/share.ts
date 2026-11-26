@@ -3,7 +3,7 @@ import { nativeModule, type ShareAnchor } from "@universe/shell";
 export type { ShareAnchor };
 export type { PageShare } from "@universe/universecore";
 
-const App = nativeModule("ArdiaApp");
+const App = nativeModule("UniVerseApp");
 
 export const sharePage = (url: string, title?: string | null, windowId?: string | null, anchor?: ShareAnchor | null) =>
   App.share(url, title ?? null, windowId ?? null, anchor ?? null);

@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import AVFoundation
 import ExpoModulesCore
 
@@ -17,7 +17,7 @@ public class ReportModule: Module {
   }
 
   public func definition() -> ModuleDefinition {
-    Name("ArdiaReport")
+    Name("UniVerseReport")
     Events(Self.event)
 
     OnCreate {
@@ -125,7 +125,7 @@ public class ReportModule: Module {
       var out: [[String: Any]] = []
       func visit(_ view: NSView, depth: Int) {
         let name = NSStringFromClass(type(of: view))
-        if view is ArdiaWebView || name.contains("RenderWidgetHost") || name.contains("WebContentsView") {
+        if view is UniVerseWebView || name.contains("RenderWidgetHost") || name.contains("WebContentsView") {
           let inWindow = view.convert(view.bounds, to: nil)
           var opacity: Float = 1
           var chain: NSView? = view
@@ -143,7 +143,7 @@ public class ReportModule: Module {
     guard recorder == nil, let window = WindowManager.shared.window(windowId) else { return false }
     let limits = Self.recordingOptions
     let options = ReportRecorder.Options(
-      includePages: includePages && !ArdiaWebView.recordingWindowIsPrivate(window), maxSeconds: min(maxSeconds ?? limits.maxSeconds, limits.maxSeconds),
+      includePages: includePages && !UniVerseWebView.recordingWindowIsPrivate(window), maxSeconds: min(maxSeconds ?? limits.maxSeconds, limits.maxSeconds),
       fps: min(max(fps ?? limits.fps, 1), 30), maxPixelWidth: min(max(maxPixelWidth ?? limits.maxPixelWidth, 320), 2880))
     guard let recorder = ReportRecorder(window: window, path: path, options: options) else { return false }
     let pill = RecordingPill(over: window) { [weak self] in _ = self?.stopRecording() }

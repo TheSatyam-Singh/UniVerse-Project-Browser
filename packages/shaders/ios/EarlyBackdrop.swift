@@ -1,7 +1,7 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 
-@objc(ArdiaEarlyBackdrop)
+@objc(UniVerseEarlyBackdrop)
 public final class EarlyBackdrop: NSObject {
   @objc public static func make(_ props: NSDictionary) -> NSView? {
     var tint = WindowTreatmentView.Tint()

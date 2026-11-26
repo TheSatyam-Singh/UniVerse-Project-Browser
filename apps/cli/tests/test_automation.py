@@ -43,7 +43,7 @@ WINDOWS = [
 RECORDER = r"""
 import json, os, sys
 out = sys.argv[1]
-names = ["ARDIA_EVENT", "ARDIA_WINDOW_ID", "ARDIA_TAB_ID", "ARDIA_PROFILE", "ARDIA_URL", "ARDIA_TITLE"]
+names = ["UNIVERSE_EVENT", "UNIVERSE_WINDOW_ID", "UNIVERSE_TAB_ID", "UNIVERSE_PROFILE", "UNIVERSE_URL", "UNIVERSE_TITLE"]
 record = {"stdin": sys.stdin.read(), "env": {n: os.environ.get(n) for n in names}, "argv": sys.argv[2:]}
 index = len(os.listdir(out))
 with open(os.path.join(out, f"{index:04}.json"), "w") as handle:
@@ -60,7 +60,7 @@ def event(name, **data):
     return {"event": name, "time": 1730400000000, "data": data}
 
 
-class FakeArdia:
+class FakeUniVerse:
     def __init__(self, path: Path):
         self.path = path
         self.requests = []
@@ -208,7 +208,7 @@ class Base(unittest.TestCase):
         self.home = self.temp / "h"
         self.home.mkdir()
         patches = [
-            mock.patch.dict(os.environ, {"HOME": str(self.home), "ARDIA_DATA_DIR": str(self.data), "ARDIA_CLI_HOME": str(self.temp / "cli")}),
+            mock.patch.dict(os.environ, {"HOME": str(self.home), "UNIVERSE_DATA_DIR": str(self.data), "UNIVERSE_CLI_HOME": str(self.temp / "cli")}),
             mock.patch.object(endpoint, "INSTALLED_DATA_DIR", self.temp / "installed"),
             mock.patch.object(hooks, "launchctl", side_effect=AssertionError("real launchctl")),
         ]
@@ -217,8 +217,8 @@ class Base(unittest.TestCase):
             self.addCleanup(patch.stop)
         self.socket = self.data / control.SOCKET_FILE
 
-    def serve(self) -> FakeArdia:
-        server = FakeArdia(self.socket).start()
+    def serve(self) -> FakeUniVerse:
+        server = FakeUniVerse(self.socket).start()
         self.addCleanup(server.stop)
         return server
 
@@ -245,7 +245,7 @@ class Discovery(Base):
         self.assertIn("isn't a socket", err)
 
     def test_symlink_is_not_a_socket(self):
-        server = FakeArdia(self.temp / "real.sock").start()
+        server = FakeUniVerse(self.temp / "real.sock").start()
         self.addCleanup(server.stop)
         os.symlink(self.temp / "real.sock", self.socket)
         status, _, err = self.run_cli("windows")
@@ -294,7 +294,7 @@ class Discovery(Base):
         self.assertEqual(err.strip(), f"universe: {endpoint.NOT_REACHABLE}")
 
     def test_installed_data_dir_without_env(self):
-        with mock.patch.dict(os.environ, {"ARDIA_DATA_DIR": ""}):
+        with mock.patch.dict(os.environ, {"UNIVERSE_DATA_DIR": ""}):
             self.assertEqual(control.socket_path(), self.temp / "installed" / control.SOCKET_FILE)
 
     def test_lost_during_hello_is_unreachable_not_maybe_ran(self):
@@ -575,14 +575,14 @@ class On(Base):
             os.kill(os.getpid(), signal.SIGINT)
 
         threading.Thread(target=feed, daemon=True).start()
-        with mock.patch.dict(os.environ, {"ARDIA_TITLE": "stale", "ARDIA_TAB_ID": "stale"}):
-            status, _, err = self.run_cli("on", "tab.navigated,window.focused", "--full-urls", "--match", "https://*.youtube.com/*", "--match", "https://*.vimeo.com/*", "--", sys.executable, "-I", "-c", RECORDER, str(self.out), "--match", "$ARDIA_URL")
+        with mock.patch.dict(os.environ, {"UNIVERSE_TITLE": "stale", "UNIVERSE_TAB_ID": "stale"}):
+            status, _, err = self.run_cli("on", "tab.navigated,window.focused", "--full-urls", "--match", "https://*.youtube.com/*", "--match", "https://*.vimeo.com/*", "--", sys.executable, "-I", "-c", RECORDER, str(self.out), "--match", "$UNIVERSE_URL")
         self.assertEqual(status, 130, err)
         records = self.records()
         self.assertEqual(len(records), 1)
         self.assertEqual(json.loads(records[0]["stdin"]), navigated)
-        self.assertEqual(records[0]["env"], {"ARDIA_EVENT": "tab.navigated", "ARDIA_WINDOW_ID": "1", "ARDIA_TAB_ID": "7", "ARDIA_PROFILE": "default", "ARDIA_URL": "https://www.youtube.com/watch?v=1", "ARDIA_TITLE": "Video x"})
-        self.assertEqual(records[0]["argv"], ["--match", "$ARDIA_URL"])
+        self.assertEqual(records[0]["env"], {"UNIVERSE_EVENT": "tab.navigated", "UNIVERSE_WINDOW_ID": "1", "UNIVERSE_TAB_ID": "7", "UNIVERSE_PROFILE": "default", "UNIVERSE_URL": "https://www.youtube.com/watch?v=1", "UNIVERSE_TITLE": "Video x"})
+        self.assertEqual(records[0]["argv"], ["--match", "$UNIVERSE_URL"])
         self.assertEqual([p for m, p in server.requests if m == "subscribe"], [{"events": ["window.focused", "tab.navigated"], "fullUrls": True}])
 
     def test_needs_program_and_valid_input(self):
@@ -619,7 +619,7 @@ class On(Base):
     def test_waits_for_universe_then_connects(self):
         def later():
             time.sleep(0.3)
-            server = FakeArdia(self.socket).start()
+            server = FakeUniVerse(self.socket).start()
             self.addCleanup(server.stop)
             server.subscribed.wait(5)
             os.kill(os.getpid(), signal.SIGINT)
@@ -803,14 +803,14 @@ class Running(unittest.TestCase):
         self.assertTrue(all(len(line) < hooks.LINE_LIMIT + 100 for line in lines))
 
     def test_env_set_or_removed(self):
-        base = {"ARDIA_URL": "stale", "ARDIA_TITLE": "stale", "PATH": "/bin"}
+        base = {"UNIVERSE_URL": "stale", "UNIVERSE_TITLE": "stale", "PATH": "/bin"}
         env = hooks.hook_env(event("window.focused", windowId=2, kind="normal", profile="p"), base)
-        self.assertNotIn("ARDIA_URL", env)
-        self.assertNotIn("ARDIA_TITLE", env)
-        self.assertEqual((env["ARDIA_EVENT"], env["ARDIA_WINDOW_ID"], env["ARDIA_PROFILE"], env["PATH"]), ("window.focused", "2", "p", "/bin"))
+        self.assertNotIn("UNIVERSE_URL", env)
+        self.assertNotIn("UNIVERSE_TITLE", env)
+        self.assertEqual((env["UNIVERSE_EVENT"], env["UNIVERSE_WINDOW_ID"], env["UNIVERSE_PROFILE"], env["PATH"]), ("window.focused", "2", "p", "/bin"))
         env = hooks.hook_env(event("tab.opened", url="https://a.test/" + "é" * 5000, title="a\0b"), {})
-        self.assertLessEqual(len(env["ARDIA_URL"].encode()), 4096)
-        self.assertEqual(env["ARDIA_TITLE"], "ab")
+        self.assertLessEqual(len(env["UNIVERSE_URL"].encode()), 4096)
+        self.assertEqual(env["UNIVERSE_TITLE"], "ab")
 
     def test_only_leading_tilde_expanded(self):
         with mock.patch.dict(os.environ, {"HOME": "/Users/someone"}):
@@ -939,7 +939,7 @@ class Reload(Base):
 
     def test_hooks_file_follows_config_resolver(self):
         self.assertEqual(automation_cli.hooks_file(SimpleNamespace(data_dir=None)), self.data / "config" / "hooks.json")
-        with mock.patch.dict(os.environ, {"ARDIA_DATA_DIR": ""}):
+        with mock.patch.dict(os.environ, {"UNIVERSE_DATA_DIR": ""}):
             self.assertEqual(automation_cli.hooks_file(SimpleNamespace(data_dir=None)), self.home / ".config" / "universe" / "hooks.json")
 
     def test_reads_bounded_regular_files(self):
@@ -974,7 +974,7 @@ class LaunchAgent(Base):
         self.addCleanup(patch.stop)
 
     def installed_env(self):
-        return mock.patch.dict(os.environ, {"ARDIA_DATA_DIR": "", "PATH": "/opt/homebrew/bin:/usr/bin:/bin"})
+        return mock.patch.dict(os.environ, {"UNIVERSE_DATA_DIR": "", "PATH": "/opt/homebrew/bin:/usr/bin:/bin"})
 
     def test_install_writes_plist_and_bootstraps(self):
         with self.installed_env():
@@ -988,7 +988,7 @@ class LaunchAgent(Base):
         self.assertIs(agent["RunAtLoad"], True)
         self.assertIs(agent["KeepAlive"], True)
         self.assertEqual(agent["WorkingDirectory"], str(self.home))
-        self.assertEqual(agent["EnvironmentVariables"], {"PATH": "/opt/homebrew/bin:/usr/bin:/bin", "ARDIA_DATA_DIR": ""})
+        self.assertEqual(agent["EnvironmentVariables"], {"PATH": "/opt/homebrew/bin:/usr/bin:/bin", "UNIVERSE_DATA_DIR": ""})
         uid = os.getuid()
         self.assertEqual(self.calls, [["bootout", f"gui/{uid}/dev.universe.hooks"], ["bootstrap", f"gui/{uid}", str(plist)]])
         self.assertIn("there's no", err)
@@ -1005,7 +1005,7 @@ class LaunchAgent(Base):
         for verb in ("install", "uninstall"):
             status, _, err = self.run_cli("hooks", verb)
             self.assertEqual(status, 1)
-            self.assertIn("refused while --data-dir or $ARDIA_DATA_DIR", err)
+            self.assertIn("refused while --data-dir or $UNIVERSE_DATA_DIR", err)
             with self.installed_env():
                 status, _, err = self.run_cli("hooks", verb, "--data-dir", str(self.data))
             self.assertEqual(status, 1)

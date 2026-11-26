@@ -80,7 +80,7 @@ class ShareSheetModel(
 
     val sendsOnlyToMacs: Boolean get() = sendTargets.all { it.isMac }
 
-    fun openInArdia() {
+    fun openInUniVerse() {
         val link = page.url?.let { SystemLink.Open(it).uri } ?: page.text?.let { SystemLink.Search(it).uri } ?: return
         if (open(link)) finish() else confirm(Message.CouldNotOpen, succeeded = false)
     }

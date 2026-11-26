@@ -12,7 +12,7 @@ const S = () => useBrowser.getState();
 const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 const asked = [];
-shellNativeModules.ArdiaDialogs.confirm = (options) => {
+shellNativeModules.UniVerseDialogs.confirm = (options) => {
   asked.push(options);
   return Promise.resolve({ confirmed: true, suppressed: false });
 };
@@ -164,14 +164,14 @@ test("a newer window closed empty wins over the older kept one", async () => {
 test("a window opened while the last one animates out keeps it from being the last", async () => {
   const { w } = arcWindow();
   const gates = [];
-  const animate = shellNativeModules.ArdiaAppWindows.animateWindowClose;
-  shellNativeModules.ArdiaAppWindows.animateWindowClose = () => new Promise((resolve) => gates.push(resolve));
+  const animate = shellNativeModules.UniVerseAppWindows.animateWindowClose;
+  shellNativeModules.UniVerseAppWindows.animateWindowClose = () => new Promise((resolve) => gates.push(resolve));
   try {
     await closeByUser(w);
     S().createWindow({ url: "https://new.com" });
   } finally {
     gates.splice(0).forEach((resolve) => resolve());
-    shellNativeModules.ArdiaAppWindows.animateWindowClose = animate;
+    shellNativeModules.UniVerseAppWindows.animateWindowClose = animate;
   }
   await tick();
   await tick();
@@ -254,8 +254,8 @@ test("a pins-only entry that's no longer the last window leaves Recently Closed"
 test("a Dock click while the last window is still animating out brings that window back", async () => {
   const { w } = arcWindow();
   const gates = [];
-  const animate = shellNativeModules.ArdiaAppWindows.animateWindowClose;
-  shellNativeModules.ArdiaAppWindows.animateWindowClose = () => new Promise((resolve) => gates.push(resolve));
+  const animate = shellNativeModules.UniVerseAppWindows.animateWindowClose;
+  shellNativeModules.UniVerseAppWindows.animateWindowClose = () => new Promise((resolve) => gates.push(resolve));
   try {
     await closeByUser(w);
     assert.ok(S().windows[w], "still animating");
@@ -264,7 +264,7 @@ test("a Dock click while the last window is still animating out brings that wind
     assert.deepEqual(listUrls(id), ["https://a.com", "https://b.com", "https://c.com"]);
   } finally {
     gates.splice(0).forEach((resolve) => resolve());
-    shellNativeModules.ArdiaAppWindows.animateWindowClose = animate;
+    shellNativeModules.UniVerseAppWindows.animateWindowClose = animate;
   }
   await tick();
   await tick();

@@ -21,9 +21,9 @@ type NativeHandle = Omit<
   discard(unload: boolean): Promise<DiscardOutcome>;
 };
 
-const NativeWebView = requireNativeViewManager<NativeProps>("ArdiaWebView");
+const NativeWebView = requireNativeViewManager<NativeProps>("UniVerseWebView");
 let NativeWebKitView: typeof NativeWebView | undefined;
-const webKitView = () => (NativeWebKitView ??= requireNativeViewManager<NativeProps>("ArdiaWebKit"));
+const webKitView = () => (NativeWebKitView ??= requireNativeViewManager<NativeProps>("UniVerseWebKit"));
 
 const VIEW_RETRIES = 3;
 const isViewMissing = (error: unknown) =>

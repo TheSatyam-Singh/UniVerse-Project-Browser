@@ -7,7 +7,7 @@
 //   node packages/import/scripts/e2e.mjs <UniVerse-Project-Browser.app> <scratch dir> [import|restart|all] [--keep]
 //
 //   <UniVerse-Project-Browser.app>  a Debug build at the current NATIVE_API_VERSION (Metro on :8081 serves it the JS)
-//   <scratch dir>    data/ is ARDIA_DATA_DIR and home/ the fake Chrome home (both wiped by the import phase);
+//   <scratch dir>    data/ is UNIVERSE_DATA_DIR and home/ the fake Chrome home (both wiped by the import phase);
 //                    result-<phase>.json lists each phase's failures
 //   import           a private profile is refused; the UI imports 5 cookies, 1 address and
 //                    1 card; refused/expired cookies stay out; the site gets the session cookie; a re-import adds nothing
@@ -15,8 +15,8 @@
 //   all              (default) import, then restart
 //   --keep           leaves the last instance running (poke it with scripts/agent/ac eval <scratch dir>/data '<js>')
 //
-// The instance runs through scripts/lib/instance.mjs (hidden, its own DevTools port) with ARDIA_INSTANCE importSourceDir
-// at the fake home and ARDIA_TEST importSecret, so the Keychain is never asked. One line per check; everything
+// The instance runs through scripts/lib/instance.mjs (hidden, its own DevTools port) with UNIVERSE_INSTANCE importSourceDir
+// at the fake home and UNIVERSE_TEST importSecret, so the Keychain is never asked. One line per check; everything
 // else goes to <scratch dir>/e2e.log. Exit code 1 if any check failed.
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -99,7 +99,7 @@ async function cdp(method, params = {}) {
 const fixtureCookies = async () => (await cdp("Storage.getCookies")).cookies.filter((c) => c.name.startsWith("ac_"));
 
 const nativeImport = (jobId, profile) => `
-  const m = globalThis.expo.modules.ArdiaImport;
+  const m = globalThis.expo.modules.UniVerseImport;
   return m.unlockBrowser("chrome", null)
     .then(() => m.importData(${JSON.stringify(jobId)}, "chrome", "Default", ["cookies"], {}))
     .then((json) => {
@@ -117,7 +117,7 @@ async function importPhase(ok) {
   ok(refused.keys && !refused.keys.includes("cookies"), "import JSON carries no cookie list");
   ok((await fixtureCookies()).length === 0, "nothing landed after the private attempt");
 
-  await evaluate(`globalThis.expo.modules.ArdiaImport.forgetUnlockedKeys(); ac.runCommand({ command: "importBrowserData" }); return true`);
+  await evaluate(`globalThis.expo.modules.UniVerseImport.forgetUnlockedKeys(); ac.runCommand({ command: "importBrowserData" }); return true`);
   await until("return !!globalThis.acImport && globalThis.acImport.step", (r) => r === "choose", 30_000);
   ok((await evaluate(`return globalThis.acImport.select("chrome")`)) === true, "Chrome fixture is listed");
   const kinds = await until("return globalThis.acImport.kinds", (r) => Array.isArray(r) && r.includes("cookies"), 10_000);

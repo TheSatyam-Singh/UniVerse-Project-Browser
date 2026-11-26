@@ -8,7 +8,7 @@ const SHARED = join(scratch, "universe-shared");
 
 export default {
   session: "session-r44-folder.json",
-  env: { ARDIA_TEST: "appMenu" },
+  env: { UNIVERSE_TEST: "appMenu" },
   setup: `return sleep(2000).then(() => { const g = st().groupTabs(["f1", "f2", "f3"], { pinned: true, name: "Trip" }); st().updateGroup(g, { name: "Trip", icon: "🏔️", color: "green", collapsed: false }); globalThis.__g = g; return sleep(800).then(() => { st().updateGroup(g, { collapsed: false }); return sleep(1200); }).then(() => done({ group: g, collapsed: st().groups[g].collapsed })); });`,
   instance: { sharedFolders: SHARED },
   seed() {

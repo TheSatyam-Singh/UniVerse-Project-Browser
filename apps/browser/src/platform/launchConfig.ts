@@ -2,7 +2,7 @@ import { nativeModule, type LaunchConfig } from "@universe/shell";
 
 let config: LaunchConfig | null = null;
 
-const current = (): LaunchConfig => (config ??= nativeModule("ArdiaApp").launchConfig());
+const current = (): LaunchConfig => (config ??= nativeModule("UniVerseApp").launchConfig());
 
 export const configDirectory = (): string => current().configDirectory;
 

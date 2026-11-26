@@ -224,7 +224,7 @@ async def engine_offscreen(state, target_id: str) -> bool:
         info = (await state.browser.send("Target.getTargetInfo", {"targetId": target_id})).get("targetInfo") or {}
     except BrowseError:
         return False
-    if info.get("ardiaOffscreen") is True:
+    if info.get("universeOffscreen") is True:
         state.set_offscreen(target_id, True)
         return True
     return False
@@ -495,7 +495,7 @@ async def cmd_pushstate(ctx: Ctx, argv):
     need(args, 1, "pushstate <url>")
     page = await ctx.state.page()
     refuse_on_borrowed(ctx, page, "change the address of")
-    url = await page.call("(u) => ardiaBrowse.pushState(u)", args[0], frame=page.main_frame)
+    url = await page.call("(u) => universeBrowse.pushState(u)", args[0], frame=page.main_frame)
     page.url = url
     return Result({"url": url}, url)
 
@@ -773,7 +773,7 @@ async def select_in(ctx: Ctx, page, element, selector: str, values: list[str], h
 
 
 async def field_name(page, element, selector: str) -> str:
-    names = await page.call("(el) => ardiaBrowse.labelText(el).concat([el.getAttribute('placeholder') || ''])", element, frame=element.frame, read=True)
+    names = await page.call("(el) => universeBrowse.labelText(el).concat([el.getAttribute('placeholder') || ''])", element, frame=element.frame, read=True)
     name = next((" ".join(str(item).split()) for item in names or [] if str(item).strip()), "")
     return f'"{name}" ({selector})' if name else selector
 
@@ -875,7 +875,7 @@ async def cmd_mouse(ctx: Ctx, argv):
     if action == "move":
         need(args, 3, "mouse move <x> <y>")
         x, y = float(args[1]), float(args[2])
-        needs = {} if await page.call("(x, y) => ardiaBrowse.overFrame(x, y)", x, y, frame=page.main_frame, read=True) else {"mousemove": 1}
+        needs = {} if await page.call("(x, y) => universeBrowse.overFrame(x, y)", x, y, frame=page.main_frame, read=True) else {"mousemove": 1}
         await actions.expect_input(page, page.main_frame, lambda: page.input.gesture("mouse move", lambda: mouse.move(x, y, humanize=humanize), keep_held=True),
                                    needs, "The mouse move")
         return Result({"moved": True})
@@ -883,7 +883,7 @@ async def cmd_mouse(ctx: Ctx, argv):
         button = actions.mouse_button(args[1] if len(args) > 1 else None)
         run = (lambda: mouse.down(button)) if action == "down" else (lambda: mouse.up(button))
         x, y = mouse._position
-        over = await page.call("(x, y) => ardiaBrowse.overFrame(x, y)", x, y, frame=page.main_frame, read=True)
+        over = await page.call("(x, y) => universeBrowse.overFrame(x, y)", x, y, frame=page.main_frame, read=True)
         await actions.expect_input(page, page.main_frame, lambda: page.input.gesture(f"mouse {action}", run, keep_held=True),
                                    {} if over else {"mousedown" if action == "down" else "mouseup": 1}, f"The mouse {action}")
         return Result({action: True})
@@ -892,7 +892,7 @@ async def cmd_mouse(ctx: Ctx, argv):
         dy = float(args[1])
         dx = float(args[2]) if len(args) > 2 else 0
         x, y = mouse._position
-        over = await page.call("(x, y) => ardiaBrowse.overFrame(x, y)", x, y, frame=page.main_frame, read=True)
+        over = await page.call("(x, y) => universeBrowse.overFrame(x, y)", x, y, frame=page.main_frame, read=True)
         wheel = {"type": "mouseWheel", "x": int(x), "y": int(y), "deltaX": dx, "deltaY": dy}
         await actions.expect_input(page, page.main_frame, lambda: page.input.gesture("mouse wheel", lambda: page.send("Input.dispatchMouseEvent", wheel, input_event=True), keep_held=True),
                                    {} if over else {"wheel": 1}, "The wheel")
@@ -965,7 +965,7 @@ async def cmd_wait(ctx: Ctx, argv):
             return True
         if wanted_state == "detached":
             return False
-        visible = await found_page.call("(el) => ardiaBrowse.visible(el)", element, frame=element.frame)
+        visible = await found_page.call("(el) => universeBrowse.visible(el)", element, frame=element.frame)
         return visible if wanted_state == "visible" else not visible
 
     await wait_until(selector_state, timeout, 0.1, f"{selector} to be {wanted_state}")
@@ -1044,7 +1044,7 @@ async def cmd_get(ctx: Ctx, argv):
     if what == "count":
         need(args, 2, "get count <selector>")
         frame = ctx.state.frame_for(page) or page.main_frame
-        count = await page.call("(s) => ardiaBrowse.queryAll(s).length", args[1], frame=frame, read=True)
+        count = await page.call("(s) => universeBrowse.queryAll(s).length", args[1], frame=frame, read=True)
         return Result({"count": count, "selector": args[1]}, str(count))
     need(args, 2, f"get {what} <selector>")
     page, element = await resolve(ctx, args[1])
@@ -1073,7 +1073,7 @@ async def cmd_get(ctx: Ctx, argv):
         text = "\n".join(f"{key + ':':<8}{box[key]}" for key in ("x", "y", "width", "height"))
         return Result(box, text)
     if what == "styles":
-        styles = await page.call("(el) => ardiaBrowse.styles(el)", element, frame=element.frame)
+        styles = await page.call("(el) => universeBrowse.styles(el)", element, frame=element.frame)
         return Result({"styles": styles}, "\n".join(f"{key}: {value}" for key, value in styles.items()))
     raise Usage(f"Unknown get subcommand: {what}")
 
@@ -1086,9 +1086,9 @@ async def cmd_is(ctx: Ctx, argv):
     page, element = await resolve(ctx, args[1])
     origin = page.frames.get(element.frame, {}).get("origin") or ""
     if what == "visible":
-        value = await page.call("(el) => ardiaBrowse.visible(el)", element, frame=element.frame)
+        value = await page.call("(el) => universeBrowse.visible(el)", element, frame=element.frame)
     elif what in ("enabled", "checked"):
-        info = await page.call("(el) => ardiaBrowse.info(el)", element, frame=element.frame)
+        info = await page.call("(el) => universeBrowse.info(el)", element, frame=element.frame)
         value = not info["disabled"] if what == "enabled" else info["checked"]
     else:
         raise Usage(f"Unknown is subcommand: {what} (visible, enabled, checked)")
@@ -1137,16 +1137,16 @@ async def cmd_find(ctx: Ctx, argv):
         if locator == "role":
             element, role, name = await find_role(ctx, page, frame, value, wanted_name, exact)
         elif locator == "text":
-            element = await page.element_from(await page.call("(t, e) => ardiaBrowse.findText(t, e)", value, exact, frame=frame, by_value=False, read=True), frame, f"text={value}")
+            element = await page.element_from(await page.call("(t, e) => universeBrowse.findText(t, e)", value, exact, frame=frame, by_value=False, read=True), frame, f"text={value}")
         elif locator == "label":
-            element = await page.element_from(await page.call("(t, e) => ardiaBrowse.findLabel(t, e)", value, exact, frame=frame, by_value=False, read=True), frame, f"label={value}")
+            element = await page.element_from(await page.call("(t, e) => universeBrowse.findLabel(t, e)", value, exact, frame=frame, by_value=False, read=True), frame, f"label={value}")
         elif locator in ("placeholder", "alt", "title"):
-            element = await page.element_from(await page.call("(a, t, e) => ardiaBrowse.findAttr(a, t, e)", locator, value, exact, frame=frame, by_value=False, read=True), frame, f"{locator}={value}")
+            element = await page.element_from(await page.call("(a, t, e) => universeBrowse.findAttr(a, t, e)", locator, value, exact, frame=frame, by_value=False, read=True), frame, f"{locator}={value}")
         elif locator == "testid":
-            element = await page.element_from(await page.call("(t) => ardiaBrowse.findAttr('data-testid', t, true)", value, frame=frame, by_value=False, read=True), frame, f"testid={value}")
+            element = await page.element_from(await page.call("(t) => universeBrowse.findAttr('data-testid', t, true)", value, frame=frame, by_value=False, read=True), frame, f"testid={value}")
         elif locator in ("first", "last", "nth"):
             position = {"first": 0, "last": -1}.get(locator, index if locator == "nth" else 0)
-            remote = await page.call("(s, i) => { const all = ardiaBrowse.queryAll(s); return all.at(i) || null; }", value, position, frame=frame, by_value=False, read=True)
+            remote = await page.call("(s, i) => { const all = universeBrowse.queryAll(s); return all.at(i) || null; }", value, position, frame=frame, by_value=False, read=True)
             element = await page.element_from(remote, frame, f"{locator} {value}")
         else:
             raise Usage(f"Unknown locator: {locator} (role, text, label, placeholder, alt, title, testid, first, last, nth)")
@@ -1411,12 +1411,12 @@ async def cmd_storage(ctx: Ctx, argv):
     frame = ctx.state.frame_for(page) or page.main_frame
     if op == "set":
         need(rest, 2, f"storage {kind} set <key> <value>")
-        await page.call("(k, o, key, v) => ardiaBrowse.storage(k, o, key, v)", kind, "set", rest[0], " ".join(rest[1:]), frame=frame)
+        await page.call("(k, o, key, v) => universeBrowse.storage(k, o, key, v)", kind, "set", rest[0], " ".join(rest[1:]), frame=frame)
         return Result({"set": rest[0]})
     if op in ("clear", "remove"):
-        await page.call("(k, o, key) => ardiaBrowse.storage(k, o, key)", kind, op, rest[0] if rest else None, frame=frame)
+        await page.call("(k, o, key) => universeBrowse.storage(k, o, key)", kind, op, rest[0] if rest else None, frame=frame)
         return Result({op: True}, "✓ Storage cleared" if op == "clear" else "✓ Done")
-    data = await page.call("(k, o, key) => ardiaBrowse.storage(k, o, key)", kind, "get", rest[0] if rest else None, frame=frame, read=True)
+    data = await page.call("(k, o, key) => universeBrowse.storage(k, o, key)", kind, "get", rest[0] if rest else None, frame=frame, read=True)
     text = "\n".join(f"{key}: {value}" for key, value in data.items()) or "(empty)"
     return Result({"data": data}, text, page_content=True)
 
@@ -1586,7 +1586,7 @@ async def cmd_state(ctx: Ctx, argv):
     try:
         if args[0] == "save":
             cookies = (await page.send("Network.getAllCookies")).get("cookies") or []
-            local = await page.call("() => ardiaBrowse.storage('local', 'get')", frame=page.main_frame, read=True)
+            local = await page.call("() => universeBrowse.storage('local', 'get')", frame=page.main_frame, read=True)
             origin = page.frames.get(page.main_frame, {}).get("origin")
             fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
             with os.fdopen(fd, "w", encoding="utf-8") as handle:
@@ -1600,7 +1600,7 @@ async def cmd_state(ctx: Ctx, argv):
             for entry in saved.get("origins") or []:
                 if entry.get("origin") == origin:
                     for item in entry.get("localStorage") or []:
-                        await page.call("(k, v) => ardiaBrowse.storage('local', 'set', k, v)", item["name"], item["value"], frame=page.main_frame)
+                        await page.call("(k, v) => universeBrowse.storage('local', 'set', k, v)", item["name"], item["value"], frame=page.main_frame)
             return Result({"path": args[1]}, f"✓ State loaded from {args[1]}")
     except Gated as error:
         raise error.during(f"state {args[0]}") from None
@@ -1750,10 +1750,10 @@ async def cmd_read(ctx: Ctx, argv):
         return Result({"content": content, "contentType": "application/pdf", "finalUrl": page.url, "source": "pdf", "truncated": False, "url": page.url},
                       content, page_content=True)
     if selector:
-        content = await page.call("(s) => ardiaBrowse.queryAll(s).map((el) => ardiaBrowse.readable(el)).filter(Boolean).join('\\n\\n')",
+        content = await page.call("(s) => universeBrowse.queryAll(s).map((el) => universeBrowse.readable(el)).filter(Boolean).join('\\n\\n')",
                                   selector, frame=frame, read=True)
     else:
-        content = await page.call("() => ardiaBrowse.readable()", frame=frame, read=True)
+        content = await page.call("() => universeBrowse.readable()", frame=frame, read=True)
     content = readurl.post_process(content, options)
     readpages.note_virtualized(content)
     scope = "" if options.get("selector") else await page_scope(page, frame)
@@ -1772,7 +1772,7 @@ async def page_scope(page, frame) -> str:
     from universe_cli import command_metrics
 
     try:
-        scope = await page.call("() => ardiaBrowse.scope()", frame=frame, read=True)
+        scope = await page.call("() => universeBrowse.scope()", frame=frame, read=True)
     except BrowseError:
         return ""
     if scope:
@@ -1794,7 +1794,7 @@ async def cmd_vitals(ctx: Ctx, argv):
     page = await current_or_new(ctx) if args else await ctx.state.page()
     if args:
         await navigate(ctx, page, normalize_url(args[0]))
-    data = await page.call("() => ardiaBrowse.vitals()", frame=page.main_frame, read=True)
+    data = await page.call("() => universeBrowse.vitals()", frame=page.main_frame, read=True)
     from universe_cli.browse import react
 
     data["hydration"] = await react.hydration(page) if "react" in page.init_scripts.values() else None

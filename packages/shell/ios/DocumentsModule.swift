@@ -2,7 +2,7 @@ import ExpoModulesCore
 
 public class DocumentsModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaDocuments")
+    Name("UniVerseDocuments")
 
     Function("readDocument") { (name: String) -> String? in DocumentStore.read(name) }
     Function("writeDocument") { (name: String, contents: String) in try DocumentStore.write(name, contents) }

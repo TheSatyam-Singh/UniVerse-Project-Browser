@@ -8,7 +8,7 @@ die() { echo "error: $*" >&2; exit 1; }
 fwv="$(cd "$app/Contents/Frameworks/Chromium Framework.framework/Versions/Current" && pwd -P)" \
   || die "no Chromium Framework.framework in $app"
 resources="$app/Contents/Resources"
-enabled() { [ "${ARDIA_PRUNE:-on}" != off ] && [ "${!1:-on}" != off ]; }
+enabled() { [ "${UNIVERSE_PRUNE:-on}" != off ] && [ "${!1:-on}" != off ]; }
 bytes() { [ $# -eq 0 ] && { echo 0; return; }; find "$@" -type f -exec stat -f %z {} + | awk '{ s += $1 } END { print s + 0 }'; }
 total=0
 report() {
@@ -32,7 +32,7 @@ for lproj in "$resources"/*.lproj; do
 done
 ungendered() { local name="${1%_FEMININE}"; name="${name%_MASCULINE}"; echo "${name%_NEUTER}"; }
 
-if enabled ARDIA_PRUNE_LOCALES; then
+if enabled UNIVERSE_PRUNE_LOCALES; then
   [ -f "$fwv/Resources/en.lproj/locale.pak" ] || die "the framework has no en.lproj/locale.pak"
   doomed=()
   for lproj in "$fwv"/Resources/*.lproj; do
@@ -40,20 +40,20 @@ if enabled ARDIA_PRUNE_LOCALES; then
   done
   freed="$(bytes ${doomed[@]+"${doomed[@]}"})"
   rm -rf ${doomed[@]+"${doomed[@]}"}
-  report "Chrome locales" "$freed" "${#doomed[@]} dropped, $(echo $languages | wc -w | tr -d ' ') languages kept; ARDIA_PRUNE_LOCALES=off keeps all"
+  report "Chrome locales" "$freed" "${#doomed[@]} dropped, $(echo $languages | wc -w | tr -d ' ') languages kept; UNIVERSE_PRUNE_LOCALES=off keeps all"
 fi
 
-if enabled ARDIA_PRUNE_SWIFTSHADER; then
+if enabled UNIVERSE_PRUNE_SWIFTSHADER; then
   doomed=()
   for file in "$fwv/Libraries/libvk_swiftshader.dylib" "$fwv/Libraries/vk_swiftshader_icd.json" "$fwv/Libraries/libvulkan.dylib"; do
     [ -e "$file" ] && doomed+=("$file")
   done
   freed="$(bytes ${doomed[@]+"${doomed[@]}"})"
   rm -f ${doomed[@]+"${doomed[@]}"}
-  report "SwiftShader and its Vulkan loader" "$freed" "ARDIA_PRUNE_SWIFTSHADER=off keeps them"
+  report "SwiftShader and its Vulkan loader" "$freed" "UNIVERSE_PRUNE_SWIFTSHADER=off keeps them"
 fi
 
-if enabled ARDIA_PRUNE_FIRST_RUN; then
+if enabled UNIVERSE_PRUNE_FIRST_RUN; then
   freed="$(python3 -I - "$fwv/Resources/resources.pak" "$here/first-run-resources.sha256" <<'PY'
 import hashlib, os, struct, sys
 path, listing = sys.argv[1], sys.argv[2]
@@ -87,11 +87,11 @@ PY
 )"
   read -r freed matched <<< "$freed"
   [ "$matched" -gt 0 ] || echo "    warning: none of first-run-resources.sha256 is in resources.pak (a new Chromium? rehash them)" >&2
-  report "first-run sounds and art" "$freed" "$matched resources blanked; ARDIA_PRUNE_FIRST_RUN=off keeps them"
+  report "first-run sounds and art" "$freed" "$matched resources blanked; UNIVERSE_PRUNE_FIRST_RUN=off keeps them"
 fi
 
 ubo="$resources/Extensions/ublock"
-if enabled ARDIA_PRUNE_UBO_LOCALES && [ -d "$ubo/_locales" ]; then
+if enabled UNIVERSE_PRUNE_UBO_LOCALES && [ -d "$ubo/_locales" ]; then
   default_locale="$(plutil -extract default_locale raw "$ubo/manifest.json" 2>/dev/null || echo en)"
   [ -f "$ubo/_locales/$default_locale/messages.json" ] || die "uBlock Origin has no _locales/$default_locale"
   lineages="$languages"
@@ -109,28 +109,28 @@ if enabled ARDIA_PRUNE_UBO_LOCALES && [ -d "$ubo/_locales" ]; then
     (cd "$ubo" && find . -type f ! -path './_metadata/*' -print0 | LC_ALL=C sort -z \
       | xargs -0 shasum -a 256 | shasum -a 256 | cut -d' ' -f1) > "$resources/Extensions/ublock.fingerprint"
   fi
-  report "uBlock Origin locales" "$freed" "${#doomed[@]} dropped; ARDIA_PRUNE_UBO_LOCALES=off keeps all"
+  report "uBlock Origin locales" "$freed" "${#doomed[@]} dropped; UNIVERSE_PRUNE_UBO_LOCALES=off keeps all"
 fi
 
-if enabled ARDIA_PRUNE_RN_3X && [ -d "$resources/assets" ]; then
+if enabled UNIVERSE_PRUNE_RN_3X && [ -d "$resources/assets" ]; then
   doomed=()
   while IFS= read -r -d '' image; do
     [ -f "${image/@3x./@2x.}" ] && doomed+=("$image")
   done < <(find "$resources/assets" -type f -name '*@3x.*' -print0)
   freed="$(bytes ${doomed[@]+"${doomed[@]}"})"
   rm -f ${doomed[@]+"${doomed[@]}"}
-  report "@3x images" "$freed" "${#doomed[@]} dropped, Macs draw at 1x or 2x; ARDIA_PRUNE_RN_3X=off keeps them"
+  report "@3x images" "$freed" "${#doomed[@]} dropped, Macs draw at 1x or 2x; UNIVERSE_PRUNE_RN_3X=off keeps them"
 fi
 
 hermes="$app/Contents/Frameworks/hermes.framework/Versions/Current/hermes"
-if enabled ARDIA_STRIP_HERMES && [ -f "$hermes" ]; then
+if enabled UNIVERSE_STRIP_HERMES && [ -f "$hermes" ]; then
   uuid() { dwarfdump --uuid "$1" | awk '{ print $2 }'; }
   before_uuid="$(uuid "$hermes")" before_exports="$(dyld_info -exports "$hermes" | tail -n +2 | sort)"
   before="$(stat -f %z "$hermes")"
   strip -x "$hermes" 2>/dev/null
   [ "$(uuid "$hermes")" = "$before_uuid" ] || die "strip changed hermes's UUID"
   [ "$(dyld_info -exports "$hermes" | tail -n +2 | sort)" = "$before_exports" ] || die "strip changed what hermes exports"
-  report "hermes local symbols" $((before - $(stat -f %z "$hermes"))) "re-sign hermes.framework; ARDIA_STRIP_HERMES=off keeps them"
+  report "hermes local symbols" $((before - $(stat -f %z "$hermes"))) "re-sign hermes.framework; UNIVERSE_STRIP_HERMES=off keeps them"
 fi
 
 echo "    pruned $((total / 1048576)) MB"

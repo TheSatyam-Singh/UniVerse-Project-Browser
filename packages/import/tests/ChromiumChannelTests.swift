@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ArdiaImportCore
+@testable import UniVerseImportCore
 
 final class ChromiumChannelTests: XCTestCase {
   let beta = Fixtures.support("BraveSoftware/Brave-Browser-Beta/Default")

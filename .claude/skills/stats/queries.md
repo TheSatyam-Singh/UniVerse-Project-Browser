@@ -1,6 +1,6 @@
 # Stats queries (ClickHouse)
 
-Run with `node scripts/telemetry-sql.mjs "<query>; <query>; …"` (read-only user from `~/.config/ardia/telemetry.env`).
+Run with `node scripts/telemetry-sql.mjs "<query>; <query>; …"` (read-only user from `~/.config/universe/telemetry.env`).
 Put every query you need in one call, separated by `;` (or pipe them on stdin): they run 4 at a time and print
 in order under `== n` headers. Each request costs about 0.35 s of network on top of the query, so one call with
 ten queries takes about as long as two calls with one each. Most queries take 0.1–0.2 s on the server; the

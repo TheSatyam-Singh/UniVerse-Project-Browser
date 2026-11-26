@@ -77,7 +77,7 @@ test("closing the tab a pending duplicate copies its engine from wakes the dupli
   const [source, copy, other] = ids;
   S().updateSettings({ websiteEngines: { "https://a.com": "webkit" } });
   const adopted = (adopt) => ({ url: "https://a.com/", engine: undefined, page: { kind: "adopted", adopt, nav: null } });
-  useBrowser.setState((s) => ({ tabs: { ...s.tabs, [source]: { ...s.tabs[source], ...adopted("ardiacore:123") }, [copy]: { ...s.tabs[copy], ...adopted(`clone:${source}`) } } }));
+  useBrowser.setState((s) => ({ tabs: { ...s.tabs, [source]: { ...s.tabs[source], ...adopted("universecore:123") }, [copy]: { ...s.tabs[copy], ...adopted(`clone:${source}`) } } }));
   S().activate(other);
   const watch = watching(w);
   const before = rowFlags(S(), w, copy);

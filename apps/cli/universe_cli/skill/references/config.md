@@ -1,6 +1,6 @@
 # Config and themes
 
-When the user wants a setting changed for good, or set up from their dotfiles, edit `~/.config/ardia/config.json`
+When the user wants a setting changed for good, or set up from their dotfiles, edit `~/.config/universe/config.json`
 with `universe config` instead of clicking through Settings. UniVerse Project Browser reads the file at launch and whenever it changes,
 and never writes it; these commands don't need UniVerse Project Browser running.
 
@@ -17,7 +17,7 @@ universe config check
 default and file value; shortcuts are one per command (`''` unbinds); `unset` leaves UniVerse Project Browser's current value in place;
 `check` reports what UniVerse Project Browser would complain about.
 
-Themes live in `~/.config/ardia/themes/NAME.json`: `dark` and `light` colour roles, plus `type` (font `family`,
+Themes live in `~/.config/universe/themes/NAME.json`: `dark` and `light` colour roles, plus `type` (font `family`,
 `mono`, `scale`, `sizes`, `weights`), `metrics` (`rowHeight`, `rowGap`, `pinnedHeight`, `sidebarWidth`, `radius`),
 `layout` (`hide` sidebar parts, `addressField` and `newTab` top or bottom) and `icons` (SF Symbol swaps). Every key
 is optional; a block left out is UniVerse Project Browser's own look. `universe theme new NAME` writes every role and look key with

@@ -3,7 +3,7 @@ import { test } from "node:test";
 const { shareFromPage } = await import("./share.ts");
 const { shellNativeModules } = await import("../../test-native/shell.ts");
 
-const app = shellNativeModules.ArdiaApp;
+const app = shellNativeModules.UniVerseApp;
 const anchor = [99, 199, 2, 2];
 const tab = { url: "https://news.example/story?utm_source=x&id=7", title: "Story", customTitle: null, windowId: "w1" };
 

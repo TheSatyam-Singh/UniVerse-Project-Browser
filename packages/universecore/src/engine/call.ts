@@ -17,7 +17,7 @@ const modules = new Map<string, DomainModule>();
 export function domainModule<Module = DomainModule>(domain: string): Module {
   let module = modules.get(domain);
   if (!module) {
-    module = requireNativeModule<DomainModule>(`Ardia${domain[0]!.toUpperCase()}${domain.slice(1)}`);
+    module = requireNativeModule<DomainModule>(`UniVerse${domain[0]!.toUpperCase()}${domain.slice(1)}`);
     modules.set(domain, module);
   }
   return module as Module;

@@ -166,7 +166,7 @@ TEXT_JS = r"""(budget, ...anchors) => {
     flush();
   };
   for (const root of roots) { walk(root, false); flush(); }
-  globalThis.ardiaBrowseTextEls = els;
+  globalThis.universeBrowseTextEls = els;
   const where = (el) => {
     if (el.id) return "#" + CSS.escape(el.id);
     const tag = el.tagName.toLowerCase(), role = el.getAttribute("role");
@@ -728,10 +728,10 @@ async def watch_reaction(state, page, react):
     try:
         if element is not None:
             frame = element.frame
-            started = await reaction_call(page, "(el, id) => ardiaBrowse.watchReaction(el, id)", element, watch_id, frame=frame,
+            started = await reaction_call(page, "(el, id) => universeBrowse.watchReaction(el, id)", element, watch_id, frame=frame,
                                           timeout=REACTION_CALL_TIMEOUT)
         else:
-            started = await reaction_call(page, "(id) => ardiaBrowse.watchReaction(null, id)", watch_id, frame=frame,
+            started = await reaction_call(page, "(id) => universeBrowse.watchReaction(null, id)", watch_id, frame=frame,
                                           timeout=REACTION_CALL_TIMEOUT)
     except (BrowseError, asyncio.TimeoutError):
         return
@@ -769,7 +769,7 @@ async def settle_reaction(state, name: str | None = None, argv=()):
     try:
         while loop.time() < deadline:
             budget = max(min(REACTION_CALL_TIMEOUT, deadline - loop.time()), 0.05)
-            watch = await reaction_call(page, "(id) => ardiaBrowse.reactionState(id)", watch_id, frame=frame, timeout=budget)
+            watch = await reaction_call(page, "(id) => universeBrowse.reactionState(id)", watch_id, frame=frame, timeout=budget)
             if not watch:
                 return
             reacted = watch["sinceLast"] is not None
@@ -786,7 +786,7 @@ async def settle_reaction(state, name: str | None = None, argv=()):
         return
     finally:
         with contextlib.suppress(BrowseError, asyncio.TimeoutError):
-            await reaction_call(page, "(id) => ardiaBrowse.unwatchReaction(id)", watch_id, frame=frame, timeout=REACTION_CALL_TIMEOUT)
+            await reaction_call(page, "(id) => universeBrowse.unwatchReaction(id)", watch_id, frame=frame, timeout=REACTION_CALL_TIMEOUT)
 
 
 async def observe(ctx, page, run, react=None):
@@ -948,7 +948,7 @@ async def page_text(state, page, frame: str, budget: int, anchors: list, refs: d
     names = found.get("names") or []
     marked = []
     if kinds:
-        remote = await page.call("() => globalThis.ardiaBrowseTextEls", frame=frame, by_value=False, read=True)
+        remote = await page.call("() => globalThis.universeBrowseTextEls", frame=frame, by_value=False, read=True)
         marked = await page.elements_from(remote, frame, "text", MAX_TEXT_MARKS)
     inline: set[str] = set()
     inner: dict[int, str] = {}

@@ -1,4 +1,4 @@
-import ArdiaCore
+import UniVerseCore
 import Foundation
 
 enum ConfigFolder {
@@ -28,11 +28,11 @@ enum ConfigFolder {
     if fd < 0 {
       let error = errno
       var result: [String: Any] = ["status": error == ENOENT || error == ENOTDIR ? "missing" : "unreadable"]
-      if stamped && error == ENOENT { result["stamp"] = ArdiaHost.missingFileStamp }
+      if stamped && error == ENOENT { result["stamp"] = UniVerseHost.missingFileStamp }
       return result
     }
     defer { close(fd) }
-    let stamp = stamped ? ArdiaHost.fileStamp(ofDescriptor: fd) : nil
+    let stamp = stamped ? UniVerseHost.fileStamp(ofDescriptor: fd) : nil
     var info = stat()
     guard fstat(fd, &info) == 0 else { return ["status": "unreadable"] }
     guard info.st_mode & S_IFMT == S_IFREG else { return ["status": "notFile"] }

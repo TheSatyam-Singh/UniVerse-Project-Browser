@@ -30,6 +30,6 @@ public class PermissionsModule: Module {
       PageEngines.removeExternalAppAllowance(profile: args.profile, origin: try args.text("origin"), scheme: try args.text("scheme"))
       reply.ok()
     },
-    "devExternalLaunches": { _, reply in reply.ok(ArdiaHost.testExternalLaunches()) },
+    "devExternalLaunches": { _, reply in reply.ok(UniVerseHost.testExternalLaunches()) },
   ])
 }

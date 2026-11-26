@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import UniVerseBrowser
 import SwiftUI
 
 extension View {
@@ -14,23 +14,23 @@ private struct SettingsLaunchHooks: ViewModifier {
     #if DEBUG
     content.task {
       let arguments = ProcessInfo.processInfo.arguments
-      if let index = arguments.firstIndex(of: "-ArdiaFilterState"), arguments.indices.contains(index + 1) {
+      if let index = arguments.firstIndex(of: "-UniVerseFilterState"), arguments.indices.contains(index + 1) {
         app.filterLists.seedDemo(states: FilterStateSample.states(arguments[index + 1], lists: app.filterLists.enabledLists.map(\.id)))
       }
-      if arguments.contains("-ArdiaTrustedSites") {
+      if arguments.contains("-UniVerseTrustedSites") {
         for host in ["nytimes.com", "theverge.com", "bbc.co.uk"] { app.blocking.setExempt(host, true) }
       }
-      if app.isDemo, !arguments.contains("-ArdiaNoSitePermissions") {
+      if app.isDemo, !arguments.contains("-UniVerseNoSitePermissions") {
         SitePermissionsSample.seed(app.preferences.sitePermissions)
       }
-      if arguments.contains("-ArdiaMyFiltersSample") {
+      if arguments.contains("-UniVerseMyFiltersSample") {
         _ = await app.filterLists.applyMyFilters(MyFiltersSample.text)
       }
-      if arguments.contains("-ArdiaSettingsPage") || arguments.contains("-ArdiaOpenSettings") {
+      if arguments.contains("-UniVerseSettingsPage") || arguments.contains("-UniVerseOpenSettings") {
         try? await Task.sleep(for: .milliseconds(600))
         app.sheet = .settings
       }
-      if let index = arguments.firstIndex(of: "-ArdiaOpenSheet"), arguments.indices.contains(index + 1) {
+      if let index = arguments.firstIndex(of: "-UniVerseOpenSheet"), arguments.indices.contains(index + 1) {
         try? await Task.sleep(for: .milliseconds(600))
         switch arguments[index + 1] {
         case "archive": app.openArchive()
@@ -41,7 +41,7 @@ private struct SettingsLaunchHooks: ViewModifier {
         default: break
         }
       }
-      if let index = arguments.firstIndex(of: "-ArdiaToast"), arguments.indices.contains(index + 1) {
+      if let index = arguments.firstIndex(of: "-UniVerseToast"), arguments.indices.contains(index + 1) {
         try? await Task.sleep(for: .seconds(1.5))
         switch arguments[index + 1] {
         case "copied": app.toasts.show(.copiedURL)

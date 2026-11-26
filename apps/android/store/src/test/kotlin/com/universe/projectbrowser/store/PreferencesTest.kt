@@ -12,7 +12,7 @@ class PreferencesTest {
         val settings = BrowsingPreferences(MemoryKeyValueStore()).current
         assertEquals(NightShadeMode.DISABLED, settings.nightShade)
         assertEquals(SwipeNavigationMode.ANYWHERE, settings.swipeNavigation)
-        assertEquals(AppLinkPreference.ARDIA, settings.appLinks)
+        assertEquals(AppLinkPreference.UNIVERSE, settings.appLinks)
         assertTrue(settings.searchSuggestions)
         assertEquals("google", settings.searchEngineId)
         val app = AppPreferences(MemoryKeyValueStore()).settings.value

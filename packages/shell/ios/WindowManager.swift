@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 
 final class WindowManager: NSObject, NSWindowDelegate {
   static let shared = WindowManager()
@@ -14,7 +14,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
   private var lightsCenters: [String: (center: NSPoint, trailing: Bool)] = [:]
   private var unreportedFrames = Set<ObjectIdentifier>()
   private weak var lastPlaced: NSWindow?
-  private static let lastFrameKey = "ArdiaLastWindowFrame"
+  private static let lastFrameKey = "UniVerseLastWindowFrame"
   private var lastFrame = UserDefaults.standard.string(forKey: WindowManager.lastFrameKey) ?? UserDefaults.standard.string(forKey: "NSWindow Frame BrowserWindow")
   private static let behindTimeout = 1.5
   private static let revealTimeout = 0.6
@@ -88,11 +88,11 @@ final class WindowManager: NSObject, NSWindowDelegate {
     let small = kind == .small
     if kind != .browser && !small { return openAux(id: id, kind: kind, title: title) }
     guard let makeWindow = WindowHost.makeWindow, let makeContentView = WindowHost.makeContentView else { return }
-    if !small, ArdiaChromeWindowHost.takeDismissedAppWindow(id) {
+    if !small, UniVerseChromeWindowHost.takeDismissedAppWindow(id) {
       ShellEvents.send(.window, ["type": "close", "id": id])
       return
     }
-    if small, let claim, ArdiaChromeWindowHost.takeDismissedAppWindow(claim) {
+    if small, let claim, UniVerseChromeWindowHost.takeDismissedAppWindow(claim) {
       ShellEvents.send(.window, ["type": "close", "id": id])
       return
     }
@@ -100,7 +100,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
       if options.incognito { chromeWindow.appearance = NSAppearance(named: .darkAqua) }
       let entry = ManagedWindow(id: id, kind: kind, window: chromeWindow)
       let root = makeContentView(id)
-      ArdiaChromeWindowHost.embedRootView(root, in: chromeWindow)
+      UniVerseChromeWindowHost.embedRootView(root, in: chromeWindow)
       if !chromeWindow.isVisible {
         chromeWindow.alphaValue = 0
         entry.reveal = .waiting(then: [], entrance: small || options.animated ? !small || frame == nil : nil)
@@ -362,7 +362,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
     }
     guard let entry = managed[id] else { return }
     let window = entry.window
-    guard ArdiaChromeWindowHost.rootView(of: window) != nil else {
+    guard UniVerseChromeWindowHost.rootView(of: window) != nil else {
       entry.closingFromJS = true
       return window.close()
     }
@@ -373,8 +373,8 @@ final class WindowManager: NSObject, NSWindowDelegate {
     window.orderOut(nil)
     CATransaction.flush()
     forget(entry)
-    ArdiaChromeWindowHost.close(window)
-    DispatchQueue.main.async { ArdiaChromeWindowHost.removeRootView(of: window) }
+    UniVerseChromeWindowHost.close(window)
+    DispatchQueue.main.async { UniVerseChromeWindowHost.removeRootView(of: window) }
   }
 
   private func forget(_ entry: ManagedWindow) {
@@ -424,7 +424,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
       ShellEvents.send(.window, ["type": "close", "id": id])
     }
     DispatchQueue.main.async {
-      if ArdiaChromeWindowHost.rootView(of: window) != nil { return ArdiaChromeWindowHost.removeRootView(of: window) }
+      if UniVerseChromeWindowHost.rootView(of: window) != nil { return UniVerseChromeWindowHost.removeRootView(of: window) }
       window.contentViewController = nil
     }
   }
@@ -444,7 +444,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
 
   private func sendFullScreen(_ window: NSWindow, id: String, on: Bool) {
     guard isMainWindow(window) else { return }
-    ShellEvents.send(.window, ["type": "fullScreen", "id": id, "on": on && !ArdiaChromeWindowHost.windowFullScreenIs(forPage: window)])
+    ShellEvents.send(.window, ["type": "fullScreen", "id": id, "on": on && !UniVerseChromeWindowHost.windowFullScreenIs(forPage: window)])
   }
 
   private static let resizeReportDelay: TimeInterval = 0.25
@@ -478,7 +478,7 @@ final class WindowManager: NSObject, NSWindowDelegate {
   }
 
   private func relayoutRoot(_ window: NSWindow) {
-    guard let root = ArdiaChromeWindowHost.rootView(of: window) ?? window.contentView else { return }
+    guard let root = UniVerseChromeWindowHost.rootView(of: window) ?? window.contentView else { return }
     root.needsLayout = true
     for view in root.subviews { view.needsLayout = true }
     root.layoutSubtreeIfNeeded()

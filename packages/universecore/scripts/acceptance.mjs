@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Stage 1 acceptance for the app on ArdiaCore (docs/universecore-parity.md): boots the ArdiaCore build of the app hidden
-// (ARDIA_BACKGROUND=1, its own data dir and DevTools port; scripts/lib/instance.mjs), serves fixture pages, and
+// Stage 1 acceptance for the app on UniVerseCore (docs/universecore-parity.md): boots the UniVerseCore build of the app hidden
+// (UNIVERSE_BACKGROUND=1, its own data dir and DevTools port; scripts/lib/instance.mjs), serves fixture pages, and
 // drives the real app through its dev harness (lib/devHarness.ts) and Chrome's DevTools protocol.
 //
 //   node packages/universecore/scripts/acceptance.mjs <UniVerse-Project-Browser.app> <scratch dir> [--keep] [check…]
@@ -11,12 +11,12 @@
 //   --keep     leave the instance running at the end (and reuse the one this scratch dir already keeps)
 //   --attach   run against the instance a --keep run left in <scratch dir>: no boot, seconds per check
 //   SKIP=a,b   leave checks out; VERBOSE=1 prints the log as it goes; METRO_PORT (default 8081)
-//   ARDIA_TRACE=visibility,pip and ARDIA_INSTANCE=allowOcclusion,chromiumSwitches=… pass on to the instance
+//   UNIVERSE_TRACE=visibility,pip and UNIVERSE_INSTANCE=allowOcclusion,chromiumSwitches=… pass on to the instance
 //
 // Output: one line per check (PASS/FAIL, ms); a failure adds its first lines; the rest (evidence, state at a failure,
 // diagnostics) goes to <scratch dir>/data/acceptance.log, results to <scratch dir>/results.json. It never takes focus
 // and never touches a real profile: the data dir is <scratch dir>/data, wiped first (not when attaching).
-// Its instance keeps Chrome's audio (ARDIA_INSTANCE allowAudio) so Chrome reports audible tabs, and sends it to a fake output
+// Its instance keeps Chrome's audio (UNIVERSE_INSTANCE allowAudio) so Chrome reports audible tabs, and sends it to a fake output
 // (--disable-audio-output): nothing reaches the speakers. The fixtures play at -60 dBFS (Chrome's audible threshold is
 // -72); the automatic Picture in Picture checks need ffmpeg for their clip (made once into <scratch dir>/media).
 //
@@ -32,7 +32,7 @@
 //   targets() · pageTarget(urlPart) · pageFor(tabId, urlPart) · cdp(target, method, params) · closeFromPage(target)
 //   engine(name, args, ms)         ac.engine.call(name, args); rejects with the engine's error
 //   engineOrError(name, args, ms)  the same, but a failure resolves { error } (the old password, autofill, extension shape)
-//   secret(module, fn, …args)      ArdiaPasswords / ArdiaAutofill calls that carry a secret; a failure resolves { error }
+//   secret(module, fn, …args)      UniVersePasswords / UniVerseAutofill calls that carry a secret; a failure resolves { error }
 //   browserOf(tabId) (the tab's engine browser, to tell a reload apart) · eventsOf(tabId) · lastEvent(tabId, name, test) · live(tabId) · pipWindows()
 //   openTab(url, title, background) · closeTab(id) · shownAndMounted(id) · freshTab(url) · backToA() · startVideo(tabId, audio)
 //   closeDownloads()               closes the Downloads popover a new download opens (its backdrop takes the next click)
@@ -463,7 +463,7 @@ const tlsSpki = createHash("sha256").update(new X509Certificate(tlsCert).publicK
 
 let exe, stdout, pid, child, launchedAt, exited = null;
 let instance = null;
-const runner = { instance: instanceEntries(process.env.ARDIA_INSTANCE), trace: (process.env.ARDIA_TRACE ?? "").split(",").filter(Boolean) };
+const runner = { instance: instanceEntries(process.env.UNIVERSE_INSTANCE), trace: (process.env.UNIVERSE_TRACE ?? "").split(",").filter(Boolean) };
 let chromeSwitches = `--disable-media-route-providers-for-test ${runner.instance.chromiumSwitches ?? ""}`.trim();
 chromeSwitches += ` --host-resolver-rules=${["ib.adnxs.com", "securepubads.g.doubleclick.net", "pagead2.googlesyndication.com", "adpage.test"]
   .map((host) => `MAP ${host} 127.0.0.1:${server.address().port}`).concat([`one.${siteDataDomain}`, `two.${siteDataDomain}`, ...siteDataSecureHosts].map((host) => `MAP ${host} 127.0.0.1:${tlsServer.address().port}`)).join(", ")}`;
@@ -575,7 +575,7 @@ function writePopupExtension({ welcome = false } = {}) {
   mkdirSync(extPopupPath, { recursive: true });
   const files = {
     "manifest.json": JSON.stringify({
-      manifest_version: 3, name: "ArdiaCore popup fixture", version: "1.0",
+      manifest_version: 3, name: "UniVerseCore popup fixture", version: "1.0",
       action: { default_popup: "popup.html", default_title: "Popup fixture" },
       background: { service_worker: "worker.js" },
       options_page: "options.html",
@@ -598,7 +598,7 @@ function writePopupExtension({ welcome = false } = {}) {
 let crxCache = null;
 function fixtureCrx() {
   if (crxCache) return crxCache;
-  const files = { "manifest.json": JSON.stringify({ manifest_version: 3, name: "ArdiaCore crx fixture", version: "1.0" }) };
+  const files = { "manifest.json": JSON.stringify({ manifest_version: 3, name: "UniVerseCore crx fixture", version: "1.0" }) };
   const locals = [], centrals = [];
   let offset = 0;
   for (const [name, text] of Object.entries(files)) {
@@ -801,7 +801,7 @@ try {
         return null;
       }
     }, 90000);
-    if (info.engine !== "ardiacore") throw new Error(`engine ${info.engine}`);
+    if (info.engine !== "universecore") throw new Error(`engine ${info.engine}`);
     const s = await until("a window", async () => ((await state()).windowId ? state() : null), 30000);
     const front = execFileSync("lsappinfo", ["front"]).toString();
     const asn = execFileSync("lsappinfo", ["info", "-only", "pid", front.trim()]).toString();
@@ -1662,7 +1662,7 @@ try {
   // MARK: Tab lifecycle
 
   await check("restore-after-close", async () => {
-    const shell = "globalThis.expo.modules.ArdiaDialogs";
+    const shell = "globalThis.expo.modules.UniVerseDialogs";
     const s = (expr) => evalApp(`const s = ac.store.getState(); return ${expr}`);
     const toB = async (tabId, tag) => {
       await until(`A?${tag} loaded`, async () => (await s(`s.tabs["${tabId}"]?.title === "Page A" && !s.live["${tabId}"]?.isLoading && !!ac.webviews.get("${tabId}")`)) || null, 15000);
@@ -2205,7 +2205,7 @@ try {
 
   await check("passwords", async () => {
     const origin = "https://example.test";
-    const saved = await secret("ArdiaPasswords", "save", "", origin, "nnuser", "s3cret");
+    const saved = await secret("UniVersePasswords", "save", "", origin, "nnuser", "s3cret");
     if (saved?.error) throw new Error(saved.error);
     const list = await until("the saved login", async () => {
       const r = await engineOrError("passwords.list", { profile: "" });
@@ -2598,7 +2598,7 @@ try {
         ac.engine.call("extensions.installCrx", ${JSON.stringify({ profile, path: crxPath })}).then((r) => (globalThis.__acCrx = r), (e) => (globalThis.__acCrx = { error: e.message })); return true`);
       const prompt = await until("the install prompt", async () => {
         const p = await evalApp(`return ac.extensions.useExtensions.getState().install?.prompt ?? null`);
-        return p?.name === "ArdiaCore crx fixture" ? p : null;
+        return p?.name === "UniVerseCore crx fixture" ? p : null;
       }, 15000);
       if (closeFirst) await closeFirst();
       await engine("extensions.resolveInstallPrompt", { requestId: prompt.requestId, accepted: true });
@@ -2991,8 +2991,8 @@ try {
 
   await check("passwords-more", async () => {
     const origin = "https://more.test";
-    await secret("ArdiaPasswords", "save", "", origin, "olduser", "pw1");
-    const updated = await secret("ArdiaPasswords", "update", "", origin, "olduser", "newuser", "pw2");
+    await secret("UniVersePasswords", "save", "", origin, "olduser", "pw1");
+    const updated = await secret("UniVersePasswords", "update", "", origin, "olduser", "newuser", "pw2");
     if (updated?.error) throw new Error(`update: ${updated.error}`);
     const revealed = await until("the edited login", async () => {
       const r = await engineOrError("passwords.reveal", { profile: "", origin, username: "newuser" });
@@ -3012,11 +3012,11 @@ try {
   await check("passwords-save-again", async () => {
     const origin = `https://again-${process.pid}-${Date.now().toString(36)}.test`;
     try {
-      const first = await secret("ArdiaPasswords", "save", "", origin, "user", "pw1");
+      const first = await secret("UniVersePasswords", "save", "", origin, "user", "pw1");
       if (first?.error) throw new Error(`first save: ${first.error}`);
-      const again = await secret("ArdiaPasswords", "save", "", origin, "user", "pw1");
+      const again = await secret("UniVersePasswords", "save", "", origin, "user", "pw1");
       if (again?.error) throw new Error(`saving the same login again: ${again.error}`);
-      const other = await secret("ArdiaPasswords", "save", "", origin, "user", "pw2");
+      const other = await secret("UniVersePasswords", "save", "", origin, "user", "pw2");
       if (other?.error !== "Could not save the password (invalid, or already saved)") throw new Error(`saving another password for it: ${JSON.stringify(other)}`);
       const revealed = await until("the first password", async () => {
         const r = await engineOrError("passwords.reveal", { profile: "", origin, username: "user" });
@@ -3029,7 +3029,7 @@ try {
   });
 
   await check("autofill-cards", async () => {
-    const saved = await secret("ArdiaAutofill", "saveCard", "", { name: "Acceptance Test", expMonth: 12, expYear: 2031 }, "4111111111111111");
+    const saved = await secret("UniVerseAutofill", "saveCard", "", { name: "Acceptance Test", expMonth: 12, expYear: 2031 }, "4111111111111111");
     if (saved?.error) throw new Error(`save: ${saved.error}`);
     const card = await until("the card listed", async () => {
       const r = await engineOrError("autofill.cards", { profile: "" });
@@ -4011,8 +4011,8 @@ try {
     const nums = (text) => text.match(/-?[\d.]+/g).map(Number);
     const pipAct = (action) => engine("tabs.devPictureInPictureAction", { action });
     const report = (body) => evalApp(`const r = ac.report; ${body}`);
-    const dev = (fn, ...args) => evalApp(`const m = globalThis.expo.modules.ArdiaReport; return m.${fn} ? m.${fn}(${args.map((a) => JSON.stringify(a)).join(", ")}) : null`);
-    const dragPreview = (fn, ...args) => evalApp(`return globalThis.expo.modules.ArdiaAppWindows.${fn}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
+    const dev = (fn, ...args) => evalApp(`const m = globalThis.expo.modules.UniVerseReport; return m.${fn} ? m.${fn}(${args.map((a) => JSON.stringify(a)).join(", ")}) : null`);
+    const dragPreview = (fn, ...args) => evalApp(`return globalThis.expo.modules.UniVerseAppWindows.${fn}(${args.map((a) => JSON.stringify(a)).join(", ")})`);
     const styled = async () => (await pipWindows())?.find((w) => w.video && w.styled && w.visible) ?? null;
     const MARKERS = { page: [300, 180], video: [240, 60], other: [270, 30] };
     const HUE_TOLERANCE = 10, MIN_SATURATION = 0.55, MIN_VALUE = 0.3, MIN_PIXELS = 40;
@@ -4087,7 +4087,7 @@ try {
         return id;
       };
       const closeWindow = async (id) => {
-        await evalApp(`return globalThis.expo.modules.ArdiaAppWindows.closeWindow(${JSON.stringify(id)})`).catch(() => null);
+        await evalApp(`return globalThis.expo.modules.UniVerseAppWindows.closeWindow(${JSON.stringify(id)})`).catch(() => null);
         await until(`window ${id} closed`, () => evalApp(`return !ac.store.getState().windows["${id}"]`), 10000).catch(() => null);
       };
       const choreography = async (label) => {
@@ -4235,7 +4235,7 @@ try {
     } finally {
       await report(`r.discardRecording(); return r.closeReport().then(() => true)`).catch(() => null);
       await dragPreview("dragPreviewCancel").catch(() => null);
-      for (const id of opened) await evalApp(`return globalThis.expo.modules.ArdiaAppWindows.closeWindow(${JSON.stringify(id)})`).catch(() => null);
+      for (const id of opened) await evalApp(`return globalThis.expo.modules.UniVerseAppWindows.closeWindow(${JSON.stringify(id)})`).catch(() => null);
       await pipAct("alpha:0").catch(() => null);
       if (canPlace) await dev("devPlaceWindow", mainWindow, original).catch(() => null);
       await closeTab(video.id);
@@ -4485,7 +4485,7 @@ try {
       }, 6000);
       await until("the app told the window is full screen, so the sidebar's button moves to the edge", async () => ((await appFullScreen()) ? true : null), 3000);
       const own = await win("hit:20,20");
-      if (own.includes("ArdiaFullScreenLights")) throw new Error(`our own full-screen lights are back: ${own}`);
+      if (own.includes("UniVerseFullScreenLights")) throw new Error(`our own full-screen lights are back: ${own}`);
       await fsWindow(tab.id, "fakeFullScreen:0");
       await until("the window out of full screen", async () => {
         const w = await fsWindow(tab.id);
@@ -4804,7 +4804,7 @@ try {
       const shown = await engine("autofill.showSuggestions", { tabId: first.id, passwords: false });
       const command = await until("the dropdown from showAutofillSuggestions", async () => shownSince(count, "Springfield"), 6000)
         .catch((e) => { throw new Error(`${e.message}; showAutofillSuggestions answered ${shown}`); });
-      await secret("ArdiaPasswords", "save", "", base, "nnfill", "fill-s3cret");
+      await secret("UniVersePasswords", "save", "", base, "nnfill", "fill-s3cret");
       t = await go("/login?fill", "Login");
       await evalApp(`return ac.webviews.get("${first.id}").focus()`);
       await cdp(t, "Runtime.evaluate", { expression: "document.getElementById('u').focus(); 1", userGesture: true });
@@ -5315,7 +5315,7 @@ try {
   // MARK: Window lifetime
 
   const q = JSON.stringify;
-  const windowsNative = "globalThis.expo.modules.ArdiaAppWindows";
+  const windowsNative = "globalThis.expo.modules.UniVerseAppWindows";
   const shellCall = (fn, ...args) => evalApp(`return ${windowsNative}.${fn}(${args.map((a) => q(a)).join(", ")})`);
   const nativeWindowIds = () => shellCall("windowIds");
   const storeWindow = (id) => evalApp(`return ac.store.getState().windows[${q(id)}] ?? null`);
@@ -5667,11 +5667,11 @@ try {
       const id = await until("the private WebKit tab", () => evalApp(`const s = ac.store.getState(); const id = s.windows[${q(windowId)}]?.tabIds[0];
         return id && s.tabs[id]?.title === "Page C" && !s.live[id]?.isLoading ? id : null`), 15000);
       if (await chromiumBrowser(id)) throw new Error("the private tab opened in Chromium");
-      await evalApp(`globalThis.expo.modules.ArdiaTabs.prepareTransfer(${q(id)}); return true`);
+      await evalApp(`globalThis.expo.modules.UniVerseTabs.prepareTransfer(${q(id)}); return true`);
       await engine("webKit.endPrivateSession", { session: "" });
       await sleep(500);
       const parked = await engine("webKit.devParkedTransfers");
-      await evalApp(`globalThis.expo.modules.ArdiaTabs.releaseTransfer(${q(id)}); return true`);
+      await evalApp(`globalThis.expo.modules.UniVerseTabs.releaseTransfer(${q(id)}); return true`);
       if (parked.includes(id)) throw new Error("the ended session's page stayed parked for the transfer");
       return { tab: id, parked };
     } finally {
@@ -5701,9 +5701,9 @@ try {
     const chromium = await freshTab(`${base}/a?view-calls`);
     let webkit = null;
     try {
-      const c = await exercise(chromium, "ArdiaWebView", "ChromiumTabView", `${base}/b?view-calls`);
+      const c = await exercise(chromium, "UniVerseWebView", "ChromiumTabView", `${base}/b?view-calls`);
       webkit = await webkitTab("/a?view-calls", "Page A");
-      const w = await exercise(webkit, "ArdiaWebKit", "WebKitTabView", `${webkitBase}/b?view-calls`);
+      const w = await exercise(webkit, "UniVerseWebKit", "WebKitTabView", `${webkitBase}/b?view-calls`);
       const errors = [...Object.entries(c).map(([k, v]) => ["chromium", k, v]), ...Object.entries(w).map(([k, v]) => ["webkit", k, v])].filter(([, , v]) => v && v.error);
       if (errors.length) throw new Error(`calls that didn't complete: ${q(errors)}`);
       const expect = (what, ok) => { if (!ok) throw new Error(`${what}: ${q({ chromium: c, webkit: w }).slice(0, 1500)}`); };
@@ -5900,7 +5900,7 @@ try {
 
   await check("delete-original-profile-data", async () => {
     const origin = "https://original.test";
-    await secret("ArdiaPasswords", "save", "", origin, "nnoriginal", "s3cret");
+    await secret("UniVersePasswords", "save", "", origin, "nnoriginal", "s3cret");
     await engineOrError("autofill.saveAddress", { profile: "", address: { fullName: "Original Mascot", city: "Haifa", country: "IL" } });
     await engine("sites.setZoom", { profile: "", host: "original.test", zoom: 1.5 });
     await engine("sites.setSetting", { profile: "", engine: "chromium", origin, type: "popups", value: "allow" });
@@ -6184,12 +6184,12 @@ try {
   await check("open-url-across-reload", async () => {
     await appUp("app-url-reload.out.log");
     const path = `/a?across-reload-${Date.now()}`;
-    await evalApp(`globalThis.expo.modules.ArdiaDev.devReceiveURLsWhenDetached(["${base}${path}"], 20000);
+    await evalApp(`globalThis.expo.modules.UniVerseDev.devReceiveURLsWhenDetached(["${base}${path}"], 20000);
       setTimeout(() => { try { globalThis.nativeModuleProxy.DevSettings.reload(); } catch {} }, 50); return true`);
     await sleep(1500);
     const delivery = await until("the URL handed over", async () => {
       try {
-        const d = await evalApp(`return globalThis.expo.modules.ArdiaDev.devURLDelivery()`, 3000);
+        const d = await evalApp(`return globalThis.expo.modules.UniVerseDev.devURLDelivery()`, 3000);
         return d?.state === "received" || d?.state === "neverDetached" ? d : null;
       } catch (e) {
         if (exited) throw e;
@@ -6206,7 +6206,7 @@ try {
   });
   await check("drag-preview-across-reload", async () => {
     const windowId = await appUp("app-drag-reload.out.log");
-    const preview = () => evalApp(`return globalThis.expo.modules.ArdiaDev.devDragPreviewState()`);
+    const preview = () => evalApp(`return globalThis.expo.modules.UniVerseDev.devDragPreviewState()`);
     const edges = async () => (await evalApp(`return ac.shell.devSidebarEdgeStats(false)`)).watched;
     const edgesBefore = await edges();
     await evalApp(`const d = ac.shell.dragPreview; d.begin(${JSON.stringify(windowId)}, [40, 40, 160, 28], [20, 14]);
@@ -6412,7 +6412,7 @@ try {
       for (const line of set) places.set(window(line), (places.get(window(line)) ?? new Set()).add(sample(line)));
       for (const [win, at] of places) if (at.size > 1) moved.push({ phase, window: win, places: [...at] });
     }
-    if (!lines.some((line) => line.includes(" layout -> "))) throw new Error("no layout pass logged (is ARDIA_TRACE trafficLights set?)");
+    if (!lines.some((line) => line.includes(" layout -> "))) throw new Error("no layout pass logged (is UNIVERSE_TRACE trafficLights set?)");
     if (bad.length || badAway.length || moved.length)
       throw new Error(`traffic lights left their spot: ${JSON.stringify({ moved, bad: bad.slice(0, 6), badAway: badAway.slice(0, 6) })}`);
     return { samples: lines.length, hiddenSamples: away.length, layoutPasses: lines.filter((line) => line.includes(" layout -> ")).length };

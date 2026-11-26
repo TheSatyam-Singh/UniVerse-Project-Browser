@@ -1,5 +1,5 @@
-import ArdiaBrowser
-import ArdiaSync
+import UniVerseBrowser
+import UniVerseSync
 import Foundation
 import UIKit
 
@@ -7,7 +7,7 @@ extension AppModel {
   func runDeckDemoScript() async {
     guard isDemo else { return }
     let warming = Task { await DemoSnapshotWarmer.warm(self) }
-    guard let script = UserDefaults.standard.string(forKey: "ArdiaDeck"), !script.isEmpty else { return }
+    guard let script = UserDefaults.standard.string(forKey: "UniVerseDeck"), !script.isEmpty else { return }
     try? await Task.sleep(for: .seconds(1.2))
     for step in script.split(separator: ",").map({ $0.trimmingCharacters(in: .whitespaces) }) {
       if step == "warm" {

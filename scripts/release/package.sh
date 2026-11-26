@@ -38,7 +38,7 @@ for attempt in 1 2 3 4 5; do
   sleep 2
 done
 dmg_chunks=(-imagekey udif-chunk-size=8192)
-[ "${ARDIA_DMG_CHUNK:-on}" = off ] && dmg_chunks=()
+[ "${UNIVERSE_DMG_CHUNK:-on}" = off ] && dmg_chunks=()
 hdiutil convert "$dmg_rw" -format ULMO ${dmg_chunks[@]+"${dmg_chunks[@]}"} -ov -o "$dmg" >/dev/null
 rm -rf "$dmg_rw" "$dmg_mnt"
 sign_as "$identity" "$dmg"

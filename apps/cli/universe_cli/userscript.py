@@ -237,8 +237,8 @@ def forbidden_roots(data_dirs) -> list[Path]:
     from universe_cli.endpoint import INSTALLED_DATA_DIR
 
     roots = [INSTALLED_DATA_DIR, *data_dirs]
-    if os.environ.get("ARDIA_DATA_DIR"):
-        roots.append(Path(os.environ["ARDIA_DATA_DIR"]).expanduser())
+    if os.environ.get("UNIVERSE_DATA_DIR"):
+        roots.append(Path(os.environ["UNIVERSE_DATA_DIR"]).expanduser())
     return roots
 
 

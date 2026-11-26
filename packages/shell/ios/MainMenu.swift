@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 
 enum MainMenu {
   private static var moveToProfile = NSMenu(title: "Move to Profile")

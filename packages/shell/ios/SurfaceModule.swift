@@ -1,11 +1,11 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import Carbon.HIToolbox
 import ExpoModulesCore
 
 public class SurfaceModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaSurface")
+    Name("UniVerseSurface")
 
     View(Surface.self) {
       Prop("fill") { (view: Surface, hex: String?) in view.surfaceFill = hex.flatMap { RGBA(hex: $0)?.srgb } }

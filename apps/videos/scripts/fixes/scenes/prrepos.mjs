@@ -20,7 +20,7 @@ globalThis.__folder = f;`;
 
 export default {
   session: "session-r44-basic.json",
-  env: { ARDIA_TEST: "appMenu" },
+  env: { UNIVERSE_TEST: "appMenu" },
   setup: `${SEED}
   return sleep(1800).then(() => done({ folder: globalThis.__folder, items: (ac.live.store.live ? ac.live.store.live().items[globalThis.__folder] || [] : []).length }));`,
   async prepare(instance, side) {

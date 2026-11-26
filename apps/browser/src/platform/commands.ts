@@ -2,7 +2,7 @@ import { nativeModule, type CommandEvent, type MenuState } from "@universe/shell
 
 export type { CommandEvent, BrowserCommand, MenuShortcut, ShortcutModifier, MenuState, MenuBookmark } from "@universe/shell";
 
-const Menus = nativeModule("ArdiaMenus");
+const Menus = nativeModule("UniVerseMenus");
 
 export const onCommand = (listener: (e: CommandEvent) => void) => Menus.addListener("onCommand", listener);
 export const menuShortcuts = () => Menus.menuShortcuts();

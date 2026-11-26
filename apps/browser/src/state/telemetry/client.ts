@@ -337,7 +337,7 @@ type ClientSession = {
 export function startClient(): ClientSession {
   loadChoice();
   void engineInfo()
-    .then((e) => (engineVersion = `ArdiaCore / Chromium ${e.chromiumVersion}`))
+    .then((e) => (engineVersion = `UniVerseCore / Chromium ${e.chromiumVersion}`))
     .catch(() => {});
   void updaterState()
     .then((u) => {

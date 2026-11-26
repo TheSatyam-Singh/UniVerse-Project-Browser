@@ -236,7 +236,7 @@ s.importHistory("default", [
   { url: "https://swift.org/documentation/concurrency/", title: "Swift concurrency", visits: 3, lastVisit: at(0, 9, 12) },
   { url: "https://developer.apple.com/metal/", title: "Metal shaders", visits: 2, lastVisit: at(0, 10, 40) },
   { url: "https://news.ycombinator.com/", title: "Hacker News", visits: 9, lastVisit: at(0, 14, 5) },
-  { url: "https://github.com/TheSatyam-Singh/UniVerse-Project-Browser", title: "ardia/universe", visits: 5, lastVisit: at(1, 18, 30) },
+  { url: "https://github.com/TheSatyam-Singh/UniVerse-Project-Browser", title: "universe/universe", visits: 5, lastVisit: at(1, 18, 30) },
   { url: "https://en.wikipedia.org/wiki/Typography", title: "Typography - Wikipedia", visits: 1, lastVisit: at(1, 11, 2) },
   { url: "https://docs.universe.test/handbook", title: "Handbook", visits: 4, lastVisit: at(3, 16, 45) },
 ]);

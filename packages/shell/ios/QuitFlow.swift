@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 
 final class QuitFlow {
   static let shared = QuitFlow()
@@ -108,7 +108,7 @@ final class QuitFlow {
       return NSApp.reply(toApplicationShouldTerminate: false)
     }
     guard isSaving else { return }
-    if DocumentStore.flush() { ArdiaChromeWindowHost.recordLaunchLayout() } else { ArdiaChromeWindowHost.forgetLaunchPictures() }
+    if DocumentStore.flush() { UniVerseChromeWindowHost.recordLaunchLayout() } else { UniVerseChromeWindowHost.forgetLaunchPictures() }
     quitAfterUpdaterSettles()
   }
 

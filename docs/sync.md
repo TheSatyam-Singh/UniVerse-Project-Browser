@@ -19,7 +19,7 @@ Code:
   - `SyncVault.swift`: the folder, with file coordination and partial files.
   - `SyncKeyStore.swift`: Keychain.
   - `RecoveryKit.swift`: PDF, text sheet and QR code.
-- `packages/sync/ios/SyncModule.swift`: the Expo module (`ArdiaSync`). It also reads this app's saved passwords.
+- `packages/sync/ios/SyncModule.swift`: the Expo module (`UniVerseSync`). It also reads this app's saved passwords.
 - `packages/sync/src`: the merge, in TypeScript with no dependencies.
   - `scope.ts`: replica, logs, snapshots, compaction.
   - `hlc.ts`: hybrid logical clocks.
@@ -88,7 +88,7 @@ reset by email, because there's no one to email.
 - Where the entropy is kept: the login Keychain, as a generic password (`UniVerse Project Browser Sync Key`,
   account = this device's sync id, `kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly`, not
   synchronizable).
-  - Test instances (`ARDIA_DATA_DIR`) keep it in a 0600 file in their data folder instead,
+  - Test instances (`UNIVERSE_DATA_DIR`) keep it in a 0600 file in their data folder instead,
     as Chrome's mock keychain does for them.
   - A Debug build can't read an item an earlier build saved (no prompt, by design). Sync then
     shows "not syncing" with Enter Recovery Phrase…, and the same device carries on.
@@ -99,7 +99,7 @@ reset by email, because there's no one to email.
   authentication (Touch ID or the login password). A success is good for 60 s, like the
   Passwords pane; Stop Syncing ends it early. Cancelling returns nothing and changes nothing.
   The kit preview in the sheet is drawn with dots instead of the words. Hidden test instances
-  never prompt: `ARDIA_TEST=reauth=granted` grants, anything else denies (#241).
+  never prompt: `UNIVERSE_TEST=reauth=granted` grants, anything else denies (#241).
 - The temporary kit for Copy and Share (`$TMPDIR/UniVerse Project Browser Recovery Kit/`) is deleted at launch.
 
 A wrong phrase is caught in one of two ways. A typo fails the checksum. A valid but different
@@ -337,7 +337,7 @@ A tab sent to another device (the tab menu's "Send to <device>" on a Mac; the iP
 ### Extensions
 
 What Chrome Sync does for extensions, through our folder (`packages/sync/src/extensions.ts`, the app's host in
-`apps/browser/src/state/sync/extensions.ts`, Chrome's side in `engine/chromium/…/ardia/ac_extensions_sync.cc`).
+`apps/browser/src/state/sync/extensions.ts`, Chrome's side in `engine/chromium/…/universe/ac_extensions_sync.cc`).
 - **What syncs.** Extensions from the Chrome Web Store that Chrome itself would sync (`sync_util::ShouldSync`:
   installed by the user from the store, not by default, policy or a component, not blocklisted, no other update
   URL), and not themes or apps. Unpacked extensions, UniVerse Project Browser Scripts and uBlock Origin (bundled) stay on their Mac. Per
@@ -383,14 +383,14 @@ Saved passwords are Chrome's (its password manager).
   can't be wiped; they live until the seal.
 - **All or nothing.** A list reaches the adapter only when the engine answered with one. On the Mac one password that
   doesn't decrypt fails Chrome's whole read (`SkipUndecryptablePasswords` is off there, and nothing is deleted:
-  Chrome never clears undecryptable passwords when `--user-data-dir` is set, which ArdiaHost always sets), and the
+  Chrome never clears undecryptable passwords when `--user-data-dir` is set, which UniVerseHost always sets), and the
   engine refuses to read at all with that feature on. A store error, the profile going away mid-read, no reply within
   30 s or a malformed entry all give `null`, so the cycle skips passwords and nothing is tombstoned.
 - **Sealed for JS.** Plain passwords never reach JS (#241). The native read gives JS each login's
   origin, username, creation time and the password sealed with the sync key (AES-256-GCM, its
   own HKDF key, bound to origin and username). The nonce is an HMAC of the login and password,
   so the same password seals the same on every Mac and the adapter can compare without opening
-  it. Applying a remote password hands the sealed value back to `ArdiaSync.savePassword`, which
+  it. Applying a remote password hands the sealed value back to `UniVerseSync.savePassword`, which
   opens it for that login only and writes through Chrome's API.
 - **Keys.** Records are `pws:<origin>\n<username>` → `{ o, u, s }`. Builds before this used
   `pw:` with the plain password; new builds ignore `pw:` records and never tombstone them, so a
@@ -404,7 +404,7 @@ Saved passwords are Chrome's (its password manager).
   a folder file is reported as damaged, and a local state or journal file reads as missing while
   `sealLocal` and `write` refuse for the rest of the session, so the files on disk and the
   folder stay as they were and sync shows an error instead of saving a rebuilt state over them.
-- **Writing.** Writes go through Chrome's API (`ArdiaServices.savePassword` from the sync module,
+- **Writing.** Writes go through Chrome's API (`UniVerseServices.savePassword` from the sync module,
   `deletePassword` in `@universe/universecore`), so Chrome's in-memory store and autofill see them at
   once. A changed password is a delete plus an add, done natively only after the sealed value
   opens: the update API needs the device check.

@@ -62,7 +62,7 @@
    "scene": "configfile",
    "section": "New",
    "title": "Set UniVerse Project Browser up from a file",
-   "body": "Settings, keybindings and themes can live in ~/.config/ardia/config.json, dotfiles style. Each save applies at once: light appearance, then a theme file that turns the selected tab green. UniVerse Project Browser never writes the file back. 0.2.43 ignores it.",
+   "body": "Settings, keybindings and themes can live in ~/.config/universe/config.json, dotfiles style. Each save applies at once: light appearance, then a theme file that turns the selected tab green. UniVerse Project Browser never writes the file back. 0.2.43 ignores it.",
    "layout": "side",
    "cam": [
     0,
@@ -76,7 +76,7 @@
     "x": 330,
     "y": 250,
     "w": 470,
-    "title": "~/.config/ardia/config.json"
+    "title": "~/.config/universe/config.json"
    },
    "editor_initial": "{\n  \"settings\": {}\n}"
   },
@@ -107,7 +107,7 @@
    "scene": "hooksfile",
    "section": "New",
    "title": "Hooks rewrite links before they open",
-   "body": "A rule in ~/.config/ardia/hooks.json sends forum.example to its old, app-wall-free version, so typing http://forum.example/ lands on old.forum.example. Rules that reach outside the page wait for approval in Settings › Advanced › Automation; this one was approved first.",
+   "body": "A rule in ~/.config/universe/hooks.json sends forum.example to its old, app-wall-free version, so typing http://forum.example/ lands on old.forum.example. Rules that reach outside the page wait for approval in Settings › Advanced › Automation; this one was approved first.",
    "layout": "side",
    "cam": [
     0,
@@ -121,7 +121,7 @@
     "x": 640,
     "y": 560,
     "w": 680,
-    "title": "~/.config/ardia/hooks.json"
+    "title": "~/.config/universe/hooks.json"
    },
    "static_text": "{\n  \"hooks\": [\n    {\n      \"name\": \"old-threadly\",\n      \"on\": \"tab.opening\",\n      \"rewrite\": [\n        {\n          \"match\": \"*://forum.example/*\",\n          \"to\": \"http://old.forum.example{path}{query}\"\n        }\n      ]\n    }\n  ]\n}"
   },

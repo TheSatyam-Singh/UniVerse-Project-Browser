@@ -16,7 +16,7 @@ async function run(side, data, args, timeout = 30000) {
   const code = join(dir, `${id}.code`);
   const env = Object.fromEntries(Object.entries(process.env).filter(([k]) => !/^(CLAUDE|AI_AGENT|CODEX)/.test(k)));
   spawn("/bin/sh", ["-c", '( sleep 0.3; "$0" "$@" >"$OUT" 2>&1; echo $? >"$CODE" ) &', CLI[side], ...args], {
-    env: { ...env, ARDIA_DATA_DIR: data, NO_COLOR: "1", COLUMNS: "90", OUT: out, CODE: code },
+    env: { ...env, UNIVERSE_DATA_DIR: data, NO_COLOR: "1", COLUMNS: "90", OUT: out, CODE: code },
     stdio: "ignore",
   });
   for (const end = Date.now() + timeout; !existsSync(code) && Date.now() < end; ) await sleep(50);
@@ -42,7 +42,7 @@ export default {
   withoutDevTools: true,
   setup: `st().updateSettings({ cliControl: true }); return sleep(3000).then(() => done({ cli: st().settings.cliControl }));`,
   prepare: async (instance) => {
-    const file = join(instance.data, "Chromium", "ArdiaControl.json");
+    const file = join(instance.data, "Chromium", "UniVerseControl.json");
     for (const end = Date.now() + 15000; !existsSync(file) && Date.now() < end; ) await sleep(200);
     return { control: existsSync(file) };
   },

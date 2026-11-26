@@ -212,7 +212,7 @@ test("issueFor puts only public-safe fields in the issue", () => {
   assert.match(issue.body, /Typing lags at \/Users\/\[user\]\/x, mail \[email\]/);
   assert.match(issue.body, /\| Version \| UniVerse Project Browser 0\.2\.45 \(45\\\|12\) nightly \|/);
   assert.match(issue.body, /\| macOS \| 26\.1 \|/);
-  assert.match(issue.body, /https:\/\/dash\.ardia\.dev\/feedback\/FB-AB23/);
+  assert.match(issue.body, /https:\/\/dash\.universe\.dev\/feedback\/FB-AB23/);
   for (const secret of ["jane@x.io", "secret.example", "recording.mp4", "400", INSTALL, "arm64"]) assert.ok(!issue.body.includes(secret), secret);
   const leaky = issueFor({ ...report, title: "password=hunter2", description: 'password="part1\\"part2"\nAuthorization: Digest username="bob",\n  response="secretresponse"\ncurl --password hunter3 -H "X-Api-Key: short-secret"\nCookie: session="shortsecret"; other=anothersecret\ncurl --password "part3"\'part4\' x\ncurl --password part5\\ part6\nPASSWORD="part7\npart8"\nAuthorization: Digest realm="api",\n  username*=UTF-8\'\'bob,\n  response="part9",\n  opaque="part10"' }, "https://d");
   const leaky2 = issueFor({ ...report, title: "t", description: ["private_key: -----BEGIN PRIVATE KEY-----\nMC4CAQAwBQYDK2VwBCIEIKEYBODY91\n-----END PRIVATE KEY-----", "curl --password \\\nforgedPass91 https://example.com", "access_tokens:\n- forgedToken93", "curl -udemo:forgedPass94 https://example.com", 'const body = "{\\"password\\":\\"forgedPass95\\"}";', "DATABASE_URL=postgresql://demo:forgedPass96@localhost:5432/app", 'PASSWORD="""\nfirstSegment97"\nsecondSegment98\n"""', "curl -H 'Authorization: Bearer forgedToken99' https://example.com", "1. open a tab"].join("\n") }, "https://d");

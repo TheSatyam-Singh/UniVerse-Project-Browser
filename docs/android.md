@@ -13,7 +13,7 @@ apps/android/
   sync/       the sync device. core/ is the port of packages/sync/ios/Core (phrase, keys, file names, sealed
               format, vault); the rest is the folder (Storage Access Framework), the Keystore, the cycle and WorkManager
   browser/    PageEngine and the system WebView behind it, page scripts, snapshots, downloads, the Omnibox bridge
-  store/      tabs, history, archive, snapshots and preferences in SQLite, and the omnibox model over ardia-core.js
+  store/      tabs, history, archive, snapshots and preferences in SQLite, and the omnibox model over universe-core.js
   blocking/   the filter list parser and matcher, the list catalogue and downloads, the consent script
   design/     tokens, the profile look, the theme, frosted surfaces, symbols, toasts and shared Compose components
   appmodel/   the app's state and actions, the port of the iPhone's AppModel; no screens
@@ -36,10 +36,10 @@ Targets: minSdk 29, compileSdk and targetSdk 36, phone layouts only, arm64-v8a a
 
 ## Code shared with the Mac and the iPhone
 
-- **The bundles.** The phone runs the same `ardia-sync.js` (the merge and the companion cycle, from
-  `packages/sync/src/companion/index.ts`) and `ardia-core.js` (the omnibox: URL fixup, search engines, bangs,
+- **The bundles.** The phone runs the same `universe-sync.js` (the merge and the companion cycle, from
+  `packages/sync/src/companion/index.ts`) and `universe-core.js` (the omnibox: URL fixup, search engines, bangs,
   calculator, suggestions, from `packages/core/src/mobile.ts`) as the iPhone. There is no Android copy: the build reads
-  them from `apps/ios/Packages/ArdiaKit/Sources/ArdiaShared/Scripts`, where `node apps/ios/scripts/bundle-shared.mjs`
+  them from `apps/ios/Packages/UniVerseKit/Sources/UniVerseShared/Scripts`, where `node apps/ios/scripts/bundle-shared.mjs`
   writes them.
 - **Hermes.** `com.facebook.hermes:hermes-android` from Maven Central, the Hermes React Native 0.88.1 ships, so it is
   the engine family the Mac app runs this code in. Its `libhermesvm.so` needs `libjsi.so`, which only `react-android`
@@ -122,7 +122,7 @@ manner, in the Mac's colours. Where Android differs it says so on the line.
   them in the background and the screens fill in. `UniVerseApplication` starts loading the two preference files on a
   background thread first thing (`AppEnvironment.preloadPreferences`); if the model is built before that finishes,
   its first preference read still waits for it on the main thread. `StartupTiming` logs time to first frame under
-  `ArdiaTiming`.
+  `UniVerseTiming`.
 - **Colours.** `ProfileLook` (`design`) is the Mac's profile look: the nine profile colours (plum is the default) and
   the Mac's window tint for each, checked against the Mac's values in `ProfileLookTest`. Settings picks one of the nine;
   with sync on, Match My Mac follows the selected profile's colour or custom theme. `ProfileBackdrop` draws the tint
@@ -195,15 +195,15 @@ The iPhone's launch arguments are intent extras on Android, with the same names.
 builds (`UniVerseApplication.acceptsLaunchArguments`), so a release build ignores them.
 
 ```
-adb shell am start -n com.universe.projectbrowser.android/.MainActivity --ez ArdiaDemo true --es BrowseQuery otters
+adb shell am start -n com.universe.projectbrowser.android/.MainActivity --ez UniVerseDemo true --es BrowseQuery otters
 ```
 
-`ArdiaDemo` runs on an in-memory store with the demo snapshot (two Macs, two profiles) and never touches real data.
+`UniVerseDemo` runs on an in-memory store with the demo snapshot (two Macs, two profiles) and never touches real data.
 The rest drive captures without touch: `BrowseOpen <url>`, `BrowseQuery <text>`, `BrowseSurface browsing`,
 `BrowseTab <n>`, `BrowseToolbar`, `BrowseReader`, `BrowseIncognito`, `BrowseDelay <s>`, `BrowseDeck`,
 `BrowseDeckOpen <n>`, `BrowsePlus`, `BrowseOverlay <text>`, `BrowseSteps <n,n>` with `BrowseStepGap <s>`,
-`ArdiaDeck <script>`, `ArdiaOnboarding`, `ArdiaOpenSheet <sheet>`, `ArdiaOpenSettings`, `ArdiaRestingStart`,
-`ArdiaColor <name>`, `ArdiaToast <text>` and `ArdiaTrustedSites`. Motion captures, demo only: `BrowsePagerFreeze
+`UniVerseDeck <script>`, `UniVerseOnboarding`, `UniVerseOpenSheet <sheet>`, `UniVerseOpenSettings`, `UniVerseRestingStart`,
+`UniVerseColor <name>`, `UniVerseToast <text>` and `UniVerseTrustedSites`. Motion captures, demo only: `BrowsePagerFreeze
 <fraction>`, `BrowsePagerScript` and `BrowseLoadFreeze <progress>`. Flags take `--ez` (or any string but false, no
 and 0); everything else can be `--es`. `LaunchArguments.kt` in `appmodel` is the list.
 
@@ -241,7 +241,7 @@ first build downloads Gradle, Hermes, `react-android` (for `libjsi.so`) and `her
   saved with `-unreached` in its name and fails the test.
 - **The Swift cross-check.** `scripts/swift-crosscheck.sh` has the real Swift `packages/sync` write a vault that
   Kotlin opens, and Kotlin write one that Swift opens (payloads, tags, passwords, the phrase). Set
-  `ARDIA_CROSSCHECK_DIR` to keep the files. It runs on a Mac, not in CI.
+  `UNIVERSE_CROSSCHECK_DIR` to keep the files. It runs on a Mac, not in CI.
 - `node apps/ios/scripts/bundle-shared.mjs --check` guards the bundles both phones run.
 - **CI** (`.github/workflows/android.yml`, on pull requests and pushes to `main` that touch `apps/android`, the
   bundles, `packages/sync`, `packages/core` or the workflow, behind the vouch gate) builds the app and every test and

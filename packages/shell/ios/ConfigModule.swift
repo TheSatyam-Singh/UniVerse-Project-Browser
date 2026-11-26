@@ -3,7 +3,7 @@ import Foundation
 
 public class ConfigModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaConfig")
+    Name("UniVerseConfig")
 
     Events("onChange")
 

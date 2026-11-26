@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import UniVerseBrowser
 import Foundation
 
 enum DemoSeed {
@@ -90,7 +90,7 @@ enum DemoScenario {
       return arguments[index + 1]
     }
     if arguments.contains("-BrowseIncognito") { app.isIncognito = true }
-    if let name = value("-ArdiaSpace"), let space = app.spaces.first(where: { $0.syncId == name || $0.name.localizedCaseInsensitiveCompare(name) == .orderedSame }) {
+    if let name = value("-UniVerseSpace"), let space = app.spaces.first(where: { $0.syncId == name || $0.name.localizedCaseInsensitiveCompare(name) == .orderedSame }) {
       app.switchSpace(to: space.syncId)
     }
     if let link = value("-BrowseOpen").flatMap(URL.init(string:)) {

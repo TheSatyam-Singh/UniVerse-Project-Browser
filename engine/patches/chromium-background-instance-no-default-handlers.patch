@@ -1,5 +1,5 @@
-A hidden test instance (ArdiaCore sets g_ardia_background_instance from --ardia-background, which the app passes for
-ARDIA_BACKGROUND) never makes itself a system default: shell_integration's SetAsDefaultBrowser,
+A hidden test instance (UniVerseCore sets g_universe_background_instance from --universe-background, which the app passes for
+UNIVERSE_BACKGROUND) never makes itself a system default: shell_integration's SetAsDefaultBrowser,
 SetAsDefaultClientForScheme and SetAsDefaultHandlerForUTType log a line and return false. Every Chrome path goes
 through them (chrome://settings' Make default, the default browser prompt, a protocol handler made default), so an
 agent's click in a scratch copy can't change the owner's default browser, mail client or PDF reader, and
@@ -19,7 +19,7 @@ SetAsDefaultBrowser no longer activates CoreServicesUIAgent over the owner's wor
  #include "components/version_info/version_info.h"
  #import "net/base/apple/url_conversions.h"
  
-+bool g_ardia_background_instance = false;
++bool g_universe_background_instance = false;
 +
  namespace shell_integration {
  
@@ -30,18 +30,18 @@ SetAsDefaultBrowser no longer activates CoreServicesUIAgent over the owner's wor
    return [NSBundle bundleWithURL:default_app_url].bundleIdentifier;
 +}
 +
-+bool ArdiaBackgroundInstanceRefuses(const char* change) {
-+  if (!g_ardia_background_instance) {
++bool UniVerseBackgroundInstanceRefuses(const char* change) {
++  if (!g_universe_background_instance) {
 +    return false;
 +  }
-+  LOG(WARNING) << "Ardia: background instance, not " << change;
++  LOG(WARNING) << "UniVerse: background instance, not " << change;
 +  return true;
  }
  
  }  // namespace
  
  bool SetAsDefaultBrowser() {
-+  if (ArdiaBackgroundInstanceRefuses("setting the default browser")) {
++  if (UniVerseBackgroundInstanceRefuses("setting the default browser")) {
 +    return false;
 +  }
 +
@@ -52,7 +52,7 @@ SetAsDefaultBrowser no longer activates CoreServicesUIAgent over the owner's wor
      return false;
    }
  
-+  if (ArdiaBackgroundInstanceRefuses("setting a scheme handler")) {
++  if (UniVerseBackgroundInstanceRefuses("setting a scheme handler")) {
 +    return false;
 +  }
 +
@@ -63,7 +63,7 @@ SetAsDefaultBrowser no longer activates CoreServicesUIAgent over the owner's wor
    if (type.empty()) {
      return false;
    }
-+  if (ArdiaBackgroundInstanceRefuses("setting a file type handler")) {
++  if (UniVerseBackgroundInstanceRefuses("setting a file type handler")) {
 +    return false;
 +  }
    UTType* uttype = [UTType typeWithIdentifier:base::SysUTF8ToNSString(type)];

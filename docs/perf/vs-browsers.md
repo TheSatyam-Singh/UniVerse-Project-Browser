@@ -107,10 +107,10 @@ mouse-down, interleaved in one instance:
 It costs about 60 µs of main thread per waking click and nothing without one (idle wakeups 0–0.1/s, interrupt 5/s,
 the same with it off). A wake right before the switch (the keyboard case: ⌘1–9 switch on keydown) saves about 1 ms,
 so keys don't wake. xbench's CDP-driven switch doesn't click, so its row doesn't show this.
-(Its switch, `ARDIA_SWITCH_PREWARM`, went on 2026-10-26, after it shipped in 0.2.40.)
+(Its switch, `UNIVERSE_SWITCH_PREWARM`, went on 2026-10-26, after it shipped in 0.2.40.)
 
 **Same-site link click (GitHub issue #795, measured 2026-11-07).** A same-site click swaps the page's view, and the hide
-of the old one dropped its own compositor (ArdiaCore hosts each page's NSView, so each has one) and its frame with it, so
+of the old one dropped its own compositor (UniVerseCore hosts each page's NSView, so each has one) and its frame with it, so
 the new view showed the page's root background until its first frame. Measured on a dev build in a hidden instance, the
 window recorded with ScreenCaptureKit at up to 120 fps, two same-site fixture pages with a white root and a full-page dark
 body, 10 link clicks a run: before `chromium-keep-old-frame-on-swap.patch`, 10 of 30 clicks showed the white root for
@@ -193,8 +193,8 @@ main window, and pays the same.
 - React Native: main executable 9.1, hermes 4.6, JS bundle 3.9, assets 9.2 MB.
 
 **New window.** `Target.createTarget({ newWindow: true })` gives UniVerse Project Browser a new normal Chrome Browser, which
-`ArdiaHostEngineDelegate.mm -engineWindowForNewBrowserOfProfile:type:` hosts in a stray window
-(`ArdiaWindowController.mm +strayWindowForProfile:`). Its tab ends up in the existing main window and no window
+`UniVerseHostEngineDelegate.mm -engineWindowForNewBrowserOfProfile:type:` hosts in a stray window
+(`UniVerseWindowController.mm +strayWindowForProfile:`). Its tab ends up in the existing main window and no window
 opens. The same path serves an extension's `chrome.windows.create`, so this is a parity bug, and its fix is in
 progress separately. The row is null for UniVerse Project Browser until then; xbench counts a window when the target's window id differs
 from the restored tab's.
@@ -279,8 +279,8 @@ display link in the browser process (docs/perf/README.md, idle 5 s: 12–18 time
     `--no-first-run --no-default-browser-check --password-store=basic`.
   - Chromium competitors also get `--user-data-dir --remote-debugging-port --remote-allow-origins=* --use-mock-keychain
     --window-size=1280,800 --window-position=40,80`. Dia ignores the window size and opens at 1512×949.
-  - UniVerse Project Browser gets `ARDIA_BACKGROUND=1`, `ARDIA_DATA_DIR`, `ARDIA_REMOTE_DEBUGGING_PORT`, onboarding done,
-    `ARDIA_INSTANCE` `updateFeed` at the local server, and `-NSAppSleepDisabled YES` (as native-bench).
+  - UniVerse Project Browser gets `UNIVERSE_BACKGROUND=1`, `UNIVERSE_DATA_DIR`, `UNIVERSE_REMOTE_DEBUGGING_PORT`, onboarding done,
+    `UNIVERSE_INSTANCE` `updateFeed` at the local server, and `-NSAppSleepDisabled YES` (as native-bench).
 - **How each runs.** This is where the setups differ.
   - **Chrome and Helium run as shipped:** they bring themselves to the front at launch and at every
     `Target.activateTarget`. They fetch their Finch (variations) seed and components as usual: no
@@ -452,6 +452,6 @@ power rows, which then show their own dates.
 - **Run time.** A full run takes about 2 h 10 min, plus about 2.5 min per session for the settled idle windows.
 - **A new UniVerse Project Browser build.** Add it as `--app universe-main=<app>` beside `universe` for a drift check against at least one
   competitor.
-- **A/Bs.** `--env universe=ARDIA_INSTANCE=chromiumSwitches=…` (or any K=V) runs a variant without touching the others.
+- **A/Bs.** `--env universe=UNIVERSE_INSTANCE=chromiumSwitches=…` (or any K=V) runs a variant without touching the others.
 - **Waiting for the owner.** `--gate away` (the default) waits for the owner to be away (screen locked for 60 s, or
   10 minutes without input), throws away an item the moment input comes, and reruns it.

@@ -213,8 +213,8 @@ const commandsWhere = (test: (spec: CommandSpec) => boolean) => ALL_COMMANDS.fil
 export const PAGE_COMMANDS = commandsWhere((c) => c.scope === "page");
 export const PAGE_COMMANDS_OFF_INTERNAL_PAGES = commandsWhere((c) => c.scope === "page" && !c.onInternalPages);
 export const WINDOW_COMMANDS = commandsWhere((c) => c.scope !== undefined);
-export const LITTLE_ARDIA_DISABLED_COMMANDS = commandsWhere((c) => c.littleUniverse === "off");
-export const LITTLE_ARDIA_PAGE_COMMANDS: ReadonlySet<string> = new Set(commandsWhere((c) => c.littleUniverse === "page"));
+export const LITTLE_UNIVERSE_DISABLED_COMMANDS = commandsWhere((c) => c.littleUniverse === "off");
+export const LITTLE_UNIVERSE_PAGE_COMMANDS: ReadonlySet<string> = new Set(commandsWhere((c) => c.littleUniverse === "page"));
 
 const APP_COMMANDS: ReadonlySet<string> = new Set(commandsWhere((c) => !!c.app));
 export const isAppCommand = (command: BrowserCommand): command is AppCommand => APP_COMMANDS.has(command);

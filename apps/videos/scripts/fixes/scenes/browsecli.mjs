@@ -9,7 +9,7 @@ const ITEM = "Sourdough starter";
 
 function run(side, data, args, timeout = 30000) {
   return new Promise((resolve) => {
-    const child = spawn(CLI[side], ["browse", ...args], { env: { ...process.env, ARDIA_DATA_DIR: data, NO_COLOR: "1" } });
+    const child = spawn(CLI[side], ["browse", ...args], { env: { ...process.env, UNIVERSE_DATA_DIR: data, NO_COLOR: "1" } });
     let out = "";
     child.stdout.on("data", (d) => (out += d));
     child.stderr.on("data", (d) => (out += d));
@@ -29,7 +29,7 @@ export default {
   withoutDevTools: true,
   setup: `st().updateSettings({ cliControl: true }); return sleep(3000).then(() => done({ cli: st().settings.cliControl }));`,
   prepare: async (instance) => {
-    const file = join(instance.data, "Chromium", "ArdiaControl.json");
+    const file = join(instance.data, "Chromium", "UniVerseControl.json");
     for (const end = Date.now() + 15000; !existsSync(file) && Date.now() < end; ) await sleep(200);
     return { control: existsSync(file) };
   },

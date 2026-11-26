@@ -1,6 +1,6 @@
-import ArdiaBrowser
-import ArdiaDesign
-import ArdiaSync
+import UniVerseBrowser
+import UniVerseDesign
+import UniVerseSync
 import SwiftUI
 
 struct PinnedTiles: View {

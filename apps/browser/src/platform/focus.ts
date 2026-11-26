@@ -1,6 +1,6 @@
 import { nativeModule } from "@universe/shell";
 
-const Focus = nativeModule("ArdiaFocus");
+const Focus = nativeModule("UniVerseFocus");
 
 export const setSwitcherCapture = (active: boolean) => Focus.setSwitcherCapture(active);
 const escapeOwners = new Set<string>();

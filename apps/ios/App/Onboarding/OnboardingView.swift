@@ -1,4 +1,4 @@
-import ArdiaDesign
+import UniVerseDesign
 import SwiftUI
 import UIKit
 
@@ -23,7 +23,7 @@ enum OnboardingStep: Int, CaseIterable, Comparable {
 
   static var launchStep: OnboardingStep {
     let arguments = ProcessInfo.processInfo.arguments
-    guard let index = arguments.firstIndex(of: "-ArdiaOnboardingStep"), arguments.indices.contains(index + 1),
+    guard let index = arguments.firstIndex(of: "-UniVerseOnboardingStep"), arguments.indices.contains(index + 1),
       let raw = Int(arguments[index + 1]), let step = OnboardingStep(rawValue: raw)
     else { return .welcome }
     return step

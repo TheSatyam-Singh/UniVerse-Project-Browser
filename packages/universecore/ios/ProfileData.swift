@@ -7,20 +7,20 @@ enum ProfileData {
   static func deleteDefault(_ done: @escaping Done) {
     let steps: [Step] = [
       ("history, cookies and cache", { ok in
-        ArdiaServices.clearBrowsingData(profile: "", types: ["history", "siteData", "cache", "downloads"], since: 0) { ok(true) }
+        UniVerseServices.clearBrowsingData(profile: "", types: ["history", "siteData", "cache", "downloads"], since: 0) { ok(true) }
       }),
       ("autocomplete entries", { ok in
-        ArdiaServices.call("ac_browsing_data_clear", profile: "", args: ["types": ["formData", "siteSettings"]]) { ok($0["ok"] as? Bool == true) }
+        UniVerseServices.call("ac_browsing_data_clear", profile: "", args: ["types": ["formData", "siteSettings"]]) { ok($0["ok"] as? Bool == true) }
       }),
       ("passwords", deletePasswords),
-      ("addresses", { ok in clearEach(list: { done in ArdiaServices.addresses(profile: "") { value, _ in done(listed(value)) } }, key: "addresses", done: ok) {
-        item, next in ArdiaServices.deleteAutofillEntry(item["id"] as? String ?? "", profile: "") { _, _ in next() }
+      ("addresses", { ok in clearEach(list: { done in UniVerseServices.addresses(profile: "") { value, _ in done(listed(value)) } }, key: "addresses", done: ok) {
+        item, next in UniVerseServices.deleteAutofillEntry(item["id"] as? String ?? "", profile: "") { _, _ in next() }
       } }),
-      ("cards", { ok in clearEach(list: { done in ArdiaServices.cards(profile: "") { value, _ in done(listed(value)) } }, key: "cards", done: ok) {
-        item, next in ArdiaServices.deleteAutofillEntry(item["id"] as? String ?? "", profile: "") { _, _ in next() }
+      ("cards", { ok in clearEach(list: { done in UniVerseServices.cards(profile: "") { value, _ in done(listed(value)) } }, key: "cards", done: ok) {
+        item, next in UniVerseServices.deleteAutofillEntry(item["id"] as? String ?? "", profile: "") { _, _ in next() }
       } }),
       ("extensions", { ok in clearEach(list: runningExtensions, key: "extensions", done: ok) {
-        item, next in ArdiaServices.setExtension(item["id"] as? String ?? "", enabled: false, profile: "") { _, _ in next() }
+        item, next in UniVerseServices.setExtension(item["id"] as? String ?? "", enabled: false, profile: "") { _, _ in next() }
       } }),
       ("site settings", resetSiteSettings),
       ("zoom levels", resetZoom),
@@ -37,40 +37,40 @@ enum ProfileData {
   }
 
   private static func deletePasswords(_ ok: @escaping (Bool) -> Void) {
-    clearEach(list: { done in ArdiaServices.listPasswords(profile: "") { value, _ in done(listed(value)) } }, key: "passwords", done: { deleted in
-      ArdiaServices.neverSaveOrigins(profile: "") { result, _ in
+    clearEach(list: { done in UniVerseServices.listPasswords(profile: "") { value, _ in done(listed(value)) } }, key: "passwords", done: { deleted in
+      UniVerseServices.neverSaveOrigins(profile: "") { result, _ in
         let origins = listed(result)["origins"] as? [String] ?? []
-        forEach(origins, { origin, next in ArdiaServices.allowSaving(profile: "", origin: origin) { _, _ in next() } }) {
-          ArdiaServices.neverSaveOrigins(profile: "") { again, _ in ok(deleted && (listed(again)["origins"] as? [String])?.isEmpty == true) }
+        forEach(origins, { origin, next in UniVerseServices.allowSaving(profile: "", origin: origin) { _, _ in next() } }) {
+          UniVerseServices.neverSaveOrigins(profile: "") { again, _ in ok(deleted && (listed(again)["origins"] as? [String])?.isEmpty == true) }
         }
       }
     }) { item, next in
-      ArdiaServices.deletePassword(profile: "", origin: item["origin"] as? String ?? "", username: item["username"] as? String ?? "") { _, _ in next() }
+      UniVerseServices.deletePassword(profile: "", origin: item["origin"] as? String ?? "", username: item["username"] as? String ?? "") { _, _ in next() }
     }
   }
 
   private static func runningExtensions(_ completion: @escaping ([String: Any]) -> Void) {
-    ArdiaServices.listExtensions(profile: "") { result, _ in
+    UniVerseServices.listExtensions(profile: "") { result, _ in
       guard let all = listed(result)["extensions"] as? [[String: Any]] else { return completion([:]) }
       completion(["extensions": all.filter { $0["mayModify"] as? Bool != false && $0["enabled"] as? Bool == true }])
     }
   }
 
   private static func resetSiteSettings(_ ok: @escaping (Bool) -> Void) {
-    ArdiaServices.siteSettingsOrigins(profile: "") { origins, _ in
+    UniVerseServices.siteSettingsOrigins(profile: "") { origins, _ in
       forEach(origins as? [String] ?? [], { origin, next in
-        ArdiaServices.call("ac_site_settings_reset", profile: "", args: ["origin": origin]) { _ in next() }
+        UniVerseServices.call("ac_site_settings_reset", profile: "", args: ["origin": origin]) { _ in next() }
       }) {
-        ArdiaServices.siteSettingsOrigins(profile: "") { left, _ in ok((left as? [String] ?? []).isEmpty) }
+        UniVerseServices.siteSettingsOrigins(profile: "") { left, _ in ok((left as? [String] ?? []).isEmpty) }
       }
     }
   }
 
   private static func resetZoom(_ ok: @escaping (Bool) -> Void) {
-    ArdiaServices.zoomLevels(profile: "") { levels, _ in
-      for host in (levels as? [String: Any] ?? [:]).keys { ArdiaServices.setZoom(1, profile: "", host: host) }
+    UniVerseServices.zoomLevels(profile: "") { levels, _ in
+      for host in (levels as? [String: Any] ?? [:]).keys { UniVerseServices.setZoom(1, profile: "", host: host) }
       func check(_ attempt: Int) {
-        ArdiaServices.zoomLevels(profile: "") { left, _ in
+        UniVerseServices.zoomLevels(profile: "") { left, _ in
           let remaining = left as? [String: Any] ?? [:]
           if remaining.isEmpty || attempt >= 20 { return ok(remaining.isEmpty) }
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { check(attempt + 1) }

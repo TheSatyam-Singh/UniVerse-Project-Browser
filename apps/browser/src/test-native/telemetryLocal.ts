@@ -73,7 +73,7 @@ function exported(text: string): TelemetryLocalExport {
   return { path: "/tmp/fake/local-events.jsonl.gz", bytes: text.length, lines: text.split("\n").filter(Boolean).length };
 }
 
-export const telemetryLocalModule: ShellNativeModules["ArdiaTelemetryLocal"] = {
+export const telemetryLocalModule: ShellNativeModules["UniVerseTelemetryLocal"] = {
   append: (day, text) => (telemetryLocal.appendCalls++, write(day, text)),
   appendNow: (day, text) => (telemetryLocal.appendNowCalls++, write(day, text)),
   configure: (maxBytes, keepDays) => void Object.assign(telemetryLocal, { maxBytes, keepDays }),

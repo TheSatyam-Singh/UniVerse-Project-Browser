@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import ExpoModulesCore
 
 public class SharedFoldersModule: Module {
@@ -7,7 +7,7 @@ public class SharedFoldersModule: Module {
   private var watcher: SharedFolderWatcher?
 
   public func definition() -> ModuleDefinition {
-    Name("ArdiaSharedFolders")
+    Name("UniVerseSharedFolders")
 
     Events("onChange")
 

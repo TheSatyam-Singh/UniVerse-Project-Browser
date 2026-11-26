@@ -39,7 +39,7 @@ class SystemEntryDeviceTest {
 
     @Test
     fun launchArgumentsReachTheModel() {
-        session = AppTest.launch(mapOf(LaunchArguments.ARDIA_COLOR to "green", LaunchArguments.ARDIA_RESTING_START to true))
+        session = AppTest.launch(mapOf(LaunchArguments.UNIVERSE_COLOR to "green", LaunchArguments.UNIVERSE_RESTING_START to true))
         val (isDemo, launchColor, chosenColor, autoOpens) = AppTest.onMain {
             listOf(model.isDemo, model.launch.color, model.settings.colorChoice, model.settings.autoOpensKeyboard)
         }

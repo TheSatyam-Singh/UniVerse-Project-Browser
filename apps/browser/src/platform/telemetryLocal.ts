@@ -1,6 +1,6 @@
 import { nativeModule, type TelemetryLocalExport, type TelemetryLocalStats } from "@universe/shell";
 
-const Local = nativeModule("ArdiaTelemetryLocal");
+const Local = nativeModule("UniVerseTelemetryLocal");
 
 export type { TelemetryLocalExport, TelemetryLocalStats };
 

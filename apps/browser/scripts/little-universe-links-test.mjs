@@ -93,7 +93,7 @@ async function cold(name, setting, relaunch) {
   }
 }
 
-const menu = (inst, title, path) => inst.eval(`return globalThis.expo.modules.ArdiaDev.devMenuItems(${JSON.stringify(title)}, ${JSON.stringify(path)}, false)`);
+const menu = (inst, title, path) => inst.eval(`return globalThis.expo.modules.UniVerseDev.devMenuItems(${JSON.stringify(title)}, ${JSON.stringify(path)}, false)`);
 
 try {
   for (const setting of [false, true]) {

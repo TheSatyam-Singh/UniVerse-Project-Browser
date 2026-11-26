@@ -57,7 +57,7 @@ export const APP_EVENTS = [
 export const APP = `(event IN (${sqlList(APP_EVENTS)}) AND ${APP_SOURCE})`;
 export const MAC = `(${visitorOnSql("mac", prop)})`;
 export const PHONE = `(${visitorOnSql("phone", prop)})`;
-export const ARDIA_VERSION = `match(${prop("version")}, '^0\\\\.[0-9]+\\\\.[0-9]+(-nightly\\\\.[0-9]+)?$')`;
+export const UNIVERSE_VERSION = `match(${prop("version")}, '^0\\\\.[0-9]+\\\\.[0-9]+(-nightly\\\\.[0-9]+)?$')`;
 export const NIGHTLY = `position(${prop("version")}, '-nightly') > 0`;
 export const FIRST = `properties['first'] = 'true'`;
 

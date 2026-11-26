@@ -8,7 +8,7 @@ root="$(cd "$(dirname "$0")/.." && pwd -P)"
 . "$root/scripts/lib/releases.sh"
 die() { echo "error: $*" >&2; exit 1; }
 case "$version" in
-  engine-*) ref="$version" shipped="the ArdiaCore engine ${version#engine-}" ;;
+  engine-*) ref="$version" shipped="the UniVerseCore engine ${version#engine-}" ;;
   *) ref="v$version" shipped="UniVerse Project Browser $version" ;;
 esac
 pinned() { [ -n "${!1:-}" ] && echo "${!1}" || sed -n "s/^export $1=//p" "$root/engine/patches/build/env.sh"; }

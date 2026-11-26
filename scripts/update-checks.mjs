@@ -43,7 +43,7 @@ console.log("GitHub feed: fetches of that release's appcast.xml, i.e. update che
 console.log("included) while it was the latest release.");
 
 if (!key) {
-  console.log("\nNo ~/.config/ardia/telemetry.env: first launches and daily checks need it (docs/growth.md, Telemetry).");
+  console.log("\nNo ~/.config/universe/telemetry.env: first launches and daily checks need it (docs/growth.md, Telemetry).");
   process.exit(0);
 }
 console.log(`\nUpdate checks per day, last ${days} days (UTC)`);

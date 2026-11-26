@@ -3,10 +3,10 @@ import QuartzCore
 
 public class SwipeModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaSwipe")
+    Name("UniVerseSwipe")
 
     Function("haptic") { (pattern: String) in
-      DispatchQueue.main.async { ArdiaSwipe.performHaptic(pattern) }
+      DispatchQueue.main.async { UniVerseSwipe.performHaptic(pattern) }
     }
 
     AsyncFunction("switchPager") { (key: String, index: Int, order: [String]?) -> Bool in
@@ -37,7 +37,7 @@ public class SwipeModule: Module {
         promise.resolve(["error": "no window \(windowNumber)"])
         return
       }
-      ArdiaSwipe.simulate(in: window, point: NSPoint(x: x, y: y), steps: steps, ignoreSystemPreference: ignorePreference) {
+      UniVerseSwipe.simulate(in: window, point: NSPoint(x: x, y: y), steps: steps, ignoreSystemPreference: ignorePreference) {
         promise.resolve($0)
       }
       #else

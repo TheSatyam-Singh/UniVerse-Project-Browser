@@ -55,7 +55,7 @@ public enum ShellScripting {
       if let error { command?.setError(error) }
       if refused { command?.refuseJavaScriptFromAppleEvents() }
       let value = error == nil && !refused ? transform(answer) : nil
-      if let failure = ArdiaTryCatch({ command?.resumeExecution(withResult: value) }) {
+      if let failure = UniVerseTryCatch({ command?.resumeExecution(withResult: value) }) {
         NSLog("UniVerse Project Browser: AppleScript reply failed: \(failure)")
       }
     }

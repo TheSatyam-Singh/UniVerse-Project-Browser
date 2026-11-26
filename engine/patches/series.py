@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Ardia's changes to the Chromium tree, in the order `series` gives.
+"""UniVerse's changes to the Chromium tree, in the order `series` gives.
 
   series.py apply                                apply to the tree; skips what is already applied
   series.py check [--keep DIR]                   apply the whole series to a scratch copy of the base and

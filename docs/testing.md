@@ -52,15 +52,15 @@ holds the rest.
 | Import window | `node apps/browser/scripts/import-flow-test.mjs <Debug app> <scratch dir> [flow…] [--record <file>] [--compare <file>] [--keep]` | Every flow of the import window (Chrome with unlock, skip and back, Arc, Firefox, Dia, Safari direct, export and a bad file) against `packages/import/fixtures`, with a background-only stand-in for Dia, never a real profile |
 | Sync | `node packages/sync/scripts/e2e.mjs <Debug app>` | Two and three hidden instances through one folder (`docs/sync.md`) |
 | Import | `node packages/import/scripts/e2e.mjs <Debug app> <scratch dir>` | Cookies, addresses and cards from a fake Chrome home (`packages/import/README.md`) |
-| Video upscaling | `node apps/browser/scripts/video-upscaling-test.mjs <Debug app> [--keep] [check…]` (`--list`) | What the GPU process upscales in every state the gate decides (playing, paused, native size, background tab, app inactive, occluded, Low Power, thermal, PiP, HDR, full screen, Little UniVerse, setting off), from its `ArdiaVSR.*` trace events and `videoUpscalingState()` |
+| Video upscaling | `node apps/browser/scripts/video-upscaling-test.mjs <Debug app> [--keep] [check…]` (`--list`) | What the GPU process upscales in every state the gate decides (playing, paused, native size, background tab, app inactive, occluded, Low Power, thermal, PiP, HDR, full screen, Little UniVerse, setting off), from its `UniVerseVSR.*` trace events and `videoUpscalingState()` |
 | Engine patches | `python3 engine/patches/series.py check` | The patch series reproduces the Chromium tree (`docs/engine-build.md`) |
-| Engine (ArdiaCore) | `node packages/universecore/scripts/acceptance.mjs <Debug app> <scratch dir> [--keep] [check…]` | The app on ArdiaCore, hidden (`docs/universecore-parity.md`). `--keep` leaves the instance up and `--attach <scratch dir> [check…]` re-runs checks on it in seconds; `--list` gives each check's section and what it needs (brought along automatically) |
-| Focus (ArdiaCore) | `node packages/universecore/scripts/activation-acceptance.mjs <Debug app> <scratch dir> [check…]` | The panes shown, Chrome's active tab and native focus agree |
+| Engine (UniVerseCore) | `node packages/universecore/scripts/acceptance.mjs <Debug app> <scratch dir> [--keep] [check…]` | The app on UniVerseCore, hidden (`docs/universecore-parity.md`). `--keep` leaves the instance up and `--attach <scratch dir> [check…]` re-runs checks on it in seconds; `--list` gives each check's section and what it needs (brought along automatically) |
+| Focus (UniVerseCore) | `node packages/universecore/scripts/activation-acceptance.mjs <Debug app> <scratch dir> [check…]` | The panes shown, Chrome's active tab and native focus agree |
 | UI pixels | `scripts/agent/ui-snapshots capture <Debug app> <out dir>` before and after, then `scripts/agent/ui-snapshots compare <before dir> <after dir>` (`list`, `--help`) | A refactor changed no pixels: every UI state of a fixed seeded session, snapshotted in-process (works with the screen locked) and diffed |
 | Native perf | `node apps/browser/scripts/perf/native-bench.mjs --app <Release app> --out <dir>` | Launch, idle, memory, tab and window latency; the release perf gate (`docs/perf/README.md`) |
 | JS perf | `node apps/browser/scripts/perf/js-bench.mjs run --app <Release app> --bundle <main.jsbundle> --label <name>` | What each interaction costs the JS thread (`docs/perf/README.md`) |
 
-## ArdiaCore acceptance
+## UniVerseCore acceptance
 
 The acceptance run's checks and what each proves are listed in `docs/universecore-parity.md` › "Acceptance (hidden instance)".
 
@@ -69,15 +69,15 @@ The acceptance run's checks and what each proves are listed in `docs/universecor
 #   scripts/agent/engine-build --as <you>   (docs/engine-build.md)
 # App: apps/browser/macos (the only app project; pod install there after adding native files).
 scripts/agent/build-app --as <you>     # into apps/browser/build-<you>; --help
-# Acceptance, hidden (open -g -n, ARDIA_BACKGROUND=1, a scratch data dir); METRO_PORT is a Metro for this checkout.
+# Acceptance, hidden (open -g -n, UNIVERSE_BACKGROUND=1, a scratch data dir); METRO_PORT is a Metro for this checkout.
 METRO_PORT=8081 node packages/universecore/scripts/acceptance.mjs apps/browser/build-<you>/Build/Products/Debug/UniVerse-Project-Browser.app <scratch dir> [check…]
 ```
 
 The app (bundle id `com.universe.projectbrowser`, Apple Development signing with the hardened runtime in
 Debug; `scripts/release.sh` signs releases with Developer ID). A Debug build refuses to start without
-`ARDIA_DATA_DIR` (it never falls back to a real profile). A test run hands it its Metro in `ARDIA_INSTANCE` `jsLocation`
+`UNIVERSE_DATA_DIR` (it never falls back to a real profile). A test run hands it its Metro in `UNIVERSE_INSTANCE` `jsLocation`
 (that launch's argument domain, never written); never `defaults write com.universe.projectbrowser`, the installed app's. Its build stages a copy of the engine framework
-(`packages/universecore/scripts/stage-framework.sh`, under the chromium lock, into `ARDIACORE_STAGE_DIR`), links that, and
+(`packages/universecore/scripts/stage-framework.sh`, under the chromium lock, into `UNIVERSECORE_STAGE_DIR`), links that, and
 `embed.sh` signs the embedded copy with the build's identity.
 
 Test hygiene the run keeps (each was a real failure):
@@ -89,7 +89,7 @@ Test hygiene the run keeps (each was a real failure):
 - Permissions use MIDI and notifications (no macOS prompt behind them), external apps a scheme no app handles;
   never location or `mailto:`. Camera and microphone only on a copy of the app without the device entitlements
   (ad hoc, hardened runtime: macOS refuses the devices without asking) and Chrome's fake devices: every hidden
-  instance gets `--use-fake-device-for-media-stream` (ArdiaHost), and with it the engine keeps the microphone on a
+  instance gets `--use-fake-device-for-media-stream` (UniVerseHost), and with it the engine keeps the microphone on a
   fake input (`ac_fake_media.mm`), since the fake list's "default" input is the Mac's real one to the audio service and
   a stream on it raised macOS's microphone dialog on the owner's screen (2026-10-01).
 - A check that needs a page on screen (permission prompts, choosers, context menus) shows it first: Chrome holds
@@ -106,18 +106,18 @@ never drag from a page with the harness's real mouse events in an instance witho
 
 Launch with `scripts/agent/ac launch <app> --data <dir> [--instance K=V] [--test K[=V]] [--trace AREA] [--switch S]…`
 (`--help`; then `ac eval`, `ac page`, `ac quit`), or `launch(app, { instance, test, trace, switches })` in
-`scripts/lib/instance.mjs`. `ARDIA_BACKGROUND=1` and a scratch `ARDIA_DATA_DIR` make an instance a test instance;
-`ARDIA_INSTANCE`, `ARDIA_TEST` and `ARDIA_TRACE` carry the rest. Every variable, key and trace area is in
+`scripts/lib/instance.mjs`. `UNIVERSE_BACKGROUND=1` and a scratch `UNIVERSE_DATA_DIR` make an instance a test instance;
+`UNIVERSE_INSTANCE`, `UNIVERSE_TEST` and `UNIVERSE_TRACE` carry the rest. Every variable, key and trace area is in
 `docs/agent-brief.md` › Launch variables; what some of them do in more detail:
 
 - **CDP and the profile gate.** CDP (`--remote-allow-origins=*`), argv and `chromiumSwitches` reach Chrome only on its
-  mock keychain (a scratch `ARDIA_DATA_DIR`, or an ad hoc build). A team-signed build on its real data dir ignores
+  mock keychain (a scratch `UNIVERSE_DATA_DIR`, or an ad hoc build). A team-signed build on its real data dir ignores
   them, and its browser process removes every switch that would open the profile to outside control, however it's
   spelled, at startup and again once chrome://flags have become switches, and unsets `SSLKEYLOGFILE`
   (`ac_main_delegate.cc` `kSwitchesThatOpenTheProfile`; `--trace profileGate` logs the parsed and gated command lines
   both times, `--test applyProfileGate` applies the gate on the mock keychain too).
 - **`reauth=granted`** (engine `ac_reauth.cc`) grants macOS re-auth requests in background mode (otherwise refused,
-  each reported as `reauth.requested`). Like every `ARDIA_TEST` key it counts only in a build that isn't signed for
+  each reported as `reauth.requested`). Like every `UNIVERSE_TEST` key it counts only in a build that isn't signed for
   distribution, on a scratch data dir and Chrome's mock keychain, so it can never reveal what the real "UniVerse Project Browser Safe
   Storage" key encrypts; a Developer ID build refuses every request in background mode.
 - **`contextMenu`**: context menus go to the host instead of the screen; the menu is written to
@@ -136,7 +136,7 @@ Launch with `scripts/agent/ac launch <app> --data <dir> [--instance K=V] [--test
   `fakeFullScreenMs:<ms>`, `fakeOcclusion:<visible|occluded|off>` (macOS's occlusion state; a test window otherwise
   counts as seen), `fakeFullScreenOcclusionMs:<ms>` (acted transitions occlude the window, visible again `<ms>` after
   they end, as a real Space animation), `pageCover:<1|0>` (the page's picture over it through transitions,
-  `ArdiaPageCover`; 0 is 0.2.30's behaviour), `fullScreenProbe:<ms>` then `fullScreenProbe` (per display frame, what
+  `UniVersePageCover`; 0 is 0.2.30's behaviour), `fullScreenProbe:<ms>` then `fullScreenProbe` (per display frame, what
   an in-process render of the window, all AppKit's transition shows, has in the page's place: an 8 × 6 colour grid,
   uniformity, covers; acceptance `fullscreen-transition-picture`).
 - **`pipSelfTest`**: on the first PiP window, `close` / `backToTab` click Chrome's buttons (`pip-button-selftest.json`:
@@ -152,10 +152,10 @@ Launch with `scripts/agent/ac launch <app> --data <dir> [--instance K=V] [--test
   `--remote-debugging-port` makes the "Let the universe command control UniVerse Project Browser" setting stand aside; test that setting in an
   instance launched without one.
 
-`ARDIA_BACKGROUND=1` changes:
+`UNIVERSE_BACKGROUND=1` changes:
 - **Activation:** the process is BackgroundOnly and every activation path is refused and logged to
-  `$ARDIA_DATA_DIR/activation.log` (`ArdiaActivation.mm`). File panels never show: they answer with the paths in
-  `$ARDIA_DATA_DIR/file-chooser.txt` (one a line, consumed), or cancel. Context menus are reported, not shown.
+  `$UNIVERSE_DATA_DIR/activation.log` (`UniVerseActivation.mm`). File panels never show: they answer with the paths in
+  `$UNIVERSE_DATA_DIR/file-chooser.txt` (one a line, consumed), or cancel. Context menus are reported, not shown.
   It reads as active all the same (`-[NSApplication isActive]`, the one fake), and AppKit's key window follows as in an
   active app: the window made key is key and its notifications go out, so focus runs production's path. A check
   plays the user leaving for another app with `devWindow(n, "fakeAppActive:0")`. Metal views act as in the key
@@ -169,29 +169,29 @@ Launch with `scripts/agent/ac launch <app> --data <dir> [--instance K=V] [--test
 - **Windows:** they stay behind every other app's windows: each window's level is set a band below normal (normal at
   CoreGraphics layer -1000000, floating at -999997…; `-level` answers the one asked for), so no ordering, activation
   attempt or AppKit reshuffle lifts one over the owner's, the app's own keep production's order, and Mission Control
-  leaves them out (`ArdiaActivation.mm`). `[NSApp activateIgnoringOtherApps:]` and `activate` are refused and
-  logged. With `ARDIA_INSTANCE` `allowOcclusion` a window the owner's cover is really occluded.
+  leaves them out (`UniVerseActivation.mm`). `[NSApp activateIgnoringOtherApps:]` and `activate` are refused and
+  logged. With `UNIVERSE_INSTANCE` `allowOcclusion` a window the owner's cover is really occluded.
   Full screen is acted out (no new Space); windows answer NO to `-[NSWindow isOccluded]`, so a covered
   window shows a tab at once instead of after Chrome's 1 s delay, with `--disable-backgrounding-occluded-windows`;
   PiP windows stay at alpha 0 and click-through; the drag preview stays above its own window only.
-- **Media:** `--mute-audio` (Chrome then reports no tab as audible, so the speaker never lights; the ArdiaCore
+- **Media:** `--mute-audio` (Chrome then reports no tab as audible, so the speaker never lights; the UniVerseCore
   acceptance run sets `allowAudio` with `--disable-audio-output`, so Chrome still hears its -60 dBFS fixtures and the speakers get nothing), no intro music, `--use-fake-device-for-media-stream` with the microphone kept on a fake
   input (`ac_fake_media.mm`), and `--disable-modal-animations` (a locked screen never ends a dialog's close animation).
-- **Other:** macOS re-auth prompts never show; requests are refused unless `ARDIA_TEST` `reauth=granted` in a build that
+- **Other:** macOS re-auth prompts never show; requests are refused unless `UNIVERSE_TEST` `reauth=granted` in a build that
   honours it (above). Nothing system-wide changes: Set as Default (onboarding, whose checkbox starts unticked, and
   Settings), Chrome's own default browser, scheme and file type setters, Add to Dock and Launch at Login are no-ops
-  that log a line (`ArdiaSystem`, `chromium-background-instance-no-default-handlers.patch`).
+  that log a line (`UniVerseSystem`, `chromium-background-instance-no-default-handlers.patch`).
 
-A scratch `ARDIA_DATA_DIR` holds Chrome's user data and the app's documents, its defaults, keychain items and
-Sparkle state (`packages/shell/ios/ArdiaIsolation.m`); Chrome gets `--use-mock-keychain`; update checks are off without
+A scratch `UNIVERSE_DATA_DIR` holds Chrome's user data and the app's documents, its defaults, keychain items and
+Sparkle state (`packages/shell/ios/UniVerseIsolation.m`); Chrome gets `--use-mock-keychain`; update checks are off without
 `updateFeed`; a Release build's telemetry is tagged `test`, and the release-notes page stays closed
 unless `releaseNotes`.
 
-A Release or RC build starts the dev harness (`dev-eval.js`) only when `$ARDIA_DATA_DIR/perf-probe` exists in a
-test instance (`src/state/app/perfProbe.ts`): `: > "$ARDIA_DATA_DIR/perf-probe"` before launch, as
+A Release or RC build starts the dev harness (`dev-eval.js`) only when `$UNIVERSE_DATA_DIR/perf-probe` exists in a
+test instance (`src/state/app/perfProbe.ts`): `: > "$UNIVERSE_DATA_DIR/perf-probe"` before launch, as
 `.claude/skills/release/scripts/smoke.sh` does.
 
-Input and capture hooks on `ac.shell`, from the `ArdiaDev` module (Debug builds only: in a Release build the module has no functions), for driving
+Input and capture hooks on `ac.shell`, from the `UniVerseDev` module (Debug builds only: in a Release build the module has no functions), for driving
 the app as a person would rather than writing a new helper:
 
 | Hook | What it does |
@@ -199,8 +199,8 @@ the app as a person would rather than writing a new helper:
 | `devKeyEquivalent(windowId, { key, keyCode, modifiers, focus, asKey })` | Presses one shortcut through the window's real key path |
 | `devTypeKeys(windowId, text, interval)` | Types text into the focused field, a key every `interval` ms; resolves with per-key timings |
 | `devMenuCommand(command, arg)` | Fires a menu command as if picked from the menu bar |
-| `ArdiaDev.devMenuItems(title, path?, asTitleBar?)` | A menu bar menu's items as AppKit has them, its own included (Window › Fill, Move & Resize…); `"tiling:<windowId>"` is the window's green-button menu and whether AppKit tiles it; `path` picks an item; `asTitleBar` delivers it as the green button's menu does, `NSApp.sendAction` to the item's own target (a submenu's parent sends `submenuAction:` to its menu) |
-| `ArdiaDev.devPostKey(windowId, key, keyCode, modifiers)` | Posts one key press to the app's event queue (`"menu:<key>"`: straight to the menu bar's key equivalents). System hot keys (fn-⌃ tiling) can't be posted |
+| `UniVerseDev.devMenuItems(title, path?, asTitleBar?)` | A menu bar menu's items as AppKit has them, its own included (Window › Fill, Move & Resize…); `"tiling:<windowId>"` is the window's green-button menu and whether AppKit tiles it; `path` picks an item; `asTitleBar` delivers it as the green button's menu does, `NSApp.sendAction` to the item's own target (a submenu's parent sends `submenuAction:` to its menu) |
+| `UniVerseDev.devPostKey(windowId, key, keyCode, modifiers)` | Posts one key press to the app's event queue (`"menu:<key>"`: straight to the menu bar's key equivalents). System hot keys (fn-⌃ tiling) can't be posted |
 | `devSnapshotWindow(windowId, path, transparent?)` | Writes the window's layers to a PNG in-process (works with the screen locked; `false` = failed) |
 | `devRenderIntroMusic(cues, path)` | Renders the onboarding intro music to an audio file, for a video's soundtrack |
 

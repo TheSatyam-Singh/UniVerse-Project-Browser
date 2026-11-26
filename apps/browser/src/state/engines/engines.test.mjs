@@ -33,7 +33,7 @@ test("a tab keeps its engine, else follows its adoption, its opener, then rules"
     [
       tab("fixed", { engine: "chromium", url: "https://www.netflix.com/" }),
       tab("popup", { page: { kind: "adopted", adopt: "webkit:3", nav: null } }),
-      tab("chrome", { page: { kind: "adopted", adopt: "ardiacore:9", nav: null }, url: "https://www.netflix.com/" }),
+      tab("chrome", { page: { kind: "adopted", adopt: "universecore:9", nav: null }, url: "https://www.netflix.com/" }),
       tab("opener", { engine: "webkit", url: "https://www.netflix.com/" }),
       tab("link", { openerId: "opener", url: "https://example.com/" }),
       tab("typed", { url: "https://www.netflix.com/" }),

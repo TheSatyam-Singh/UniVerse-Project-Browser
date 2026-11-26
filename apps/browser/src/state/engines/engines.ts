@@ -71,7 +71,7 @@ export const engineForUrl = (s: Pick<BrowserState, "settings">, url: string | un
 const fromAdoption = (s: EngineState, t: Tab, depth: number): PageEngine | undefined => {
   const id = adoptKind(adoptOf(t));
   if (id?.kind === "webkit") return "webkit";
-  if (id?.kind === "ardiacore" || id?.kind === "tab") return "chromium";
+  if (id?.kind === "universecore" || id?.kind === "tab") return "chromium";
   if (id?.kind !== "clone") return undefined;
   const source = s.tabs[id.key];
   return source && depth < 8 ? engineOf(s, source, depth + 1) : undefined;

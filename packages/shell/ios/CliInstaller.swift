@@ -1,4 +1,4 @@
-import ArdiaCore
+import UniVerseCore
 import ExpoModulesCore
 import Foundation
 
@@ -15,7 +15,7 @@ final class CliInstaller {
 
   private static var installerEnvironment: [String: String] {
     var environment = LaunchConfig.shared.environmentForChildProcesses
-    for (key, name) in [("cliHome", "ARDIA_CLI_HOME"), ("cliBinDir", "ARDIA_CLI_BIN_DIR"), ("cliUrl", "ARDIA_CLI_URL")] {
+    for (key, name) in [("cliHome", "UNIVERSE_CLI_HOME"), ("cliBinDir", "UNIVERSE_CLI_BIN_DIR"), ("cliUrl", "UNIVERSE_CLI_URL")] {
       if let value = LaunchConfig.shared.instance(key) { environment[name] = value }
     }
     return environment
@@ -80,7 +80,7 @@ final class CliInstaller {
 
   private func run() {
     if LaunchConfig.shared.isolated && (LaunchConfig.shared.instance("cliHome") == nil || LaunchConfig.shared.instance("cliBinDir") == nil) {
-      return finish(failure("A test instance installs only with ARDIA_INSTANCE cliHome and cliBinDir set."))
+      return finish(failure("A test instance installs only with UNIVERSE_INSTANCE cliHome and cliBinDir set."))
     }
     let version = Self.appVersion
     guard version.range(of: Self.versionPattern, options: .regularExpression) != nil else {

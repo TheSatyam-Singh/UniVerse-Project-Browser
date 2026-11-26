@@ -103,7 +103,7 @@ class FakeMac(folder: File, entropy: ByteArray, var clock: TestClock? = null) : 
     companion object {
         const val SOURCE = """
 (() => {
-  const S = globalThis.ArdiaSync;
+  const S = globalThis.UniVerseSync;
   const scopes = {};
   const stores = {};
   let clock = null;

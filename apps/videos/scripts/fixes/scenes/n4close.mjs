@@ -10,7 +10,7 @@ const state = () => fetch(`${SITES}/__state`).then((r) => r.json());
 export default {
   session: "session-0245n4-close.json",
   minWidth: 800,
-  env: { ARDIA_TEST: "appDialog" },
+  env: { UNIVERSE_TEST: "appDialog" },
   seed: (data, side) => execFileSync("curl", ["-s", `${SITES}/__set?reopen_${side}=0`]),
   setup: `return sleep(2500).then(() => done({ tabs: st().windows[W].tabIds.length }));`,
   prepare: (instance) => {

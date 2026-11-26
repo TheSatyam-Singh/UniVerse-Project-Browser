@@ -33,7 +33,7 @@ Exit status: 1 an unknown event, 2 UniVerse Project Browser can't be reached or 
 """
 ON_DESCRIPTION = """\
 Run PROGRAM for each matching event, until interrupted. The event's JSON line is PROGRAM's stdin; its environment
-has ARDIA_EVENT, ARDIA_WINDOW_ID, ARDIA_TAB_ID, ARDIA_PROFILE, ARDIA_URL and ARDIA_TITLE (set or removed for every
+has UNIVERSE_EVENT, UNIVERSE_WINDOW_ID, UNIVERSE_TAB_ID, UNIVERSE_PROFILE, UNIVERSE_URL and UNIVERSE_TITLE (set or removed for every
 run; never a notification's text). PROGRAM runs directly, never through a shell unless PROGRAM is one; a leading ~
 is expanded. URLs come without their query and fragment unless --full-urls. tab.idle, tab.resumed, user.idle and
 user.active need --idle (like 30m, at least 1m).
@@ -45,12 +45,12 @@ off it reconnects with backoff.
 
 Examples:
   universe on tab.navigated --match 'https://*.youtube.com/*' -- ~/bin/yt-hook
-  universe on tab.opened,tab.closed -- /bin/sh -c 'echo "$ARDIA_EVENT $ARDIA_URL" >> ~/tabs.log'
+  universe on tab.opened,tab.closed -- /bin/sh -c 'echo "$UNIVERSE_EVENT $UNIVERSE_URL" >> ~/tabs.log'
   universe on tab.idle --idle 30m -- ~/bin/park-tab
 """
 HOOKS_DESCRIPTION = """\
 Run hooks from hooks.json in the config folder (~/.config/universe, or <data dir>/config with --data-dir or
-$ARDIA_DATA_DIR) in one process:
+$UNIVERSE_DATA_DIR) in one process:
 
   {
     "hooks": [
@@ -114,8 +114,8 @@ def add_parsers(commands, formatter):
     sub = group.add_subparsers(dest="hooks_command", metavar="<command>")
     hooks_run = data_dir(sub.add_parser("run", help="run the hooks until interrupted", description="Run every hook in hooks.json until interrupted, reloading the file when it changes."))
     hooks_run.add_argument("--log", metavar="PATH", help="where output goes (default ~/Library/Logs/UniVerse Project Browser/hooks.log; - for the terminal)")
-    data_dir(sub.add_parser("install", help="run the hooks at login (LaunchAgent dev.universe.hooks)", description="Write ~/Library/LaunchAgents/dev.universe.hooks.plist, which runs the installed universe's hooks run at login\nand keeps it alive, and load it. Refused with --data-dir or $ARDIA_DATA_DIR.", formatter_class=formatter))
-    data_dir(sub.add_parser("uninstall", help="remove the LaunchAgent", description="Unload and remove the dev.universe.hooks LaunchAgent. Refused with --data-dir or $ARDIA_DATA_DIR."))
+    data_dir(sub.add_parser("install", help="run the hooks at login (LaunchAgent dev.universe.hooks)", description="Write ~/Library/LaunchAgents/dev.universe.hooks.plist, which runs the installed universe's hooks run at login\nand keeps it alive, and load it. Refused with --data-dir or $UNIVERSE_DATA_DIR.", formatter_class=formatter))
+    data_dir(sub.add_parser("uninstall", help="remove the LaunchAgent", description="Unload and remove the dev.universe.hooks LaunchAgent. Refused with --data-dir or $UNIVERSE_DATA_DIR."))
     hooks_list = data_dir(sub.add_parser("list", help="list the hooks and the LaunchAgent's state", description="List the hooks in hooks.json, check them, and show whether the LaunchAgent is loaded. Exit 1 if hooks.json is invalid."))
     hooks_list.add_argument("--json", action="store_true", help="print JSON")
 
@@ -405,8 +405,8 @@ def hooks_run(args) -> int:
 
 
 def refuse_scratch(args, verb: str) -> bool:
-    if args.data_dir or os.environ.get("ARDIA_DATA_DIR"):
-        complain(f"universe hooks {verb}: refused while --data-dir or $ARDIA_DATA_DIR picks a data dir; the LaunchAgent is for the installed UniVerse Project Browser only")
+    if args.data_dir or os.environ.get("UNIVERSE_DATA_DIR"):
+        complain(f"universe hooks {verb}: refused while --data-dir or $UNIVERSE_DATA_DIR picks a data dir; the LaunchAgent is for the installed UniVerse Project Browser only")
         return True
     return False
 
@@ -495,7 +495,7 @@ def hooks_list(args, launchctl=None) -> int:
         problem = f"{path}: {getattr(error, 'strerror', None) or error}"
     paths = hooks.agent_paths()
     installed = os.path.lexists(paths.plist)
-    state = hooks.agent_state(launchctl) if installed and not (args.data_dir or os.environ.get("ARDIA_DATA_DIR")) else {"loaded": False}
+    state = hooks.agent_state(launchctl) if installed and not (args.data_dir or os.environ.get("UNIVERSE_DATA_DIR")) else {"loaded": False}
     if args.json:
         say(json.dumps({"file": str(path), "problem": problem, "hooks": [h.to_dict() for h in found], "agent": {"installed": installed, **state}}, indent=2, ensure_ascii=False))
         return 1 if problem and os.path.lexists(path) else 0

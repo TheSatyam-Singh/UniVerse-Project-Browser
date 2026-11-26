@@ -413,10 +413,10 @@
     {
       "id": "title-name",
       "definition": "type",
-      "label": "title · ARDIA",
+      "label": "title · UNIVERSE",
       "parentId": null,
       "values": {
-        "text": "ARDIA",
+        "text": "UNIVERSE",
         "size": 240,
         "color": "#16130F",
         "fill": "#00000000",
@@ -656,10 +656,10 @@
     {
       "id": "end-name",
       "definition": "type",
-      "label": "end · ARDIA",
+      "label": "end · UNIVERSE",
       "parentId": null,
       "values": {
-        "text": "ARDIA",
+        "text": "UNIVERSE",
         "size": 150,
         "color": "#16130F",
         "fill": "#00000000",
@@ -707,10 +707,10 @@
     {
       "id": "end-url",
       "definition": "type",
-      "label": "end · ARDIA.DEV",
+      "label": "end · UNIVERSE.DEV",
       "parentId": null,
       "values": {
-        "text": "ARDIA.DEV",
+        "text": "UNIVERSE.DEV",
         "size": 190,
         "color": "#2150D9",
         "fill": "#00000000",
@@ -741,7 +741,7 @@
     {
       "id": "end-source",
       "definition": "type",
-      "label": "end · GITHUB.COM/MANTRAKP04/ARDIA",
+      "label": "end · GITHUB.COM/MANTRAKP04/UNIVERSE",
       "parentId": null,
       "values": {
         "text": "GITHUB.COM/MANTRAKP04/\nARDIA",

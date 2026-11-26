@@ -1,11 +1,11 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import Carbon.HIToolbox
 import ExpoModulesCore
 
 public class FadeLabelModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaFadeLabel")
+    Name("UniVerseFadeLabel")
 
     View(FadeLabel.self) {
       Prop("text") { (view: FadeLabel, v: String) in view.text = v }

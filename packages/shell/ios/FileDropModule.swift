@@ -5,7 +5,7 @@ import ServiceManagement
 
 public class FileDropModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaFileDrop")
+    Name("UniVerseFileDrop")
 
     View(FileDropView.self) {
       Events("onDropUpdate")

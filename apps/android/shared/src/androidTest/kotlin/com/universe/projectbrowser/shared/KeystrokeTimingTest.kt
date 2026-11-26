@@ -72,14 +72,14 @@ class KeystrokeTimingTest {
                 }
             }
             val lastItems = items.last()
-            Log.i("ArdiaTiming", "per key median ms: " + perKey.mapIndexed { i, list -> "${typed[i]}=%.2f(${items[i]})".format(list.sorted()[1]) }.joinToString(" "))
+            Log.i("UniVerseTiming", "per key median ms: " + perKey.mapIndexed { i, list -> "${typed[i]}=%.2f(${items[i]})".format(list.sorted()[1]) }.joinToString(" "))
             val sorted = samples.sorted()
             val median = (sorted[sorted.size / 2 - 1] + sorted[sorted.size / 2]) / 2
             val p75 = sorted[(sorted.size * 3) / 4]
             val worst = sorted.last()
             val line = "mobileSuggest n=${samples.size} median=%.2f ms p75=%.2f ms best=%.2f ms worst=%.2f ms; engine load %.1f ms, mobileSetSources %.1f ms; last result %d items".format(median, p75, sorted.first(), worst, loadMs, seedMs, lastItems)
-            Log.i("ArdiaTiming", line)
-            InstrumentationRegistry.getInstrumentation().sendStatus(0, Bundle().apply { putString("ArdiaTiming", line) })
+            Log.i("UniVerseTiming", line)
+            InstrumentationRegistry.getInstrumentation().sendStatus(0, Bundle().apply { putString("UniVerseTiming", line) })
             assertTrue(lastItems > 0)
         }
     }

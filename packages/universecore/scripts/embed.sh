@@ -2,7 +2,7 @@
 set -euo pipefail
 here=$(cd "$(dirname "$0")" && pwd)
 repo=$(cd "$here/../../.." && pwd)
-staged=${ARDIACORE_STAGE_DIR:-$repo/apps/browser/build-universecore/UniVerseCoreFramework}/"Chromium Framework.framework"
+staged=${UNIVERSECORE_STAGE_DIR:-$repo/apps/browser/build-universecore/UniVerseCoreFramework}/"Chromium Framework.framework"
 frameworks="$TARGET_BUILD_DIR/$FRAMEWORKS_FOLDER_PATH"
 mkdir -p "$frameworks"
 stamp="$DERIVED_FILE_DIR/universecore-embedded.stamp"

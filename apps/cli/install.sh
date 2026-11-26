@@ -8,23 +8,23 @@
 # --sha256 DIGEST    the tarball's digest; required for a download (the app passes the one pinned in its signed bundle).
 # --uninstall        remove the installed CLI and its universe link.
 #
-# Installs into ${ARDIA_CLI_HOME:-~/Library/Application Support/UniVerse Project Browser/CLI}/<version>, points its `current` link
-# there and links ${ARDIA_CLI_BIN_DIR:-~/.local/bin}/universe to current/bin/universe. When the default bin dir isn't on
+# Installs into ${UNIVERSE_CLI_HOME:-~/Library/Application Support/UniVerse Project Browser/CLI}/<version>, points its `current` link
+# there and links ${UNIVERSE_CLI_BIN_DIR:-~/.local/bin}/universe to current/bin/universe. When the default bin dir isn't on
 # the login shell's PATH, it adds one PATH line to ~/.zprofile (~/.bash_profile for bash), once.
 # Re-running it upgrades: a version that is already current is left alone; a new one is verified, staged in
 # <version>.partial, renamed, and `current` is swapped atomically (a running universe keeps its old dir). It keeps the
 # current and the previous version and prunes the rest, except versions a running universe uses (it leaves a lease in
 # <version>/.leases/<pid>, live while that pid runs and started before the lease was written). Two runs never overlap:
-# each holds a flock on $ARDIA_CLI_HOME/.lock (lockf), which the kernel drops when the run exits.
-# The installed version is `basename "$(readlink "$ARDIA_CLI_HOME/current")"`. After switching to a new version it runs
+# each holds a flock on $UNIVERSE_CLI_HOME/.lock (lockf), which the kernel drops when the run exits.
+# The installed version is `basename "$(readlink "$UNIVERSE_CLI_HOME/current")"`. After switching to a new version it runs
 # `universe skills install --auto` (the skill for every coding agent found, never over a folder universe didn't write or one
 # the user removed), then `universe skills refresh`, which rewrites the agent skill copies `universe skills install` wrote, and ignores its result,
 # then starts `universe computer refresh` in the background, which updates /Applications/CuaDriver.app to the new pinned
-# cua-driver only when `universe computer setup` put it there. --uninstall also removes $ARDIA_CLI_HOME/cua-driver and the
+# cua-driver only when `universe computer setup` put it there. --uninstall also removes $UNIVERSE_CLI_HOME/cua-driver and the
 # cua-driver link in the bin dir when it is universe's, and leaves /Applications/CuaDriver.app.
 # Downloads are https only, and never trust a checksum from the same place as the tarball: without --sha256 it refuses
-# to download. ARDIA_CLI_URL overrides the tarball URL; a file:// one may go without --sha256, and its checksum is read
-# from $ARDIA_CLI_URL.sha256.
+# to download. UNIVERSE_CLI_URL overrides the tarball URL; a file:// one may go without --sha256, and its checksum is read
+# from $UNIVERSE_CLI_URL.sha256.
 #
 # Prints one line per event: `step resolve|download|verify|install|link`, `version <v>`, `path <rc file>`,
 # then `installed <bin path>` (or `uninstalled`), or `error <message>` and exits 1.
@@ -34,9 +34,9 @@ umask 022
 repo=TheSatyam-Singh/UniVerse-Project-Browser
 asset_suffix=-macos-arm64.tar.gz
 version_pattern='^[0-9]{1,4}\.[0-9]{1,4}\.[0-9]{1,4}(-[a-z]{1,16}\.[0-9]{1,4})?$'
-cli_home=${ARDIA_CLI_HOME:-$HOME/Library/Application Support/UniVerse Project Browser/CLI}
+cli_home=${UNIVERSE_CLI_HOME:-$HOME/Library/Application Support/UniVerse Project Browser/CLI}
 default_bin_dir=$HOME/.local/bin
-bin_dir=${ARDIA_CLI_BIN_DIR:-$default_bin_dir}
+bin_dir=${UNIVERSE_CLI_BIN_DIR:-$default_bin_dir}
 version=
 pinned_sha=
 uninstall=0
@@ -87,7 +87,7 @@ if [ -n "$pinned_sha" ] && ! printf '%s\n' "$pinned_sha" | grep -Eq '^[0-9a-f]{6
   fail "bad --sha256 digest: $pinned_sha"
 fi
 
-if [ -n "${ARDIA_CLI_URL:-}" ]; then
+if [ -n "${UNIVERSE_CLI_URL:-}" ]; then
   protocols==https,file
 else
   protocols==https
@@ -221,8 +221,8 @@ fi
 [ "$(uname -m)" = arm64 ] || fail "the universe CLI runs on Apple silicon only, not $(uname -m)"
 
 printf 'step resolve\n'
-if [ -n "${ARDIA_CLI_URL:-}" ]; then
-  url=$ARDIA_CLI_URL
+if [ -n "${UNIVERSE_CLI_URL:-}" ]; then
+  url=$UNIVERSE_CLI_URL
   if [ -z "$version" ]; then
     name=${url##*/}
     version=${name#universe-cli-}
@@ -309,9 +309,9 @@ for entry in "$cli_home"/*; do
 done
 
 link_bin
-ARDIA_CLI_HOME=$cli_home "$cli_home/current/bin/universe" skills install --auto </dev/null >/dev/null 2>&1 9>&- || true
-ARDIA_CLI_HOME=$cli_home "$cli_home/current/bin/universe" skills refresh </dev/null >/dev/null 2>&1 9>&- || true
-ARDIA_CLI_HOME=$cli_home nohup "$cli_home/current/bin/universe" computer refresh </dev/null >/dev/null 2>&1 9>&- &
+UNIVERSE_CLI_HOME=$cli_home "$cli_home/current/bin/universe" skills install --auto </dev/null >/dev/null 2>&1 9>&- || true
+UNIVERSE_CLI_HOME=$cli_home "$cli_home/current/bin/universe" skills refresh </dev/null >/dev/null 2>&1 9>&- || true
+UNIVERSE_CLI_HOME=$cli_home nohup "$cli_home/current/bin/universe" computer refresh </dev/null >/dev/null 2>&1 9>&- &
 
 if [ "$bin_dir" = "$default_bin_dir" ]; then
   login_shell=$(dscl . -read "/Users/$(id -un)" UserShell 2>/dev/null | awk '{ print $2 }')

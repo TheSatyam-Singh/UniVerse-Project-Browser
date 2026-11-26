@@ -14,8 +14,8 @@ const sources = [
   "../ios/WebKitTab+PageTab.swift",
   "../ios/WebKitWebView.swift",
   "../ios/WebKitAutoPictureInPicture.swift",
-  "../ios/ArdiaChromeWindowHost.h",
-  "../ios/ArdiaChromeWindowHost.mm",
+  "../ios/UniVerseChromeWindowHost.h",
+  "../ios/UniVerseChromeWindowHost.mm",
   "./webkit-auto-pip.test.swift",
 ];
 const read = (name) => (existsSync(path(name)) ? readFileSync(path(name), "utf8") : "");
@@ -23,8 +23,8 @@ const tab = read("../ios/WebKitTab.swift");
 const sight = read("../ios/WebKitTab+AutoPictureInPicture.swift");
 const pageTab = read("../ios/WebKitTab+PageTab.swift");
 const webView = read("../ios/WebKitWebView.swift");
-const windowHostHeader = read("../ios/ArdiaChromeWindowHost.h");
-const windowHost = read("../ios/ArdiaChromeWindowHost.mm");
+const windowHostHeader = read("../ios/UniVerseChromeWindowHost.h");
+const windowHost = read("../ios/UniVerseChromeWindowHost.mm");
 const swiftc = process.env.SWIFTC || "swiftc";
 const pageScriptSwift = read("../ios/WebKitPageScript.swift");
 
@@ -69,8 +69,8 @@ test("WebKit tabs keep the autoPictureInPicture flag instead of a stub that read
 });
 
 test("WebKit tabs follow the user's sight of their window the way Chromium views do", () => {
-  assert.match(sight, /let seen = visible && ArdiaChromeWindowHost\.userSees\(window\)/);
-  assert.match(sight, /forName: (?:NSNotification\.Name\.)?ArdiaWindowSeenDidChange, object: window/);
+  assert.match(sight, /let seen = visible && UniVerseChromeWindowHost\.userSees\(window\)/);
+  assert.match(sight, /forName: (?:NSNotification\.Name\.)?UniVerseWindowSeenDidChange, object: window/);
   assert.match(sight, /let activeCapture = webView\?\.cameraCaptureState == \.active \|\| webView\?\.microphoneCaptureState == \.active/);
   assert.match(sight, /playing: !playingFrames\.isEmpty \|\| activeCapture/);
   assert.match(tab, /override func viewDidMoveToWindow\(\) \{ super\.viewDidMoveToWindow\(\); watchSight\(\) \}/);
@@ -105,10 +105,10 @@ test("the rule travels with the page view, so a tab that takes the view over sti
   assert.match(attach, /webView = view\n[\s\S]*\n {4}updateSight\(\)\n {2}\}/);
 });
 
-test("ArdiaCore's public window host gives Swift the same sight rule as Chromium views", () => {
+test("UniVerseCore's public window host gives Swift the same sight rule as Chromium views", () => {
   assert.match(windowHostHeader, /\+ \(BOOL\)userSeesWindow:\(nullable NSWindow \*\)window NS_SWIFT_NAME\(userSees\(_:\)\);/);
-  assert.match(windowHostHeader, /extern NSNotificationName const ArdiaWindowSeenDidChange;/);
-  assert.match(windowHost, /\+ \(BOOL\)userSeesWindow:\(NSWindow \*\)window \{\n\s+return \[ArdiaWindowController userSees:window\];/);
+  assert.match(windowHostHeader, /extern NSNotificationName const UniVerseWindowSeenDidChange;/);
+  assert.match(windowHost, /\+ \(BOOL\)userSeesWindow:\(NSWindow \*\)window \{\n\s+return \[UniVerseWindowController userSees:window\];/);
 });
 
 test("the leave and return rule opens once per leave and closes on return", (t) => {

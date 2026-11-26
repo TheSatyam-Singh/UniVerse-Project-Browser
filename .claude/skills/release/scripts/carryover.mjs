@@ -21,7 +21,7 @@ async function start(scratchDataDir, logName) {
   try {
     instance = await launch(app, {
       data: docs, port, js: "none", ready: false, probe: true, log: path.join(path.dirname(path.resolve(out)), logName),
-      env: { HOME: home, CFFIXED_USER_HOME: home, ...(scratchDataDir ? {} : { ARDIA_DATA_DIR: null }) }, test: { reauth: "granted" },
+      env: { HOME: home, CFFIXED_USER_HOME: home, ...(scratchDataDir ? {} : { UNIVERSE_DATA_DIR: null }) }, test: { reauth: "granted" },
       switches: "--disable-backgrounding-occluded-windows", args: previousBuild ? ["--mute-audio"] : [],
     });
   } catch (e) {
@@ -159,7 +159,7 @@ try {
     await inApp(`ac.actions.switchToTab(ac.store.getState().newTab(${W}, { url: "${origin}/work.html", profileId: ${JSON.stringify(work)} })); return 1;`);
     report.setWork = await inPage("work.html", `document.cookie = "w_persist=yes; max-age=31536000; path=/"; document.cookie = "w_session=yes; path=/"; localStorage.setItem("w_ls", "yes"); document.cookie`);
     report.made = await inApp(`
-      const s = ac.store.getState(), E = ac.engine, P = globalThis.expo.modules.ArdiaPasswords, O = ${JSON.stringify(origin)}, work = ${JSON.stringify(work)};
+      const s = ac.store.getState(), E = ac.engine, P = globalThis.expo.modules.UniVersePasswords, O = ${JSON.stringify(origin)}, work = ${JSON.stringify(work)};
       const orError = (p) => p.catch((e) => ({ error: e.message }));
       s.addBookmark({ profileId: "default", url: O + "/page2.html", title: "Carryover bookmark" });
       s.addBookmark({ profileId: work, url: O + "/work.html", title: "Work bookmark" });
@@ -183,10 +183,10 @@ try {
       const s = ac.store.getState(), E = ac.engine, O = ${JSON.stringify(origin)};
       const orError = (p) => p.catch((e) => ({ error: e.message }));
       s.addBookmark({ profileId: "default", url: O + "/page3.html", title: "New build bookmark" });
-      return orError(globalThis.expo.modules.ArdiaPasswords.save("", O, "carol", "pw-new-789").then(JSON.parse))
+      return orError(globalThis.expo.modules.UniVersePasswords.save("", O, "carol", "pw-new-789").then(JSON.parse))
         .then(() => E.call("sites.setZoom", { profile: "", host: "localhost", zoom: 0.9 }))
         .then(() => orError(E.call("extensions.list", { profile: "" })))
-        .then((l) => { const e = ((l && l.extensions) || []).find((e) => e.name === "ArdiaCore spike extension"); return e ? orError(E.call("extensions.setEnabled", { profile: "", id: e.id, enabled: false })) : "no extension"; });`, 60_000);
+        .then((l) => { const e = ((l && l.extensions) || []).find((e) => e.name === "UniVerseCore spike extension"); return e ? orError(E.call("extensions.setEnabled", { profile: "", id: e.id, enabled: false })) : "no extension"; });`, 60_000);
     await sleep(4000);
   }
   report.read = await inApp(READ, 90_000);
@@ -232,7 +232,7 @@ if (phase === "create") {
     "profiles": '["Personal","Work"]', "Personal passwords": '["alice pw-personal-123"]', "Work passwords": '["bob pw-work-456"]',
     "Personal bookmarks": `["Carryover bookmark ${origin}/page2.html"]`, "Work bookmarks": `["Work bookmark ${origin}/work.html"]`,
     "Personal addresses": '["Ada Lovelace, London"]', "Personal notifications": '"allow"', "Personal zoom": '{"127.0.0.1":1.5}',
-    "Personal extensions": '["ArdiaCore spike extension"]',
+    "Personal extensions": '["UniVerseCore spike extension"]',
     "Personal page": '"p_persist=yes; p_session=yes; localStorage yes"', "Work page": '"w_persist=yes; w_session=yes; localStorage yes"',
     "Personal uBlock Origin": '{"filters":"||carryover-ads.example^\\n##.carryover-banner","filtersOn":true,"advancedUser":true,"trusted":["carryover.example"]}',
     "settings": '{"appearance":"dark","sidebarWidth":244,"newTabPosition":"bottom"}',
@@ -253,7 +253,7 @@ const stable = (v) => JSON.stringify(v, (k, x) => (x && typeof x === "object" &&
 const sessionless = (v) => (typeof v === "string" ? v.replace(/\w+_session=yes; /g, "") : v);
 const line = (ok, name, detail) => { console.log(`${ok ? "PASS" : "FAIL"}  carried over: ${name}${detail ? `  (${detail})` : ""}`); if (!ok) failed = true; };
 const expected = path.join(docs, "Chromium");
-if (phase !== "back") line(report.read?.dataDirectory?.replace(/^\/private/, "") === expected.replace(/^\/private/, ""), "the installed copy's folder, found without ARDIA_DATA_DIR", report.read?.dataDirectory);
+if (phase !== "back") line(report.read?.dataDirectory?.replace(/^\/private/, "") === expected.replace(/^\/private/, ""), "the installed copy's folder, found without UNIVERSE_DATA_DIR", report.read?.dataDirectory);
 for (const [key, was] of Object.entries(created)) {
   if (key === "dataDirectory") continue;
   const now = report.read?.[key];

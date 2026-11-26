@@ -51,14 +51,14 @@ class ShareSheetTest {
         val model = model(SharedPage.from("best tapas in lisbon", null), synced, opened)
         assertFalse(model.opensPage)
         assertTrue(model.sendTargets.isEmpty())
-        model.openInArdia()
+        model.openInUniVerse()
         assertEquals(listOf("universe://search?q=best%20tapas%20in%20lisbon"), opened)
     }
 
     @Test
     fun aPageOpensThroughTheOpenLink() {
         val opened = ArrayList<String>()
-        model(SharedPage.from("https://example.com/a?b=1", null), synced, opened).openInArdia()
+        model(SharedPage.from("https://example.com/a?b=1", null), synced, opened).openInUniVerse()
         assertEquals("universe://open?url=https%3A%2F%2Fexample.com%2Fa%3Fb%3D1", opened.single())
     }
 

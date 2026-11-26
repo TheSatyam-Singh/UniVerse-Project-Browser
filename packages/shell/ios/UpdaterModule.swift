@@ -2,7 +2,7 @@ import ExpoModulesCore
 
 public class UpdaterModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaUpdater")
+    Name("UniVerseUpdater")
 
     OnCreate {
       DispatchQueue.main.async { AppUpdater.shared.start() }

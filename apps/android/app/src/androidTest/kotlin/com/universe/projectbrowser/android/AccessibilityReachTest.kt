@@ -29,7 +29,7 @@ class AccessibilityReachTest {
 
     @Test
     fun onboardingsButtonsAreInTheAccessibilityTree() {
-        session = AppTest.launch(mapOf(LaunchArguments.ARDIA_ONBOARDING to true))
+        session = AppTest.launch(mapOf(LaunchArguments.UNIVERSE_ONBOARDING to true))
         AppTest.waitUntil("onboarding on screen") { AppTest.model.settings.isShowingOnboarding }
         expectTapped("Get Started")
         expectReachable("Continue")
@@ -44,7 +44,7 @@ class AccessibilityReachTest {
 
     @Test
     fun theOnboardingCoverHidesTheStartScreenBehindIt() {
-        session = AppTest.launch(mapOf(LaunchArguments.ARDIA_ONBOARDING to true))
+        session = AppTest.launch(mapOf(LaunchArguments.UNIVERSE_ONBOARDING to true))
         AppTest.waitUntil("onboarding on screen") { AppTest.model.settings.isShowingOnboarding }
         expectReachable("Get Started")
         expectHidden(START_SCREEN_LABELS)
@@ -52,7 +52,7 @@ class AccessibilityReachTest {
 
     @Test
     fun anOpenSheetHidesTheScreenBehindItUntilItCloses() {
-        session = AppTest.launch(mapOf(LaunchArguments.ARDIA_RESTING_START to true))
+        session = AppTest.launch(mapOf(LaunchArguments.UNIVERSE_RESTING_START to true))
         AppTest.waitUntil("the start screen") { !AppTest.model.settings.isShowingOnboarding && AppTest.model.surface == AppModel.Surface.Search }
         expectLabelled(START_SCREEN_LABELS)
         AppTest.onMain { AppTest.model.sheet = AppModel.Sheet.Settings }

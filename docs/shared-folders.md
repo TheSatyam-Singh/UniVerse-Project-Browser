@@ -66,7 +66,7 @@ UniVerse Project Browser Shared/
   already running on the unlocked Mac, which `docs/sync.md`'s threat model leaves out. Collaborators only add
   content through iCloud, and what arrives is checked with `lstat` and held. Whether iCloud Drive can deliver a
   collaborator's symbolic link as a real link wasn't tested; if it does, it is held like any other.
-- Every link UniVerse Project Browser writes carries an identity in its webloc (an `ArdiaLink` string next to `URL`; Finder and Safari
+- Every link UniVerse Project Browser writes carries an identity in its webloc (an `UniVerseLink` string next to `URL`; Finder and Safari
   ignore it). Identities are resolved across the whole folder first: a link a collaborator moved into another
   subfolder is a move, so its tab follows and keeps local edits, which are then written at the new path. Within a
   folder a link is matched by identity, then file name, then URL. Subfolders are paired with directories once, for
@@ -128,7 +128,7 @@ Mac adds the shared folder once.
 | --- | --- |
 | Directory read, coordinated writes, placeholders | `packages/sync/ios/Core/SharedFolderDirectory.swift` |
 | FSEvents watcher | `packages/sync/ios/SharedFolderWatcher.swift` |
-| Expo module `ArdiaSharedFolders` (`location`, `read`, `apply`, `create`, `watch`, event `onChange`) | `packages/sync/ios/SharedFoldersModule.swift`, types in `packages/sync/src/sharedFolders.ts` |
+| Expo module `UniVerseSharedFolders` (`location`, `read`, `apply`, `create`, `watch`, event `onChange`) | `packages/sync/ios/SharedFoldersModule.swift`, types in `packages/sync/src/sharedFolders.ts` |
 | JS bindings | `apps/browser/src/platform/sharedFolders.ts` |
 | Webloc format | `apps/browser/src/lib/webloc.ts` |
 | Tree types, file names, order file | `state/sharedFolders/tree.ts` |
@@ -152,7 +152,7 @@ unlistable folders, size caps; `swift test --filter SharedFolderDirectoryTests` 
 
 ## Testing it
 
-`ARDIA_INSTANCE` `sharedFolders=<dir>` sets where shared folders are created and where Add Shared Folder… starts; a
+`UNIVERSE_INSTANCE` `sharedFolders=<dir>` sets where shared folders are created and where Add Shared Folder… starts; a
 scratch data dir without it uses `<data dir>/UniVerse Project Browser Shared`, so a test instance never writes to the real iCloud
 Drive. With `--test appMenu --test appDialog`, menus and confirms take their answers from `menu.json.pick` and
 `dialog.json.pick`, and Add Shared Folder…'s panel answers from `file-chooser.txt`; the share picker is logged to

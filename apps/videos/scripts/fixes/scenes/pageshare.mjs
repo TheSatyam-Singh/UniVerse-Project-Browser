@@ -18,7 +18,7 @@ async function rightClick(instance, x, y) {
 
 export default {
   session: "session-r44-basic.json",
-  env: { ARDIA_TEST: "contextMenu" },
+  env: { UNIVERSE_TEST: "contextMenu" },
   setup: `st().activate("t3"); return sleep(3000).then(() => done({ active: st().windows[W].activeTabIds.default }));`,
   async prepare(instance, side) {
     const page = await instance.page("lexicon");

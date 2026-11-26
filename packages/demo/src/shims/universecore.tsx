@@ -7,18 +7,18 @@ export { devPagerState, pagerState, selectPager, stepPager, SwipeArea, switchPag
 export { WebView } from "./web/WebView";
 
 const ENGINE_ONLY: Record<string, string[]> = {
-  ArdiaHistory: ["query", "add", "import", "deleteUrls", "watch"],
-  ArdiaBookmarks: ["tree", "apply", "watch"],
-  ArdiaFavicons: ["get", "set"],
-  ArdiaTabs: ["lastTabPolicy"],
-  ArdiaEngine: ["batterySaver", "trimMemory", "openTaskManager", "cliControlStatus", "setCliControl", "setCliActiveTab", "cliTabTargets"],
-  ArdiaExtensions: ["watchActions", "syncState", "syncApply"],
-  ArdiaDownloads: ["settings", "setSettings"],
+  UniVerseHistory: ["query", "add", "import", "deleteUrls", "watch"],
+  UniVerseBookmarks: ["tree", "apply", "watch"],
+  UniVerseFavicons: ["get", "set"],
+  UniVerseTabs: ["lastTabPolicy"],
+  UniVerseEngine: ["batterySaver", "trimMemory", "openTaskManager", "cliControlStatus", "setCliControl", "setCliActiveTab", "cliTabTargets"],
+  UniVerseExtensions: ["watchActions", "syncState", "syncApply"],
+  UniVerseDownloads: ["settings", "setSettings"],
 };
 const ANSWERS: Record<string, Record<string, unknown>> = {
-  ArdiaTabs: { strips: { rev: 0, cmd: null, strips: [] } },
-  ArdiaExtensions: { list: { extensions: [] } },
-  ArdiaSearch: { engines: { list: { engines: [] } } },
+  UniVerseTabs: { strips: { rev: 0, cmd: null, strips: [] } },
+  UniVerseExtensions: { list: { extensions: [] } },
+  UniVerseSearch: { engines: { list: { engines: [] } } },
 };
 for (const module of new Set([...Object.keys(ENGINE_ONLY), ...Object.keys(ANSWERS)]))
   provideNativeModule(module, {

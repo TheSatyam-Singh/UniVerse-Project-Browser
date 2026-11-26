@@ -2,7 +2,7 @@ import ExpoModulesCore
 
 public class LocationModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaLocation")
+    Name("UniVerseLocation")
 
     AsyncFunction("locationPermission") { () -> String in
       LocationAccess.shared.status()

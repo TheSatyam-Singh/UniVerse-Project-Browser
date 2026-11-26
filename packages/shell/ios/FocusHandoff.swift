@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 
 final class FocusHandoff {
   static let shared = FocusHandoff()
@@ -67,7 +67,7 @@ final class FocusHandoff {
     if Self.isPage(focused), let input = focused as? NSTextInputClient, input.hasMarkedText() { return nil }
     let gate = existing ?? open(in: window)
     if let page = focused as? NSView, Self.isPage(page) {
-      ArdiaWebView.keepOutgoingFocus(from: page)
+      UniVerseWebView.keepOutgoingFocus(from: page)
       gate.resigned = page
       window.makeFirstResponder(nil)
     }
@@ -286,7 +286,7 @@ final class FocusHandoff {
     if gates[key] === gate { gates[key] = nil }
     gate.watches.forEach { ($0 as? NSKeyValueObservation)?.invalidate() ?? NotificationCenter.default.removeObserver($0) }
     gate.watches = []
-    if let resigned = gate.resigned { ArdiaWebView.endOutgoingFocus(from: resigned) }
+    if let resigned = gate.resigned { UniVerseWebView.endOutgoingFocus(from: resigned) }
   }
 
   private func gate(of id: Int) -> Gate? {

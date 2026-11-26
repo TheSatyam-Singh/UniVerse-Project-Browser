@@ -4,7 +4,7 @@ import ExpoModulesCore
 
 public class OutsidePressAreaModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaOutsidePressArea")
+    Name("UniVerseOutsidePressArea")
 
     View(OutsidePressArea.self) {
       Events("onOutsidePress")

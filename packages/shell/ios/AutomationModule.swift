@@ -3,7 +3,7 @@ import Foundation
 
 public class AutomationModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaAutomation")
+    Name("UniVerseAutomation")
 
     Events("onRequest", "onClose", "onWritten")
 

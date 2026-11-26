@@ -15,9 +15,9 @@ from test_browse_e2e import CLI, DIRECT, FIXTURES, REPO, SERVE, SESSION_JS, free
 
 sys.path.insert(0, str(CLI))
 
-APP = os.environ.get("ARDIA_BROWSE_E2E_APP")
-SCRATCH = Path(os.environ.get("ARDIA_BROWSE_PAGES_E2E_DIR", str(Path.home() / "universe-scratch" / "browse-pages" / "e2e")))
-PORT = int(os.environ.get("ARDIA_BROWSE_PAGES_E2E_PORT") or 0)
+APP = os.environ.get("UNIVERSE_BROWSE_E2E_APP")
+SCRATCH = Path(os.environ.get("UNIVERSE_BROWSE_PAGES_E2E_DIR", str(Path.home() / "universe-scratch" / "browse-pages" / "e2e")))
+PORT = int(os.environ.get("UNIVERSE_BROWSE_PAGES_E2E_PORT") or 0)
 
 
 def fetch_ok(url):
@@ -265,7 +265,7 @@ return names;
         self.assertEqual(self.browse("get", "title", session=session).stdout, "Dock 1 | Fixture Shop\n")
 
 
-@unittest.skipUnless(APP, "set ARDIA_BROWSE_E2E_APP to a built UniVerse-Project-Browser.app (never /Applications) to run the end-to-end test")
+@unittest.skipUnless(APP, "set UNIVERSE_BROWSE_E2E_APP to a built UniVerse-Project-Browser.app (never /Applications) to run the end-to-end test")
 class ReadAndScriptOverPort(PagesChecks, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -304,7 +304,7 @@ class ReadAndScriptOverPort(PagesChecks, unittest.TestCase):
             return json.loads(response.read())["webSocketDebuggerUrl"]
 
 
-@unittest.skipUnless(APP, "set ARDIA_BROWSE_E2E_APP to a built UniVerse-Project-Browser.app (never /Applications) to run the end-to-end test")
+@unittest.skipUnless(APP, "set UNIVERSE_BROWSE_E2E_APP to a built UniVerse-Project-Browser.app (never /Applications) to run the end-to-end test")
 class ReadAndScriptOverToken(PagesChecks, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
@@ -317,12 +317,12 @@ class ReadAndScriptOverToken(PagesChecks, unittest.TestCase):
         subprocess.run(["node", "-e", SESSION_JS, str(cls.data)], cwd=REPO, check=True, timeout=30)
         cls.serve_fixtures()
         log = str(cls.data / "app.out.log")
-        subprocess.run(["open", "-g", "-n", "--env", "ARDIA_BACKGROUND=1", "--env", f"ARDIA_DATA_DIR={cls.data}", "--stdout", log, "--stderr", log, APP],
+        subprocess.run(["open", "-g", "-n", "--env", "UNIVERSE_BACKGROUND=1", "--env", f"UNIVERSE_DATA_DIR={cls.data}", "--stdout", log, "--stderr", log, APP],
                        check=True, timeout=30)
-        control = cls.data / "Chromium" / "ArdiaControl.json"
+        control = cls.data / "Chromium" / "UniVerseControl.json"
         cls.pid = None
         try:
-            wait_for(control.exists, 60, "ArdiaControl.json")
+            wait_for(control.exists, 60, "UniVerseControl.json")
             cls.pid = json.loads(control.read_text())["pid"]
             wait_for(lambda: fetch_ok(f"http://127.0.0.1:{cls.http_port}/listing.html"), 10, "the fixture server")
         except BaseException:

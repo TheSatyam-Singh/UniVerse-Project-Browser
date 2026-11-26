@@ -1,5 +1,5 @@
-import ArdiaDesign
-import ArdiaSync
+import UniVerseDesign
+import UniVerseSync
 import SwiftUI
 
 struct RecoveryPhraseEntryPage: View {

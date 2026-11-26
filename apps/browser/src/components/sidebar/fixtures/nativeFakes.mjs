@@ -7,7 +7,7 @@ const withEscape = (module) => module && { ...module, setDragEscapeCapture: reco
 
 globalThis.acTestNativeModules = {
   ...globalThis.acTestNativeModules,
-  ArdiaWindows: { ...universeCoreNativeModules.ArdiaWindows, ...shellNativeModules.ArdiaWindows },
-  ...(shellNativeModules.ArdiaFocus ? { ArdiaFocus: withEscape(shellNativeModules.ArdiaFocus) } : {}),
-  ArdiaShell: shellNativeModules.ArdiaShell.setDragEscapeCapture ? withEscape(shellNativeModules.ArdiaShell) : shellNativeModules.ArdiaShell,
+  UniVerseWindows: { ...universeCoreNativeModules.UniVerseWindows, ...shellNativeModules.UniVerseWindows },
+  ...(shellNativeModules.UniVerseFocus ? { UniVerseFocus: withEscape(shellNativeModules.UniVerseFocus) } : {}),
+  UniVerseShell: shellNativeModules.UniVerseShell.setDragEscapeCapture ? withEscape(shellNativeModules.UniVerseShell) : shellNativeModules.UniVerseShell,
 };

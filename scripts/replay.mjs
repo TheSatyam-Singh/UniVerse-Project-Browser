@@ -64,7 +64,7 @@ if (chunks.length === 0) {
 chunks.sort((a, b) => a.seq - b.seq);
 const events = chunks.flatMap((c) => c.events).sort((a, b) => a.timestamp - b.timestamp);
 
-const cache = join(homedir(), ".cache/ardia/rrweb-player", PLAYER_VERSION);
+const cache = join(homedir(), ".cache/universe/rrweb-player", PLAYER_VERSION);
 mkdirSync(cache, { recursive: true });
 const asset = async (path) => {
   const file = join(cache, path.replaceAll("/", "_"));

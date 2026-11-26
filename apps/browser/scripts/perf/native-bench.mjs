@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Native performance benchmark: launch, idle cost, memory, tab/window latency and background throttling of a
-// Release build, driven in hidden instances (ARDIA_BACKGROUND=1, a throwaway ARDIA_DATA_DIR each run).
+// Release build, driven in hidden instances (UNIVERSE_BACKGROUND=1, a throwaway UNIVERSE_DATA_DIR each run).
 //
 // Gate recipe, what each row means and which rows don't compare across engines: docs/perf/README.md.
 //
@@ -43,7 +43,7 @@
 //                               sample     main-thread `sample`s, idle and while switching and scrolling
 //                               prepare    prepare the app copies and exit (see --prepared)
 //     --env K=V               repeatable: extra environment for every instance (DYLD_INSERT_LIBRARIES is appended to
-//                             the marker library). Instances stay muted; don't pass ARDIA_INSTANCE allowAudio.
+//                             the marker library). Instances stay muted; don't pass UNIVERSE_INSTANCE allowAudio.
 //     --frames-n <n>          repetitions of each interaction per run in frames (default 8; framecounts uses at most 3)
 //     --frames-only <regex>   frames, framecounts: only the interactions whose name matches (case-insensitive)
 //     --frames-sample         frames: `sample` the app over the first repetition of each interaction (<out>/frames-sample/*.txt)
@@ -88,7 +88,7 @@
 // Rows: the function that measures each, and what it waits on. Launch rows count from just before `open`; command rows
 // from Date.now() in the app's JS as the command starts (ac.now()).
 //   launch → window shown                   launchRun   acperf waitwindow: the pid's first on-screen window ≥ 300×200
-//                                                        with alpha > 0 (CEF builds show it empty, ArdiaCore with content)
+//                                                        with alpha > 0 (CEF builds show it empty, UniVerseCore with content)
 //   launch → window shown with its content  launchRun   the later of that and acmark's commit of the Core Animation
 //                                                        transaction carrying the first React root's content
 //   launch → JS running                     launchRun   bench-boot.json, written as bench-channel.js loads (after the
@@ -114,7 +114,7 @@
 //   new window → on screen with its content newWindow   the later of that and acmark's commit for that window
 //   new window → first paint / first frame  newWindow   the window's page's FCP / first rAF
 //   ⌘T → …, keystroke → suggestions         journeyRun  newtabkey: acperf postkeys (CGEventPostToPid into this pid) → the app's field timing
-//                                                        (journeys.ts + ArdiaFieldTiming.mm; sharing on in the bench's data folder,
+//                                                        (journeys.ts + UniVerseFieldTiming.mm; sharing on in the bench's data folder,
 //                                                        every non-local fetch answered by bench-offline.js so nothing is uploaded)
 //   Enter → engine asked / started / committed / first contentful paint
 //                                           journeyRun  navigate: the same, from a real Enter; also the page's own FCP over CDP
@@ -419,11 +419,11 @@ class Instance {
     const main = `^${exe.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}( |$)`;
     if (spawnSync("pgrep", ["-f", main]).status === 0) throw new Error("a bench instance is still running");
     const extra = [...opt.env, ...this.env].filter((e) => !e.startsWith("DYLD_INSERT_LIBRARIES="));
-    writeSwitches(this.dataDir, extra.find((e) => e.startsWith("ARDIA_SWITCHES="))?.slice(19));
+    writeSwitches(this.dataDir, extra.find((e) => e.startsWith("UNIVERSE_SWITCHES="))?.slice(19));
     const dyld = [markerLibrary(), ...(this.frames ? [framesLibrary(toolDir, here)] : []), ...opt.env.filter((e) => e.startsWith("DYLD_INSERT_LIBRARIES=")).map((e) => e.slice(22))].join(":");
     this.t0 = Date.now();
     const env = appEnv(this.app, mergeLaunchEnv({
-      ARDIA_BACKGROUND: "1", ARDIA_DATA_DIR: this.dataDir, ARDIA_REMOTE_DEBUGGING_PORT: String(this.port),
+      UNIVERSE_BACKGROUND: "1", UNIVERSE_DATA_DIR: this.dataDir, UNIVERSE_REMOTE_DEBUGGING_PORT: String(this.port),
       ...launchVariables({ instance: { updateFeed: this.feed } }), DYLD_INSERT_LIBRARIES: dyld,
     }, ...extra.map((e) => ({ [e.slice(0, e.indexOf("="))]: e.slice(e.indexOf("=") + 1) }))));
     execFileSync("open", ["-g", "-n", ...Object.entries(env).flatMap(([k, v]) => ["--env", `${k}=${v}`]), this.app,
@@ -577,7 +577,7 @@ async function launchRun(side, i) {
   const app = new Instance(copy ? { ...side, app: join(copy, "UniVerse-Project-Browser.app") } : side, freshDir(side, `launch-${i}`));
   const traceFile = join(app.dataDir, "startup-trace.json");
   if (opt["trace-startup"]) {
-    app.env.push(`ARDIA_INSTANCE=chromiumSwitches=--trace-startup=${opt["trace-startup"]} --trace-startup-file=${traceFile} --trace-startup-duration=4 --trace-startup-format=json`);
+    app.env.push(`UNIVERSE_INSTANCE=chromiumSwitches=--trace-startup=${opt["trace-startup"]} --trace-startup-file=${traceFile} --trace-startup-duration=4 --trace-startup-format=json`);
   }
   try {
     await app.launch();

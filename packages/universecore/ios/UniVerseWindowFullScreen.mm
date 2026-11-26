@@ -1,0 +1,575 @@
+#import "UniVerseChromeWindowInternal.h"
+#import "UniVerseLaunchConfig.h"
+#import "UniVerseWebView.h"
+#import "UniVerseWebViewInternal.h"
+#import "UniVerseWindowSightMath.h"
+
+#import <QuartzCore/QuartzCore.h>
+#import <objc/runtime.h>
+
+#include <cmath>
+
+using namespace universe_window;
+
+namespace universe_window {
+
+const void *kActedFullScreenKey = &kActedFullScreenKey;
+
+const void *kWindowFullScreenKey = &kWindowFullScreenKey;
+
+BOOL IsWindowFullScreen(NSWindow *window) {
+  return window && ((window.styleMask & NSWindowStyleMaskFullScreen) || objc_getAssociatedObject(window, kActedFullScreenKey));
+}
+
+}
+
+namespace {
+
+const void *kActingKey = &kActingKey;
+
+const void *kActedOcclusionKey = &kActedOcclusionKey;
+
+const void *kActedWindowServerKey = &kActedWindowServerKey;
+
+}
+
+namespace universe_window {
+
+void ActOcclusion(NSWindow *window, NSNumber *visible) {
+  static dispatch_once_t once;
+  dispatch_once(&once, ^{
+    Method m = class_getInstanceMethod(NSWindow.class, @selector(occlusionState));
+    auto original = (NSWindowOcclusionState(*)(id, SEL))method_getImplementation(m);
+    method_setImplementation(m, imp_implementationWithBlock(^NSWindowOcclusionState(NSWindow *w) {
+      NSNumber *acted = objc_getAssociatedObject(w, kActedOcclusionKey);
+      return acted ? (acted.boolValue ? NSWindowOcclusionStateVisible : 0) : original(w, @selector(occlusionState));
+    }));
+  });
+  objc_setAssociatedObject(window, kActedOcclusionKey, visible, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  if ([UniVerseLaunchConfig.shared traced:@"visibility"]) NSLog(@"[universecore-vis] window %ld acted occlusion %@", (long)window.windowNumber, visible ?: @"off");
+  [NSNotificationCenter.defaultCenter postNotificationName:NSWindowDidChangeOcclusionStateNotification object:window];
+}
+
+void ActWindowServer(NSWindow *window, BOOL shows) {
+  objc_setAssociatedObject(window, kActedWindowServerKey, shows ? @YES : nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+NSTimeInterval gActedOcclusionGap = NAN;
+
+}
+
+namespace {
+
+const void *kActedOcclusionTurnKey = &kActedOcclusionTurnKey;
+
+const void *kActedRestoreFrameKey = &kActedRestoreFrameKey;
+
+}
+
+namespace universe_window {
+
+void ActWindowFullScreen(UniVerseCoreWindow *coreWindow, BOOL enter, NSTimeInterval seconds) {
+  NSWindow *window = coreWindow.window;
+  if (!window || objc_getAssociatedObject(window, kActingKey)) return;
+  __weak NSWindow *weakWindow = window;
+  __weak UniVerseCoreWindow *weakCore = coreWindow;
+  void (^set)(BOOL) = ^(BOOL on) {
+    if (NSWindow *w = weakWindow) objc_setAssociatedObject(w, kActedFullScreenKey, on ? @YES : nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    UniVerseCoreWindow *c = weakCore;
+    c.actedFullScreen = on;
+  };
+  NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
+  const BOOL trace = [UniVerseLaunchConfig.shared traced:@"visibility"];
+  if (trace) NSLog(@"[universecore-vis] window %ld acted %@", (long)window.windowNumber, enter ? @"willEnterFullScreen" : @"willExitFullScreen");
+  [center postNotificationName:enter ? NSWindowWillEnterFullScreenNotification : NSWindowWillExitFullScreenNotification object:window];
+  if (enter) set(YES);
+  if (enter) {
+    objc_setAssociatedObject(window, kActedRestoreFrameKey, [NSValue valueWithRect:window.frame], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    if (NSScreen *screen = window.screen ?: NSScreen.mainScreen) [window setFrame:screen.frame display:YES];
+  } else if (NSValue *restore = objc_getAssociatedObject(window, kActedRestoreFrameKey)) {
+    objc_setAssociatedObject(window, kActedRestoreFrameKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    [window setFrame:restore.rectValue display:YES];
+  }
+  objc_setAssociatedObject(window, kActingKey, @YES, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  const NSTimeInterval gap = gActedOcclusionGap;
+  if (!isnan(gap)) {
+    NSObject *turn = [NSObject new];
+    objc_setAssociatedObject(window, kActedOcclusionTurnKey, turn, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    ActOcclusion(window, @NO);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MAX(0, seconds + gap) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+      NSWindow *w = weakWindow;
+      if (w && objc_getAssociatedObject(w, kActedOcclusionTurnKey) == turn) ActOcclusion(w, @YES);
+    });
+  }
+  void (^finish)(void) = ^{
+    NSWindow *w = weakWindow;
+    if (!w) return;
+    objc_setAssociatedObject(w, kActingKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    if (!enter) set(NO);
+    if (trace) NSLog(@"[universecore-vis] window %ld acted %@", (long)w.windowNumber, enter ? @"didEnterFullScreen" : @"didExitFullScreen");
+    [center postNotificationName:enter ? NSWindowDidEnterFullScreenNotification : NSWindowDidExitFullScreenNotification object:w];
+  };
+  if (seconds > 0) dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(seconds * NSEC_PER_SEC)), dispatch_get_main_queue(), finish);
+  else finish();
+}
+
+NSTimeInterval gActedTransition = [UniVerseLaunchConfig.shared testValue:@"fakeFullScreenMs"].doubleValue / 1000;
+
+}
+
+namespace {
+
+void ToggleWindowFullScreen(UniVerseCoreWindow *coreWindow) {
+  NSWindow *window = coreWindow.window;
+  if (!universe_host::Background()) return [window toggleFullScreen:nil];
+  const BOOL enter = !IsWindowFullScreen(window);
+  universe_host::LogActivation(enter ? @"toggleFullScreen: (page full screen; acted out)" : @"toggleFullScreen: (page left full screen; acted out)");
+  ActWindowFullScreen(coreWindow, enter, gActedTransition);
+}
+}
+
+NSNotificationName const UniVerseWindowSeenDidChange = @"UniVerseWindowSeenDidChange";
+NSString *const UniVerseWindowSeenLeftAppKey = @"leftApp";
+
+namespace {
+
+const NSTimeInterval kWindowServerRecheck = 1;
+
+universe_window_sight::Rect SightRect(CGRect r) { return {r.origin.x, r.origin.y, r.size.width, r.size.height}; }
+
+BOOL WindowServerShows(NSWindow *window) {
+  if (!window.visible || window.miniaturized) return NO;
+  if (objc_getAssociatedObject(window, kActedOcclusionKey)) return objc_getAssociatedObject(window, kActedWindowServerKey) != nil;
+  const CGWindowID number = (CGWindowID)window.windowNumber;
+  NSArray<NSDictionary *> *above = CFBridgingRelease(CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenAboveWindow | kCGWindowListOptionIncludingWindow, number));
+  CGRect mine = CGRectNull;
+  std::vector<universe_window_sight::Rect> covers;
+  for (NSDictionary *info in above) {
+    CGRect bounds;
+    if (!CGRectMakeWithDictionaryRepresentation((__bridge CFDictionaryRef)info[(id)kCGWindowBounds], &bounds)) continue;
+    if ([info[(id)kCGWindowNumber] unsignedIntValue] == number) {
+      if (![info[(id)kCGWindowIsOnscreen] boolValue]) return NO;
+      mine = bounds;
+      continue;
+    }
+    if (!universe_window_sight::CountsAsCover([info[(id)kCGWindowLayer] intValue], [info[(id)kCGWindowAlpha] doubleValue])) continue;
+    covers.push_back(SightRect(bounds));
+  }
+  if (CGRectIsNull(mine)) return NO;
+  uint32_t count = 0;
+  CGDirectDisplayID ids[32];
+  if (CGGetActiveDisplayList(32, ids, &count) != kCGErrorSuccess) return NO;
+  std::vector<universe_window_sight::Rect> displays;
+  for (uint32_t i = 0; i < count; i++)
+    if (!CGDisplayIsAsleep(ids[i])) displays.push_back(SightRect(CGDisplayBounds(ids[i])));
+  return universe_window_sight::PartlyVisible(SightRect(mine), covers, displays);
+}
+
+}
+
+namespace universe_window {
+
+NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
+  static NSMapTable *changes = [NSMapTable weakToStrongObjectsMapTable];
+  return changes;
+}
+}
+
+@implementation UniVerseWindowFullScreen {
+  __weak UniVerseCoreWindow *_coreWindow;
+  __weak UniVerseCoreTab *_tab;
+  BOOL _entered;
+  NSInteger _asked;
+  BOOL _transitioning;
+  BOOL _ours;
+  BOOL _settling;
+  BOOL _seen;
+  BOOL _closed;
+  NSArray *_observers;
+  __weak UniVerseCoreTab *_leftTab;
+  NSInteger _waitingFor;
+  NSUInteger _wait;
+  BOOL _askedWait;
+  BOOL _drew;
+  NSInteger _telling;
+  NSArray<UniVersePageCover *> *_covers;
+  __weak UniVerseCoreTab *_lastTab;
+  NSUInteger _coverTurn;
+  BOOL _picturing;
+  BOOL _overruled;
+  BOOL _overruleChanged;
+  BOOL _watchingWindowServer;
+  BOOL _leftApp;
+}
+
++ (instancetype)ofWindow:(UniVerseCoreWindow *)coreWindow create:(BOOL)create {
+  NSWindow *window = coreWindow.window;
+  if (!window) return nil;
+  UniVerseWindowFullScreen *state = objc_getAssociatedObject(window, kWindowFullScreenKey);
+  if (state || !create) return state;
+  state = [[UniVerseWindowFullScreen alloc] initWithCoreWindow:coreWindow];
+  objc_setAssociatedObject(window, kWindowFullScreenKey, state, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  return state;
+}
+
+- (instancetype)initWithCoreWindow:(UniVerseCoreWindow *)coreWindow {
+  if ((self = [super init])) {
+    _coreWindow = coreWindow;
+    _seen = YES;
+    __weak UniVerseWindowFullScreen *weakSelf = self;
+    NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
+    NSMutableArray *observers = [NSMutableArray array];
+    for (NSNotificationName name in @[
+           NSWindowWillEnterFullScreenNotification, NSWindowWillExitFullScreenNotification, NSWindowDidEnterFullScreenNotification,
+           NSWindowDidExitFullScreenNotification, NSWindowDidChangeOcclusionStateNotification, NSWindowWillCloseNotification
+         ]) {
+      [observers addObject:[center addObserverForName:name
+                                               object:coreWindow.window
+                                                queue:nil
+                                           usingBlock:^(NSNotification *note) {
+                                             [weakSelf windowDid:note.name];
+                                           }]];
+    }
+    [observers addObject:[center addObserverForName:NSApplicationDidResignActiveNotification object:nil queue:nil usingBlock:^(NSNotification *) {
+                 [weakSelf appActivated:NO];
+               }]];
+    [observers addObject:[center addObserverForName:NSApplicationDidBecomeActiveNotification object:nil queue:nil usingBlock:^(NSNotification *) {
+                 [weakSelf appActivated:YES];
+               }]];
+    _observers = observers;
+  }
+  return self;
+}
+
+- (void)appActivated:(BOOL)active {
+  if (_closed) return;
+  _leftApp = !active;
+  [self updateSeen];
+  _leftApp = NO;
+}
+
+- (void)dealloc {
+  for (id observer in _observers) [NSNotificationCenter.defaultCenter removeObserver:observer];
+}
+
+- (BOOL)occlusionActed {
+  return universe_host::Background() && (![UniVerseLaunchConfig.shared instanceFlag:@"allowOcclusion"] || objc_getAssociatedObject(_coreWindow.window, kActedOcclusionKey));
+}
+
+- (BOOL)windowVisible {
+  NSWindow *window = _coreWindow.window;
+  if (!window) return NO;
+  if ([self occlusionActed] && !objc_getAssociatedObject(window, kActedOcclusionKey)) return YES;
+  const BOOL appKitShows = (window.occlusionState & NSWindowOcclusionStateVisible) != 0;
+  const BOOL inactive = !NSApp.isActive;
+  const BOOL windowServerShows = (inactive || !appKitShows) && WindowServerShows(window);
+  const BOOL overruled = !appKitShows && windowServerShows;
+  if (overruled != _overruled) {
+    _overruled = overruled;
+    _overruleChanged = YES;
+    if ([UniVerseLaunchConfig.shared traced:@"visibility"])
+      NSLog(@"[universecore-vis] window %ld AppKit occlusion %@ by the window server", (long)window.windowNumber, overruled ? @"overruled" : @"trusted");
+  }
+  if ([self wantsWindowServer]) [self watchWindowServer];
+  return inactive ? windowServerShows : appKitShows || overruled;
+}
+
+- (BOOL)wantsWindowServer {
+  NSWindow *window = _coreWindow.window;
+  if (!window || _closed) return NO;
+  if ([self occlusionActed] && !objc_getAssociatedObject(window, kActedOcclusionKey)) return NO;
+  if (NSApp.isActive && (window.occlusionState & NSWindowOcclusionStateVisible) != 0) return NO;
+  return [UniVerseWebView playsForAutoPictureInPictureInWindow:window];
+}
+
+- (void)reconsiderSight {
+  if (!_closed) [self updateSeen];
+}
+
+- (void)watchWindowServer {
+  if (_watchingWindowServer || _closed) return;
+  _watchingWindowServer = YES;
+  __weak UniVerseWindowFullScreen *weakSelf = self;
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kWindowServerRecheck * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    UniVerseWindowFullScreen *state = weakSelf;
+    if (!state) return;
+    state->_watchingWindowServer = NO;
+    if (![state wantsWindowServer]) return;
+    [state updateSeen];
+    [state watchWindowServer];
+  });
+}
+
+- (BOOL)seenOnlyByWindowServer {
+  return _seen && _overruled;
+}
+
+- (void)windowDid:(NSNotificationName)name {
+  if ([name isEqualToString:NSWindowWillCloseNotification]) {
+    _closed = YES;
+    for (UniVersePageCover *cover in _covers) [cover uncover:NO];
+    _covers = nil;
+    return;
+  }
+  const BOOL will = [name isEqualToString:NSWindowWillEnterFullScreenNotification] || [name isEqualToString:NSWindowWillExitFullScreenNotification];
+  const BOOL did = [name isEqualToString:NSWindowDidEnterFullScreenNotification] || [name isEqualToString:NSWindowDidExitFullScreenNotification];
+  const BOOL entering = [name isEqualToString:NSWindowWillEnterFullScreenNotification] || [name isEqualToString:NSWindowDidEnterFullScreenNotification];
+  if (will) {
+    _transitioning = _settling = YES;
+    _ours = _asked == (entering ? 1 : -1);
+    _asked = 0;
+    for (UniVersePageCover *cover in _covers) [cover repicture];
+  }
+  if (did) _transitioning = NO;
+  if (!_transitioning && [self windowVisible]) _settling = NO;
+  [self updateSeen];
+  if (!did) return;
+  [self uncoverWhenDrawn];
+  const BOOL ours = _ours;
+  _ours = NO;
+  __weak UniVerseWindowFullScreen *weakSelf = self;
+  dispatch_async(dispatch_get_main_queue(), ^{ [weakSelf settled:entering ours:ours]; });
+}
+
+- (void)updateSeen {
+  if (![self occlusionActed] && [CFBridgingRelease(CGSessionCopyCurrentDictionary())[@"CGSSessionScreenIsLocked"] boolValue]) return;
+  if (_settling && !_transitioning && [self windowVisible]) _settling = NO;
+  const BOOL seen = _settling || [self windowVisible] || (NSApp.isActive && IsWindowFullScreen(_coreWindow.window));
+  if ([UniVerseLaunchConfig.shared traced:@"visibility"])
+    NSLog(@"[universecore-vis] window %ld seen=%d (transitioning=%d settling=%d)", (long)_coreWindow.window.windowNumber, seen, _transitioning, _settling);
+  const BOOL overruleChanged = _overruleChanged;
+  _overruleChanged = NO;
+  if (seen == _seen && !overruleChanged && !_leftApp) return;
+  _seen = seen;
+  if (NSWindow *window = _coreWindow.window)
+    [NSNotificationCenter.defaultCenter postNotificationName:UniVerseWindowSeenDidChange object:window userInfo:_leftApp ? @{UniVerseWindowSeenLeftAppKey : @YES} : nil];
+}
+
+- (BOOL)seen {
+  return _seen;
+}
+
+- (void)settled:(BOOL)entered ours:(BOOL)ours {
+  if (!entered && !ours) {
+    _entered = NO;
+    UniVerseCoreTab *tab = _tab;
+    if (tab) return [tab exitFullscreen];
+  }
+  [self sync];
+}
+
+- (void)tab:(UniVerseCoreTab *)tab fullScreen:(BOOL)fullScreen tell:(void (^)(void))tell {
+  const NSUInteger change = [FullScreenChanges() objectForKey:tab].unsignedIntegerValue;
+  _waitingFor = 0;
+  _coverTurn++;
+  _picturing = NO;
+  if (fullScreen) {
+    _tab = _lastTab = tab;
+  } else if (_tab == tab || !_tab) {
+    if (_tab) _leftTab = _tab;
+    _tab = nil;
+  }
+  _telling++;
+  __weak UniVerseWindowFullScreen *weakSelf = self;
+  __weak UniVerseCoreTab *weakTab = tab;
+  [UniVersePageDrawWait tab:tab
+                draws:^NSInteger(BOOL drawnFullScreen, BOOL) {
+                  if (fullScreen) return drawnFullScreen ? 1 : 0;
+                  return drawnFullScreen ? -1 : 1;
+                }
+                 then:^{
+                   UniVerseWindowFullScreen *me = weakSelf;
+                   if (me) me->_telling--;
+                   UniVerseCoreTab *t = weakTab;
+                   if (t && [FullScreenChanges() objectForKey:t].unsignedIntegerValue == change) tell();
+                   [me sync];
+                 }];
+}
+
+- (void)sync {
+  UniVerseCoreWindow *coreWindow = _coreWindow;
+  NSWindow *window = coreWindow.window;
+  if (!window || _closed || _transitioning) return;
+  const BOOL full = IsWindowFullScreen(window), page = _tab != nil;
+  const NSInteger toggle = page && !full && !_entered ? 1 : !page && full && _entered ? -1 : 0;
+  if (toggle != _waitingFor) {
+    _waitingFor = toggle;
+    _drew = _askedWait = NO;
+    _wait++;
+  }
+  if (toggle == 1) {
+    if (_telling > 0 || _picturing || ![self pageDrew:_tab entering:YES]) return;
+    [self coverThenToggle:_tab entering:YES];
+  } else if (toggle == -1) {
+    if (_telling > 0 || _picturing || ![self pageDrew:_leftTab entering:NO]) return;
+    [self coverThenToggle:_leftTab entering:NO];
+  } else if (!page) {
+    _entered = NO;
+  }
+}
+
+- (NSArray<UniVerseCoreTab *> *)shownTabs:(UniVerseCoreTab *)tab entering:(BOOL)entering {
+  UniVerseCoreWindow *coreWindow = _coreWindow;
+  NSWindow *window = coreWindow.window;
+  NSMutableArray<UniVerseCoreTab *> *tabs = [NSMutableArray array];
+  if (tab) [tabs addObject:tab];
+  if (entering || !coreWindow.activeProfile) return tabs;
+  for (UniVerseCoreTab *other in [coreWindow tabsForProfile:coreWindow.activeProfile]) {
+    NSView *page = other.view;
+    UniVerseWebView *view = [UniVerseTabRegistry viewForTab:other];
+    if (other == tab || page.window != window || page.isHiddenOrHasHiddenAncestor || !view || view.alphaValue < 0.5) continue;
+    [tabs addObject:other];
+  }
+  return tabs;
+}
+
+- (void)coverThenToggle:(UniVerseCoreTab *)tab entering:(BOOL)entering {
+  _picturing = YES;
+  const NSUInteger turn = ++_coverTurn;
+  __weak UniVerseWindowFullScreen *weakSelf = self;
+  [UniVersePageCover coverTabs:[self shownTabs:tab entering:entering]
+                    then:^(NSArray<UniVersePageCover *> *covers) {
+                      UniVerseWindowFullScreen *me = weakSelf;
+                      if (!me || me->_coverTurn != turn) {
+                        for (UniVersePageCover *cover in covers) [cover uncover:NO];
+                        return;
+                      }
+                      me->_picturing = NO;
+                      for (UniVersePageCover *cover in me->_covers) [cover uncover:NO];
+                      me->_covers = covers;
+                      [me toggle:entering];
+                    }];
+}
+
+- (void)toggle:(BOOL)entering {
+  UniVerseCoreWindow *coreWindow = _coreWindow;
+  NSWindow *window = coreWindow.window;
+  const BOOL wanted = window && !_closed && !_transitioning && IsWindowFullScreen(window) != entering &&
+                      (entering ? _tab && !_entered : !_tab && _entered);
+  if (!wanted) {
+    for (UniVersePageCover *cover in _covers) [cover uncover:NO];
+    _covers = nil;
+    return [self sync];
+  }
+  _entered = entering;
+  _asked = entering ? 1 : -1;
+  if (!entering) _leftTab = nil;
+  [CATransaction flush];
+  ToggleWindowFullScreen(coreWindow);
+  NSArray *covers = _covers;
+  if (!covers.count) return;
+  __weak UniVerseWindowFullScreen *weakSelf = self;
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    UniVerseWindowFullScreen *me = weakSelf;
+    if (me && me->_covers == covers && !me->_transitioning) [me uncoverWhenDrawn];
+  });
+}
+
+- (UniVerseCoreTab *)probedTab {
+  return _tab ?: _leftTab ?: _lastTab;
+}
+
+- (NSInteger)covers {
+  NSInteger covers = 0;
+  NSMutableArray<NSView *> *views = [NSMutableArray arrayWithObject:_coreWindow.window.contentView ?: [NSView new]];
+  while (views.count) {
+    NSView *view = views.lastObject;
+    [views removeLastObject];
+    if ([view isKindOfClass:UniVersePageCover.class]) covers++;
+    [views addObjectsFromArray:view.subviews];
+  }
+  return covers;
+}
+
+- (BOOL)covered {
+  return self.covers > 0;
+}
+
+- (BOOL)transitioning {
+  return _transitioning;
+}
+
+- (BOOL)pageFullScreen {
+  return _tab != nil;
+}
+
+- (BOOL)enteredForPage {
+  return _entered;
+}
+
+- (void)uncoverWhenDrawn {
+  NSArray<UniVersePageCover *> *covers = _covers;
+  _covers = nil;
+  for (UniVersePageCover *cover in covers) {
+    UniVerseCoreTab *tab = cover.tab;
+    if (!tab) {
+      [cover uncover:NO];
+      continue;
+    }
+    [UniVersePageDrawWait tab:tab
+                  draws:^NSInteger(BOOL, BOOL) { return 1; }
+                   then:^{
+                     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.034 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                       [cover uncover:YES];
+                     });
+                   }];
+  }
+}
+
+- (BOOL)pageDrew:(UniVerseCoreTab *)tab entering:(BOOL)entering {
+  if (_drew) {
+    _drew = _askedWait = NO;
+    _waitingFor = 0;
+    _wait++;
+    return YES;
+  }
+  if (_askedWait) return NO;
+  _askedWait = YES;
+  const NSUInteger wait = _wait;
+  __weak UniVerseWindowFullScreen *weakSelf = self;
+  __block BOOL now = YES;
+  [UniVersePageDrawWait tab:tab
+                draws:^NSInteger(BOOL fullScreen, BOOL fills) { return fullScreen == entering && fills == entering; }
+                 then:^{
+                   UniVerseWindowFullScreen *me = weakSelf;
+                   if (!me || me->_wait != wait) return;
+                   me->_drew = YES;
+                   if (!now) [me sync];
+                 }];
+  now = NO;
+  if (!_drew) return NO;
+  _drew = _askedWait = NO;
+  _waitingFor = 0;
+  _wait++;
+  return YES;
+}
+
+- (NSDictionary *)state {
+  NSWindow *window = _coreWindow.window;
+  UniVerseCoreTab *tab = _tab;
+  return @{
+    @"page" : tab ? @(universe_host::BrowserId(tab)) : NSNull.null,
+    @"entered" : @(_entered),
+    @"asked" : @(_asked),
+    @"waitingForPage" : @(_waitingFor),
+    @"telling" : @(_telling),
+    @"picturing" : @(_picturing),
+    @"covered" : @([self covered]),
+    @"transitioning" : @(_transitioning),
+    @"ours" : @(_ours),
+    @"settling" : @(_settling),
+    @"seen" : @(_seen),
+    @"fullScreen" : @(IsWindowFullScreen(window)),
+  };
+}
+
+@end
+
+namespace universe_host {
+
+void ActToggleFullScreen(NSWindow *window) {
+  LogActivation(@"toggleFullScreen: (acted out)");
+  if (UniVerseCoreWindow *coreWindow = [UniVerseWindowController forNSWindow:window].coreWindow)
+    ActWindowFullScreen(coreWindow, !IsWindowFullScreen(window), gActedTransition);
+}
+}

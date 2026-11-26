@@ -59,7 +59,7 @@ class SystemDownloadsTest {
         fileName = fileName,
         mimeType = null,
         contentLength = -1,
-        userAgent = "ArdiaTest",
+        userAgent = "UniVerseTest",
         contentDisposition = null,
         referer = null,
         isPrivate = isPrivate,
@@ -88,7 +88,7 @@ class SystemDownloadsTest {
         assertEquals("session=secret", first.headers["cookie"])
         assertEquals("localhost:${server.port}", second.headers["host"])
         assertNull(second.headers["cookie"])
-        assertEquals("ArdiaTest", second.headers["user-agent"])
+        assertEquals("UniVerseTest", second.headers["user-agent"])
     }
 
     @Test

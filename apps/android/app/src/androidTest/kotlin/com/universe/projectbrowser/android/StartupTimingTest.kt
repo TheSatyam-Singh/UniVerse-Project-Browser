@@ -19,7 +19,7 @@ class StartupTimingTest {
         Log.i(StartupTiming.TAG, "baseline: first frame ${frame.sinceActivityCreatedMillis} ms after activity created")
         assertTrue("first frame took ${frame.sinceActivityCreatedMillis} ms", frame.sinceActivityCreatedMillis in 1 until FIRST_FRAME_BUDGET_MILLIS)
         val log = AppTest.shell("logcat -d -s ${StartupTiming.TAG}:I")
-        assertTrue("the ArdiaTiming log has no first frame line:\n$log", log.contains("first frame"))
+        assertTrue("the UniVerseTiming log has no first frame line:\n$log", log.contains("first frame"))
         scenario.close()
         AppTest.freshModel()
     }

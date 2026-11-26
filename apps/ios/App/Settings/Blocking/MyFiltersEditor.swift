@@ -1,5 +1,5 @@
-import ArdiaBrowser
-import ArdiaDesign
+import UniVerseBrowser
+import UniVerseDesign
 import SwiftUI
 
 struct MyFiltersEditor: View {

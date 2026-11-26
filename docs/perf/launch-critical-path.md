@@ -34,13 +34,13 @@ by the sprint's launch agent; companion to [sprint-baseline.md](sprint-baseline.
 
 - `scratchpad/sprint/launch/probe.mjs` (not committed; it lives in the sprint scratch folder) launches a copy of the
   0.2.27 export re-signed so it can load `launchmark.dylib` (`DYLD_INSERT_LIBRARIES`), hidden (`open -g -n`,
-  `ARDIA_BACKGROUND=1`, own data dir and DevTools port), one instance at a time under the perflab lock. Every
+  `UNIVERSE_BACKGROUND=1`, own data dir and DevTools port), one instance at a time under the perflab lock. Every
   time below counts from the kernel's process start time (`p_starttime`).
 - `launchmark.dylib` writes epoch-ms marks: its constructor (dyld done), `NSApplicationWillFinishLaunching`, the main
   run loop's first entry, React Native's `RCTJavaScriptWillStartLoading`, `…WillStartExecuting`, `…DidLoad`,
   `RCTContentDidAppear` and the Core Animation commit carrying it, window key/main, and every main-thread busy span of
   8 ms or more.
-- Also: the app's NSLogs (`[ardiacore] engine started`, `app delegate launched`), Chrome's `Startup.*` histograms
+- Also: the app's NSLogs (`[universecore] engine started`, `app delegate launched`), Chrome's `Startup.*` histograms
   (DevTools `Browser.getHistograms`), the perf probe's marks (`bundleStart`, `bundleEnd`, `firstCommit`,
   `firstWindow`), CGWindowList (the window on screen with alpha > 0), the restored tab's paint timing, `sample` of
   the main and JS threads, and CPU time of `syspolicyd`, `trustd`, `mds` and friends across each launch.
@@ -79,11 +79,11 @@ What each stretch is (small):
 |---|---|---|
 | process start → dyld done | 45 | mapping Chrome's 421 MB framework (warm page cache), hermes, Sparkle; static initializers |
 | → Chrome's loop | 105 | `BrowserMainRunnerImpl::Initialize` 38 ms, `PreMainMessageLoopRun` 30 ms (of which the profile 27 ms), the rest content/ICU/resource bundle setup |
-| → `engineDidStart` | 70 | AppKit's `finishLaunching` in Chrome's loop, `PostBrowserStart`, ArdiaCore's started callbacks |
+| → `engineDidStart` | 70 | AppKit's `finishLaunching` in Chrome's loop, `PostBrowserStart`, UniVerseCore's started callbacks |
 | → RN starts loading | 22 | `AppDelegate`: React Native factory, Expo's app delegate subscribers (after the loop first goes idle) |
 | → Hermes executing | 113 | bridge setup, native module registry, Expo's JSI install, reading the 3.6 MB bytecode bundle |
 | → `main.tsx` done | 18 | module bodies run at import (inline requires: most components load at first render); hydration of `session.json` |
-| → first commit | 50 | `openWindow` → the native `ArdiaCoreWindow` and React root (~40 ms), then `runApplication` (7 ms of JS) |
+| → first commit | 50 | `openWindow` → the native `UniVerseCoreWindow` and React root (~40 ms), then `runApplication` (7 ms of JS) |
 | → content on screen | 60 | native views, layout, the CA commit |
 | → tab FCP | 115 | the tab's WebContents is created after the window's content mounts; Chrome's own navigation→FCP is 101 ms |
 
@@ -145,7 +145,7 @@ app build, "JS" only a bundle.
 | # | Project | Phase it cuts | Saves (small / big) | Risk | Kind | Status |
 |---|---|---|---|---|---|---|
 | 1 | **Strip the engine's local symbols in `release.sh`** (unstripped copies kept in `dist/<v>/symbols` for `atos`) | first launch of an unscanned copy: Gatekeeper's scan | first launch −1.3 s median (5.0 → 3.7 s); warm 0 | low: UUID and export trie checked; crash reports need the kept files to symbolicate | packaging | done (9ce39c96) |
-| 2 | **Prewarm an update before its first launch**: when Sparkle stages an update for install-on-quit (the default, `SUAutomaticallyUpdate`), run the staged copy once, hidden, with `ARDIA_PREWARM=1` (exits at `main`) | first launch after an update: pre-`main` | −130 to −190 ms pre-`main` after Sparkle's own scan (calm); all of the 3–13 s when Sparkle's scan didn't take (1 of 4 updates, loaded Mac). Updates installed from the update window (relaunch at once) don't get it | low (two Codex reviews; hook after Sparkle's preparation, spawned off main, killed at quit or after 90 s) | native | done (be2ca8f7) |
+| 2 | **Prewarm an update before its first launch**: when Sparkle stages an update for install-on-quit (the default, `SUAutomaticallyUpdate`), run the staged copy once, hidden, with `UNIVERSE_PREWARM=1` (exits at `main`) | first launch after an update: pre-`main` | −130 to −190 ms pre-`main` after Sparkle's own scan (calm); all of the 3–13 s when Sparkle's scan didn't take (1 of 4 updates, loaded Mac). Updates installed from the update window (relaunch at once) don't get it | low (two Codex reviews; hook after Sparkle's preparation, spawned off main, killed at quit or after 90 s) | native | done (be2ca8f7) |
 | 3 | **Fix `perf_launch`**: report process start → content on screen (the CA commit) and → the restored tab's FCP, and tag the first launch of a version | measurement | — (big session: today's metric hides 440 ms) | low | JS + native | proposed |
 | 4 | **Bound the first render of the sidebar**: mount the rows in view (~30) in the first commit, the rest after the first frame (or window the list) | first commit → content (native view creation) | 0 / −300 to −400 | medium: scroll position, drag and drop, ⌘-number shortcuts, measured heights | JS | proposed |
 | 5 | **Start the restored tab's page with the engine, not after React**: at `engineDidStart`, create the focused window's active tab's WebContents from `session.json` and navigate it; the React tab adopts it (`adoptId`, as for Chrome-made tabs) | tab navigation start (496 / 772 ms) | FCP −150 to −200 / −400 | medium: the adopt path at launch, profiles, a session restored without that tab | native + JS | done (e172113b), switch `launchTab`; kept: FCP −350 ms with a 300 ms page, nav −320 ms, nothing at latency 0 (see Done below) |
@@ -171,7 +171,7 @@ warm tab, gets a page at launch).
   the bundle 592 → 418 MB, UUIDs and exports unchanged (the script checks), unstripped files in `dist/<v>/symbols`
   (keep that folder with each release: it is what symbolicates a crash in Chrome's framework). `smoke.sh` on a
   stripped, re-signed copy of 0.2.27: every check passes but the two notarization ones (the copy isn't notarized).
-- **be2ca8f7** `ARDIA_PREWARM=1` exits at the top of `main.swift`; `UpdatePrewarm` (`packages/shell/ios/UpdatePrewarm.swift`)
+- **be2ca8f7** `UNIVERSE_PREWARM=1` exits at the top of `main.swift`; `UpdatePrewarm` (`packages/shell/ios/UpdatePrewarm.swift`)
   runs the update Sparkle staged in `~/Library/Caches/<bundle id>/org.sparkle-project.Sparkle/Installation` when
   `willInstallUpdateOnQuit` fires. Lab (calm, Sparkle 2.9.6 updating a 0.2.26 copy to 0.2.27): the first launch's
   pre-`main` time 39/52 ms with the prewarm against 175–232 ms without. Not yet exercised through a real
@@ -222,8 +222,8 @@ warm tab, gets a page at launch).
 ## Early window (2026-10-17)
 
 At engineDidStart, before React Native starts, the focused saved window shows natively. It holds the session's frame,
-the real backdrop (shaders' `ArdiaEarlyBackdrop`), a picture of the chrome taken at the last quit, and the launch tab's
-live page in a rounded cover. When JS opens that window it claims the same NSWindow (`ArdiaEarlyWindow.mm`), so the
+the real backdrop (shaders' `UniVerseEarlyBackdrop`), a picture of the chrome taken at the last quit, and the launch tab's
+live page in a rounded cover. When JS opens that window it claims the same NSWindow (`UniVerseEarlyWindow.mm`), so the
 handoff makes no second window.
 
 - **Gates.** The early window never shows on a login-item launch, for a launch that opens documents or URLs, while
@@ -382,7 +382,7 @@ when the app didn't reach it:
 |---|---|---|
 | `main_ms` | first statement of `main.swift`, before `LaunchConfig` and `LegacyMigration` | the OS's time before our code runs |
 | `startup_ms` | after `universe_host::PrepareStartup` in `runWithArgc` | `startup_ms - main_ms`: migration, launch config, data directory |
-| `chromium_ms` | just before `ArdiaCoreEngine runWithArgc:` | `chromium_ms - startup_ms`: the rest of our setup |
+| `chromium_ms` | just before `UniVerseCoreEngine runWithArgc:` | `chromium_ms - startup_ms`: the rest of our setup |
 | `engine_ms` | `engineDidStart` | `engine_ms - chromium_ms`: Chromium's startup and its profile load |
 
 `load_1m` (the 1-minute load average from `getloadavg`) says whether the Mac was busy, and `launched_hidden` whether

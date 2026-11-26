@@ -19,7 +19,7 @@ export function weblocText(url: string, id: string | null = null): string {
     `<dict>`,
     `\t<key>URL</key>`,
     `\t<string>${escapeXml(url)}</string>`,
-    ...(id ? [`\t<key>ArdiaLink</key>`, `\t<string>${escapeXml(id)}</string>`] : []),
+    ...(id ? [`\t<key>UniVerseLink</key>`, `\t<string>${escapeXml(id)}</string>`] : []),
     `</dict>`,
     `</plist>`,
     ``,
@@ -34,6 +34,6 @@ const stringFor = (text: string, key: string) => {
 
 export const parseWebloc = (text: string): string | null => stringFor(text, "URL");
 
-export const weblocLinkId = (text: string): string | null => stringFor(text, "ArdiaLink");
+export const weblocLinkId = (text: string): string | null => stringFor(text, "UniVerseLink");
 
 export const newLinkId = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;

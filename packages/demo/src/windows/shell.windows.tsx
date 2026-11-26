@@ -15,5 +15,5 @@ const WINDOWS_SYSTEM_INFO = {
   locale: typeof navigator === "undefined" ? "en-US" : navigator.language,
 };
 
-provideNativeModule("ArdiaApp", { systemInfo: () => WINDOWS_SYSTEM_INFO });
-provideNativeModule("ArdiaAppWindows", { windowCornerRadius: () => 8 });
+provideNativeModule("UniVerseApp", { systemInfo: () => WINDOWS_SYSTEM_INFO });
+provideNativeModule("UniVerseAppWindows", { windowCornerRadius: () => 8 });

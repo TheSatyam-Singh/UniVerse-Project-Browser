@@ -1,6 +1,6 @@
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
-const STUB = `const m = globalThis.expo.modules.ArdiaNotifications;
+const STUB = `const m = globalThis.expo.modules.UniVerseNotifications;
 m.notificationPermission = () => Promise.resolve("granted");
 m.requestNotificationPermission = () => Promise.resolve(true);
 m.removeNotifications = () => Promise.resolve();

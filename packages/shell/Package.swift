@@ -2,19 +2,19 @@
 import PackageDescription
 
 let package = Package(
-  name: "ArdiaUpdaterCore",
+  name: "UniVerseUpdaterCore",
   platforms: [.macOS(.v14)],
   products: [
-    .library(name: "ArdiaUpdaterCore", targets: ["ArdiaUpdaterCore"]),
-    .library(name: "ArdiaTranslateCore", targets: ["ArdiaTranslateCore"]),
-    .library(name: "ArdiaReportCore", targets: ["ArdiaReportCore"]),
+    .library(name: "UniVerseUpdaterCore", targets: ["UniVerseUpdaterCore"]),
+    .library(name: "UniVerseTranslateCore", targets: ["UniVerseTranslateCore"]),
+    .library(name: "UniVerseReportCore", targets: ["UniVerseReportCore"]),
   ],
   targets: [
-    .target(name: "ArdiaUpdaterCore", path: "ios/UpdaterCore"),
-    .testTarget(name: "ArdiaUpdaterCoreTests", dependencies: ["ArdiaUpdaterCore"], path: "tests"),
-    .target(name: "ArdiaTranslateCore", path: "ios/TranslateCore"),
-    .testTarget(name: "ArdiaTranslateCoreTests", dependencies: ["ArdiaTranslateCore"], path: "translate-tests"),
-    .target(name: "ArdiaReportCore", path: "ios/ReportCore"),
-    .testTarget(name: "ArdiaReportCoreTests", dependencies: ["ArdiaReportCore"], path: "report-tests"),
+    .target(name: "UniVerseUpdaterCore", path: "ios/UpdaterCore"),
+    .testTarget(name: "UniVerseUpdaterCoreTests", dependencies: ["UniVerseUpdaterCore"], path: "tests"),
+    .target(name: "UniVerseTranslateCore", path: "ios/TranslateCore"),
+    .testTarget(name: "UniVerseTranslateCoreTests", dependencies: ["UniVerseTranslateCore"], path: "translate-tests"),
+    .target(name: "UniVerseReportCore", path: "ios/ReportCore"),
+    .testTarget(name: "UniVerseReportCoreTests", dependencies: ["UniVerseReportCore"], path: "report-tests"),
   ]
 )
