@@ -3,9 +3,10 @@ import { mkdtempSync, readdirSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
+import { fileURLToPath } from "node:url";
 import { releaseNote } from "./release-note.mjs";
 
-const notesDir = new URL("../../docs/release-notes/", import.meta.url).pathname;
+const notesDir = fileURLToPath(new URL("../../docs/release-notes/", import.meta.url));
 const note = (frontmatter) => {
   const path = join(mkdtempSync(join(tmpdir(), "ac-note-")), "0.0.1.md");
   writeFileSync(path, `---\n${frontmatter}\n---\n\n## Fixed\n`);
