@@ -15,6 +15,7 @@
 #include "ardia/core/ac_autofill_trigger.h"
 #include "ardia/core/ac_browser_internal.h"
 #include "ardia/core/ac_browser_window.h"
+#include "ardia/core/ac_devtools_theme.h"
 #include "ardia/core/ac_installed_bubble.h"
 #include "ardia/core/ac_password_prompt.h"
 #include "ardia/core/ac_video_upscaling.h"
@@ -113,6 +114,9 @@ void WindowHost::OnTabStripModelChanged(
 
 void WindowHost::DevToolsDockChanged(content::WebContents* inspected,
                                      content::WebContents* devtools) {
+  if (devtools) {
+    AttachDevToolsTheme(devtools);
+  }
   ArdiaCoreWindow* owner = owner_;
   id<ArdiaCoreWindowDelegate> delegate = owner.delegate;
   if (![delegate respondsToSelector:@selector(window:

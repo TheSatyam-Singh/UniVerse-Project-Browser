@@ -40,7 +40,28 @@ extension WebKitTab: PageTab {
 
   func exitPictureInPicture() { setPictureInPicture(false) { _ in } }
 
-  func pageCookies(_ urls: [String], completion: @escaping ([[String: Any]]?) -> Void) { completion([]) }
+  func pageCookies(_ urls: [String], completion: @escaping ([[String: Any]]?) -> Void) {
+    guard let store = webView?.configuration.websiteDataStore.httpCookieStore else { return completion([]) }
+    let hosts = urls.compactMap { URL(string: $0)?.host?.lowercased() }
+    store.getAllCookies { cookies in
+      let matched = cookies.filter { cookie in hosts.contains { WebKitHub.covers(cookie.domain, host: $0) } }
+      let dicts = matched.map { cookie in
+        [
+          "name": cookie.name,
+          "value": cookie.value,
+          "domain": cookie.domain,
+          "path": cookie.path,
+          "expires": cookie.expiresDate?.timeIntervalSince1970 ?? -1,
+          "session": cookie.isSessionOnly,
+          "httpOnly": cookie.isHTTPOnly,
+          "secure": cookie.isSecure,
+        ] as [String: Any]
+      }
+      DispatchQueue.main.async { completion(dicts) }
+    }
+  }
+
+  func importCookies(_ cookies: [[String: Any]], completion: @escaping (Int) -> Void) { completion(0) }
 
   func openBlockedPopup(_ popupId: String, always: Bool) {}
 

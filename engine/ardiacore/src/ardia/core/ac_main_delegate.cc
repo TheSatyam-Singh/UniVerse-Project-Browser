@@ -27,6 +27,7 @@
 #include "chrome/browser/chrome_browser_main_extra_parts.h"
 #include "chrome/browser/ardia/ac_scripts_policy.h"
 #include "chrome/browser/chrome_content_browser_client.h"
+#include "chrome/browser/component_updater/widevine_cdm_component_installer.h"
 #include "chrome/common/chrome_paths.h"
 #include "chrome/common/chrome_paths_internal.h"
 #include "chrome/common/chrome_switches.h"
@@ -35,11 +36,13 @@
 #include "components/keep_alive_registry/keep_alive_types.h"
 #include "components/keep_alive_registry/scoped_keep_alive.h"
 #include "components/os_crypt/common/os_crypt_switches.h"
+#include "components/version_info/version_info.h"
 #include "content/public/browser/browser_context.h"
 #include "content/public/browser/browser_main_parts.h"
 #include "content/public/common/content_switches.h"
 #include "extensions/common/switches.h"
 #include "third_party/blink/public/common/switches.h"
+#include "third_party/blink/public/common/user_agent.h"
 #include "content/public/common/result_codes.h"
 #include "services/cert_verifier/public/mojom/cert_verifier_service_factory.mojom.h"
 #include "ardia/core/ac_video_upscaler.h"
@@ -194,6 +197,11 @@ class ACBrowserMainParts : public content::BrowserMainParts {
   int PostCreateThreads() override { return chrome_->PostCreateThreads(); }
   int PreMainMessageLoopRun() override {
     result_ = chrome_->PreMainMessageLoopRun();
+    if (auto* updater = g_browser_process
+                            ? g_browser_process->component_updater()
+                            : nullptr) {
+      component_updater::RegisterWidevineCdmComponent(updater);
+    }
     return result_;
   }
   bool ShouldInterceptMainMessageLoopRun() override {
@@ -273,6 +281,35 @@ class ACContentBrowserClient : public ChromeContentBrowserClient {
         ->AddParts(std::make_unique<ACBrowserMainExtraParts>());
     return std::make_unique<ACBrowserMainParts>(std::move(chrome));
   }
+  std::string GetUserAgent() override {
+    std::string user_agent = ChromeContentBrowserClient::GetUserAgent();
+    const std::string replacement =
+        "UniVerse/" + version_info::GetVersionNumber();
+    const std::string marker = "Chrome/";
+    const size_t at = user_agent.find(marker);
+    if (at == std::string::npos) {
+      user_agent += " " + replacement;
+      return user_agent;
+    }
+    size_t end = user_agent.find(' ', at);
+    if (end == std::string::npos) {
+      end = user_agent.size();
+    }
+    user_agent.replace(at, end - at, replacement);
+    return user_agent;
+  }
+  blink::UserAgentMetadata GetUserAgentMetadata() override {
+    blink::UserAgentMetadata metadata =
+        ChromeContentBrowserClient::GetUserAgentMetadata();
+    const std::string version = version_info::GetVersionNumber();
+    const size_t dot = version.find('.');
+    const std::string major =
+        dot == std::string::npos ? version : version.substr(0, dot);
+    metadata.brands = {{"UniVerse", major}, {"Not-A.Brand", "99"}};
+    metadata.full_version_list = {{"UniVerse", version},
+                                  {"Not-A.Brand", "99"}};
+    return metadata;
+  }
 };
 
 }
@@ -285,7 +322,7 @@ ACMainDelegate::ACMainDelegate(const StartupTimestamps& timestamps)
     : ChromeMainDelegate(timestamps) {
   g_ardia_embedder = true;
   g_ardia_restricted_component_extension = &IsBundledComponentExtension;
-  g_ardia_widevine_without_cdm = true;
+  g_ardia_widevine_without_cdm = false;
   g_ardia_resource_bundle_delegate = ProductStrings();
 }
 

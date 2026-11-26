@@ -65,6 +65,8 @@ source_set("core") {
     "ac_desktop_capture.mm",
     "ac_devtools_call.h",
     "ac_devtools_call.mm",
+    "ac_devtools_theme.h",
+    "ac_devtools_theme.mm",
     "ac_device_chooser.h",
     "ac_device_chooser.mm",
     "ac_extension_drop.mm",

@@ -8,6 +8,7 @@ import { setPageProgress } from "../../state/tabs/pageProgress";
 import { BookmarksPage } from "./BookmarksPage";
 import { DownloadsPage } from "./DownloadsPage";
 import { HistoryPage } from "./HistoryPage";
+import { PdfViewerPage } from "./PdfViewerPage";
 import { INTERNAL_PAGES, internalPageOf, internalQuery, tabDestination } from "../../state/pages/urls";
 
 export function InternalPage({ tabId }: { tabId: string }) {
@@ -31,6 +32,7 @@ export function InternalPage({ tabId }: { tabId: string }) {
       {page === "history" && <HistoryPage tabId={tabId} profileId={profileId} initialQuery={internalQuery(url)} />}
       {page === "bookmarks" && <BookmarksPage key={bookmarkProfile} tabId={tabId} profileId={bookmarkProfile} />}
       {page === "downloads" && <DownloadsPage tabId={tabId} />}
+      {page === "pdf" && <PdfViewerPage tabId={tabId} />}
     </View>
   );
 }

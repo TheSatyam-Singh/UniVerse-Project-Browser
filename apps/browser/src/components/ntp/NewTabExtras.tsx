@@ -2,6 +2,7 @@ import { StyleSheet, View } from "react-native";
 import { useWindow, useWindowId } from "../../state/browser/hooks";
 import { tourAnchorRef } from "../onboarding/tour/anchors";
 import { CheckInBanner } from "./CheckInBanner";
+import { BetaBanner } from "./BetaBanner";
 import { PersonalizeButton } from "./Personalize";
 import { ReleaseNotesPage, ReleaseNotesPostcard } from "./Postcard";
 import { TelemetryAsk } from "./TelemetryAsk";
@@ -20,6 +21,7 @@ export function NewTabExtras({ size, bar }: { size: { width: number; height: num
       <View ref={tourAnchorRef(windowId, "page")} style={StyleSheet.absoluteFill} pointerEvents="none" />
       <View ref={tourAnchorRef(windowId, "commandBar")} style={{ position: "absolute", left: bar.x, top: bar.y, width: bar.width, height: bar.height }} pointerEvents="none" />
       <CheckInBanner windowId={windowId} />
+      <BetaBanner windowId={windowId} />
       <TelemetryAsk windowId={windowId} size={size} bar={bar} />
       {incognito ? null : <PersonalizeButton windowId={windowId} />}
       {pending && !incognito && !page ? (

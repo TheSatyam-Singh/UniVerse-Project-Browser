@@ -35,6 +35,50 @@ using namespace universe_runtime;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 1200 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{ answer(nil); });
 }
 
+- (void)importCookies:(NSArray<NSDictionary<NSString *, id> *> *)cookies
+           completion:(void (^)(NSNumber *count))completion {
+  if (!_tab || _tab.closed) return completion(@0);
+  NSMutableArray *valid = [NSMutableArray array];
+  for (NSDictionary *cookie in cookies) {
+    NSString *name = cookie[@"name"];
+    NSString *value = cookie[@"value"];
+    NSString *domain = cookie[@"domain"];
+    if ([name isKindOfClass:NSString.class] && name.length &&
+        [value isKindOfClass:NSString.class] &&
+        [domain isKindOfClass:NSString.class] && domain.length) {
+      [valid addObject:cookie];
+    }
+  }
+  if (!valid.count) return completion(@0);
+  __block NSInteger done = 0;
+  __block NSInteger ok = 0;
+  NSInteger total = (NSInteger)valid.count;
+  for (NSDictionary *cookie in valid) {
+    NSString *domain = cookie[@"domain"];
+    NSString *host = [domain hasPrefix:@"."] ? [domain substringFromIndex:1] : domain;
+    BOOL secure = [cookie[@"secure"] boolValue];
+    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    params[@"name"] = cookie[@"name"];
+    params[@"value"] = cookie[@"value"];
+    params[@"url"] = [NSString stringWithFormat:@"%@://%@/", secure ? @"https" : @"http", host];
+    params[@"domain"] = domain;
+    NSString *path = cookie[@"path"];
+    params[@"path"] = [path isKindOfClass:NSString.class] && path.length ? path : @"/";
+    if (secure) params[@"secure"] = @YES;
+    if ([cookie[@"httpOnly"] boolValue]) params[@"httpOnly"] = @YES;
+    NSString *sameSite = cookie[@"sameSite"];
+    if ([sameSite isKindOfClass:NSString.class] && sameSite.length) params[@"sameSite"] = sameSite;
+    NSNumber *expires = cookie[@"expires"];
+    if ([expires isKindOfClass:NSNumber.class] && [expires doubleValue] > 0 && ![cookie[@"session"] boolValue]) {
+      params[@"expires"] = expires;
+    }
+    [_tab devToolsCall:@"Network.setCookie" params:params timeout:1.0 completion:^(NSDictionary *result, NSString *error) {
+      if (!error) ok++;
+      if (++done == total) completion(@(ok));
+    }];
+  }
+}
+
 - (void)tab:(ArdiaCoreTab *)tab preferredSizeDidChange:(NSSize)size {
   [self emit:@"preferredSize" payload:@{@"width" : @(size.width), @"height" : @(size.height)}];
 }

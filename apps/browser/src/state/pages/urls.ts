@@ -9,6 +9,7 @@ export const INTERNAL_PAGES: Record<AppPageHost, { title: string }> = {
   history: { title: "History" },
   bookmarks: { title: "Bookmarks" },
   downloads: { title: "Downloads" },
+  pdf: { title: "PDF Viewer" },
 };
 
 const internalUrl = (page: AppPageHost, query?: string) => `universe://${page}${query ? `?q=${encodeURIComponent(query)}` : ""}`;

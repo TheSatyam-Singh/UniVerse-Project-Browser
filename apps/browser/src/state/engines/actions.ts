@@ -8,7 +8,8 @@ import { hideKeyedToast, showToast } from "../app/toasts";
 import { canSwitchEngine, chosenEngine, ENGINE_NAMES, siteOf, tabEngine, visitRecorder, type WebKitPage } from "./engines";
 import { engineProfile, isIncognitoProfile, navigationTo } from "../browser/model";
 import type { Tab } from "../browser/types";
-import { carrySignInToWebKit, signInCarryOn } from "./engineSignIn";
+import { carrySignInToChromium, carrySignInToWebKit, readSignInCookies, signInCarryOn } from "./engineSignIn";
+import type { PageCookie } from "../../platform/webkit";
 import { wantsPage } from "../tabs/tabPages";
 import { webviews } from "../../platform/webviews";
 import { withDeadline } from "../../lib/deadline";
@@ -87,11 +88,15 @@ export async function openPageIn(tabId: string, engine: PageEngine, options: { r
   }
   if (options.checkWork !== false && !(await mayLeavePage(t, `Open this page in ${ENGINE_NAMES[engine]}?`, `The page reloads in ${ENGINE_NAMES[engine]}, so changes you made on it may not be saved.`, `Open in ${ENGINE_NAMES[engine]}`))) return false;
   if (engine === "webkit" && signInCarryOn()) await carrySignInToWebKit(tabId, url);
+  const oldWeb = webviews.get(tabId);
+  let carried: PageCookie[] = [];
+  if (engine === "chromium" && signInCarryOn()) carried = await readSignInCookies(tabId, url);
   const now = store().tabs[tabId];
   if (!now || (now.url || navigationOf(now)?.url || "") !== url) return false;
   saveRule();
   if (tabEngine(store(), tabId) === engine) return true;
   store().updateTab(tabId, wantsPage(now) ? { engine, page: loadedPage(navigationTo(now.url || url, true)) } : { engine });
+  if (engine === "chromium" && carried.length) void carrySignInToChromium(tabId, carried, oldWeb).catch(() => undefined);
   return true;
 }
 
@@ -142,7 +147,7 @@ async function moveForProtectedVideo(tabId: string, site: string) {
   if (!t) return;
   const key = `engine-move:${tabId}`;
   const stillThere = () => siteOf(pageUrl(store().tabs[tabId])) === site;
-  showToast(t.windowId, "Opened in WebKit for protected video", `${hostLabel(site)} plays here with FairPlay. WebKit keeps its own sign-ins.`, {
+  showToast(t.windowId, "Opened in WebKit for protected video", `${hostLabel(site)} plays here with FairPlay. Your sign-in carries over.`, {
     icon: "play.rectangle",
     key,
     action: { title: "Move Back", run: () => void (stillThere() && openPageIn(tabId, "chromium", { rule: "chromium" })) },

@@ -22,6 +22,49 @@
   const { keys, setPrototypeOf } = Object;
   const { isArray } = Array;
   const { isFinite } = Number;
+  try {
+    const chromeToken = /Chrome\/[0-9.]+/;
+    const agent = navigator.userAgent;
+    if (chromeToken.test(agent)) {
+      const universeAgent = agent.replace(chromeToken, "UniVerse");
+      const agentGetter = Object.getOwnPropertyDescriptor(Navigator.prototype, "userAgent").get;
+      Object.defineProperty(navigator, "userAgent", {
+        get: asNative(agentGetter, () => universeAgent),
+        configurable: true,
+      });
+    }
+    if (navigator.vendor === "Google Inc.") {
+      const vendorGetter = Object.getOwnPropertyDescriptor(Navigator.prototype, "vendor").get;
+      Object.defineProperty(navigator, "vendor", {
+        get: asNative(vendorGetter, () => "UniVerse"),
+        configurable: true,
+      });
+    }
+    const userAgentData = navigator.userAgentData;
+    if (
+      userAgentData &&
+      isArray(userAgentData.brands) &&
+      userAgentData.brands.some((entry) => /Chrom/.test(entry.brand))
+    ) {
+      const rebrand = (entry) => ({ brand: /Chrom/.test(entry.brand) ? "UniVerse" : entry.brand, version: entry.version });
+      const brands = userAgentData.brands.map(rebrand);
+      const fullVersionList = isArray(userAgentData.fullVersionList) ? userAgentData.fullVersionList.map(rebrand) : brands;
+      const universeData = {
+        brands,
+        mobile: userAgentData.mobile,
+        platform: userAgentData.platform,
+        getHighEntropyValues: (hints) =>
+          userAgentData.getHighEntropyValues(hints).then((values) => ({ ...values, brands, fullVersionList })),
+        toJSON: () => ({ brands, mobile: userAgentData.mobile, platform: userAgentData.platform }),
+      };
+      const dataGetter = Object.getOwnPropertyDescriptor(Navigator.prototype, "userAgentData").get;
+      Object.defineProperty(navigator, "userAgentData", {
+        get: asNative(dataGetter, () => universeData),
+        configurable: true,
+      });
+    }
+    Object.defineProperty(window, "chrome", { value: undefined, configurable: true, writable: true });
+  } catch (e) {}
   const plain = (value, depth) => {
     if (value === null || typeof value === "string" || typeof value === "boolean") return value;
     if (typeof value === "number") return isFinite(value) ? value : null;

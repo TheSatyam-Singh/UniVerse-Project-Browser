@@ -253,6 +253,7 @@ export type WebViewHandle = {
 
   getSecurityInfo(): Promise<SecurityInfo | null>;
   pageCookies(urls: string[]): Promise<PageCookie[]>;
+  importCookies(cookies: PageCookie[]): Promise<number>;
   openBlockedPopup(id: string, always?: boolean): Promise<void>;
   clearSiteData(): Promise<{ cookies: number | false; storage: boolean }>;
 

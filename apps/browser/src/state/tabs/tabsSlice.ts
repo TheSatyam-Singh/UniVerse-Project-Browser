@@ -19,6 +19,7 @@ import type { ClosedTab, Tab, TabLive } from "../browser/types";
 import { activated, apply, closingTabs, withNewTab, type CloseOptions, type NewTabOptions } from "./tabs";
 import { hasPage, loadedPage, navigationOf, renavigated, wakeOf, withWake } from "./pageSession";
 import { cancelOpening, gateOpening, isGatedUrl, settleOpening } from "./openingGate";
+import { isPdfUrl, isPdfViewerUrl, pdfViewerUrl } from "../pdf/pdfUrls";
 
 
 export type TabsSlice = {
@@ -162,7 +163,8 @@ export const createTabsSlice: StateCreator<BrowserState, [], [], TabsSlice> = (s
       return;
     }
     const s = get();
-    const url = resolveTyped(s.settings, input);
+    let url = resolveTyped(s.settings, input);
+    if (url && isPdfUrl(url) && !isPdfViewerUrl(url)) url = pdfViewerUrl(url);
     const tab = s.tabs[id];
     if (!url || !tab) return;
     if (userInitiated && !gated && isGatedUrl(url)) {

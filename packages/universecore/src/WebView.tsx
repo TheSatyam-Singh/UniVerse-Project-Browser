@@ -84,6 +84,7 @@ export const WebView = forwardRef<WebViewHandle, WebViewProps>(function WebView(
       exitPictureInPicture: () => call(undefined, (n) => n.exitPictureInPicture()),
       getSecurityInfo: () => call(null, (n) => n.getSecurityInfo()),
       pageCookies: (urls) => call<PageCookie[]>([], (n) => n.pageCookies(urls)),
+      importCookies: (cookies) => call(0, (n) => n.importCookies(cookies)),
       openBlockedPopup: (id, always) => call(undefined, (n) => n.openBlockedPopup(id, always)),
       clearSiteData: () => call({ cookies: false, storage: false }, (n) => n.clearSiteData()),
       resolvePasswordPrompt: (answer, edits) =>

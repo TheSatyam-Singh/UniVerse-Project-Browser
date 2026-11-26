@@ -85,7 +85,7 @@ ui::ResourceBundle::Delegate* ProductStrings() {
 
 bool RenameProduct(std::u16string& text) {
   static constexpr std::u16string_view kFroms[] = {u"Chromium", u"Helium"};
-  static constexpr std::u16string_view kTo = u"Ardia";
+  static constexpr std::u16string_view kTo = u"UniVerse";
   static constexpr std::u16string_view kCredits[] = {u" Authors", u" open source",
                                                      u"</a> open source"};
   const auto credit = [&](size_t end) {

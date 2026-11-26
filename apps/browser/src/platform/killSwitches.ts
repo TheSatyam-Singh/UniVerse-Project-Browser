@@ -74,7 +74,7 @@ export const EXPERIMENTS = {
     removeBy: "2026-12-15",
   },
   webkitSignIn: {
-    about: "Moving a Chromium page to WebKit first copies the cookies that page's own address gets into the profile's WebKit store, at most 1.5 s (state/engines/engineSignIn.ts).",
+    about: "Switching a page between Chromium and WebKit copies the cookies that page's own address gets into the other engine's store, at most 1.5 s out and 3 s back (state/engines/engineSignIn.ts).",
     owner: "engines",
     removeBy: "2026-12-15",
   },

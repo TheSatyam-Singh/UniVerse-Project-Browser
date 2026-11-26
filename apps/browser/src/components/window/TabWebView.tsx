@@ -18,7 +18,7 @@ import { noteWebKitPage, offerWebKit, persistEngine } from "../../state/engines/
 import { webviewRef, webviews } from "../../state/tabs/webviewHandles";
 import { noteIssued, takeStartedNavigation } from "../../state/tabs/earlyNavigate";
 import { currentEngineProfile, currentTab, isTabSilenced } from "../../state/browser/current";
-import { closeTabNow, updateLive, updateTab } from "../../state/tabs/actions";
+import { closeTabNow, navigate, updateLive, updateTab } from "../../state/tabs/actions";
 import { returnRefusedMove, setFind } from "../../state/windows/actions";
 import { activateFocusedPane, currentTabEngine, downloadNavigated, useTabEngine } from "../../state/windows/card";
 import { setPageProgress } from "../../state/tabs/pageProgress";
@@ -47,6 +47,7 @@ import { notePagePress } from "../../state/telemetry/tabPresses";
 import { noteAutoPictureInPictureKept, notePageOverlay, noteReopenedPage, noteWebKitPageKeptHidden } from "../../state/telemetry/usage";
 import { noteWebKitMediaFault } from "../../state/telemetry/webkitMediaFaults";
 import { isAdoptKind } from "../../state/tabs/adoptIds";
+import { isPdfUrl, isPdfViewerUrl, pdfViewerUrl } from "../../state/pdf/pdfUrls";
 import { firstPagePending, isBlankAddress, noteFirstPagePending, reportedAddress, reportedTitle } from "../../state/tabs/pendingAddress";
 import { STATUS_FLIP_BAND } from "./tokens";
 
@@ -159,6 +160,11 @@ function EngineWebView({ tabId, visible, warm, peekOf, engine }: TabWebViewProps
       }}
       onNavigationChange={({ url: reported, title: reportedPageTitle, canGoBack, canGoForward, isLoading, themeColor, themeColorSource, initialDocumentAccessed, committedInitial, committedUrl, committedAt, httpStatus }) => {
         noteCommit(tabId, committedUrl, committedAt, httpStatus);
+        const committedPdf = committedUrl ?? reported;
+        if (committedPdf && isPdfUrl(committedPdf) && !isPdfViewerUrl(committedPdf)) {
+          navigate(tabId, pdfViewerUrl(committedPdf));
+          return;
+        }
         if (reopening.current && reported && !isBlankAddress(reported)) {
           reopening.current = false;
           noteReopenedPage(canGoBack);

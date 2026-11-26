@@ -78,6 +78,9 @@ enum PageViewDefinition {
       AsyncFunction("pageCookies") { (view: V, urls: [String], promise: Promise) in
         view.page.pageCookies(urls) { promise.resolve($0 ?? []) }
       }.runOnQueue(.main)
+      AsyncFunction("importCookies") { (view: V, cookies: [[String: Any]], promise: Promise) in
+        view.page.importCookies(cookies) { promise.resolve($0) }
+      }.runOnQueue(.main)
       AsyncFunction("openBlockedPopup") { (view: V, id: String, always: Bool?) in
         view.page.openBlockedPopup(id, always: always ?? false)
       }.runOnQueue(.main)

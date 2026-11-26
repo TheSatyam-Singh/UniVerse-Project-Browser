@@ -110,9 +110,13 @@ export function AdvancedPane() {
               ? "Checking…"
               : widevineVersion
                 ? `Version ${widevineVersion}`
-                : "Not available in this build: video that needs it, like Netflix or Disney+, won't play."
+                : "Protected video (Netflix, Disney+, Spotify) needs Widevine. It downloads from Google on first use — open Components and check for an update on Widevine."
           }
-        />
+        >
+          {widevine === undefined || widevineVersion ? null : (
+            <Button title="Install Widevine" onPress={() => openUrls(["chrome://components"])} />
+          )}
+        </Row>
       </Group>
 
       <SectionHeader title="Source and licenses" />
