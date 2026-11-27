@@ -35,7 +35,7 @@ static char kScriptFramesKey;
 
 static NSDictionary *DisplayMediaAudioOffer(NSDictionary *message) {
   if (!Flag(message, @"audio")) return nil;
-  NSDictionary *support = UniVerseCoreEngine.desktopCaptureAudio;
+  NSDictionary *support = ArdiaCoreEngine.desktopCaptureAudio;
   const bool system = Flag(support, @"system"), application = Flag(support, @"application");
   NSString *preference = Text(message, @"windowAudio", 16);
   NSString *window = nil;
@@ -55,11 +55,11 @@ static NSString *DisplayMediaAudioFor(NSDictionary *offer, NSString *sourceId) {
 
 namespace universe_web_view {
 
-void AnswerHello(UniVerseCoreTab *tab, NSString *profile, NSString *frameId, BOOL main, NSString *verifiedOrigin) {
+void AnswerHello(ArdiaCoreTab *tab, NSString *profile, NSString *frameId, BOOL main, NSString *verifiedOrigin) {
   NSString *origin = (main ? VerifiedOrigin(verifiedOrigin) : nil) ?: OriginOf(tab.url);
-  __weak UniVerseCoreTab *weakTab = tab;
+  __weak ArdiaCoreTab *weakTab = tab;
   void (^answer)(BOOL) = ^(BOOL blockAutoplay) {
-    UniVerseCoreTab *to = weakTab;
+    ArdiaCoreTab *to = weakTab;
     if (!frameId.length || !to) return;
     NSMutableDictionary *config = [NSMutableDictionary dictionary];
     if (blockAutoplay) config[@"blockAutoplay"] = @YES;
@@ -83,7 +83,7 @@ void AnswerHello(UniVerseCoreTab *tab, NSString *profile, NSString *frameId, BOO
     answer(NO);
 }
 
-NSMutableOrderedSet<NSString *> *ScriptFramesOf(UniVerseCoreTab *tab) {
+NSMutableOrderedSet<NSString *> *ScriptFramesOf(ArdiaCoreTab *tab) {
   if (!tab) return nil;
   NSMutableOrderedSet *frames = objc_getAssociatedObject(tab, &kScriptFramesKey);
   if (!frames) {
@@ -98,7 +98,7 @@ NSMutableOrderedSet<NSString *> *ScriptFramesOf(UniVerseCoreTab *tab) {
 
 + (void)setDisplayMediaPicker:(BOOL)enabled {
   gDisplayMediaPicker = enabled;
-  UniVerseCoreEngine.pagesPickDisplayMedia = enabled;
+  ArdiaCoreEngine.pagesPickDisplayMedia = enabled;
 }
 
 + (void)setSelectionPopoverEnabled:(BOOL)enabled {
@@ -111,7 +111,7 @@ NSMutableOrderedSet<NSString *> *ScriptFramesOf(UniVerseCoreTab *tab) {
   gFingerprintProtection = enabled;
 }
 
-- (void)tab:(UniVerseCoreTab *)tab
+- (void)tab:(ArdiaCoreTab *)tab
     didReceivePageMessage:(NSString *)kind
                      json:(NSString *)json
                     frame:(NSString *)frameId
@@ -290,7 +290,7 @@ NSMutableOrderedSet<NSString *> *ScriptFramesOf(UniVerseCoreTab *tab) {
   [_reports.displayRequests removeObjectForKey:requestId];
   NSString *audio = shareAudio && sourceId.length ? DisplayMediaAudioFor(Field<NSDictionary>(request, @"audio"), sourceId) : nil;
   if (sourceId.length && _tab)
-    [UniVerseCoreEngine allowDesktopCapture:sourceId
+    [ArdiaCoreEngine allowDesktopCapture:sourceId
                                   tab:_tab
                                 frame:[request[@"frame"] length] ? request[@"frame"] : nil
                                origin:request[@"origin"]
