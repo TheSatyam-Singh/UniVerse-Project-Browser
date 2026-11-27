@@ -83,7 +83,7 @@ static BOOL HeldSelector(SEL selector) {
 - (void)forwardInvocation:(NSInvocation *)invocation {
   if (!HeldSelector(invocation.selector) || invocation.methodSignature.numberOfArguments < 3) return [super forwardInvocation:invocation];
   if (invocation.selector == @selector(tab:didReceivePageMessage:json:frame:main:origin:)) {
-    __unsafe_unretained UniVerseCoreTab *tab = nil;
+    __unsafe_unretained ArdiaCoreTab *tab = nil;
     __unsafe_unretained NSString *kind = nil;
     __unsafe_unretained NSString *json = nil;
     __unsafe_unretained NSString *frame = nil;
@@ -109,7 +109,7 @@ static BOOL HeldSelector(SEL selector) {
     [self forgetHeldPageStateWhere:^BOOL(NSDictionary *held) { return YES; }];
   if (invocation.selector == @selector(tabDidChangeURL:) || invocation.selector == @selector(tabDidCommitDocument:) ||
       invocation.selector == @selector(tabDidChangeSecurity:)) {
-    __unsafe_unretained UniVerseCoreTab *tab = nil;
+    __unsafe_unretained ArdiaCoreTab *tab = nil;
     [invocation getArgument:&tab atIndex:2];
     [UniVerseEarlyWindow pageNavigated:tab launchURL:_url];
   }
@@ -124,12 +124,12 @@ static BOOL HeldSelector(SEL selector) {
   [_callOrder addObject:@(++_pageStateOrder)];
 }
 
-- (void)tabWillClose:(UniVerseCoreTab *)tab {
+- (void)tabWillClose:(ArdiaCoreTab *)tab {
   _closedByChrome = YES;
   [UniVerseEarlyWindow dropPage:tab];
 }
 
-- (void)replayTo:(UniVerseWebView *)view tab:(UniVerseCoreTab *)tab {
+- (void)replayTo:(UniVerseWebView *)view tab:(ArdiaCoreTab *)tab {
   NSArray<NSInvocation *> *calls = _calls;
   NSArray<NSNumber *> *callOrder = _callOrder;
   _calls = nil;
@@ -140,7 +140,7 @@ static BOOL HeldSelector(SEL selector) {
   NSArray<NSDictionary *> *ordered = [state.allValues sortedArrayUsingComparator:^NSComparisonResult(NSDictionary *a, NSDictionary *b) {
     return [a[@"order"] compare:b[@"order"]];
   }];
-  __unsafe_unretained UniVerseCoreTab *named = tab;
+  __unsafe_unretained ArdiaCoreTab *named = tab;
   NSUInteger next = 0;
   auto replayHeldBefore = [&](NSUInteger order) {
     for (; next < ordered.count && [ordered[next][@"order"] unsignedIntegerValue] < order; next++) {
