@@ -3,10 +3,10 @@
 #import "UniVerseServices.h"
 
 @interface UniVerseContentBlockerPage : NSObject <UniVerseCoreTabDelegate>
-@property(readonly) UniVerseCoreTab *tab;
+@property(readonly) ArdiaCoreTab *tab;
 @property(readonly) NSString *origin;
 @property(readonly) BOOL dead;
-- (instancetype)initWithTab:(UniVerseCoreTab *)tab origin:(NSString *)origin;
+- (instancetype)initWithTab:(ArdiaCoreTab *)tab origin:(NSString *)origin;
 - (BOOL)onOwnPage;
 - (void)run:(NSString *)script completion:(void (^)(id value, NSString *error))completion;
 - (void)leftOwnPage;
