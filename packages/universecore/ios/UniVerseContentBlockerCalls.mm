@@ -43,7 +43,7 @@ NSMutableOrderedSet<NSString *> *LoadedProfiles() {
 
 namespace {
 
-NSMutableDictionary<NSString *, UniVerseCoreWindow *> *PageWindows() {
+NSMutableDictionary<NSString *, ArdiaCoreWindow *> *PageWindows() {
   static NSMutableDictionary *windows = [NSMutableDictionary dictionary];
   return windows;
 }
@@ -68,7 +68,7 @@ NSString *OriginOf(NSString *extensionId) { return [NSString stringWithFormat:@"
 namespace universe_content_blocker {
 
 bool IsHiddenPageWindow(NSWindow *window) {
-  for (UniVerseCoreWindow *pageWindow in PageWindows().allValues)
+  for (ArdiaCoreWindow *pageWindow in PageWindows().allValues)
     if (window && pageWindow.window == window) return true;
   return false;
 }
@@ -77,12 +77,12 @@ UniVerseContentBlockerPage *HiddenPage(NSString *key, NSString *profile, UniVers
   UniVerseContentBlockerPage *page = Pages()[key];
   if (page.tab.closed) [page fail:@"closed"];
   if (page && !page.dead) return page;
-  UniVerseCoreWindow *window = PageWindows()[profile];
+  ArdiaCoreWindow *window = PageWindows()[profile];
   if (!window) {
-    PageWindows()[profile] = window = [[UniVerseCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 400, 300)];
+    PageWindows()[profile] = window = [[ArdiaCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 400, 300)];
     window.internal = YES;
   }
-  UniVerseCoreTab *tab = [window openTab:[OriginOf(extensionId) stringByAppendingString:file] profile:p foreground:YES];
+  ArdiaCoreTab *tab = [window openTab:[OriginOf(extensionId) stringByAppendingString:file] profile:p foreground:YES];
   return Pages()[key] = tab ? [[UniVerseContentBlockerPage alloc] initWithTab:tab origin:OriginOf(extensionId)] : nil;
 }
 
