@@ -70,8 +70,13 @@ export async function goBackAcrossEngines(tabId: string): Promise<boolean> {
   const leaving = await mayLeavePage(t, "Go back to the previous page?", `It opens in ${ENGINE_NAMES[back.engine]}, so changes you made on this page may not be saved.`, "Go Back");
   const now = store().tabs[tabId];
   if (!leaving || !now || pageUrl(now) !== from || pageOf(tabId).engineBack !== back) return false;
+  const oldWeb = webviews.get(tabId);
+  let carried: PageCookie[] = [];
+  if (back.engine === "chromium" && signInCarryOn()) carried = await readSignInCookies(tabId, from);
+  if (back.engine === "webkit" && signInCarryOn()) await carrySignInToWebKit(tabId, from);
   patchPage(tabId, { engineBack: null });
   store().updateTab(tabId, { engine: back.engine, page: loadedPage(navigationTo(back.url, true)) });
+  if (back.engine === "chromium" && carried.length) void carrySignInToChromium(tabId, carried, oldWeb).catch(() => undefined);
   return true;
 }
 
