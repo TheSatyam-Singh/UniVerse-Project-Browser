@@ -10,7 +10,7 @@ import {
 } from "../../../state/site/passwords";
 import { orWarn } from "../../../lib/fallback";
 import { confirm, copyText, systemInfo } from "../../../state/app/system";
-import { Box, Button, DialogActions, DialogTitle, SearchField, Sheet, space, Symbol, Text, TextField, Toggle } from "../../ui";
+import { Box, Button, DialogActions, DialogTitle, SearchField, Sheet, space, Symbol, tabularNums, Text, TextField, Toggle } from "../../ui";
 import { useEffect, useRef, useState } from "react";
 import { View } from "react-native";
 import { useTheme } from "../../ui/theme";
@@ -18,6 +18,8 @@ import { monoFace } from "../../ui/tokens";
 import { currentEngineProfile } from "../../../state/browser/current";
 import { plural } from "../../../state/browser/model";
 import { importPasswordsCsv, revealPassword, unlockPasswordsFor, usePasswordsUnlocked } from "../../../state/site/savedPasswords";
+import { defaultPasswordGeneratorOptions, generatePassword, MAX_GENERATED_PASSWORD_LENGTH, MIN_GENERATED_PASSWORD_LENGTH, type PasswordGeneratorOptions } from "../../../state/site/passwordGenerator";
+import { trackPasswordGenerated } from "../../../state/telemetry/track";
 import { hostLabel, matchesQuery } from "../../pages/PageLayout";
 import { Favicon } from "../../favicon/Favicon";
 import { Group, ProfilePicker, Row, SectionHeader, useSettingsProfile } from "../Form";
@@ -96,6 +98,9 @@ export function PasswordsPane({ profileId: initial }: { profileId?: string | nul
         <Row anchor="passwords.managerApps" description={passwordManagerAppsNote()} />
       </Group>
 
+      <SectionHeader title="Generate a password" />
+      <PasswordGenerator />
+
       {!unlocked ? (
         <Box gap="ml" style={LOCKED}>
           <Symbol name="lock.fill" size={26} color={theme.textTertiary} style={LOCK_ICON} />
@@ -140,6 +145,50 @@ export function PasswordsPane({ profileId: initial }: { profileId?: string | nul
         </>
       )}
     </View>
+  );
+}
+
+function PasswordGenerator() {
+  const [options, setOptions] = useState(defaultPasswordGeneratorOptions);
+  const [generated, setGenerated] = useState(() => generatePassword(defaultPasswordGeneratorOptions()));
+  const regenerate = (next: PasswordGeneratorOptions) => {
+    setOptions(next);
+    setGenerated(generatePassword(next));
+    trackPasswordGenerated();
+  };
+  const enabled = [options.lowercase, options.uppercase, options.numbers, options.symbols].filter(Boolean).length;
+  const setRow = (key: "lowercase" | "uppercase" | "numbers" | "symbols", label: string) => (
+    <Row title={label}>
+      <Toggle value={options[key]} disabled={options[key] && enabled <= 1} onChange={(v) => regenerate({ ...options, [key]: v })} />
+    </Row>
+  );
+  return (
+    <Group>
+      <Row
+        anchor="passwords.generatePassword"
+        title={
+          <Text selectable style={monoFace()}>
+            {generated}
+          </Text>
+        }
+      >
+        <Box row gap="xs" style={CENTER}>
+          <Button variant="icon" icon="arrow.clockwise" size="m" onPress={() => regenerate(options)} tooltip="Generate a new password" />
+          <Button variant="icon" icon="doc.on.doc" size="m" onPress={() => copyText(generated)} tooltip="Copy password" />
+        </Box>
+      </Row>
+      <Row anchor="passwords.generateLength" title="Password length">
+        <Box row gap="xs" style={CENTER}>
+          <Button variant="stepper" icon="minus" tooltip="Shorter password" disabled={options.length <= MIN_GENERATED_PASSWORD_LENGTH} onPress={() => regenerate({ ...options, length: options.length - 1 })} />
+          <Text style={tabularNums}>{options.length}</Text>
+          <Button variant="stepper" icon="plus" tooltip="Longer password" disabled={options.length >= MAX_GENERATED_PASSWORD_LENGTH} onPress={() => regenerate({ ...options, length: options.length + 1 })} />
+        </Box>
+      </Row>
+      {setRow("lowercase", "Lowercase letters (a–z)")}
+      {setRow("uppercase", "Uppercase letters (A–Z)")}
+      {setRow("numbers", "Numbers (0–9)")}
+      {setRow("symbols", "Symbols (!@#…)")}
+    </Group>
   );
 }
 

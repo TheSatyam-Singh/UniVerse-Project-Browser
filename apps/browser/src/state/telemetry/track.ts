@@ -43,6 +43,8 @@ export const trackCalendarConnect = (r: CalendarConnectReport) =>
 
 export const trackSettingsSection = (section: string) => capture("settings_section_opened", { section });
 
+export const trackPasswordGenerated = () => capture("password_generated", {});
+
 const SAMPLE_EVERY = 5;
 const MAX_SAMPLES = 500;
 const latency: number[] = [];

@@ -93,6 +93,8 @@ export const privacyRows = {
         importPasswords: { title: "Import passwords", description: "From a CSV exported by Chrome, Safari, Firefox, 1Password, Bitwarden…", keywords: ["csv", "logins"] },
         exportPasswords: { advanced: true, title: "Export passwords", description: "To a CSV file. Anyone who can open the file can read your passwords.", keywords: ["csv", "backup", "logins"] },
         managerApps: { advanced: true, title: "Password manager apps", keywords: ["1password", "bitwarden", "keepassxc", "proton pass"] },
+        generatePassword: { title: "Generate a password", description: "Make a strong password with the length and characters you choose, then copy it.", keywords: ["strong password", "random password", "generator", "create password"] },
+        generateLength: { title: "Password length", description: "How many characters the generated password has.", keywords: ["password length", "long password"] },
       },
     },
   ],
