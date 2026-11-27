@@ -61,7 +61,7 @@ bool Finite(NSDictionary *d, NSString *key, double *out) {
 }
 
 NSString *OriginOf(NSString *url) {
-  NSString *origin = [UniVerseCoreTab originForURL:url ?: @""];
+  NSString *origin = [ArdiaCoreTab originForURL:url ?: @""];
   return origin.length ? origin : nil;
 }
 
@@ -105,7 +105,7 @@ void AcceptDrops(NSView *root, BOOL accept) {
                                               usingBlock:^(NSNotification *) {
                                                 void (^park)(void) = ^{
                                                   NSMapTable<NSString *, UniVerseWebView *> *views = [NSMapTable strongToWeakObjectsMapTable];
-                                                  NSMutableDictionary<NSString *, UniVerseCoreTab *> *handed = [NSMutableDictionary dictionary];
+                                                  NSMutableDictionary<NSString *, ArdiaCoreTab *> *handed = [NSMutableDictionary dictionary];
                                                   for (UniVerseWebView *view in LiveViews().allObjects) {
                                                     if (!view->_tab || view->_tab.closed || !view->_transferKey.length) continue;
                                                     view->_life.handingOff = YES;
@@ -113,7 +113,7 @@ void AcceptDrops(NSView *root, BOOL accept) {
                                                     handed[view->_transferKey] = view->_tab;
                                                   }
                                                   [UniVerseTabParking holdAcrossReload:handed
-                                                                                expired:^(NSString *key, UniVerseCoreTab *tab) {
+                                                                                expired:^(NSString *key, ArdiaCoreTab *tab) {
                                                                                   if (UniVerseWebView *view = [views objectForKey:key]; view && view->_tab == tab)
                                                                                     view->_life.handingOff = NO;
                                                                                 }];
@@ -290,12 +290,12 @@ static BOOL gReportsCommits = NO;
 }
 
 + (int)browserIdOfTab:(NSString *)tabId {
-  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  ArdiaCoreTab *tab = universe_host::TabWithAppTabId(tabId);
   return tab ? universe_host::BrowserId(tab) : 0;
 }
 
 + (NSInteger)devWindowNumberForBrowser:(int)browserId {
-  UniVerseCoreTab *tab = universe_host::TabWithBrowserId(browserId);
+  ArdiaCoreTab *tab = universe_host::TabWithBrowserId(browserId);
   UniVerseWebView *view = tab ? [UniVerseTabRegistry viewForTab:tab] : nil;
   return view.window.windowNumber;
 }
@@ -325,7 +325,7 @@ static BOOL gReportsCommits = NO;
 
 + (BOOL)devFocusPageOfBrowser:(int)browserId {
 #if DEBUG
-  UniVerseCoreTab *tab = universe_host::TabWithBrowserId(browserId);
+  ArdiaCoreTab *tab = universe_host::TabWithBrowserId(browserId);
   NSWindow *window = tab.view.window;
   NSView *page = nil;
   for (NSMutableArray<NSView *> *queue = [NSMutableArray arrayWithObject:tab.view ?: [NSView new]]; queue.count && !page;) {
