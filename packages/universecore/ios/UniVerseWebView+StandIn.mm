@@ -89,7 +89,7 @@ constexpr CFTimeInterval kTakeOverLendSeconds = 1;
   [self applyPainting];
 }
 
-- (BOOL)closesLentTab:(UniVerseCoreTab *)tab {
+- (BOOL)closesLentTab:(ArdiaCoreTab *)tab {
   if (!tab || _standIn.tab != tab || _standIn.page.superview != self) return NO;
   _standIn.closes = YES;
   return YES;
@@ -115,7 +115,7 @@ constexpr CFTimeInterval kTakeOverLendSeconds = 1;
 - (void)finishStandIn {
   if (!_standIn.tab && !_standIn.page) return;
   NSView *page = _standIn.page;
-  UniVerseCoreTab *tab = _standIn.tab;
+  ArdiaCoreTab *tab = _standIn.tab;
   const BOOL closes = _standIn.closes, leaving = _standIn.leaving;
   const float opacity = _standIn.opacity;
   UniVerseWebView *lender = _standIn.lender;
