@@ -1,9 +1,10 @@
 import type { Settings } from "../settings/settings";
 
-export type OnboardingStep = "intro" | "source" | "look" | "layout" | "tabs" | "details" | "searchPrivacy" | "pins" | "home" | "outro";
+export type OnboardingStep = "intro" | "source" | "engine" | "look" | "layout" | "tabs" | "details" | "searchPrivacy" | "pins" | "home" | "outro";
 
 export type QuestionId =
   | "source"
+  | "browserEngine"
   | "tabs"
   | "address"
   | "cmdl"
@@ -27,6 +28,7 @@ export const GLASS_KEYS = ["interfaceStyle", "glassTintWithTheme", "glassTintAmo
 
 export const QUESTIONS: Record<Exclude<OnboardingStep, "intro">, Question[]> = {
   source: [{ id: "source", keys: [] }],
+  engine: [{ id: "browserEngine", keys: ["pageEngine"] }],
   look: [{ id: "look", keys: ["appearance", ...GLASS_KEYS] }],
   layout: [
     { id: "tabs", keys: ["tabLayout"] },
