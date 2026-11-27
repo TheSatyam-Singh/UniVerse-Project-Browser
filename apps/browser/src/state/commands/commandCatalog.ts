@@ -123,6 +123,7 @@ export const COMMANDS = {
   cleanUpTabs: { title: "Clean Up Tabs", symbol: "sparkles", keys: ["⌥⌘K"], ...windowOffInLittleUniverse },
   tidyPins: { title: "Tidy Pins", symbol: "sparkles" },
   searchTabs: { title: "Search Tabs…", symbol: "magnifyingglass", keys: ["⇧⌘A"], ...windowOffInLittleUniverse },
+  quickTabSwitcher: { title: "Quick Tab Switcher…", symbol: "magnifyingglass", keys: ["⌘K"], ...windowOffInLittleUniverse },
   renameTab: { title: "Rename…", barTitle: "Rename Tab", symbol: "pencil", ...windowOffInLittleUniverse },
   changeTabIcon: { title: "Change Icon…", ...windowOffInLittleUniverse },
   returnToPinnedUrl: { title: "Back to Pinned URL", keys: ["⌘↩"], ...windowOffInLittleUniverse },

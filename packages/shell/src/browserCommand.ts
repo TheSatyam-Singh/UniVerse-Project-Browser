@@ -82,6 +82,7 @@ export type BrowserCommand =
   | "cleanUpTabs"
   | "tidyPins"
   | "searchTabs"
+  | "quickTabSwitcher"
   | "renameTab"
   | "changeTabIcon"
   | "returnToPinnedUrl"

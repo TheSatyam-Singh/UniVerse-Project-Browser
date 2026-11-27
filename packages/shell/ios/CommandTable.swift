@@ -85,6 +85,7 @@ enum CommandTable {
     case cleanUpTabs
     case tidyPins
     case searchTabs
+    case quickTabSwitcher
     case renameTab
     case changeTabIcon
     case returnToPinnedUrl
@@ -203,6 +204,7 @@ enum CommandTable {
     "cleanUpTabs": "Clean Up Tabs",
     "tidyPins": "Tidy Pins",
     "searchTabs": "Search Tabs…",
+    "quickTabSwitcher": "Quick Tab Switcher…",
     "renameTab": "Rename…",
     "changeTabIcon": "Change Icon…",
     "returnToPinnedUrl": "Back to Pinned URL",
@@ -296,6 +298,7 @@ enum CommandTable {
     "newGroupWithTabs": [("n", [.control, .command]), ("p", [.control, .command])],
     "cleanUpTabs": [("k", [.option, .command])],
     "searchTabs": [("a", [.shift, .command])],
+    "quickTabSwitcher": [("k", [.command])],
     "returnToPinnedUrl": [("\u{D}", [.command])],
     "tabSwitcher:forward": [("\u{9}", [.control])],
     "tabSwitcher:backward": [("\u{9}", [.control, .shift])],

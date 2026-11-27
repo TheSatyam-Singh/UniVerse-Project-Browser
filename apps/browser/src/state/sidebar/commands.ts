@@ -38,6 +38,9 @@ export function runSidebarCommand(command: BrowserCommand, arg: string | null, w
     case "searchTabs":
       setSidebarUi({ searchTabs: windowId, hover: null });
       return true;
+    case "quickTabSwitcher":
+      setSidebarUi({ searchTabs: windowId, hover: null });
+      return true;
     case "renameTab":
       if (tabId) void startRename(windowId, { kind: "tab", id: tabId });
       return true;

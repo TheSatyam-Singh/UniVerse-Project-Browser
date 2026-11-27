@@ -88,6 +88,7 @@ export const AUTOMATION: Readonly<Record<BrowserCommand, AutomationDecision>> = 
   cleanUpTabs: "run",
   tidyPins: "run",
   searchTabs: "run",
+  quickTabSwitcher: "run",
   renameTab: "run",
   changeTabIcon: "run",
   returnToPinnedUrl: "run",
