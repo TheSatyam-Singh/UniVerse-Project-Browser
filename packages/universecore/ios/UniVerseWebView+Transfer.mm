@@ -36,7 +36,7 @@ static NSString *SavedHistoryGeneration(UniVerseCoreProfile *profile) {
   return generation;
 }
 
-static UniVerseCoreTab *RestoreSavedHistory(UniVerseWindowController *controller, UniVerseCoreProfile *profile, NSString *key, NSString *url) {
+static ArdiaCoreTab *RestoreSavedHistory(UniVerseWindowController *controller, UniVerseCoreProfile *profile, NSString *key, NSString *url) {
   if (!key.length || !url.length || [BoundRestoreKeys() containsObject:key] || !profile.path.length ||
       profile.offTheRecord || !controller.coreWindow)
     return nil;
@@ -56,13 +56,13 @@ static UniVerseCoreTab *RestoreSavedHistory(UniVerseWindowController *controller
   NSString *generation = SavedHistoryGeneration(profile);
   if (!generation || ![saved[@"generation"] isEqual:generation]) return nil;
   controller.hostChanges++;
-  UniVerseCoreTab *tab = [controller.coreWindow restoreTab:state profile:profile foreground:NO];
+  ArdiaCoreTab *tab = [controller.coreWindow restoreTab:state profile:profile foreground:NO];
   controller.hostChanges--;
   [tab loadIfNeeded];
   return tab;
 }
 
-static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NSString *key) {
+static ArdiaCoreTab *StartParkedPage(NSString *url, NSString *profileName, NSString *key) {
   if (!url.length || !UniVerseHost.isStarted) return nil;
   NSString *scheme = [NSURLComponents componentsWithString:url].scheme.lowercaseString;
   if (![scheme isEqualToString:@"http"] && ![scheme isEqualToString:@"https"]) return nil;
@@ -72,7 +72,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
   if (!profile || universe_host::WasNavigationDownload(url, profileName)) return nil;
   UniVerseWindowController *keeper = [UniVerseWindowController strayWindowForProfile:profile];
   if (!keeper) return nil;
-  UniVerseCoreTab *tab = RestoreSavedHistory(keeper, profile, key, url);
+  ArdiaCoreTab *tab = RestoreSavedHistory(keeper, profile, key, url);
   keeper.hostChanges++;
   if (!tab) tab = [keeper.coreWindow openTab:url profile:profile foreground:NO];
   keeper.hostChanges--;
@@ -115,7 +115,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
 }
 
 + (void)startLaunchTab:(NSString *)transferKey url:(NSString *)url profile:(NSString *)profileName {
-  [UniVerseTabParking holdLaunchTab:transferKey url:url profile:profileName opening:^UniVerseCoreTab * {
+  [UniVerseTabParking holdLaunchTab:transferKey url:url profile:profileName opening:^ArdiaCoreTab * {
     return StartParkedPage(url, profileName, transferKey);
   }];
 }
@@ -126,7 +126,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
 
 + (void)startLinkTabs:(NSArray<NSString *> *)urls profile:(NSString *)profileName {
   NSString *profile = [profileName copy] ?: @"";
-  [UniVerseTabParking holdLinkTabs:urls profile:profile opening:^UniVerseCoreTab *(NSString *url) {
+  [UniVerseTabParking holdLinkTabs:urls profile:profile opening:^ArdiaCoreTab *(NSString *url) {
     return StartParkedPage(url, profile, nil);
   }];
 }
@@ -136,7 +136,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
 }
 
 - (BOOL)takeLinkTab:(NSString *)adoptId {
-  UniVerseCoreTab *tab = [UniVerseTabParking parkLinkTab:adoptId forKey:_transferKey];
+  ArdiaCoreTab *tab = [UniVerseTabParking parkLinkTab:adoptId forKey:_transferKey];
   if (!tab) return NO;
   if ([self takeTransferredTab] != UniVerseTransferNone) return YES;
   [UniVerseTabParking discardTab:tab forKey:_transferKey];
@@ -160,7 +160,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
     if (!_standalone && !_extensionHost.length && [self takeLinkTab:link]) return;
   }
   if ([_adoptId hasPrefix:@"universecore:"] || [_adoptId hasPrefix:@"tab:"]) {
-    UniVerseCoreTab *offered = [UniVerseTabRegistry takeOffered:_adoptId];
+    ArdiaCoreTab *offered = [UniVerseTabRegistry takeOffered:_adoptId];
     _adoptId = nil;
     if (offered.closed) {
       _life.offerClosed = YES;
@@ -202,7 +202,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
     view->_life.creatingURL = url;
     view->_life.creatingAt = CACurrentMediaTime();
     if (view->_extensionHost.length && url.length && controller.coreWindow) {
-      if (UniVerseCoreTab *tab = [controller.coreWindow openExtensionView:url profile:profile kind:view->_extensionHost])
+      if (ArdiaCoreTab *tab = [controller.coreWindow openExtensionView:url profile:profile kind:view->_extensionHost])
         return [view attach:tab];
     }
     if (standalone) controller = [UniVerseWindowController standaloneWindowForProfile:profile] ?: controller;
@@ -218,7 +218,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
                   UniVerseWindowController *now = later.controller;
                   if (later->_tab || !now) return;
                   NSString *state = [result[@"state"] isKindOfClass:NSString.class] ? result[@"state"] : nil;
-                  UniVerseCoreTab *tab = nil;
+                  ArdiaCoreTab *tab = nil;
                   now.hostChanges++;
                   if (state.length) tab = [now.coreWindow restoreTab:state profile:profile foreground:NO];
                   if (!tab) {
@@ -234,7 +234,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
     const BOOL userInitiated = view->_life.pendingUserInitiated;
     if (url.length && [view skipsNavigationDownload:url userInitiated:userInitiated]) url = nil;
     if (url.length) UniVerseFieldMarkNow(view->_transferKey, @"request");
-    UniVerseCoreTab *tab = !standalone && !userInitiated && !universe_host::IsPrivateProfile(view->_profile)
+    ArdiaCoreTab *tab = !standalone && !userInitiated && !universe_host::IsPrivateProfile(view->_profile)
                             ? RestoreSavedHistory(controller, profile, view->_transferKey, url)
                             : nil;
     controller.hostChanges++;
@@ -250,7 +250,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
 - (BOOL)cloneTab:(NSString *)sourceKey profile:(UniVerseCoreProfile *)profile {
   UniVerseWindowController *controller = self.controller;
   if (!controller.coreWindow) return NO;
-  UniVerseCoreTab *source = nil;
+  ArdiaCoreTab *source = nil;
   for (UniVerseWebView *other in LiveViews())
     if (other != self && [other.transferKey isEqualToString:sourceKey] && other->_tab && !other->_tab.closed) source = other->_tab;
   if (!source || source.profile != profile) return NO;
@@ -258,7 +258,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
   _life.pendingURL = nil;
   controller.hostChanges++;
   holder.hostChanges++;
-  UniVerseCoreTab *tab = [controller.coreWindow duplicateTab:source profile:profile foreground:NO];
+  ArdiaCoreTab *tab = [controller.coreWindow duplicateTab:source profile:profile foreground:NO];
   holder.hostChanges--;
   controller.hostChanges--;
   if (!tab) return NO;
@@ -275,7 +275,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
   return [UniVerseTabParking rehomeFromWindow:closing];
 }
 
-- (BOOL)canTake:(UniVerseCoreTab *)tab {
+- (BOOL)canTake:(ArdiaCoreTab *)tab {
   UniVerseCoreProfile *profile = tab.profile;
   if (!profile || tab.closed || profile.offTheRecord != universe_host::IsPrivateProfile(_profile)) return NO;
   if (profile.offTheRecord) return universe_host::IsOffTheRecordOf(profile, _profile);
@@ -307,7 +307,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
     }
     return UniVerseTransferTaken;
   }
-  UniVerseCoreTab *tab = [UniVerseTabParking parkedTabForKey:_transferKey];
+  ArdiaCoreTab *tab = [UniVerseTabParking parkedTabForKey:_transferKey];
   if (tab && ![self canTake:tab]) return UniVerseTransferNone;
   if (tab && !tab.closed && [self holdTransferOf:tab]) return UniVerseTransferHeld;
   if (tab) [UniVerseTabParking unpark:_transferKey];
@@ -345,7 +345,7 @@ static UniVerseCoreTab *StartParkedPage(NSString *url, NSString *profileName, NS
 }
 
 - (void)closeBrowser {
-  UniVerseCoreTab *tab = _tab;
+  ArdiaCoreTab *tab = _tab;
   if (tab && _life.handingOff && _transferKey.length && !tab.closed) {
     _life.handOff();
     [self detach];
