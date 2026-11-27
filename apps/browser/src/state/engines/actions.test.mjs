@@ -7,10 +7,14 @@ const toasts = new Map();
 globalThis.engineTestToasts = toasts;
 const signIn = { read: [], toWebKit: [], toChromium: [], cookies: [] };
 globalThis.engineTestSignIn = signIn;
+const widevine = { components: [] };
+globalThis.engineTestWidevine = widevine;
 const stubs = {
   "../app/toasts": `export const showToast = (windowId, title, message, options) => globalThis.engineTestToasts.set(windowId, { title, ...options });
     export const hideKeyedToast = (windowId, key) => globalThis.engineTestToasts.get(windowId)?.key === key && globalThis.engineTestToasts.delete(windowId);`,
   "../tabs/tabPages": "export const wantsPage = (t) => !!t && !!(t.page.nav || t.page.adopt);",
+  "../../platform/app": `export const WIDEVINE_COMPONENT_ID = "oimompecagnajdejgnnjijobebaeigek";
+    export const listComponents = async () => globalThis.engineTestWidevine.components;`,
   "./engineSignIn": `export const signInCarryOn = () => true;
     export const readSignInCookies = async (tabId, url) => { globalThis.engineTestSignIn.read.push([tabId, url]); return globalThis.engineTestSignIn.cookies; };
     export const carrySignInToWebKit = async (tabId, url) => { globalThis.engineTestSignIn.toWebKit.push([tabId, url]); return 1; };
@@ -128,4 +132,22 @@ test("moving the same tab to WebKit again keeps one watch on its site, and closi
     S().updateSettings({ websiteEngines: {} });
     webviews.clear();
   }
+});
+
+test("when Widevine is missing, a protected-media request moves the page to WebKit instead of asking", async () => {
+  S().hydrate({});
+  const w = S().createWindow({ url: "https://video.example/watch/1" });
+  const tabId = model.activeTabId(S(), w);
+  S().updateTab(tabId, { engine: "chromium", url: "https://video.example/watch/1" });
+  webviews.set(tabId, { evaluate: () => Promise.resolve(false) });
+  widevine.components = [];
+  offerWebKit(tabId, { keySystem: "com.widevine.alpha", main: true });
+  await settle();
+  await settle();
+  assert.equal(S().tabs[tabId].engine, "chromium");
+  offerWebKit(tabId, { keySystem: "com.widevine.alpha", main: true });
+  await settle();
+  await settle();
+  assert.equal(S().tabs[tabId].engine, "webkit");
+  webviews.clear();
 });
