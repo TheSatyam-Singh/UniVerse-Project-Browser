@@ -127,7 +127,7 @@ function mobileSuggest(text        , options                       = {})        
 function mobileResolve(text        , scope                     = null)                          {
   const input = text.trim();
   if (!input) return null;
-  if (scope) return { kind: "search", url: searchUrlFor(scope.url, input), query: input, engine: scope.name };
+  if (scope?.url) return { kind: "search", url: searchUrlFor(scope.url, input), query: input, engine: scope.name };
   const bang = input.includes("!") ? findBang(input, bangTableOnce()) : null;
   if (bang) return { kind: "bang", url: bang.url, query: bang.query, engine: bang.bang.name };
   if (input.startsWith("?")) {
@@ -2629,6 +2629,7 @@ function matchQuickCreate(query        , limit = 3)                {
 });
 __define("packages/core/src/siteSearch.ts", function (exports, __require) {
   __export(exports, "providerScope", () => providerScope);
+  __export(exports, "historyScope", () => historyScope);
   __export(exports, "findScope", () => findScope);
   __export(exports, "scopedSearchUrl", () => scopedSearchUrl);
   __export(exports, "offeredSiteSearch", () => offeredSiteSearch);
@@ -2692,6 +2693,12 @@ function providerScope(text        , providers                             = [])
   return p ? { kind: "provider", name: p.title, host: p.host ?? "", url: p.url ?? "", providerId: p.id } : null;
 }
 
+function historyScope(text        )                     {
+  const t = text.trim().toLowerCase();
+  if (t !== "@history" && t !== "@h") return null;
+  return { kind: "history", name: "History", host: "", url: "" };
+}
+
 function normalize(text        )         {
   return text.trim().toLowerCase().replace(/^[a-z]+:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
 }
@@ -2704,6 +2711,8 @@ function siteLabel(host        )         {
 function findScope(text        , { engines, sites = POPULAR_SITE_SEARCHES, hosts = [], providers }              )                     {
   const provider = providerScope(text, providers);
   if (provider) return provider;
+  const history = historyScope(text);
+  if (history) return history;
   const t = normalize(text);
   if (!t || /\s/.test(t)) return null;
   const host = hostOf(`https://${t}`) || t;
@@ -2894,6 +2903,14 @@ function buildSuggestions(raw        , source                  , options        
   }
   remember(pool, q, tokens, matched, scores);
   const ranked = top.items;
+
+  if (scope?.kind === "history" && !scope.host) {
+    const historyOut = new Output(limit);
+    const pages = ranked.filter((x) => x.c.visits > 0).map((x) => pageSuggestion(x.c, x.tabId));
+    historyOut.push(...pages.slice(0, limit - 1));
+    historyOut.push({ kind: "page", url: `universe://history?q=${encodeURIComponent(query)}`, title: `Search history for "${query}"`, favicon: null });
+    return { items: historyOut.items, completion: "" };
+  }
 
   const out = new Output(limit);
   const remoteRows = (url                          , name        ) =>

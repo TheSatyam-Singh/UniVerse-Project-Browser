@@ -98,7 +98,7 @@ export function mobileSuggest(text: string, options: MobileSuggestOptions = {}):
 export function mobileResolve(text: string, scope: SearchScope | null = null): MobileResolution | null {
   const input = text.trim();
   if (!input) return null;
-  if (scope) return { kind: "search", url: searchUrlFor(scope.url, input), query: input, engine: scope.name };
+  if (scope?.url) return { kind: "search", url: searchUrlFor(scope.url, input), query: input, engine: scope.name };
   const bang = input.includes("!") ? findBang(input, bangTableOnce()) : null;
   if (bang) return { kind: "bang", url: bang.url, query: bang.query, engine: bang.bang.name };
   if (input.startsWith("?")) {

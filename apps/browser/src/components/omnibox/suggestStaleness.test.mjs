@@ -105,3 +105,22 @@ test("Space enters a site's search only after its bare host or an engine keyword
   for (const text of ["youtube", "github.com/foo", "github.com?x=1", "youtube.com:443", "me@github.com", "nothere.example"])
     assert.equal(keywordScope(text, w), null, text);
 });
+
+test("@history enters a history-only search with a row for the full History page", () => {
+  const { w } = setup();
+  assert.deepEqual(keywordScope("@history", w), { kind: "history", name: "History", host: "", url: "" });
+  assert.deepEqual(keywordScope("@h", w), { kind: "history", name: "History", host: "", url: "" });
+  assert.equal(keywordScope("history", w), null);
+  assert.equal(scopeFor("@history", w)?.kind, "history");
+  const scope = keywordScope("@history", w);
+  const h = mount(({ text, profileId, scope }) => useSuggestions({ text, active: true, windowId: w, profileId, scope }), { props: { text: "zebra", profileId: "default", scope } });
+  const rows = h.value.items;
+  assert.ok(rows.every((x) => x.kind === "page"), "no web search row in a history search");
+  assert.ok(rows.some((x) => x.url === "https://zebra.example/one"));
+  assert.ok(rows.some((x) => x.url === "https://zebra.example/two"));
+  assert.equal(rows[rows.length - 1]?.url, "universe://history?q=zebra");
+  assert.equal(rows[rows.length - 1]?.title, 'Search history for "zebra"');
+  h.rerender({ text: "zzznope", profileId: "default", scope });
+  assert.deepEqual(h.value.items.map((x) => x.url), ["universe://history?q=zzznope"]);
+  h.unmount();
+});
