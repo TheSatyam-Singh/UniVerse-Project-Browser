@@ -18,7 +18,7 @@ bool IsRendererDebugURL(NSString *url) {
   return [hosts containsObject:c.host.lowercaseString ?: @""];
 }
 
-NSString *CommittedEntryURL(UniVerseCoreTab *tab) {
+NSString *CommittedEntryURL(ArdiaCoreTab *tab) {
   for (NSDictionary *entry in tab.navigationEntries)
     if ([entry[@"committed"] boolValue]) return entry[@"url"];
   return nil;
@@ -125,16 +125,16 @@ NSString *PNGDataURL(NSImage *image) {
   });
 }
 
-- (void)tabDidChangeTitle:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeTitle:(ArdiaCoreTab *)tab {
   [self queueNavigation];
 }
 
-- (void)tabDidChangeURL:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeURL:(ArdiaCoreTab *)tab {
   [self queueNavigation];
   [UniVerseEarlyWindow page:tab shownURL:_shownURL];
 }
 
-- (void)tabDidChangeLoading:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeLoading:(ArdiaCoreTab *)tab {
   if (!tab.loading && tab.url.length && ![tab.url hasPrefix:@"about:"]) [self revealLittlePage:YES];
   if (tab.loading) [self resetBlocked:YES];
   if (tab.loading) UniVerseFieldMarkNow(_transferKey, @"start");
@@ -150,15 +150,15 @@ NSString *PNGDataURL(NSImage *image) {
   if (report && had) [self emit:@"contentBlocked" payload:@{@"count" : @0, @"url" : @""}];
 }
 
-- (void)tabDidChangeNavigationState:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeNavigationState:(ArdiaCoreTab *)tab {
   [self queueNavigation];
 }
 
-- (void)tabDidChangeThemeColor:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeThemeColor:(ArdiaCoreTab *)tab {
   [self queueNavigation];
 }
 
-- (void)tabDidCommitDocument:(UniVerseCoreTab *)tab {
+- (void)tabDidCommitDocument:(ArdiaCoreTab *)tab {
   [self noteDocumentCommits];
   UniVerseFieldMarkNow(_transferKey, @"commit");
   [UniVerseEarlyWindow pageCommitted:tab shownURL:_shownURL];
@@ -168,7 +168,7 @@ NSString *PNGDataURL(NSImage *image) {
   [self queueNavigation];
 }
 
-- (void)tabDidChangeProgress:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeProgress:(ArdiaCoreTab *)tab {
   const double progress = tab.progress;
   const CFTimeInterval wait = _sent.progressAt + 0.1 - CACurrentMediaTime();
   if (progress <= 0.1 || progress >= 1 || wait <= 0) return [self sendProgress];
@@ -189,11 +189,11 @@ NSString *PNGDataURL(NSImage *image) {
   [self emit:@"progress" payload:@{@"progress" : @(_sent.progress)}];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab didRequestAppURL:(NSString *)url userGesture:(BOOL)userGesture {
+- (void)tab:(ArdiaCoreTab *)tab didRequestAppURL:(NSString *)url userGesture:(BOOL)userGesture {
   [self emit:@"openWindow" payload:@{@"url" : url ?: @"", @"disposition" : @"current", @"userGesture" : @(userGesture)}];
 }
 
-- (void)tabDidChangeFavicon:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeFavicon:(ArdiaCoreTab *)tab {
   NSImage *image = tab.favicon;
   if (!image) return;
   NSString *url = tab.faviconURL;
@@ -264,18 +264,18 @@ NSString *PNGDataURL(NSImage *image) {
   [_tab stop];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab navigationBecameDownload:(NSString *)url {
+- (void)tab:(ArdiaCoreTab *)tab navigationBecameDownload:(NSString *)url {
   universe_host::NoteNavigationDownload(url, _profile);
   if (_requests.requestedURL && ![_requests.requestedURL isEqualToString:url]) universe_host::NoteNavigationDownload(_requests.requestedURL, _profile);
   _requests.requestedURL = nil;
   [self emit:@"downloadNavigation" payload:@{@"url" : url ?: @"", @"committedUrl" : tab.url ?: @"", @"skipped" : @NO}];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab didFailLoad:(NSString *)url code:(int)code description:(NSString *)text {
+- (void)tab:(ArdiaCoreTab *)tab didFailLoad:(NSString *)url code:(int)code description:(NSString *)text {
   [self emit:@"loadError" payload:@{@"url" : url ?: @"", @"code" : @(code), @"text" : text ?: @""}];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab didChangeStatusText:(NSString *)text {
+- (void)tab:(ArdiaCoreTab *)tab didChangeStatusText:(NSString *)text {
   NSMutableDictionary *payload = [NSMutableDictionary dictionaryWithObject:text ?: @"" forKey:@"text"];
   NSWindow *window = self.window;
   if (window && text.length) {
@@ -289,7 +289,7 @@ NSString *PNGDataURL(NSImage *image) {
   [_tab openBlockedPopup:popupId always:always];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab didBlockRequests:(int)count lastURL:(NSString *)url {
+- (void)tab:(ArdiaCoreTab *)tab didBlockRequests:(int)count lastURL:(NSString *)url {
   if (tab != _tab) return;
   _reports.blockedCount += count;
   _reports.lastBlocked = url;
@@ -305,7 +305,7 @@ NSString *PNGDataURL(NSImage *image) {
   });
 }
 
-- (void)tab:(UniVerseCoreTab *)tab didBlockPopup:(NSDictionary<NSString *, NSString *> *)popup {
+- (void)tab:(ArdiaCoreTab *)tab didBlockPopup:(NSDictionary<NSString *, NSString *> *)popup {
   [self emit:@"popupBlocked" payload:popup];
 }
 
