@@ -73,11 +73,6 @@ export const EXPERIMENTS = {
     owner: "window",
     removeBy: "2026-12-15",
   },
-  webkitSignIn: {
-    about: "Switching a page between Chromium and WebKit copies the cookies that page's own address gets into the other engine's store, at most 1.5 s out and 3 s back (state/engines/engineSignIn.ts).",
-    owner: "engines",
-    removeBy: "2026-12-15",
-  },
   universeAiSidebar: {
     about: "An experimental UniVerse AI panel in the sidebar that answers questions with the deployed UniVerse search engine (state/ai/aiSidebar.ts).",
     owner: "ai",
