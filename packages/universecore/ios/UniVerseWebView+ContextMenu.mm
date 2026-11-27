@@ -223,7 +223,7 @@ NSDictionary *FindMenuItem(NSArray *items, NSString *label) {
   });
 }
 
-- (NSArray<NSDictionary<NSString *, NSString *> *> *)tab:(UniVerseCoreTab *)tab
+- (NSArray<NSDictionary<NSString *, NSString *> *> *)tab:(ArdiaCoreTab *)tab
                            contextMenuItemsForSelection:(NSString *)text {
   return @[ @{
     @"id" : @"search",
@@ -232,7 +232,7 @@ NSDictionary *FindMenuItem(NSArray *items, NSString *label) {
   } ];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab
+- (void)tab:(ArdiaCoreTab *)tab
     contextMenuCommand:(NSString *)itemId
                   text:(NSString *)selection
              modifiers:(NSDictionary<NSString *, NSNumber *> *)modifiers {
@@ -240,7 +240,7 @@ NSDictionary *FindMenuItem(NSArray *items, NSString *label) {
     [self emit:@"command" payload:@{@"command" : @"search", @"text" : selection ?: @"", @"modifiers" : modifiers ?: @{}}];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab shareFromContextMenu:(NSDictionary<NSString *, id> *)share {
+- (void)tab:(ArdiaCoreTab *)tab shareFromContextMenu:(NSDictionary<NSString *, id> *)share {
   NSMutableDictionary *item = [NSMutableDictionary dictionary];
   for (NSString *key in @[ @"kind", @"url", @"title", @"text" ])
     if (NSString *value = Field<NSString>(share, key)) item[key] = value;
@@ -255,15 +255,15 @@ NSDictionary *FindMenuItem(NSArray *items, NSString *label) {
   [self emit:@"command" payload:payload];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab didShowAutofillSuggestions:(NSArray<NSDictionary<NSString *, NSString *> *> *)items {
+- (void)tab:(ArdiaCoreTab *)tab didShowAutofillSuggestions:(NSArray<NSDictionary<NSString *, NSString *> *> *)items {
   NoteEvent(universe_host::BrowserId(tab), @"autofillSuggestions", @{@"items" : items ?: @[]});
 }
 
-- (void)tab:(UniVerseCoreTab *)tab didShowContextMenu:(NSArray<NSDictionary *> *)items {
+- (void)tab:(ArdiaCoreTab *)tab didShowContextMenu:(NSArray<NSDictionary *> *)items {
   [self tab:tab runContextMenu:@{@"items" : items ?: @[]}];
 }
 
-- (NSDictionary<NSString *, id> *)tab:(UniVerseCoreTab *)tab runContextMenu:(NSDictionary<NSString *, id> *)menu {
+- (NSDictionary<NSString *, id> *)tab:(ArdiaCoreTab *)tab runContextMenu:(NSDictionary<NSString *, id> *)menu {
   NSArray *items = Field<NSArray>(menu, @"items") ?: @[];
   NoteEvent(universe_host::BrowserId(tab), @"contextMenu", @{@"items" : items});
   UniVerseLaunchConfig *config = UniVerseLaunchConfig.shared;
