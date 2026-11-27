@@ -32,7 +32,7 @@ NSSet<NSString *> *ReservedIdentifiersInFullScreenShowingPage() {
 }
 
 bool ShowsBrowserInFullScreen(NSWindow *window) {
-  UniVerseCoreWindow *coreWindow = [UniVerseWindowController forNSWindow:window].coreWindow;
+  ArdiaCoreWindow *coreWindow = [UniVerseWindowController forNSWindow:window].coreWindow;
   return coreWindow && ![UniVerseWindowFullScreen ofWindow:coreWindow create:NO].pageFullScreen;
 }
 
@@ -125,7 +125,7 @@ bool IsSecondSidebarKeyPress(NSEvent *event) {
 bool KeepsUnhandledSidebarKeyInPage(NSWindow *window, NSEvent *event) {
   if (!IsSidebarKey(event)) return false;
   NSResponder *focused = window.firstResponder;
-  const bool typing = [focused isKindOfClass:NSView.class] && [UniVerseCorePageView isEditingText:(NSView *)focused];
+  const bool typing = [focused isKindOfClass:NSView.class] && [ArdiaCorePageView isEditingText:(NSView *)focused];
   if (!typing) gSidebarKeyPressForPage = SidebarKeyPress{};
   return typing;
 }
