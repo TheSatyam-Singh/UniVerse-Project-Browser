@@ -16,7 +16,7 @@ NSDictionary *ResponderReport(NSView *hit) {
     NSMenuItem *item = [[NSMenuItem alloc] initWithTitle:action action:NSSelectorFromString(action) keyEquivalent:@""];
     valid[action] = @([(id<NSUserInterfaceValidations>)page validateUserInterfaceItem:item]);
   }
-  return @{@"takesSwipes" : @([UniVerseCorePageView takesSwipes:page]), @"valid" : valid};
+  return @{@"takesSwipes" : @([ArdiaCorePageView takesSwipes:page]), @"valid" : valid};
 }
 
 NSPoint LocalPoint(NSWindow *window, NSPoint point) {
