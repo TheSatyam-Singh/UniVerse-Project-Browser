@@ -4,58 +4,58 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class UniVerseCoreEngine;
+@class ArdiaCoreEngine;
 @class UniVerseCoreProfile;
-@class UniVerseCoreTab;
-@class UniVerseCoreWindow;
+@class ArdiaCoreTab;
+@class ArdiaCoreWindow;
 
 @protocol UniVerseCoreEngineDelegate <NSObject>
 - (void)engineDidStart;
 - (void)engineWillShutDown;
 - (void)engineQuitCancelled;
-- (nullable UniVerseCoreWindow*)engineWindowForNewBrowserOfProfile:(UniVerseCoreProfile*)profile
+- (nullable ArdiaCoreWindow*)engineWindowForNewBrowserOfProfile:(UniVerseCoreProfile*)profile
                                                         type:(NSString*)type;
-- (void)engine:(UniVerseCoreEngine*)engine
+- (void)engine:(ArdiaCoreEngine*)engine
     permissionRequest:(NSDictionary<NSString*, id>*)request
-                  tab:(UniVerseCoreTab*)tab;
-- (void)engine:(UniVerseCoreEngine*)engine permissionRequestDismissed:(NSString*)requestId;
-- (void)engine:(UniVerseCoreEngine*)engine
+                  tab:(ArdiaCoreTab*)tab;
+- (void)engine:(ArdiaCoreEngine*)engine permissionRequestDismissed:(NSString*)requestId;
+- (void)engine:(ArdiaCoreEngine*)engine
     extensionSidePanel:(NSDictionary<NSString*, id>*)panel
-                   tab:(UniVerseCoreTab*)tab;
-- (BOOL)engine:(UniVerseCoreEngine*)engine
+                   tab:(ArdiaCoreTab*)tab;
+- (BOOL)engine:(ArdiaCoreEngine*)engine
     extensionActionPopup:(NSDictionary<NSString*, id>*)popup
-                     tab:(UniVerseCoreTab*)tab;
-- (BOOL)engine:(UniVerseCoreEngine*)engine
+                     tab:(ArdiaCoreTab*)tab;
+- (BOOL)engine:(ArdiaCoreEngine*)engine
     extensionActionShortcut:(NSDictionary<NSString*, id>*)shortcut
-                        tab:(UniVerseCoreTab*)tab;
+                        tab:(ArdiaCoreTab*)tab;
 - (BOOL)engineIsReservedKeyEvent:(NSEvent*)event;
 - (BOOL)engineIsReservedKey:(NSString*)key
                unshiftedKey:(NSString*)unshiftedKey
                   modifiers:(NSEventModifierFlags)modifiers;
-- (void)engine:(UniVerseCoreEngine*)engine
+- (void)engine:(ArdiaCoreEngine*)engine
     extensionInstallPrompt:(NSDictionary<NSString*, id>*)prompt
                    profile:(UniVerseCoreProfile*)profile
-                       tab:(nullable UniVerseCoreTab*)tab;
-- (void)engine:(UniVerseCoreEngine*)engine
+                       tab:(nullable ArdiaCoreTab*)tab;
+- (void)engine:(ArdiaCoreEngine*)engine
     extensionInstallFailed:(NSString*)message
-                       tab:(nullable UniVerseCoreTab*)tab;
-- (void)engine:(UniVerseCoreEngine*)engine
+                       tab:(nullable ArdiaCoreTab*)tab;
+- (void)engine:(ArdiaCoreEngine*)engine
     deviceChooser:(NSDictionary<NSString*, id>*)chooser
-              tab:(UniVerseCoreTab*)tab;
-- (void)engine:(UniVerseCoreEngine*)engine
+              tab:(ArdiaCoreTab*)tab;
+- (void)engine:(ArdiaCoreEngine*)engine
     castDialog:(NSDictionary<NSString*, id>*)dialog
-           tab:(UniVerseCoreTab*)tab;
-- (void)engine:(UniVerseCoreEngine*)engine
+           tab:(ArdiaCoreTab*)tab;
+- (void)engine:(ArdiaCoreEngine*)engine
     castRoutes:(NSArray<NSDictionary<NSString*, NSString*>*>*)routes
        profile:(UniVerseCoreProfile*)profile;
 @end
 
 UNIVERSECORE_EXPORT
-@interface UniVerseCoreEngine : NSObject
+@interface ArdiaCoreEngine : NSObject
 + (int)runWithArgc:(int)argc
               argv:(const char* _Nonnull* _Nonnull)argv
           delegate:(id<UniVerseCoreEngineDelegate>)delegate;
-@property(class, readonly, nullable) UniVerseCoreEngine* sharedEngine;
+@property(class, readonly, nullable) ArdiaCoreEngine* sharedEngine;
 
 @property(readonly) UniVerseCoreProfile* defaultProfile;
 - (void)loadProfile:(NSString*)directoryName
@@ -86,7 +86,7 @@ UNIVERSECORE_EXPORT
 @property(class, readonly) NSArray<NSDictionary*>* testExternalLaunches;
 @property(class, readonly) NSArray<NSDictionary*>* testChooserEvents;
 + (void)allowDesktopCapture:(NSString*)sourceId
-                        tab:(UniVerseCoreTab*)tab
+                        tab:(ArdiaCoreTab*)tab
                       frame:(nullable NSString*)frameId
                      origin:(nullable NSString*)origin
                       audio:(nullable NSString*)audio;
@@ -99,7 +99,7 @@ UNIVERSECORE_EXPORT
 @property(readonly) NSString* keepAliveState;
 @end
 
-@interface UniVerseCoreEngine (Tracing)
+@interface ArdiaCoreEngine (Tracing)
 + (void)beginTracing:(void (^)(BOOL started))completion;
 + (void)endTracing:(BOOL)keep completion:(void (^)(NSString* _Nullable path))completion;
 @property(class, readonly) BOOL isTracing;
@@ -140,37 +140,37 @@ typedef NS_ENUM(NSInteger, UniVerseCoreAdoption) {
 
 @protocol UniVerseCoreWindowDelegate <NSObject>
 @optional
-- (void)window:(UniVerseCoreWindow*)window
-    didInsertTab:(UniVerseCoreTab*)tab
-          opener:(nullable UniVerseCoreTab*)opener
+- (void)window:(ArdiaCoreWindow*)window
+    didInsertTab:(ArdiaCoreTab*)tab
+          opener:(nullable ArdiaCoreTab*)opener
      disposition:(NSString*)disposition;
-- (void)window:(UniVerseCoreWindow*)window didRemoveTab:(UniVerseCoreTab*)tab;
-- (void)window:(UniVerseCoreWindow*)window didActivateTab:(UniVerseCoreTab*)tab;
-- (void)window:(UniVerseCoreWindow*)window
-    devToolsDidChangeForTab:(UniVerseCoreTab*)tab
+- (void)window:(ArdiaCoreWindow*)window didRemoveTab:(ArdiaCoreTab*)tab;
+- (void)window:(ArdiaCoreWindow*)window didActivateTab:(ArdiaCoreTab*)tab;
+- (void)window:(ArdiaCoreWindow*)window
+    devToolsDidChangeForTab:(ArdiaCoreTab*)tab
                        view:(nullable NSView*)devToolsView;
-- (void)window:(UniVerseCoreWindow*)window
-                    tab:(UniVerseCoreTab*)tab
+- (void)window:(ArdiaCoreWindow*)window
+                    tab:(ArdiaCoreTab*)tab
     didChangeFullscreen:(BOOL)fullscreen;
-- (void)window:(UniVerseCoreWindow*)window
+- (void)window:(ArdiaCoreWindow*)window
     passwordPrompt:(NSDictionary<NSString*, id>*)prompt
-            forTab:(UniVerseCoreTab*)tab;
-- (void)window:(UniVerseCoreWindow*)window
+            forTab:(ArdiaCoreTab*)tab;
+- (void)window:(ArdiaCoreWindow*)window
     autofillPrompt:(NSDictionary<NSString*, id>*)prompt
-            forTab:(UniVerseCoreTab*)tab;
-- (void)window:(UniVerseCoreWindow*)window showRequestedActive:(BOOL)active;
-- (BOOL)windowShouldClose:(UniVerseCoreWindow*)window;
-- (void)windowDidCancelClose:(UniVerseCoreWindow*)window;
-- (void)windowCanTakeTabs:(UniVerseCoreWindow*)window;
-- (void)window:(UniVerseCoreWindow*)window
+            forTab:(ArdiaCoreTab*)tab;
+- (void)window:(ArdiaCoreWindow*)window showRequestedActive:(BOOL)active;
+- (BOOL)windowShouldClose:(ArdiaCoreWindow*)window;
+- (void)windowDidCancelClose:(ArdiaCoreWindow*)window;
+- (void)windowCanTakeTabs:(ArdiaCoreWindow*)window;
+- (void)window:(ArdiaCoreWindow*)window
     confirmCloseWithDownloads:(int)count
                    completion:(void (^)(BOOL closeAnyway))completion;
-- (BOOL)window:(UniVerseCoreWindow*)window preHandleKeyEvent:(NSEvent*)event;
-- (BOOL)window:(UniVerseCoreWindow*)window handleKeyEvent:(NSEvent*)event;
+- (BOOL)window:(ArdiaCoreWindow*)window preHandleKeyEvent:(NSEvent*)event;
+- (BOOL)window:(ArdiaCoreWindow*)window handleKeyEvent:(NSEvent*)event;
 @end
 
 UNIVERSECORE_EXPORT
-@interface UniVerseCoreWindow : NSObject
+@interface ArdiaCoreWindow : NSObject
 + (nullable NSView*)embeddedRootOfWindow:(NSWindow*)window;
 + (Class)contentViewClass;
 + (BOOL)isChromeFramelessWindow:(NSWindow*)window;
@@ -179,15 +179,15 @@ UNIVERSECORE_EXPORT
 @property(readonly) NSView* hostView;
 @property(weak, nullable) id<UniVerseCoreWindowDelegate> delegate;
 
-- (UniVerseCoreTab*)openTab:(NSString*)url
+- (ArdiaCoreTab*)openTab:(NSString*)url
               profile:(UniVerseCoreProfile*)profile
            foreground:(BOOL)foreground;
-- (nullable UniVerseCoreTab*)openExtensionView:(NSString*)url
+- (nullable ArdiaCoreTab*)openExtensionView:(NSString*)url
                                  profile:(UniVerseCoreProfile*)profile
                                     kind:(NSString*)kind;
 @property(nonatomic, nullable) UniVerseCoreProfile* activeProfile;
-- (void)activateTab:(UniVerseCoreTab*)tab;
-- (NSArray<UniVerseCoreTab*>*)tabsForProfile:(UniVerseCoreProfile*)profile;
+- (void)activateTab:(ArdiaCoreTab*)tab;
+- (NSArray<ArdiaCoreTab*>*)tabsForProfile:(UniVerseCoreProfile*)profile;
 - (int)chromeWindowIdForProfile:(UniVerseCoreProfile*)profile;
 - (BOOL)executeChromeCommand:(int)commandId profile:(UniVerseCoreProfile*)profile;
 - (void)showInactive;
@@ -195,76 +195,76 @@ UNIVERSECORE_EXPORT
 - (void)close;
 
 - (void)prepareProfile:(UniVerseCoreProfile*)profile;
-- (UniVerseCoreAdoption)adoptTab:(UniVerseCoreTab*)tab;
-- (UniVerseCoreAdoption)canAdoptTab:(UniVerseCoreTab*)tab;
-- (nullable UniVerseCoreTab*)restoreTab:(nullable NSString*)state
+- (UniVerseCoreAdoption)adoptTab:(ArdiaCoreTab*)tab;
+- (UniVerseCoreAdoption)canAdoptTab:(ArdiaCoreTab*)tab;
+- (nullable ArdiaCoreTab*)restoreTab:(nullable NSString*)state
                           profile:(UniVerseCoreProfile*)profile
                        foreground:(BOOL)foreground;
-- (nullable UniVerseCoreTab*)duplicateTab:(UniVerseCoreTab*)source
+- (nullable ArdiaCoreTab*)duplicateTab:(ArdiaCoreTab*)source
                             profile:(UniVerseCoreProfile*)profile
                          foreground:(BOOL)foreground;
-- (void)placeTab:(UniVerseCoreTab*)tab index:(int)index pinned:(BOOL)pinned;
+- (void)placeTab:(ArdiaCoreTab*)tab index:(int)index pinned:(BOOL)pinned;
 @property(nonatomic) BOOL internal;
 @property(nonatomic) BOOL automation;
 @end
 
-@interface UniVerseCoreWindow (Picture)
+@interface ArdiaCoreWindow (Picture)
 + (void)copyPictureOfChromeWindow:(NSWindow*)window
                        completion:(void (^)(CGImageRef _Nullable picture))completion;
 @end
 
 @protocol UniVerseCoreTabDelegate <NSObject>
 @optional
-- (void)tabDidChangeTitle:(UniVerseCoreTab*)tab;
-- (void)tabDidChangeURL:(UniVerseCoreTab*)tab;
-- (void)tabDidChangeLoading:(UniVerseCoreTab*)tab;
-- (void)tabDidChangeProgress:(UniVerseCoreTab*)tab;
-- (void)tabDidChangeFavicon:(UniVerseCoreTab*)tab;
-- (void)tabDidChangeNavigationState:(UniVerseCoreTab*)tab;
-- (void)tab:(UniVerseCoreTab*)tab didFindMatches:(int)count active:(int)active final:(BOOL)final;
-- (void)tab:(UniVerseCoreTab*)tab
+- (void)tabDidChangeTitle:(ArdiaCoreTab*)tab;
+- (void)tabDidChangeURL:(ArdiaCoreTab*)tab;
+- (void)tabDidChangeLoading:(ArdiaCoreTab*)tab;
+- (void)tabDidChangeProgress:(ArdiaCoreTab*)tab;
+- (void)tabDidChangeFavicon:(ArdiaCoreTab*)tab;
+- (void)tabDidChangeNavigationState:(ArdiaCoreTab*)tab;
+- (void)tab:(ArdiaCoreTab*)tab didFindMatches:(int)count active:(int)active final:(BOOL)final;
+- (void)tab:(ArdiaCoreTab*)tab
     didReceivePageMessage:(NSString*)kind
                      json:(NSString*)json
                     frame:(NSString*)frameId
                      main:(BOOL)main
                    origin:(NSString*)origin;
-- (void)tabWillClose:(UniVerseCoreTab*)tab;
-- (void)tab:(UniVerseCoreTab*)tab rendererGone:(NSString*)status code:(int)code;
-- (void)tab:(UniVerseCoreTab*)tab didFailLoad:(NSString*)url code:(int)code description:(NSString*)text;
-- (void)tab:(UniVerseCoreTab*)tab didChangeStatusText:(NSString*)text;
-- (void)tab:(UniVerseCoreTab*)tab didRequestAppURL:(NSString*)url userGesture:(BOOL)userGesture;
-- (void)tabDidChangeThemeColor:(UniVerseCoreTab*)tab;
-- (void)tabDidCommitDocument:(UniVerseCoreTab*)tab;
-- (void)tabDidGainFocus:(UniVerseCoreTab*)tab;
-- (void)tabDidChangeAudio:(UniVerseCoreTab*)tab;
-- (void)tabDidChangeSecurity:(UniVerseCoreTab*)tab;
-- (void)tabDidChangeZoom:(UniVerseCoreTab*)tab;
-- (void)tab:(UniVerseCoreTab*)tab didBlockPopup:(NSDictionary<NSString*, NSString*>*)popup;
-- (void)tab:(UniVerseCoreTab*)tab preferredSizeDidChange:(NSSize)size;
-- (void)tab:(UniVerseCoreTab*)tab externalAppRequest:(NSDictionary<NSString*, id>*)request;
-- (void)tab:(UniVerseCoreTab*)tab requestsActivation:(NSString*)reason;
-- (void)tab:(UniVerseCoreTab*)tab didChangePictureInPicture:(NSDictionary<NSString*, id>*)state;
-- (void)tab:(UniVerseCoreTab*)tab didShowAutofillSuggestions:(NSArray<NSDictionary<NSString*, NSString*>*>*)items;
-- (void)tab:(UniVerseCoreTab*)tab didBlockRequests:(int)count lastURL:(NSString*)url;
-- (NSArray<NSDictionary<NSString*, NSString*>*>*)tab:(UniVerseCoreTab*)tab
+- (void)tabWillClose:(ArdiaCoreTab*)tab;
+- (void)tab:(ArdiaCoreTab*)tab rendererGone:(NSString*)status code:(int)code;
+- (void)tab:(ArdiaCoreTab*)tab didFailLoad:(NSString*)url code:(int)code description:(NSString*)text;
+- (void)tab:(ArdiaCoreTab*)tab didChangeStatusText:(NSString*)text;
+- (void)tab:(ArdiaCoreTab*)tab didRequestAppURL:(NSString*)url userGesture:(BOOL)userGesture;
+- (void)tabDidChangeThemeColor:(ArdiaCoreTab*)tab;
+- (void)tabDidCommitDocument:(ArdiaCoreTab*)tab;
+- (void)tabDidGainFocus:(ArdiaCoreTab*)tab;
+- (void)tabDidChangeAudio:(ArdiaCoreTab*)tab;
+- (void)tabDidChangeSecurity:(ArdiaCoreTab*)tab;
+- (void)tabDidChangeZoom:(ArdiaCoreTab*)tab;
+- (void)tab:(ArdiaCoreTab*)tab didBlockPopup:(NSDictionary<NSString*, NSString*>*)popup;
+- (void)tab:(ArdiaCoreTab*)tab preferredSizeDidChange:(NSSize)size;
+- (void)tab:(ArdiaCoreTab*)tab externalAppRequest:(NSDictionary<NSString*, id>*)request;
+- (void)tab:(ArdiaCoreTab*)tab requestsActivation:(NSString*)reason;
+- (void)tab:(ArdiaCoreTab*)tab didChangePictureInPicture:(NSDictionary<NSString*, id>*)state;
+- (void)tab:(ArdiaCoreTab*)tab didShowAutofillSuggestions:(NSArray<NSDictionary<NSString*, NSString*>*>*)items;
+- (void)tab:(ArdiaCoreTab*)tab didBlockRequests:(int)count lastURL:(NSString*)url;
+- (NSArray<NSDictionary<NSString*, NSString*>*>*)tab:(ArdiaCoreTab*)tab
                          contextMenuItemsForSelection:(NSString*)text;
-- (void)tab:(UniVerseCoreTab*)tab
+- (void)tab:(ArdiaCoreTab*)tab
     contextMenuCommand:(NSString*)itemId
                   text:(NSString*)selection
              modifiers:(NSDictionary<NSString*, NSNumber*>*)modifiers;
-- (void)tab:(UniVerseCoreTab*)tab shareFromContextMenu:(NSDictionary<NSString*, id>*)share;
-- (void)tab:(UniVerseCoreTab*)tab didShowContextMenu:(NSArray<NSDictionary*>*)items;
-- (nullable NSDictionary<NSString*, id>*)tab:(UniVerseCoreTab*)tab
+- (void)tab:(ArdiaCoreTab*)tab shareFromContextMenu:(NSDictionary<NSString*, id>*)share;
+- (void)tab:(ArdiaCoreTab*)tab didShowContextMenu:(NSArray<NSDictionary*>*)items;
+- (nullable NSDictionary<NSString*, id>*)tab:(ArdiaCoreTab*)tab
                               runContextMenu:(NSDictionary<NSString*, id>*)menu;
-- (void)tab:(UniVerseCoreTab*)tab navigationBecameDownload:(NSString*)url;
-- (void)tabDidChangeDiscarded:(UniVerseCoreTab*)tab;
-- (void)tabBecameUnresponsive:(UniVerseCoreTab*)tab;
-- (void)tabBecameResponsive:(UniVerseCoreTab*)tab;
-- (void)tab:(UniVerseCoreTab*)tab didChangeMediaAccess:(NSDictionary<NSString*, NSNumber*>*)access;
+- (void)tab:(ArdiaCoreTab*)tab navigationBecameDownload:(NSString*)url;
+- (void)tabDidChangeDiscarded:(ArdiaCoreTab*)tab;
+- (void)tabBecameUnresponsive:(ArdiaCoreTab*)tab;
+- (void)tabBecameResponsive:(ArdiaCoreTab*)tab;
+- (void)tab:(ArdiaCoreTab*)tab didChangeMediaAccess:(NSDictionary<NSString*, NSNumber*>*)access;
 @end
 
 UNIVERSECORE_EXPORT
-@interface UniVerseCoreTab : NSObject
+@interface ArdiaCoreTab : NSObject
 @property(readonly) NSView* view;
 @property(readonly, weak) UniVerseCoreProfile* profile;
 @property(readonly) int tabId;
@@ -301,7 +301,7 @@ UNIVERSECORE_EXPORT
 - (nullable id)suppressInput;
 - (void)closeNow;
 @property(nonatomic) BOOL temporary;
-- (void)setTemporarySource:(nullable UniVerseCoreTab*)source;
+- (void)setTemporarySource:(nullable ArdiaCoreTab*)source;
 - (void)deliverHeldPageMessages;
 @property(readonly) NSDictionary<NSString*, id>* securityInfo;
 - (BOOL)discard;
@@ -314,7 +314,7 @@ UNIVERSECORE_EXPORT
 @property(readonly) NSSize preferredSize;
 @end
 
-@interface UniVerseCoreTab (Navigation)
+@interface ArdiaCoreTab (Navigation)
 - (void)goBack;
 - (void)goForward;
 - (void)reload;
@@ -328,7 +328,7 @@ UNIVERSECORE_EXPORT
 @property(readonly) int committedDocumentCount;
 @end
 
-@interface UniVerseCoreTab (Page)
+@interface ArdiaCoreTab (Page)
 - (void)executeJavaScript:(NSString*)code frame:(nullable NSString*)frameId;
 - (void)evaluate:(NSString*)code completion:(void (^)(NSString* _Nullable json))completion;
 - (BOOL)hasLiveFrame:(NSString*)frameId;
@@ -343,7 +343,7 @@ UNIVERSECORE_EXPORT
 @property(readonly) double pinchScale;
 @end
 
-@interface UniVerseCoreTab (Commands)
+@interface ArdiaCoreTab (Commands)
 - (BOOL)executeChromeCommand:(int)command;
 - (void)openBlockedPopup:(NSString*)popupId always:(BOOL)always;
 - (void)showDevTools;
@@ -359,7 +359,7 @@ UNIVERSECORE_EXPORT
                                NSString* _Nullable error))completion;
 @end
 
-@interface UniVerseCoreTab (Media)
+@interface ArdiaCoreTab (Media)
 @property(readonly, nullable) NSString* mediaCaptureSourceId;
 - (void)copyPicture:(NSTimeInterval)timeout completion:(void (^)(CGImageRef _Nullable picture))completion;
 - (BOOL)stopCapture;
@@ -371,12 +371,12 @@ UNIVERSECORE_EXPORT
 - (void)exitPictureInPicture;
 - (void)enterPictureInPictureForClickAt:(NSTimeInterval)clickTime
                              completion:(void (^)(NSString* route, BOOL opened))completion;
-- (BOOL)shareThisTabInsteadFor:(UniVerseCoreTab*)capturer;
+- (BOOL)shareThisTabInsteadFor:(ArdiaCoreTab*)capturer;
 - (BOOL)showCastDialog;
 - (BOOL)devShowBluetoothChooser:(BOOL)unauthorized;
 @end
 
-@interface UniVerseCoreTab (Extensions)
+@interface ArdiaCoreTab (Extensions)
 - (NSString*)executeExtensionAction:(NSString*)extensionId;
 - (NSDictionary<NSString*, NSDictionary*>*)actionStatesForExtensions:(NSArray<NSString*>*)extensionIds;
 - (nullable NSString*)sidePanelURLForExtension:(NSString*)extensionId;
@@ -395,7 +395,7 @@ typedef NS_ENUM(NSInteger, UniVerseCorePageScrollAck) {
 @end
 
 UNIVERSECORE_EXPORT
-@interface UniVerseCorePageView : NSObject
+@interface ArdiaCorePageView : NSObject
 + (BOOL)isPageView:(NSView*)view;
 + (void)setScrollObserver:(nullable id<UniVerseCorePageScrollObserver>)observer;
 + (BOOL)takeSwipes:(NSView*)view;
