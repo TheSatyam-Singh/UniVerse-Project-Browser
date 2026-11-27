@@ -70,6 +70,7 @@ import { peekTabId } from "../peek/peek";
 import { expectFocus, findFocus } from "../focus/focusClaims";
 import { isWebPageUrl } from "../../lib/url";
 import { findStep, openFind } from "../find/actions";
+import { takeScreenshot } from "../screenshots/screenshot";
 
 const newOrId = (arg: string) => (arg === "new" ? null : arg);
 
@@ -193,6 +194,10 @@ export function runCommand({ command, arg, windowId: requested }: CommandEvent, 
       return void web?.print();
     case "printWithSystemDialog":
       return void web?.runPageCommand("systemPrint");
+    case "screenshot":
+      return tabId ? void takeScreenshot(windowId, false, tabId) : undefined;
+    case "screenshotFullPage":
+      return tabId ? void takeScreenshot(windowId, true, tabId) : undefined;
     case "savePage":
       return void web?.runPageCommand("savePage");
     case "caretBrowsing":

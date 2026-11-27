@@ -21,6 +21,7 @@ export type SystemNative = {
   fileExists(path: string): boolean;
   openFile(path: string): Promise<boolean>;
   revealFile(path: string): Promise<boolean>;
+  saveDataFile(name: string, base64: string): Promise<string | null>;
   moveToTrash(path: string): Promise<boolean>;
   fileIcon(path: string, size: number): Promise<string | null>;
   runningAppIcon(pid: number, size: number): Promise<string | null>;
@@ -39,6 +40,7 @@ export const setLaunchAtLogin = (enabled: boolean) => System.setLaunchAtLogin(en
 export const fileExists = (path: string) => System.fileExists(path);
 export const openFile = (path: string) => System.openFile(path);
 export const revealFile = (path: string) => System.revealFile(path);
+export const saveDataFile = (name: string, base64: string) => System.saveDataFile(name, base64);
 export const moveToTrash = (path: string) => System.moveToTrash(path);
 export const fileIcon = (path: string, size = 32) => System.fileIcon(path, size);
 export const runningAppIcon = (pid: number, size = 32) => System.runningAppIcon(pid, size);

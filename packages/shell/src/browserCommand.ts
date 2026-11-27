@@ -107,6 +107,8 @@ export type BrowserCommand =
   | "savePage"
   | "emailPageLocation"
   | "printWithSystemDialog"
+  | "screenshot"
+  | "screenshotFullPage"
   | "stop"
   | "caretBrowsing"
   | "moveTabDown"

@@ -17,6 +17,8 @@ export const AUTOMATION: Readonly<Record<BrowserCommand, AutomationDecision>> = 
   closeTab: "run",
   closeAllTabs: "run",
   print: "run",
+  screenshot: "run",
+  screenshotFullPage: "run",
   copyUrl: "run",
   copyUrlAsMarkdown: "run",
   findInPage: "run",

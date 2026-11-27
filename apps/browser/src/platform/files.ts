@@ -1,1 +1,1 @@
-export { fileExists, openFile, revealFile, moveToTrash, fileIcon, runningAppIcon } from "@universe/shell";
+export { fileExists, openFile, revealFile, saveDataFile, moveToTrash, fileIcon, runningAppIcon } from "@universe/shell";

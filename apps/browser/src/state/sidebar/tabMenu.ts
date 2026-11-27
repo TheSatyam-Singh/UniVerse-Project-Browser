@@ -23,6 +23,7 @@ import { openMultiMenu } from "./multiTabMenu";
 import { tileFolderOf } from "../pins/tileFolders";
 import { sendTabFromMenu, sendTabMenuItem } from "../sync/menu";
 import { pageUnread } from "../tabs/unread";
+import { takeScreenshot } from "../screenshots/screenshot";
 import { ALL_UNREAD_TITLE, canChooseSiteUnread, isUnreadSiteHidden, showUnreadCounts, toggleSiteUnread, unreadSiteTitle } from "../tabs/unreadSites";
 
 const store = () => useBrowser.getState();
@@ -151,6 +152,14 @@ function closeItems(f: Facts): MenuItem[] {
   ];
 }
 
+function screenshotItems(tab: Tab, f: Facts): MenuItem[] {
+  if (!tab.url || !f.active) return [];
+  return [
+    { id: "screenshot", title: "Take Screenshot", symbol: "camera" },
+    { id: "screenshotFullPage", title: "Take Full Page Screenshot", symbol: "camera.fill" },
+  ];
+}
+
 function sendItems(tab: Tab, f: Facts): MenuItem[] {
   const send = f.incognito ? null : sendTabMenuItem(tab);
   return send ? [send] : [];
@@ -178,6 +187,7 @@ export function tabMenuItems(s: BrowserState, windowId: string, tab: Tab, f: Fac
       ),
       ...sendItems(tab, f),
     ],
+    screenshotItems(tab, f),
     [
       { id: "rename", title: "Rename…", symbol: "pencil" },
       ...(tab.customTitle ? [{ id: "resetName", title: "Reset Name" }] : []),
@@ -247,6 +257,8 @@ function runTabChoice(windowId: string, tab: Tab, f: Facts, choice: string | Des
   else if (choice === "engine") void togglePageEngine(tab.id);
   else if (choice === "copy") copyUrls([tab.id], false);
   else if (choice === "copyMd") copyUrls([tab.id], true);
+  else if (choice === "screenshot") void takeScreenshot(windowId, false, tab.id);
+  else if (choice === "screenshotFullPage") void takeScreenshot(windowId, true, tab.id);
   else if (choice === "bookmark") bookmarkTab(windowId, tab.id);
   else if (choice === "readingList") addTabToReadingList(windowId, tab.id);
   else if (choice === "close") void closeTab(tab.id);

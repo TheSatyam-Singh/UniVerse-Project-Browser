@@ -32,6 +32,16 @@ extension WebKitTab: PageTab {
     downloadFavicon(url, completion: completion)
   }
 
+  func captureScreenshot(_ fullPage: Bool, completion: @escaping ([String: Any]?) -> Void) {
+    guard !fullPage, let view = webView, !view.isHidden else { return completion(nil) }
+    view.takeSnapshot(with: WKSnapshotConfiguration()) { image, _ in
+      guard let image, let tiff = image.tiffRepresentation, let bitmap = NSBitmapImageRep(data: tiff),
+        let png = bitmap.representation(using: .png, properties: [:])
+      else { return completion(nil) }
+      completion(["data": png.base64EncodedString()])
+    }
+  }
+
   func requestPictureInPicture(clickAt: Double, control: Int, _ completion: @escaping (Bool) -> Void) {
     setPictureInPicture(true) { completion($0 == .opened) }
   }

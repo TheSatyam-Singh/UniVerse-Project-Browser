@@ -110,6 +110,8 @@ enum CommandTable {
     case savePage
     case emailPageLocation
     case printWithSystemDialog
+    case screenshot
+    case screenshotFullPage
     case stop
     case caretBrowsing
     case moveTabDown
@@ -233,6 +235,8 @@ enum CommandTable {
     "savePage": "Save Page As…",
     "emailPageLocation": "Email Page Location",
     "printWithSystemDialog": "Print Using System Dialog…",
+    "screenshot": "Take Screenshot",
+    "screenshotFullPage": "Take Full Page Screenshot",
     "stop": "Stop",
     "caretBrowsing": "Caret Browsing",
     "moveTabDown": "Move Tab Down",
