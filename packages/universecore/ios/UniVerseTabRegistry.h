@@ -5,13 +5,13 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface UniVerseTabRegistry : NSObject
-+ (void)setView:(nullable UniVerseWebView *)view forTab:(UniVerseCoreTab *)tab;
-+ (nullable UniVerseWebView *)viewForTab:(UniVerseCoreTab *)tab;
-+ (NSString *)offerTab:(UniVerseCoreTab *)tab;
-+ (NSString *)offerTab:(UniVerseCoreTab *)tab prefix:(NSString *)prefix;
-+ (nullable UniVerseCoreTab *)takeOffered:(NSString *)adoptId;
-+ (nullable UniVerseCoreTab *)offeredTab:(NSString *)adoptId;
-+ (void)forget:(UniVerseCoreTab *)tab;
++ (void)setView:(nullable UniVerseWebView *)view forTab:(ArdiaCoreTab *)tab;
++ (nullable UniVerseWebView *)viewForTab:(ArdiaCoreTab *)tab;
++ (NSString *)offerTab:(ArdiaCoreTab *)tab;
++ (NSString *)offerTab:(ArdiaCoreTab *)tab prefix:(NSString *)prefix;
++ (nullable ArdiaCoreTab *)takeOffered:(NSString *)adoptId;
++ (nullable ArdiaCoreTab *)offeredTab:(NSString *)adoptId;
++ (void)forget:(ArdiaCoreTab *)tab;
 @end
 
 NS_ASSUME_NONNULL_END
