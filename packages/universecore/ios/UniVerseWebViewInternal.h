@@ -43,7 +43,7 @@ struct UniVerseFrameHold {
 
 struct UniVerseStandIn {
   __weak NSView *page;
-  UniVerseCoreTab *tab;
+  ArdiaCoreTab *tab;
   __weak UniVerseWebView *lender;
   BOOL closes{};
   BOOL leaving{};
@@ -87,7 +87,7 @@ struct UniVersePageReports {
 };
 
 struct UniVerseCommits {
-  __weak UniVerseCoreTab *tab;
+  __weak ArdiaCoreTab *tab;
   NSString *url;
   double at{};
   int httpStatus{};
@@ -133,7 +133,7 @@ struct UniVersePageFocusState {
   BOOL _neighbour;
   BOOL _autoPictureInPicture;
   BOOL _frozen;
-  UniVerseCoreTab *_tab;
+  ArdiaCoreTab *_tab;
   BOOL _muted;
   NSInteger _tabIndex;
   BOOL _pinned;
@@ -159,30 +159,30 @@ typedef NS_ENUM(NSInteger, UniVerseTransfer) {
 - (BOOL)takeLinkTab:(NSString *)adoptId;
 - (void)ensureTab;
 - (BOOL)cloneTab:(NSString *)sourceKey profile:(UniVerseCoreProfile *)profile;
-- (BOOL)canTake:(UniVerseCoreTab *)tab;
+- (BOOL)canTake:(ArdiaCoreTab *)tab;
 - (UniVerseTransfer)takeTransferredTab;
 - (void)bindRestoreKey;
 @end
 
 @interface UniVerseWebView (TabInternal)
 - (UniVerseCoreAdoption)adoptIntoWindow;
-- (UniVerseCoreAdoption)windowTakes:(UniVerseCoreTab *)tab;
+- (UniVerseCoreAdoption)windowTakes:(ArdiaCoreTab *)tab;
 - (void)adoptMovedPage;
-- (BOOL)holdTransferOf:(UniVerseCoreTab *)tab;
-- (void)attach:(UniVerseCoreTab *)tab;
+- (BOOL)holdTransferOf:(ArdiaCoreTab *)tab;
+- (void)attach:(ArdiaCoreTab *)tab;
 - (void)detach;
 - (void)stashPageReports;
 - (void)takePageReports;
 - (void)placeTab;
-- (void)openedTab:(UniVerseCoreTab *)tab adoptId:(NSString *)adoptId disposition:(NSString *)disposition;
-- (void)openedLinkTab:(UniVerseCoreTab *)tab adoptId:(NSString *)adoptId disposition:(NSString *)disposition;
-- (void)announceOpenedTab:(UniVerseCoreTab *)tab
+- (void)openedTab:(ArdiaCoreTab *)tab adoptId:(NSString *)adoptId disposition:(NSString *)disposition;
+- (void)openedLinkTab:(ArdiaCoreTab *)tab adoptId:(NSString *)adoptId disposition:(NSString *)disposition;
+- (void)announceOpenedTab:(ArdiaCoreTab *)tab
                   adoptId:(NSString *)adoptId
               disposition:(NSString *)disposition
                      link:(BOOL)link
                     tries:(int)tries;
 - (void)noteNewTabLink:(nullable NSString *)url;
-- (void)tabRemovedFromWindow:(UniVerseCoreWindow *)window;
+- (void)tabRemovedFromWindow:(ArdiaCoreWindow *)window;
 - (void)tabActivatedByChrome:(BOOL)chromes;
 - (void)devToolsChanged:(NSView *)devToolsView;
 - (void)dropDevTools;
@@ -191,7 +191,7 @@ typedef NS_ENUM(NSInteger, UniVerseTransfer) {
 @interface UniVerseWebView (PaintingInternal)
 + (void)sleepNeighbourPagesIn:(NSWindow *)window after:(CFTimeInterval)delay;
 + (void)repaintWarmPagesIn:(NSWindow *)window;
-+ (void)noteShown:(UniVerseCoreTab *)tab;
++ (void)noteShown:(ArdiaCoreTab *)tab;
 + (void)drainPainting;
 - (void)layoutPage;
 - (BOOL)paints;
@@ -215,7 +215,7 @@ typedef NS_ENUM(NSInteger, UniVerseTransfer) {
 @interface UniVerseWebView (StandInInternal)
 - (void)lendPageToSuccessor;
 - (void)reclaimLentPage;
-- (BOOL)closesLentTab:(UniVerseCoreTab *)tab;
+- (BOOL)closesLentTab:(ArdiaCoreTab *)tab;
 - (void)dropStandIn;
 - (void)finishStandIn;
 @end
@@ -317,8 +317,8 @@ NSString *Text(NSDictionary *d, NSString *key, NSUInteger max);
 bool Flag(NSDictionary *d, NSString *key);
 bool Finite(NSDictionary *d, NSString *key, double *out);
 
-void AnswerHello(UniVerseCoreTab *tab, NSString *profile, NSString *frameId, BOOL main, NSString *verifiedOrigin);
-NSMutableOrderedSet<NSString *> *ScriptFramesOf(UniVerseCoreTab *tab);
+void AnswerHello(ArdiaCoreTab *tab, NSString *profile, NSString *frameId, BOOL main, NSString *verifiedOrigin);
+NSMutableOrderedSet<NSString *> *ScriptFramesOf(ArdiaCoreTab *tab);
 
 extern NSString *gPeekModifier;
 void InstallPeekMonitor();
