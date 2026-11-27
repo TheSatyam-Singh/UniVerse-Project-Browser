@@ -1,6 +1,6 @@
-import ArdiaBrowser
-import ArdiaDesign
-import ArdiaSync
+import UniVerseBrowser
+import UniVerseDesign
+import UniVerseSync
 import SwiftUI
 
 struct SettingsView: View {
@@ -29,7 +29,7 @@ struct SettingsView: View {
           route.destination.settingsChrome()
         }
     }
-    .tint(Color.ardiaAccentText)
+    .tint(Color.universeAccentText)
     .toggleStyle(SettingsSwitchStyle())
     .onAppear {
       #if DEBUG
@@ -80,7 +80,7 @@ enum SettingsRoute: String, Hashable {
 
   static var launchScrollAnchor: UnitPoint? {
     #if DEBUG
-    ProcessInfo.processInfo.arguments.contains("-ArdiaSettingsBottom") ? .bottom : nil
+    ProcessInfo.processInfo.arguments.contains("-UniVerseSettingsBottom") ? .bottom : nil
     #else
     nil
     #endif
@@ -88,7 +88,7 @@ enum SettingsRoute: String, Hashable {
 
   static var launchRoute: SettingsRoute? {
     let arguments = ProcessInfo.processInfo.arguments
-    guard let index = arguments.firstIndex(of: "-ArdiaSettingsPage"), arguments.indices.contains(index + 1) else { return nil }
+    guard let index = arguments.firstIndex(of: "-UniVerseSettingsPage"), arguments.indices.contains(index + 1) else { return nil }
     return SettingsRoute(rawValue: arguments[index + 1])
   }
 }

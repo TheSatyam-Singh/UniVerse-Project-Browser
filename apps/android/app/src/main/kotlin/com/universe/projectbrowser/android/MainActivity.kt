@@ -35,7 +35,7 @@ class MainActivity : ComponentActivity() {
         model.attach(this)
         lifecycle.addObserver(sceneObserver)
         StartupTiming.watchFirstFrame(window.decorView, createdAt)
-        setContent { ArdiaRoot(model, createdAt) }
+        setContent { UniVerseRoot(model, createdAt) }
         lifecycleScope.launch {
             snapshotFlow { model.isPrivateOnScreen }.distinctUntilChanged().collect(::hideFromRecents)
         }

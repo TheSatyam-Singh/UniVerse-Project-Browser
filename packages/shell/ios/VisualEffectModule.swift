@@ -4,7 +4,7 @@ import ExpoModulesCore
 
 public class VisualEffectModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaVisualEffect")
+    Name("UniVerseVisualEffect")
 
     View(VisualEffect.self) {
       Prop("material") { (view: VisualEffect, name: String) in view.setMaterial(name) }

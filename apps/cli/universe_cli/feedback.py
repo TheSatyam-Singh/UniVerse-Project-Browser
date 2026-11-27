@@ -11,7 +11,7 @@ from pathlib import Path
 from universe_cli import __version__
 
 FEEDBACK_URL = "https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/api/feedback"
-TEST_URL_ENV = "ARDIA_FEEDBACK_URL"
+TEST_URL_ENV = "UNIVERSE_FEEDBACK_URL"
 KINDS = ("bug", "slow", "idea", "other")
 MAX_TITLE = 67
 MAX_DESCRIPTION = 4000
@@ -192,9 +192,9 @@ def blocked_reason(env) -> str | None:
     do_not_track = (env.get("DO_NOT_TRACK") or "").strip()
     if do_not_track.lower() not in ("", "0", "false"):
         return f"DO_NOT_TRACK={do_not_track} is set"
-    sharing = (env.get("ARDIA_TELEMETRY") or "").strip()
+    sharing = (env.get("UNIVERSE_TELEMETRY") or "").strip()
     if sharing.lower() in telemetry.OFF_VALUES:
-        return f"ARDIA_TELEMETRY={sharing} is set"
+        return f"UNIVERSE_TELEMETRY={sharing} is set"
     for name in telemetry.TEST_ENDPOINT_ENV:
         if env.get(name):
             return f"{name} points universe at a test browser"
@@ -360,7 +360,7 @@ def keep(home: Path | None, entry: dict, reason: str) -> int:
     from universe_cli.browse import paths
 
     if home is None:
-        print(f"Not sent: {reason}. It wasn't saved either: a checkout build keeps notes only with ARDIA_CLI_HOME set.")
+        print(f"Not sent: {reason}. It wasn't saved either: a checkout build keeps notes only with UNIVERSE_CLI_HOME set.")
         return 1
     try:
         path = save_locally(home, {**entry, "reason": reason})
@@ -394,7 +394,7 @@ def run(args, stdin=None, env=None) -> int:
         sys.stderr.write(f"universe feedback: {refused}\n")
         return 2
     home = usage.recording_home(env)
-    explicit = args.data_dir or env.get("ARDIA_DATA_DIR")
+    explicit = args.data_dir or env.get("UNIVERSE_DATA_DIR")
     root = Path(os.path.abspath(data_root(explicit))) if explicit or not telemetry.is_dev_build() else None
     doc = telemetry.read_consent(root) if root is not None else None
     install_id, sharing = identity(doc)

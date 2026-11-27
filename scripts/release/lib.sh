@@ -1,7 +1,7 @@
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd -P)"
 . "$root/scripts/lib/releases.sh"
 macos="$root/apps/browser/macos"
-ardiacore="$root/packages/universecore"
+universecore="$root/packages/universecore"
 
 die() { echo "error: $*" >&2; exit 1; }
 

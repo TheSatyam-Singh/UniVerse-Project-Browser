@@ -17,7 +17,7 @@ The dashboard's `reader` user only sees `telemetry.*`, so triage uses its own co
 
 In production `infra/dashboard/hexclave.deploy.ts` maps `TRIAGE_CLICKHOUSE_PASSWORD` to the Hexclave secret `DASHBOARD_TRIAGE_CLICKHOUSE_PASSWORD` (empty by default, so deploys never block on it). Set it once in the Hexclave dashboard under Project Settings > Secrets, then redeploy the dashboard (`Deploy` workflow, `service: dashboard`).
 
-Locally, put the vars in `~/.config/ardia/dashboard.env` or export them, with `DASHBOARD_DEV_BYPASS_AUTH=1` to skip sign-in.
+Locally, put the vars in `~/.config/universe/dashboard.env` or export them, with `DASHBOARD_DEV_BYPASS_AUTH=1` to skip sign-in.
 
 The `sandbox` user allows two simultaneous queries, so the dashboard runs triage queries one at a time and retries when ClickHouse reports the user busy.
 
@@ -84,7 +84,7 @@ Dashboard lifecycle changes append to `universe_attention_actions` (`id`, `statu
 
 ### Routine commands
 
-The maintained sources are `apps/dashboard/pipeline/attention.py` and `ch_sync.py`. The existing bot runtime installs copies in `/workspace/universe-db/` beside its `db.py` and `leads.py`. `ARDIA_DB_PATH` or `--db` overrides the SQLite path. No command sends messages.
+The maintained sources are `apps/dashboard/pipeline/attention.py` and `ch_sync.py`. The existing bot runtime installs copies in `/workspace/universe-db/` beside its `db.py` and `leads.py`. `UNIVERSE_DB_PATH` or `--db` overrides the SQLite path. No command sends messages.
 
 ```sh
 cd /workspace/universe-db

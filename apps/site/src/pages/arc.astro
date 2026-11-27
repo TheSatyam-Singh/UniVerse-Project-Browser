@@ -6,14 +6,14 @@ import DownloadButton from "../components/DownloadButton.astro";
 import Closing from "../components/Closing.astro";
 import Footer from "../components/Footer.astro";
 import { MIN_MACOS } from "../data/release";
-import { aboutArdiaPage, breadcrumbs } from "../data/jsonLd";
+import { aboutUniVersePage, breadcrumbs } from "../data/jsonLd";
 
 const home = homeUrl(Astro.site);
 const url = new URL("arc/", home).href;
 const title = "Moving from Arc? A free Arc replacement for Mac · UniVerse Project Browser";
 const description =
   "Arc stops working on December 22, 2026. UniVerse Project Browser is a free, open-source Mac browser with Arc’s sidebar that imports your spaces, pinned tabs, folders and themes.";
-const jsonLd = [aboutArdiaPage({ home, url, title, description }), breadcrumbs(home, ["Moving from Arc", url])];
+const jsonLd = [aboutUniVersePage({ home, url, title, description }), breadcrumbs(home, ["Moving from Arc", url])];
 
 const carried = [
   { from: "Spaces", to: "The first space you pick fills the profile you import into. Each other one becomes its own profile, with its name and colour. Every space keeps its theme." },

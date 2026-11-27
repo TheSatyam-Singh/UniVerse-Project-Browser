@@ -168,7 +168,7 @@ def register_secrets(ws: str | None, env: dict) -> None:
 
     from universe_cli.redact import add_secret
 
-    for url in (ws, env.get("ARDIA_CDP_URL"), env.get("AGENT_BROWSER_CDP")):
+    for url in (ws, env.get("UNIVERSE_CDP_URL"), env.get("AGENT_BROWSER_CDP")):
         if url and "?" in str(url):
             for values in parse_qs(urlsplit(str(url)).query).values():
                 for value in values:

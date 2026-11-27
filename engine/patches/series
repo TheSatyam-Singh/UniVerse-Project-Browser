@@ -1,6 +1,6 @@
 # The order UniVerse Project Browser's changes go into the Chromium tree (docs/engine-build.md › "The patch series").
 # The tree is Chromium with Helium's series (minus 03-helium.py's skip list), its domain and name substitution and our
-# branding. Nothing of CEF's is left but chromium-cef-carryover.patch, the few CEF patches ArdiaCore relies on.
+# branding. Nothing of CEF's is left but chromium-cef-carryover.patch, the few CEF patches UniVerseCore relies on.
 #
 #   chromium <patch>  a patch to chromium/src, after Helium's series and substitutions (step 4)
 #   layer <dir>       our own files, copied in by <dir>/apply.sh (engine/<layer>/src mirrors chromium/src)
@@ -9,7 +9,7 @@
 # One concern per patch, named for it; a new patch goes where it belongs, not where its name sorts.
 
 chromium chromium-helium-branding.patch
-# CEF's patches to Chrome whose behaviour ArdiaCore relies on (each hunk's origin is in the patch's header).
+# CEF's patches to Chrome whose behaviour UniVerseCore relies on (each hunk's origin is in the patch's header).
 chromium chromium-cef-carryover.patch
 chromium chromium-autofill-address-bubble-window.patch
 chromium chromium-device-chooser-hook.patch
@@ -55,8 +55,8 @@ chromium chromium-helium-context-menu-cast.patch
 chromium chromium-helium-devtools-inspect-shortcut.patch
 chromium chromium-neterror-game.patch
 chromium chromium-branding.patch
-# Load-bearing for every user's data: the Safe Storage item ("Ardia Safe Storage" / "Ardia") holds the key to
-# their saved passwords and cookies. It must survive any re-sync (plain Chromium for ArdiaCore, a version bump), unchanged.
+# Load-bearing for every user's data: the Safe Storage item ("UniVerse Safe Storage" / "UniVerse") holds the key to
+# their saved passwords and cookies. It must survive any re-sync (plain Chromium for UniVerseCore, a version bump), unchanged.
 chromium chromium-safe-storage-name.patch
 chromium chromium-safe-storage-no-silent-reset.patch
 chromium chromium-pref-hash-safe-storage-key-change.patch
@@ -91,4 +91,4 @@ chromium chromium-webstore-icon-optional.patch
 chromium chromium-universe-layer.patch
 
 layer engine/chromium
-layer engine/ardiacore
+layer engine/universecore

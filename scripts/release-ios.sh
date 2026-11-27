@@ -12,7 +12,7 @@
 # signs and uploads with that App Store Connect API key; without them it uses the account Xcode is signed
 # in to.
 #
-# --default-browser builds with ARDIA_DEFAULT_BROWSER=YES: the app signs with
+# --default-browser builds with UNIVERSE_DEFAULT_BROWSER=YES: the app signs with
 # Config/UniVerse Project Browser-DefaultBrowser.entitlements, which carries com.apple.developer.web-browser, and offers
 # its default browser steps in onboarding and Settings. Use it only once Apple has granted that
 # entitlement to the App ID; until then signing fails with it. Without the flag the app signs with
@@ -80,12 +80,12 @@ echo "UniVerse Project Browser for iPhone $version ($build), default browser $de
 
 rm -rf "$archive" "$out/export"
 run_logged archive xcodebuild archive \
-  -project "$ios/UniVerse-Project-Browser.xcodeproj" -scheme Ardia -configuration Release \
+  -project "$ios/UniVerse-Project-Browser.xcodeproj" -scheme UniVerse -configuration Release \
   -destination "generic/platform=iOS" \
   -archivePath "$archive" -derivedDataPath "$out/dd" \
   -allowProvisioningUpdates ${auth[@]+"${auth[@]}"} \
   CURRENT_PROJECT_VERSION="$build" \
-  ARDIA_DEFAULT_BROWSER="$default_browser" \
+  UNIVERSE_DEFAULT_BROWSER="$default_browser" \
   COMPILER_INDEX_STORE_ENABLE=NO
 
 app="$archive/Products/Applications/UniVerse-Project-Browser.app"
@@ -97,7 +97,7 @@ for bundle in "$app" "$app"/PlugIns/*.appex; do
   [ "$(plist_value "$bundle" CFBundleShortVersionString)" = "$version" ] || die "$(basename "$bundle") is version $(plist_value "$bundle" CFBundleShortVersionString), not $version"
 done
 [ "$(find "$app/PlugIns" -maxdepth 1 -name '*.appex' | wc -l | tr -d ' ')" = 3 ] || die "the archive should hold three extensions"
-[ "$(plist_value "$app" ArdiaDefaultBrowser)" = "$default_browser" ] || die "the app offers the default browser steps: $(plist_value "$app" ArdiaDefaultBrowser), expected $default_browser"
+[ "$(plist_value "$app" UniVerseDefaultBrowser)" = "$default_browser" ] || die "the app offers the default browser steps: $(plist_value "$app" UniVerseDefaultBrowser), expected $default_browser"
 signed=NO
 if codesign -d --entitlements - --xml "$app" 2>/dev/null | plutil -extract 'com\.apple\.developer\.web-browser' raw -o - - 2>/dev/null | grep -qx true; then signed=YES; fi
 [ "$signed" = "$default_browser" ] || die "the app's signature carries the default browser entitlement: $signed, expected $default_browser"

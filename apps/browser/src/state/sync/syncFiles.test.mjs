@@ -4,7 +4,7 @@ import { test } from "node:test";
 globalThis.__DEV__ = false;
 let sealHook = null;
 globalThis.acTestNativeModules = {
-  ArdiaSync: {
+  UniVerseSync: {
     sealLocal: async (text) => (sealHook ? sealHook(text) : `sealed:${text}`),
     openLocal: async (sealed) => (sealed.startsWith("sealed:") ? sealed.slice(7) : null),
   },

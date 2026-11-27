@@ -4,7 +4,7 @@ import ExpoModulesCore
 public class DevModule: Module {
   #if DEBUG
   public func definition() -> ModuleDefinition {
-    Name("ArdiaDev")
+    Name("UniVerseDev")
 
     AsyncFunction("devCrash") { (kind: String?) in
       DispatchQueue.main.async { CrashReports.crashForTesting(kind) }
@@ -331,7 +331,7 @@ public class DevModule: Module {
   }
   #else
   public func definition() -> ModuleDefinition {
-    Name("ArdiaDev")
+    Name("UniVerseDev")
   }
   #endif
 }

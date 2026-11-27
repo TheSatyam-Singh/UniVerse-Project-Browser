@@ -7,7 +7,7 @@ public class CalendarModule: Module {
   private var observer: NSObjectProtocol?
 
   public func definition() -> ModuleDefinition {
-    Name("ArdiaCalendar")
+    Name("UniVerseCalendar")
     Events("onCalendarChanged")
 
     OnStartObserving("onCalendarChanged") {

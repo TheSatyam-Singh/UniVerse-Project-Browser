@@ -21,7 +21,7 @@ android {
         unitTests.all { test ->
             test.maxHeapSize = "2g"
             test.testLogging.showStandardStreams = true
-            providers.gradleProperty("ardiaBlockingLists").orNull?.let { test.systemProperty("universe.blockingLists", it) }
+            providers.gradleProperty("universeBlockingLists").orNull?.let { test.systemProperty("universe.blockingLists", it) }
         }
     }
 }

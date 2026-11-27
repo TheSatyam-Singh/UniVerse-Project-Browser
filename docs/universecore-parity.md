@@ -1,44 +1,44 @@
-# ArdiaCore parity: the app's engine API on ArdiaCore
+# UniVerseCore parity: the app's engine API on UniVerseCore
 
-History: the CEF → ArdiaCore cutover ledger (2026-10-01 to 0.2.31); how to run the acceptance checks today is in `docs/testing.md` › "ArdiaCore acceptance".
+History: the CEF → UniVerseCore cutover ledger (2026-10-01 to 0.2.31); how to run the acceptance checks today is in `docs/testing.md` › "UniVerseCore acceptance".
 
-**The owner chose a full cutover (2026-10-01):** the next release ships ArdiaCore only, and CEF's native side leaves
+**The owner chose a full cutover (2026-10-01):** the next release ships UniVerseCore only, and CEF's native side leaves
 the repo. The JS API (once `packages/cef/src`, now `packages/universecore/src`, imported as `@universe/universecore`) doesn't
-change: `packages/universecore` registers the same Expo modules and view names (`ArdiaCEF`, `ArdiaExtensions`,
-`ArdiaSwipe`, `ArdiaChromeUI`) with the same signatures. The cutover lands as a short series of commits on main: the ArdiaCore project becomes
+change: `packages/universecore` registers the same Expo modules and view names (`UniVerseCEF`, `UniVerseExtensions`,
+`UniVerseSwipe`, `UniVerseChromeUI`) with the same signatures. The cutover lands as a short series of commits on main: the UniVerseCore project becomes
 `apps/browser/macos` (C1), CEF's native side goes (C2), production data in place with a one-shot migration of
-0.2.21's data, and `scripts/release.sh`/smoke on ArdiaCore.
+0.2.21's data, and `scripts/release.sh`/smoke on UniVerseCore.
 
-## Before switching (blockers for the first ArdiaCore release)
+## Before switching (blockers for the first UniVerseCore release)
 
 The switch shipped in 0.2.22; this was the list it shipped against, kept for the checks each item names.
 
 1. ~~**Cutover commits**~~ done: C1, the fold (8f1074f1: one project, `UniVerse-macOS`, `com.universe.projectbrowser`),
    and C2 (6bdf66ce, 4b0d0697: `packages/cef` deleted, its JS in `packages/universecore/src`, the patch series in
-   `engine/patches`, `apps/browser/macos-ardiacore` gone). Left: release.sh/smoke on ArdiaCore. *Release-pipeline agent.*
-2. ~~**Production data dir and migration**~~ done: a release build without `ARDIA_DATA_DIR` opens
+   `engine/patches`, `apps/browser/macos-universecore` gone). Left: release.sh/smoke on UniVerseCore. *Release-pipeline agent.*
+2. ~~**Production data dir and migration**~~ done: a release build without `UNIVERSE_DATA_DIR` opens
    `~/Library/Application Support/com.universe.projectbrowser/Chromium` in place (`InstalledDataDirectory`), with the
    login keychain only when Developer ID-signed and the app's documents in the folder above, as on CEF. No migration
-   step: both engines are Chromium 154.0.8037.58 and read the same "Ardia Safe Storage" item. Proven by
+   step: both engines are Chromium 154.0.8037.58 and read the same "UniVerse Safe Storage" item. Proven by
    `carryover.sh` (the release smoke test): 0.2.21 made two profiles' tabs, persistent and session cookies,
    localStorage, passwords, bookmarks, history, an address, a site permission, a zoom level and an unpacked
-   extension; the ArdiaCore build found and read every one (21/21) without `ARDIA_DATA_DIR`. Left for the owner:
-   the real login keychain's item, which no hidden run reads (both binaries name it "Ardia Safe Storage", and
+   extension; the UniVerseCore build found and read every one (21/21) without `UNIVERSE_DATA_DIR`. Left for the owner:
+   the real login keychain's item, which no hidden run reads (both binaries name it "UniVerse Safe Storage", and
    smoke.sh checks the build satisfies 0.2.21's designated requirement, which the item's access trusts).
    Going back works too (`carryover.sh --back`): 0.2.21 → the RC → 0.2.21 on the same folder keeps everything from both
    sessions (tabs, passwords, bookmarks, history, zoom, the extension's setting, persistent cookies, localStorage),
    with no crash and no profile reset (the same Chrome version, so no newer-profile handling; Local State,
    Preferences and Sessions intact). Only session cookies don't come back, because 0.2.21 drops them at every launch.
-3. ~~**Session cookies**~~ done: ArdiaCore keeps them across launches (09fe90cc), and keeps 0.2.21's at the switch
+3. ~~**Session cookies**~~ done: UniVerseCore keeps them across launches (09fe90cc), and keeps 0.2.21's at the switch
    (`carryover.sh`). 0.2.21 itself drops session cookies at every launch (its own restart loses them; measured with
    `carryover.sh --back`), so this is a gain over CEF, not parity.
 4. ~~**The content blocker blocks nothing** in a production build~~: not a bug. uBlock Origin Lite runs in its
-   optimal mode on ArdiaCore and answers ad scripts with its stand-ins (`adsbygoogle.js` → its no-op copy, a 307 to the
+   optimal mode on UniVerseCore and answers ad scripts with its stand-ins (`adsbygoogle.js` → its no-op copy, a 307 to the
    extension's web-accessible resource), so a fetch or a `<script>` "loads" without the request leaving the browser;
    CEF failed those stand-ins (ERR_BLOCKED_BY_CLIENT), which the smoke test counted as "blocked"; its ad checks now
    judge by the network (2047812f). Proven by `content-blocker-blocks` and `content-blocker-profile`. Its rules apply
    from a profile's first page: a component extension's rulesets are indexed when it loads (Chrome skipped them, as
-   never installed, until uBOL turned its lists on again), and ArdiaCore holds a profile's navigations until they're in
+   never installed, until uBOL turned its lists on again), and UniVerseCore holds a profile's navigations until they're in
    force (`ac_navigation_hold.mm`; `content-blocker-held`, `-private`, `-restored`).
 5. ~~**Private-window privacy**~~: done. A private tab Chrome makes goes to a private window of the app (one
    showing its profile, else a new one that adopts it live), never into a normal window (`private-windows-create`,
@@ -56,14 +56,14 @@ The switch shipped in 0.2.22; this was the list it shipped against, kept for the
    "added" bubble anchors to the app's window and an extension's tabs land there (`extension-windows-hidden`); B12,
    an extension install's .crx is no download (`extension-download-hidden`); B8, the blocked count counts the
    rules' blocks and redirects to stand-ins (`content-blocked-count`); B7, no Reading mode in the page menu
-   (`context-menu-reading-mode`). Chrome's "<name> has been added" UI is ArdiaCore's (a hook in
+   (`context-menu-reading-mode`). Chrome's "<name> has been added" UI is UniVerseCore's (a hook in
    `ExtensionInstallUIDesktop::OnInstallSuccess`, `ac_installed_bubble.mm`): over a window the app shows for the
    profile, held until one shows a page when there is none; Chrome's own crashed reading the active tab of a Browser
    without one (`extension-installed-bubble`).
    Open: after another profile's window opened and closed, "Share this tab instead" answers false (`tab-capture`).
 7. ~~**Smoke parity**~~ done: background-mode context-menu log, the autofill dropdown's selection, the PiP self-test
-   (`ARDIA_TEST` `pipSelfTest`) and the passkey dialog closing when its page navigates; the release smoke test passes
-   21/21 on ArdiaCore (e8ece135, 2109af22, 2047812f).
+   (`UNIVERSE_TEST` `pipSelfTest`) and the passkey dialog closing when its page navigates; the release smoke test passes
+   21/21 on UniVerseCore (e8ece135, 2109af22, 2047812f).
 8. **Chrome's own UI says "Chromium"** (bubbles, dialogs, error pages); CEF renamed it. *Engine helper.*
 9. **Checks that need the owner** (an unlocked screen, prompts): the page composited under the RN views; menus,
    bubbles and choosers drawn against the window; PiP on screen; IME marked text; VoiceOver; a camera/microphone
@@ -77,11 +77,11 @@ Keep this current: whoever adds or changes a native export or event of the JS AP
 row here. The rows compare with CEF's implementation as it was at the cutover (`git show c6b9634c:packages/cef`).
 
 Statuses:
-- **done**: does on ArdiaCore what it does on CEF, and the acceptance run (below) or the engine's own run proves it.
+- **done**: does on UniVerseCore what it does on CEF, and the acceptance run (below) or the engine's own run proves it.
 - **partial**: wired to the engine and doing the common path, but not proven in a hidden run (the note says why),
   or with a gap the note names.
 - **stubbed**: exported, so the JS never throws, but answers as an engine without the feature would.
-- **missing**: not exported on ArdiaCore; the JS throws if it calls it.
+- **missing**: not exported on UniVerseCore; the JS throws if it calls it.
 
 ## Summary (2026-10-01, stage 2)
 
@@ -90,11 +90,11 @@ Statuses:
 | `WebView` props (9) | 6 | 3 | 0 | 0 |
 | `WebView` events (32) | 22 | 10 | 0 | 0 |
 | `WebView` methods (35) | 26 | 9 | 0 | 0 |
-| `ArdiaCEF` functions (62) and events (7) | 61 | 7 | 1 | 0 |
-| `ArdiaExtensions` (10 functions, 3 events) | 8 | 5 | 0 | 0 |
-| `ArdiaChromeUI` (15 functions, 4 events) | 9 | 10 | 0 | 0 |
-| `ArdiaSwipe` (7 functions, a view with 3 events) | 11 | 0 | 0 | 0 |
-| Window hosting (`ArdiaChromeWindowHost`, used by `packages/shell`) (13) | 13 | 0 | 0 | 0 |
+| `UniVerseCEF` functions (62) and events (7) | 61 | 7 | 1 | 0 |
+| `UniVerseExtensions` (10 functions, 3 events) | 8 | 5 | 0 | 0 |
+| `UniVerseChromeUI` (15 functions, 4 events) | 9 | 10 | 0 | 0 |
+| `UniVerseSwipe` (7 functions, a view with 3 events) | 11 | 0 | 0 | 0 |
+| Window hosting (`UniVerseChromeWindowHost`, used by `packages/shell`) (13) | 13 | 0 | 0 | 0 |
 | **Total (201)** | **156 (78%)** | **44** | **1** | **0** |
 
 Nothing is **missing** and every signature matches `packages/cef`'s (checked by diffing the Swift module
@@ -106,7 +106,7 @@ needs.
 
 ## How to build and check it
 
-Moved to `docs/testing.md` › "ArdiaCore acceptance".
+Moved to `docs/testing.md` › "UniVerseCore acceptance".
 
 ## Acceptance (hidden instance)
 
@@ -117,7 +117,7 @@ Moved to `docs/testing.md` › "ArdiaCore acceptance".
 | boot | The RN app runs inside Chromium's own loop (`ChromeMain` → `MessagePumpNSApplication`, NSApp is Chrome's `BrowserCrApplication`), one JS runtime, the store makes a window, the app never takes focus |
 | open-url, favicon | `openUrls` opens a tab; title, URL, loading and the favicon reach the store |
 | navigate-back-forward-reload | Omnibox navigation (`navigate(…, { userInitiated })`), back, forward, reload (the page really reloads) |
-| target-blank, window-open, cmd-click | A page's new tab arrives as `onOpenWindow` with `adoptId: "ardiacore:<id>"`, already made by Chrome; the WebView takes that live tab; ⌘-click opens behind |
+| target-blank, window-open, cmd-click | A page's new tab arrives as `onOpenWindow` with `adoptId: "universecore:<id>"`, already made by Chrome; the WebView takes that live tab; ⌘-click opens behind |
 | evaluate | `WebViewHandle.evaluate` in the page's main world; the page script ran at document start |
 | tab-strips, tab-switch | `tabStrips()` names every live tab by key; switching tabs makes them Chrome's active tab |
 | cmd-t-cmd-w, cmd-l-from-page, tab-keys-from-page | Reserved keys reach the menu before the page; others after the page leaves them; ⌃Tab and ⌘⇧} from the page |
@@ -163,15 +163,15 @@ Moved to `docs/testing.md` › "ArdiaCore acceptance".
 | move-tab-to-window | A tab moved to a new window keeps its page (same WebContents) and its strip follows |
 | title-bar-close | The title bar's close button asks the app (`windowShouldClose:`), which closes the window |
 | little-universe | A Little UniVerse window opens and navigates |
-| quit | ⌘Q → the app's quit flow → ArdiaCore's quit; the session is saved; no crash report |
+| quit | ⌘Q → the app's quit flow → UniVerseCore's quit; the session is saved; no crash report |
 
 ### Activation (who is in front)
 
 `packages/universecore/scripts/activation-acceptance.mjs <Debug app> <scratch dir> [check…]` asserts three readings together:
 the panes the app shows, Chrome's selected tab and active Browser (an extension that records `tabs.onActivated` and
 reads `chrome.windows`), and native focus (the key window, and the requests to make one key,
-`makeKeyAndOrderFront: on ArdiaCoreWindow #<number>` in `activation.log`). A test instance is never really active: it fakes
-only that it reads as active (`ArdiaActivation.mm`; `devWindow(n, "fakeAppActive:0")` is the user in another app), and
+`makeKeyAndOrderFront: on UniVerseCoreWindow #<number>` in `activation.log`). A test instance is never really active: it fakes
+only that it reads as active (`UniVerseActivation.mm`; `devWindow(n, "fakeAppActive:0")` is the user in another app), and
 AppKit's key window follows as in an active app, so Chrome's views hear key changes as in production. Its fixtures are HTTPS (a certificate made per
 run; this instance only gets `--ignore-certificate-errors`), since Chrome's automatic Picture in Picture acts only on
 https and file pages; the call is a fake conference (fake camera, a Media Session `enterpictureinpicture` handler that
@@ -201,9 +201,9 @@ and sent only when changed, progress at most 10 times a second, a held report fl
 | Prop | Status | Note |
 |---|---|---|
 | `url`, `profile`, `visible`, `warm` | done | `""` is Chrome's Default profile, `<id>` is `Profile <id>`, `incognito…` the default profile's OTR profile. `visible` and `warm` change the page once the app's batch of view updates is done (a run-loop observer before Core Animation's commit), the pages leaving first; a page leaving the screen goes transparent and stays visible to Chrome for 100 ms. Hiding Chrome's view at once blanked the old page (or left a few tiles) for a frame before the app's switch reached the screen, on most switches away from a web page (rec1522: 13 in 20 switches on the RC, 2 now, each a single frame: the incoming page a frame late, or a tile; `windowing-test.mjs`) |
-| `adoptId` | done | `ardiacore:<id>` (a tab Chrome made for a page), `tab:<id>` (one Chrome made on its own: an extension's tabs.create/windows.create), `restore:<tab id>` (Chrome's TabRestoreService entry carrying the tab's id, bound while the tab lives and stamped on each new navigation, so a close Chrome records first keeps it: `ac_tab_restore_tag`/`_take`, `-[ArdiaCoreWindow restoreTab:…]`), `clone:<tab id>` (`duplicateTab:`). A restore in flight is cancelled by a close |
+| `adoptId` | done | `universecore:<id>` (a tab Chrome made for a page), `tab:<id>` (one Chrome made on its own: an extension's tabs.create/windows.create), `restore:<tab id>` (Chrome's TabRestoreService entry carrying the tab's id, bound while the tab lives and stamped on each new navigation, so a close Chrome records first keeps it: `ac_tab_restore_tag`/`_take`, `-[UniVerseCoreWindow restoreTab:…]`), `clone:<tab id>` (`duplicateTab:`). A restore in flight is cancelled by a close |
 | `transferKey` | done | A tab moving between windows is parked or taken from the old view and moves into the new window's Browser (`adoptTab:`); it is also the tab's key in strip transactions. A window closing while one of its tabs is on its way out (its last tab dropped onto another window) hands the tab to a hidden window first (`keepTransfersOfWindow:`). A parked page has no deadline: it waits until the tab's next view takes it, or the app releases it (`releaseTransfer`: the tab closed, slept, went to an app page or another profile; state/tabs/tabPages.ts) and it closes at once (`closeNow`) |
-| `standalone`, `extensionHost` | partial | Extension popups and side panels (`extensionHost` "popup" or "sidePanel", which implies `standalone`): Chrome's own `ExtensionViewHost`, bound to the window's Browser for the page's profile (`-[ArdiaCoreWindow openExtensionView:profile:kind:]`, `ac_extension_view.mm`), so `chrome.windows`' current window and the active tab are the window's; in no strip. Chrome closing it (`window.close()`, Esc, the extension unloaded, its renderer gone) reaches the app as `onWindowClose`; it closes with its window too. A `standalone` view without `extensionHost` is a tab in a hidden per-profile window (an older engine). Needs a visual check |
+| `standalone`, `extensionHost` | partial | Extension popups and side panels (`extensionHost` "popup" or "sidePanel", which implies `standalone`): Chrome's own `ExtensionViewHost`, bound to the window's Browser for the page's profile (`-[UniVerseCoreWindow openExtensionView:profile:kind:]`, `ac_extension_view.mm`), so `chrome.windows`' current window and the active tab are the window's; in no strip. Chrome closing it (`window.close()`, Esc, the extension unloaded, its renderer gone) reaches the app as `onWindowClose`; it closes with its window too. A `standalone` view without `extensionHost` is a tab in a hidden per-profile window (an older engine). Needs a visual check |
 | `pageBackgroundColor`, `autoPictureInPicture` | partial | Wired (`setPageBackgroundColor:`, auto PiP from the page script's video state); both need a visible window to check |
 
 ### Events
@@ -215,7 +215,7 @@ and sent only when changed, progress at most 10 times a second, a held report fl
 | `onZoom`, `onSecurity`, `onExternalApp`, `onCommand` | done | `onCommand`: Esc the page left alone, the menu's search |
 | `onDiscarded`, `onPopupBlocked`, `onDownloadNavigation` | done | |
 | `onNotification`, `onNotificationClose`, `onNowPlaying` | done | Through the page script, as CEF |
-| `onContentBlocked` | done | The engine's per-tab report (`tab:didBlockRequests:lastURL:`, e809deac) of what extensions' declarativeNetRequest rules blocked or redirected (to a stand-in, as uBlock Origin Lite answers most ad scripts), from a hook in Chrome's `ActionTracker` (engine/ardiacore/apply.sh), plus any other ERR_BLOCKED_BY_CLIENT, each request once; counted and coalesced as CEF (150 ms, reset when a page starts loading). A report can land a turn late, so a few of the old page's blocks may count on the next page |
+| `onContentBlocked` | done | The engine's per-tab report (`tab:didBlockRequests:lastURL:`, e809deac) of what extensions' declarativeNetRequest rules blocked or redirected (to a stand-in, as uBlock Origin Lite answers most ad scripts), from a hook in Chrome's `ActionTracker` (engine/universecore/apply.sh), plus any other ERR_BLOCKED_BY_CLIENT, each request once; counted and coalesced as CEF (150 ms, reset when a page starts loading). A report can land a turn late, so a few of the old page's blocks may count on the next page |
 | `onPageMessage` | partial | `selection` from the page script (main frame). Programmatic selections don't send it; a mouse selection does (needs a visible window) |
 | `onMedia` | partial | Audible state from the page script; the muted test tab doesn't prove it |
 | `onPictureInPicture` | partial | Video PiP state from the page script; document PiP not reported. PiP opens a window on screen |
@@ -231,8 +231,8 @@ and sent only when changed, progress at most 10 times a second, a held report fl
 |---|---|---|
 | `loadUrl`, `goBack`, `goForward`, `goToOffset`, `reload`, `forceReload`, `stopLoading`, `focus` | done | |
 | `setMuted`, `zoomStep`, `find`, `stopFinding`, `showDevTools` | done | DevTools dock in the tab's view |
-| `executeJavaScript`, `evaluate`, `navigationEntries` | done | ArdiaCore's renderer side (`ACContentRendererClient`, a mojo channel) |
-| `getSecurityInfo`, `openBlockedPopup`, `clearSiteData`, `discard`, `setFrozen` | done | `discard` answers what happened (`discarded`, `already`, `refused`; `unload` is `unsupported`: ArdiaCore keeps a regular profile loaded), and a woken tab sends `onReady` again |
+| `executeJavaScript`, `evaluate`, `navigationEntries` | done | UniVerseCore's renderer side (`ACContentRendererClient`, a mojo channel) |
+| `getSecurityInfo`, `openBlockedPopup`, `clearSiteData`, `discard`, `setFrozen` | done | `discard` answers what happened (`discarded`, `already`, `refused`; `unload` is `unsupported`: UniVerseCore keeps a regular profile loaded), and a woken tab sends `onReady` again |
 | `downloadFavicon`, `downloadImage` | done | `data:` PNGs; Chrome's FaviconService keeps icons |
 | `mediaCommand`, `notificationAction` | done | |
 | `print`, `runPageCommand` | partial | Chrome's commands (print preview, save page, system print, caret browsing): dialogs in a hidden run |
@@ -242,19 +242,19 @@ and sent only when changed, progress at most 10 times a second, a held report fl
 | `executeExtensionAction` | partial | Runs the action on the tab (activeTab granted); the app shows the popup (`extensionHost="popup"`); needs a visible window |
 | `resolveUnresponsive` | partial | See `onUnresponsive` |
 
-The app closes a tab by unmounting its WebView; ArdiaCore closes it at once without beforeunload
-(`-[ArdiaCoreTab closeNow]`, as CEF's `CloseBrowser(true)`), recording Chrome's closed-tab entry first. A WebView with
-`temporary` (the Peek's) marks its tab `ArdiaCoreTab.temporary`, and Chrome records no closed-tab or closed-window
+The app closes a tab by unmounting its WebView; UniVerseCore closes it at once without beforeunload
+(`-[UniVerseCoreTab closeNow]`, as CEF's `CloseBrowser(true)`), recording Chrome's closed-tab entry first. A WebView with
+`temporary` (the Peek's) marks its tab `UniVerseCoreTab.temporary`, and Chrome records no closed-tab or closed-window
 entry for it however it closes (`chromium-temporary-tab-restore-hook.patch`); `temporarySource` (the tab it was opened
-over, `-[ArdiaCoreTab setTemporarySource:]`) is the tab a closed window's entry selects when the temporary one was selected.
+over, `-[UniVerseCoreTab setTemporarySource:]`) is the tab a closed window's entry selects when the temporary one was selected.
 
-## `ArdiaCEF` module (`packages/universecore/src/engine/call.ts` and one type file per call domain)
+## `UniVerseCEF` module (`packages/universecore/src/engine/call.ts` and one type file per call domain)
 
 | Function / event | Status | Note |
 |---|---|---|
 | `engineInfo`, `chromeWindows`, `devWindow`, `systemState`, `onSystemState` | done | |
-| `prepareTransfer`, `releaseTransfer`, `tabStripCommand`, `tabStrips`, `onTabStrip` | done | Rec. 1's contract natively: a strip is one profile's Browser in one ArdiaCoreWindow; revisioned transactions naming their cause; `group` (`ac_tabs_group`), `closed` strips, `appWindow`, `activePickedOnClose` |
-| `engineCall`, `onEngineEvent` | done | `//chrome/browser/ardia`'s C exports, the same code as CEF's |
+| `prepareTransfer`, `releaseTransfer`, `tabStripCommand`, `tabStrips`, `onTabStrip` | done | Rec. 1's contract natively: a strip is one profile's Browser in one UniVerseCoreWindow; revisioned transactions naming their cause; `group` (`ac_tabs_group`), `closed` strips, `appWindow`, `activePickedOnClose` |
+| `engineCall`, `onEngineEvent` | done | `//chrome/browser/universe`'s C exports, the same code as CEF's |
 | `components`, `listTasks`, `beginTracing`, `endTracing`, `isTracing` | done | |
 | `setSearchEngineName` | done | |
 | `fetchFavicon` | done | `(url, profile)` → `data:` PNG |
@@ -272,14 +272,14 @@ over, `-[ArdiaCoreTab setTemporarySource:]`) is the tab a closed window's entry 
 | `onPermissionDismissed` | partial | Wired; no check dismisses a prompt by navigating yet |
 | `onContentBlocker` | partial | Reported by the blocker's state changes; not asserted on its own |
 | `setDisplayMediaPicker`, `displayMediaSources` | partial | Kept, but pages keep Chrome's picker until the engine grants app-picked desktop sources; `displayMediaSources` lists screens and windows as CEF (no prompt) |
-| `devScrollZoom` | stubbed | CEF's test hook for its own pinch path; ArdiaCore's pinch is Chrome's |
+| `devScrollZoom` | stubbed | CEF's test hook for its own pinch path; UniVerseCore's pinch is Chrome's |
 
-## `ArdiaExtensions` (`packages/universecore/src/extensions.ts`)
+## `UniVerseExtensions` (`packages/universecore/src/extensions.ts`)
 
 | Function / event | Status | Note |
 |---|---|---|
 | `chooseFolder`, `list`, `inspectUnpacked`, `install`, `setEnabled`, `uninstall`, `reload`, `searchEngineList` | done | `ac_extensions_*`, `ac_search_engines_list` |
-| `installCrx` | done | ArdiaCore only (not in `packages/cef`'s API; the acceptance run uses it): a CRX3 file as one dropped on chrome://extensions, through `ac_extensions_install_crx` (the app's install prompt, then the "added" bubble) |
+| `installCrx` | done | UniVerseCore only (not in `packages/cef`'s API; the acceptance run uses it): a CRX3 file as one dropped on chrome://extensions, through `ac_extensions_install_crx` (the app's install prompt, then the "added" bubble) |
 | extension sync | done | `ac_extensions_sync_state` (every installed extension with whether Chrome would sync it, its version, permission fingerprint and approval, on/off, private-window access and saved pin; sync installs pending, settling and queued; the user's installs and removals since the last call, also sent as `extensions.sync` events) and `ac_extensions_sync_apply` (hands Chrome a sync install of a record, reconciles an installed one, grants an approved version, cancels a waiting install; never uninstalls), `ac_extensions_sync.cc`; `docs/sync.md` › Extensions |
 | `configure` | partial | Wired; not called by a check |
 | `resolveInstallPrompt`, `onInstallPrompt` | partial | Engine-proven (`extensionInstallPrompt`); a web-store install needs the network |
@@ -299,71 +299,71 @@ over, `-[ArdiaCoreTab setTemporarySource:]`) is the tab a closed window's entry 
 | `changeCaptureSource`, `stopCapture` | partial | "Share this tab instead" and Stop sharing, engine-proven with tab capture (e65d1bd5); the capturer's own share moves (its infobar, by capturing frame: `chromium-tab-sharing-capturer.patch`), never another call's |
 | `showAutofillSuggestions` | partial | Needs a focused field in a key window |
 
-## `ArdiaSwipe` (`packages/universecore/src/swipe.tsx`)
+## `UniVerseSwipe` (`packages/universecore/src/swipe.tsx`)
 
-**done**: the same sources as CEF's (`ArdiaSwipe.mm`, `SwipeModule.swift`, linked into `packages/universecore/ios`). Profile
-paging on ArdiaCore is a change of the window's active profile, never a window swap. The page's scroll and
-overscroll acks come from ArdiaCore's own `ChromeRenderWidgetHostViewMacDelegate` subclass (`ac_page_view.mm`, made by
+**done**: the same sources as CEF's (`UniVerseSwipe.mm`, `SwipeModule.swift`, linked into `packages/universecore/ios`). Profile
+paging on UniVerseCore is a change of the window's active profile, never a window swap. The page's scroll and
+overscroll acks come from UniVerseCore's own `ChromeRenderWidgetHostViewMacDelegate` subclass (`ac_page_view.mm`, made by
 `ACViewDelegate::GetDelegateForHost` for every page view but child popup widgets, which get none, as in Chrome), through
-`ArdiaCorePageView`: `isPageView:`, `setScrollObserver:` (`ackedScroll:consumed:` for the first gesture-scroll begin and
+`UniVerseCorePageView`: `isPageView:`, `setScrollObserver:` (`ackedScroll:consumed:` for the first gesture-scroll begin and
 update, `overscrolledAllowingHorizontal:`), `takeSwipes:` (from then on Chrome's history swiper never sees that view's
-scroll-wheel events; a view without ArdiaCore's delegate can't be taken), `takesSwipes:` and `isEditingText:`. The window
-layer adds `+[ArdiaCoreWindow contentViewClass]` and `isChromeFramelessWindow:`.
+scroll-wheel events; a view without UniVerseCore's delegate can't be taken), `takesSwipes:` and `isEditingText:`. The window
+layer adds `+[UniVerseCoreWindow contentViewClass]` and `isChromeFramelessWindow:`.
 
-## Window hosting (`ArdiaChromeWindowHost`, called by `packages/shell/ios/ChromeWindows.swift`)
+## Window hosting (`UniVerseChromeWindowHost`, called by `packages/shell/ios/ChromeWindows.swift`)
 
-All 12 **done**: `makeWindowForProfile:` (one `ArdiaCoreWindow` per app window, styled as the app's),
+All 12 **done**: `makeWindowForProfile:` (one `UniVerseCoreWindow` per app window, styled as the app's),
 `embedRootView:inWindow:`, `rootViewOfWindow:`, `removeRootViewOfWindow:`, `showProfile:inWindow:` (the traffic
 lights are placed again after every switch), `prepareProfiles:forWindow:`, `setTrafficLightsCenter:inWindow:`,
 `closeWindow:`, `shouldCloseHandler` and `windowShouldClose:` (the title-bar close button asks the app),
-`devAction:window:` (`lights`, `close-button`) and `swappedHandler` (never fires: no window swaps on ArdiaCore).
+`devAction:window:` (`lights`, `close-button`) and `swappedHandler` (never fires: no window swaps on UniVerseCore).
 
 ## Runtime
 
 | Item | Status | Note |
 |---|---|---|
-| RN app in Chromium's loop | done | `ArdiaHost` runs `ChromeMain`; React Native starts on the loop's first idle (React Native's debug `ReentrancyCheck` trapped when it started inside Chrome's startup burst). The app delegate gets each launch callback once: when that idle comes before AppKit finished launching, AppKit sends them (sending them twice made a second React Native factory, two JS runtimes), and a cold launch's URLs follow |
+| RN app in Chromium's loop | done | `UniVerseHost` runs `ChromeMain`; React Native starts on the loop's first idle (React Native's debug `ReentrancyCheck` trapped when it started inside Chrome's startup burst). The app delegate gets each launch callback once: when that idle comes before AppKit finished launching, AppKit sends them (sending them twice made a second React Native factory, two JS runtimes), and a cold launch's URLs follow |
 | Popups and Chrome-made tabs as the app's tabs | done | |
 | Two profiles in one window | done | |
-| Background test instances | done | `ARDIA_BACKGROUND=1`: activation guards, panels answered from `file-chooser.txt`, context menus reported |
+| Background test instances | done | `UNIVERSE_BACKGROUND=1`: activation guards, panels answered from `file-chooser.txt`, context menus reported |
 | Key equivalents from the page | done | |
 | Quit and terminate (⌘Q, Dock, logout) | done | Cocoa's `applicationShouldTerminate:` contract, cancellable |
 | Full screen, pointer lock and keyboard lock notice | done | Chrome's own "Press Esc to exit full screen" bubble (`ExclusiveAccessBubbleViews`) on the window's widget, ported from Chrome's viewless Webium window (`ACBrowserWindow` is its `ExclusiveAccessBubbleViewsContext`); the window tells Chrome's `FullscreenController` when a page's full screen has started (`WindowFullscreenStateChanged`), which shows it. Esc, and press-and-hold Esc under keyboard lock, are Chrome's (`ExclusiveAccessManager::HandleUserKeyEvent`). A tab leaving full screen gets its visual properties again at once, so the page leaves even while the window is still mid-transition. A hidden run's bubble sits in the test band like every window |
 | Tab-modal dialogs (HTTP auth, FedCM, passkeys, print) | done | Each tab has its own dialog host (`ac_modal_dialog_host.mm`): centred over that tab's own view (each split pane its own), at most the page's size, activated only when its Browser is the last active one, the app is active and its window is main or key (otherwise shown inactive: no focus steal from another app or a background window), and moved whenever the window's bounds or any view frame in it changes while a dialog is up. Browser-modal dialogs use the window's host, over the active tab |
 | EyeDropper | done | `new EyeDropper().open()` shows macOS's colour sampler, as Chrome (`ShowEyeDropper`). A hidden run never shows it: it picks #123456 |
 | Emoji & Symbols | done | Drops a page's full screen first, as Chrome |
-| `AppController` stand-in | done | Chrome's code asks `AppController.sharedController` for profiles, colours and quit state; ArdiaCore's stand-in answers every selector `app_controller_mac.h` declares, with Chrome's semantics where UniVerse Project Browser can reach them (`safeProfileForNewWindows:`, `keyWindowIsModal`, `lastActiveColorProvider`, `confirmQuitIfNeeded`). Anything else is logged; it answers zero only for a void, scalar or object return, and stops the process otherwise (and always in a hidden run) |
+| `AppController` stand-in | done | Chrome's code asks `AppController.sharedController` for profiles, colours and quit state; UniVerseCore's stand-in answers every selector `app_controller_mac.h` declares, with Chrome's semantics where UniVerse Project Browser can reach them (`safeProfileForNewWindows:`, `keyWindowIsModal`, `lastActiveColorProvider`, `confirmQuitIfNeeded`). Anything else is logged; it answers zero only for a void, scalar or object return, and stops the process otherwise (and always in a hidden run) |
 | Windows Chrome makes (chrome.windows.create, incognito) | done | Routed into the app's windows (`tab:<id>`) through a hidden stray window. Chrome never shows a window of the host's (`ACBrowserWindow::Show` does nothing; the app shows its own), and the host's own hidden pages are no extension's window (`cef::IsHiddenFromExtensions`, `IsOnCurrentWorkspace`, extensions' `browser_window_util`) |
 | Key window, IME, accessibility | partial | Wiring checked in the engine's run; marked text and VoiceOver need an unlocked screen |
 | Native composition of the page under the RN views, bubbles and sheets | needs a visual check | The screen was locked for stages 1 and 2 |
 
 ## Renderer side
 
-CEF ran UniVerse Project Browser's code in each renderer (`packages/cef/helper/helper_main.mm`). ArdiaCore does the same with its own
-renderer client (`ACContentRendererClient`) and a mojo interface (`engine/ardiacore/src/ardia/core/mojom`):
+CEF ran UniVerse Project Browser's code in each renderer (`packages/cef/helper/helper_main.mm`). UniVerseCore does the same with its own
+renderer client (`ACContentRendererClient`) and a mojo interface (`engine/universecore/src/universe/core/mojom`):
 
-| CEF | ArdiaCore | Used by |
+| CEF | UniVerseCore | Used by |
 |---|---|---|
-| `OnContextCreated` runs `page_script.js` in every frame's main world | `DidCreateScriptContext` (main world), the script sent at launch (`ArdiaCoreEngine.pageScript`) | Everything below |
+| `OnContextCreated` runs `page_script.js` in every frame's main world | `DidCreateScriptContext` (main world), the script sent at launch (`UniVerseCoreEngine.pageScript`) | Everything below |
 | `post(kind, json)` → `ACClient::OnPageMessage` | `tab:didReceivePageMessage:json:frame:main:` | hello (→ config with `blockAutoplay`), media, nowPlaying, theme, selection, pinch, pip, displayMedia, notification, notificationClose |
 | "ac-call" (`CallPage`) | `callPage:json:`, `callFrame:kind:json:` | config, media, displayMedia, notification |
 | "ac-eval" | `evaluate:completion:`, `evaluate:userGesture:completion:` | `WebViewHandle.evaluate`, PiP requests |
 | `ExecuteJavaScript` | `executeJavaScript:` (`:frame:`, `:userGesture:`) | `WebViewHandle.executeJavaScript`, blocked-popup replay |
 | `IsAppURL` checks | A navigation throttle; a Chrome page's `universe:` link → `tab:didRequestAppURL:userGesture:` → `onOpenWindow` `current` | The app's own pages linked from chrome:// pages |
 
-## Engine C exports (`//chrome/browser/ardia`)
+## Engine C exports (`//chrome/browser/universe`)
 
-Plain Chromium code over Chrome's services (`engine/chromium/src/chrome/browser/ardia`, rules in
-`public/ac_engine.h`), linked into ArdiaCore's framework (and, until the cutover, CEF's). The app calls them through
-`dlsym` on the framework (`ArdiaEngineBridge`/`ArdiaServices`). All of them are wired:
+Plain Chromium code over Chrome's services (`engine/chromium/src/chrome/browser/universe`, rules in
+`public/ac_engine.h`), linked into UniVerseCore's framework (and, until the cutover, CEF's). The app calls them through
+`dlsym` on the framework (`UniVerseEngineBridge`/`UniVerseServices`). All of them are wired:
 
 | Export | JS functions (`packages/universecore/src`) |
 |---|---|
 | `ac_engine_set_event_sink` | `onEngineEvent` |
 | `ac_passwords_*` (list, unlock, reveal, add, update, remove, exceptions, allow, export) | the password functions |
-| `ac_passwords_logins` | none: native only. `ArdiaSync.readPasswords` reads every saved login with its password (both stores, profile store first, blocklisted and empty ones left out; ArdiaSync keeps the first of any two with the same realm and username, compared as Swift strings, so canonically equivalent ones count as one) through `ArdiaEngineBridge.callForSecretReply`, which parses the reply from bytes it then wipes and settles once (the reply, or nil at its deadline); the engine builds the JSON in one reserved buffer and cleanses it after the reply. Any store error, Chrome skipping undecryptable passwords (`SkipUndecryptablePasswords`) or the process-bound backing answers an error, so sync never sees part of a list |
+| `ac_passwords_logins` | none: native only. `UniVerseSync.readPasswords` reads every saved login with its password (both stores, profile store first, blocklisted and empty ones left out; UniVerseSync keeps the first of any two with the same realm and username, compared as Swift strings, so canonically equivalent ones count as one) through `UniVerseEngineBridge.callForSecretReply`, which parses the reply from bytes it then wipes and settles once (the reply, or nil at its deadline); the engine builds the JSON in one reserved buffer and cleanses it after the reply. Any store error, Chrome skipping undecryptable passwords (`SkipUndecryptablePasswords`) or the process-bound backing answers an error, so sync never sees part of a list |
 | `ac_autofill_*` | the address and card functions |
-| `ac_extensions_*`, `ac_search_engines_list` | `ArdiaExtensions` |
+| `ac_extensions_*`, `ac_search_engines_list` | `UniVerseExtensions` |
 | `ac_zoom_list`, `ac_zoom_set` | `getZoomLevels`, `setZoom` |
 | `ac_browsing_data_clear` | `clearBrowsingData`, the default profile's `deleteProfileData` |
 | `ac_downloads_list`, `ac_downloads_command` (`cancel`, `pause`, `resume`, `keep`, `remove`; events `downloads.changed`/`removed`) | `onDownload` and the download functions |
@@ -377,7 +377,7 @@ Plain Chromium code over Chrome's services (`engine/chromium/src/chrome/browser/
 
 ## Status
 
-Full hidden runs on 50f1b719 (2026-10-02, the release candidate's ArdiaCore, shared Metro with a clean tree): 126/126
+Full hidden runs on 50f1b719 (2026-10-02, the release candidate's UniVerseCore, shared Metro with a clean tree): 126/126
 twice (two runs at once), activation 7/7 twice. The first run's one failure was `page-background`, which still expected
 the theme card as the page's base after 53ed19ca made it transparent; it now checks the base stays clear (also after a
 reload and after an opaque page). `window-close`'s "cdp timeout" was the check's: `window.close()` inside the
@@ -385,7 +385,7 @@ evaluate races its own reply (closeFromPage). Runs of the same bundle at once no
 
 Full hidden runs on committed b1a94afe (2026-10-02, the screen locked): 119/119 twice in a row, on a `git archive` of HEAD with its own
 `pnpm install`, `pod install`, derived data and Metro (`react-native start --port <p>` in the archive, `METRO_PORT=<p>`),
-and the framework built from the same commit (`engine/ardiacore/apply.sh --check`). Run it that way: the shared Metro and
+and the framework built from the same commit (`engine/universecore/apply.sh --check`). Run it that way: the shared Metro and
 working tree carry other agents' uncommitted edits, which turned earlier runs' failures into noise.
 
 The earlier visibility flake is gone. What the 0.2.22 push found and fixed:

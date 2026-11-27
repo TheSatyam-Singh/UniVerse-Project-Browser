@@ -1,5 +1,5 @@
 import XCTest
-@testable import ArdiaUpdaterCore
+@testable import UniVerseUpdaterCore
 
 final class StagedSurveyTests: XCTestCase {
   let bundleId = "com.universe.projectbrowser.surveytest"

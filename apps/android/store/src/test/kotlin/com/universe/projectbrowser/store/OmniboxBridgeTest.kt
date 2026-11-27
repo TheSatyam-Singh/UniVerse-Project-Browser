@@ -291,7 +291,7 @@ class OmniboxCloseTest {
         omnibox.close()
         assertEquals(1, core.closes)
         assertEquals(2, core.threads.size)
-        assertTrue(core.threads.all { it.startsWith("ArdiaOmnibox") })
+        assertTrue(core.threads.all { it.startsWith("UniVerseOmnibox") })
         assertTrue(omnibox.isClosed)
         assertEquals(OmniboxResult("git", emptyList(), ""), omnibox.suggest("git"))
         assertNull(omnibox.resolve("apple.com"))

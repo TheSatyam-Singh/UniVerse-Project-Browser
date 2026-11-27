@@ -146,8 +146,8 @@
     dirty = true;
   }
 
-  applyPageColor(window.ardiaPageColor || params.get("color"));
-  addEventListener("ardiapagecolor", () => applyPageColor(window.ardiaPageColor));
+  applyPageColor(window.universePageColor || params.get("color"));
+  addEventListener("universepagecolor", () => applyPageColor(window.universePageColor));
 
   const injected = window.GAME_ERROR || {};
   const errorCode = injected.code || params.get("code");

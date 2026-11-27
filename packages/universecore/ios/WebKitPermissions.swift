@@ -34,7 +34,7 @@ final class WebKitPermissions {
     lastRequest += 1
     let id = "wk-permission-\(lastRequest)"
     pending[id] = Pending(browserId: browserId, store: store, keys: keys, decide: decide)
-    ArdiaEvents.emit("permissions.requested", data: ["id": id, "tabId": tabId ?? NSNull(), "origin": origin, "permissions": kinds])
+    UniVerseEvents.emit("permissions.requested", data: ["id": id, "tabId": tabId ?? NSNull(), "origin": origin, "permissions": kinds])
   }
 
   func resolve(_ id: String, result: String, remember: Bool) {
@@ -58,7 +58,7 @@ final class WebKitPermissions {
     for (id, request) in pending where matching(request) {
       pending.removeValue(forKey: id)
       request.decide(false)
-      ArdiaEvents.emit("permissions.dismissed", data: ["id": id])
+      UniVerseEvents.emit("permissions.dismissed", data: ["id": id])
     }
   }
 

@@ -12,7 +12,7 @@ import androidx.compose.runtime.setValue
 data class FirstFrame(val sinceProcessStartMillis: Long, val sinceActivityCreatedMillis: Long, val coldStart: Boolean)
 
 object StartupTiming {
-    const val TAG = "ArdiaTiming"
+    const val TAG = "UniVerseTiming"
 
     private var applicationCreatedAt = 0L
     private var hadFrame = false

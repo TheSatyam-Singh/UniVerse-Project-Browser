@@ -217,7 +217,7 @@ try {
   });
 
   await rep.check("a press whose mouse up a menu or a drag session took doesn't swallow the next click", async () => {
-    const lost = () => run("return globalThis.expo.modules.ArdiaFocus.pressesWithoutRelease();");
+    const lost = () => run("return globalThis.expo.modules.UniVerseFocus.pressesWithoutRelease();");
     const cases = [["a right-click's menu", "rightdown", ",1,0,901", 0], ["a ⌃-click's menu", "down", ",1,262144,902", 0], ["a plain press", "down", ",1,0,903", 1]];
     for (const [name, type, tail, counted] of cases) {
       await run(`st().activate("a"); return settle(400);`);
@@ -261,7 +261,7 @@ try {
   });
 
   await rep.check("after a right-click whose mouse up a menu took, in the New Tab field, on a page or over a button, one click switches", async () => {
-    const lost = () => run("return globalThis.expo.modules.ArdiaFocus.pressesWithoutRelease();");
+    const lost = () => run("return globalThis.expo.modules.UniVerseFocus.pressesWithoutRelease();");
     assert.deepEqual(await run(`return act("mouse:rightdown:760,340,1,0,951").then(() => settle(400)).then(() => pressNumbered("c", 120, 952));`), { down: "c", up: "c" }, "after the New Tab page's field");
     assert.deepEqual(await run(`return toA().then(() => act("mouse:rightdown:700,500,1,0,961")).then(() => settle(400)).then(() => pressNumbered("p2", 120, 962));`), { down: "p2", up: "p2" }, "after a page");
     const before = await lost();

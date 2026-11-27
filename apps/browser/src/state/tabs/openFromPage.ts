@@ -62,7 +62,7 @@ function openNow(request: OpenWindowRequest, page: PageRef, gated: boolean) {
   if (isSmall(s, w.id) && disposition !== "window" && disposition !== "incognito") {
     return void s.newTab(w.id, { url, adoptId, openerId: from.tabId, profileId: from.profileId, background: true, gated });
   }
-  if (disposition === "foreground" && request.fromClick && isAdoptKind(adoptId, "ardiacore") && page.tabId) {
+  if (disposition === "foreground" && request.fromClick && isAdoptKind(adoptId, "universecore") && page.tabId) {
     const route = newTabLinkRoute(s, page.tabId, url);
     if (route === "peek") return void s.openPeek(page.tabId, url, point ?? null, { adoptId });
     if (route === "otherSite") return void s.openPeek(page.tabId, url, point ?? null, { adoptId, landing: siteLanding(s.tabs[page.tabId]!.url, "tab") });

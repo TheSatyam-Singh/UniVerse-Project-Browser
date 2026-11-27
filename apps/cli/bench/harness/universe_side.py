@@ -23,7 +23,7 @@ WORK = HOME / "work"
 CODEX_FAKE_HOME = HOME / "codex-home"
 DEV_BIN = HOME / "devbin"
 CLI_ROOT = HOME / "cli"
-INSTALLED_ARDIA = Path.home() / ".local/bin/universe"
+INSTALLED_UNIVERSE = Path.home() / ".local/bin/universe"
 DEFAULTS = {
     "app": str(HOME / "app/UniVerse-Project-Browser.app"),
     "port": 9371,
@@ -34,7 +34,7 @@ DEFAULTS = {
 }
 MODELS = {"claude": ("claude-opus-5-5", "high"), "codex": ("gpt-6.1-sol", "high")}
 STRIPPED_ENV_PREFIXES = ("CLAUDECODE", "CLAUDE_CODE_", "CLAUDE_PID", "CLAUDE_EFFORT", "CLAUDE_AGENT_SDK", "AI_AGENT",
-                         "T3CODE_", "ARDIA_", "AGENT_BROWSER_", "CODEX_")
+                         "T3CODE_", "UNIVERSE_", "AGENT_BROWSER_", "CODEX_")
 KEPT_ENV = {"CLAUDE_CODE_ENABLE_GATEWAY_MODEL_DISCOVERY", "CLAUDE_CODE_OAUTH_TOKEN", "CLAUDE_CODE_USE_BEDROCK",
             "CLAUDE_CODE_USE_VERTEX"}
 SHELL_TOOLS = {"Bash", "command_execution"}
@@ -76,13 +76,13 @@ def dev_bin(name=""):
 
 def universe_bin(opts):
     name = dev_name(opts)
-    return str(INSTALLED_ARDIA) if name is None else str(dev_bin(name) / "universe")
+    return str(INSTALLED_UNIVERSE) if name is None else str(dev_bin(name) / "universe")
 
 
 def agent_env(opts, extra=None):
     env = {k: v for k, v in os.environ.items() if k in KEPT_ENV or not k.startswith(STRIPPED_ENV_PREFIXES)}
     path = env.get("PATH", "")
-    local_bin = str(INSTALLED_ARDIA.parent)
+    local_bin = str(INSTALLED_UNIVERSE.parent)
     if local_bin not in path.split(":"):
         path = f"{local_bin}:{path}"
     if dev_name(opts) is not None:
@@ -121,7 +121,7 @@ def cli_info(opts):
         if not info or not (dev_bin(name) / "universe").exists():
             raise SystemExit(f"no frozen dev CLI; run: bench.py freeze-cli{' --name ' + name if name else ''}")
         return dict(info, kind=f"dev:{name}" if name else "dev")
-    return {"kind": "installed", "version": sh([str(INSTALLED_ARDIA), "--version"]).stdout.strip()}
+    return {"kind": "installed", "version": sh([str(INSTALLED_UNIVERSE), "--version"]).stdout.strip()}
 
 
 def app_path(opts):
@@ -165,10 +165,10 @@ def launch(opts):
     (data / "onboarding.json").write_text(json.dumps({"version": 1, "completedAt": 1}))
     logfile = data / "app.out.log"
     t0 = time.monotonic()
-    env_args = ["--env", "ARDIA_BACKGROUND=1", "--env", f"ARDIA_DATA_DIR={data}",
-                "--env", f"ARDIA_REMOTE_DEBUGGING_PORT={opts['port']}"]
+    env_args = ["--env", "UNIVERSE_BACKGROUND=1", "--env", f"UNIVERSE_DATA_DIR={data}",
+                "--env", f"UNIVERSE_REMOTE_DEBUGGING_PORT={opts['port']}"]
     if opts["universe_test"]:
-        env_args += ["--env", f"ARDIA_TEST={opts['universe_test']}"]
+        env_args += ["--env", f"UNIVERSE_TEST={opts['universe_test']}"]
     subprocess.run(["open", "-g", "-n", *env_args, "--stdout", str(logfile), "--stderr", str(logfile), str(app)],
                    check=True, timeout=30)
     exe = str(app / "Contents/MacOS/UniVerse Project Browser")
@@ -390,7 +390,7 @@ def run(task_id, agent, run_id, results_dir, overrides=None, contender=None, on_
     sh([universe_bin(opts), "skills", "install", "--target", target, "--project"], cwd=workdir,
        env=agent_env(opts)).check_returncode()
     prompt = f"{task['prompt']}\n\n{reach_line(opts)}"
-    extra = {"ARDIA_DATA_DIR": str(data)}
+    extra = {"UNIVERSE_DATA_DIR": str(data)}
     if opts["humanize"]:
         extra["AGENT_BROWSER_HUMANIZE"] = "1"
     if agent == "codex":

@@ -63,17 +63,17 @@ export const emitCommand = (event: CommandEvent) => shellEvents.emit("onCommand"
 export const emitOpenURLs = (urls: string[], pointer?: [number, number], source?: { bundleId: string | null; appName: string | null }) =>
   shellEvents.emit("onOpenURLs", { urls, pointer, source });
 
-const shell: Modules["ArdiaShell"] = {
+const shell: Modules["UniVerseShell"] = {
   addListener: shellEvents.addListener,
   copyText: () => {},
   readText: () => Promise.resolve(""),
   startDictation: () => {},
-  fetchBangList: (etag) => (bangListServer.reply ? bangListServer.reply(etag) : unfaked("ArdiaShell", "fetchBangList")),
+  fetchBangList: (etag) => (bangListServer.reply ? bangListServer.reply(etag) : unfaked("UniVerseShell", "fetchBangList")),
   setAppearance: () => Promise.resolve(),
   isDarkAppearance: () => Promise.resolve(false),
 };
 
-const windowsModule: Modules["ArdiaAppWindows"] = {
+const windowsModule: Modules["UniVerseAppWindows"] = {
   windowCornerRadius: () => 19,
   addListener: shellEvents.addListener,
   openWindow: (id, options) => {
@@ -120,7 +120,7 @@ const windowsModule: Modules["ArdiaAppWindows"] = {
 export const pressesWithoutRelease = { count: 0 };
 export const pressRepeated: { earlier: { landedOn: string; ms: number } | null } = { earlier: null };
 
-const focus: Modules["ArdiaFocus"] = {
+const focus: Modules["UniVerseFocus"] = {
   setSwitcherCapture: () => Promise.resolve(),
   setDragEscapeCapture: () => Promise.resolve(),
   saveKeyResponder: () => Promise.resolve(0),
@@ -133,7 +133,7 @@ const focus: Modules["ArdiaFocus"] = {
   pressRepeated: () => Promise.resolve(pressRepeated.earlier),
 };
 
-const menus: Modules["ArdiaMenus"] = {
+const menus: Modules["UniVerseMenus"] = {
   addListener: shellEvents.addListener,
   showMenu: () => Promise.resolve(null),
   setMenuState: () => Promise.resolve(),
@@ -143,14 +143,14 @@ const menus: Modules["ArdiaMenus"] = {
   cancelRecording: () => Promise.resolve(),
 };
 
-const dialogs: Modules["ArdiaDialogs"] = {
+const dialogs: Modules["UniVerseDialogs"] = {
   confirm: () => Promise.resolve({ confirmed: false, suppressed: false }),
   prompt: () => Promise.resolve(null),
   pickFiles: () => Promise.resolve([]),
   pickFolder: () => Promise.resolve(null),
 };
 
-const documents: Modules["ArdiaDocuments"] = {
+const documents: Modules["UniVerseDocuments"] = {
   readDocument: (name) => docs.get(name) ?? null,
   writeDocument: (name, contents) => void docs.set(name, contents),
   saveDocument: (name, contents) =>
@@ -163,7 +163,7 @@ const documents: Modules["ArdiaDocuments"] = {
   removeDocument: (name) => void docs.delete(name),
 };
 
-const app: Modules["ArdiaApp"] = {
+const app: Modules["UniVerseApp"] = {
   setWindowActivity: () => Promise.resolve(),
   share: () => Promise.resolve(),
   shareText: () => Promise.resolve(),
@@ -184,7 +184,7 @@ const app: Modules["ArdiaApp"] = {
   diagnosticsSample: () => Promise.resolve({ ...diagnostics.sample }),
 };
 
-const updater: Modules["ArdiaUpdater"] = {
+const updater: Modules["UniVerseUpdater"] = {
   updaterState: () => Promise.resolve({ available: false }),
   checkForUpdates: () => Promise.resolve(),
   setAutomaticUpdateChecks: () => Promise.resolve(),
@@ -193,7 +193,7 @@ const updater: Modules["ArdiaUpdater"] = {
 };
 
 const notificationEvents = nativeEvents();
-const notifications: Modules["ArdiaNotifications"] = {
+const notifications: Modules["UniVerseNotifications"] = {
   addListener: notificationEvents.addListener,
   notificationPermission: () => Promise.resolve("notDetermined"),
   requestNotificationPermission: () => Promise.resolve(false),
@@ -202,7 +202,7 @@ const notifications: Modules["ArdiaNotifications"] = {
   openNotificationSettings: () => Promise.resolve(),
 };
 
-const location: Modules["ArdiaLocation"] = {
+const location: Modules["UniVerseLocation"] = {
   locationPermission: () => Promise.resolve("notDetermined"),
   requestLocationPermission: () => Promise.resolve("notDetermined"),
   openLocationSettings: () => Promise.resolve(),
@@ -210,13 +210,13 @@ const location: Modules["ArdiaLocation"] = {
 };
 
 const scriptingEvents = nativeEvents();
-const scripting: Modules["ArdiaScripting"] = {
+const scripting: Modules["UniVerseScripting"] = {
   addListener: scriptingEvents.addListener,
   setScriptState: () => Promise.resolve(),
   replyToScript: () => Promise.resolve(),
 };
 
-const dev: Modules["ArdiaDev"] = {
+const dev: Modules["UniVerseDev"] = {
   devCrash: () => Promise.resolve(),
   devRenderIntroMusic: () => Promise.resolve(null),
   devRunAppleScript: () => Promise.resolve({ ok: false, error: "no AppleScript in tests" }),
@@ -236,7 +236,7 @@ const dev: Modules["ArdiaDev"] = {
   devURLDelivery: () => Promise.resolve({}),
 };
 
-const system: Modules["ArdiaSystem"] = {
+const system: Modules["UniVerseSystem"] = {
   isDefaultBrowser: () => Promise.resolve(false),
   setAsDefaultBrowser: () => Promise.resolve(false),
   launchAtLoginStatus: () => Promise.resolve("notRegistered"),
@@ -252,7 +252,7 @@ const system: Modules["ArdiaSystem"] = {
 };
 
 const calendarEvents = nativeEvents();
-const calendar: Modules["ArdiaCalendar"] = {
+const calendar: Modules["UniVerseCalendar"] = {
   addListener: calendarEvents.addListener,
   authorizationStatus: () => "notDetermined",
   requestAccess: () => Promise.resolve({ granted: false, status: "notDetermined", error: null, responsible: "self", ms: 0 }),
@@ -260,13 +260,13 @@ const calendar: Modules["ArdiaCalendar"] = {
   events: () => Promise.resolve([]),
 };
 
-const keychain: Modules["ArdiaKeychain"] = {
+const keychain: Modules["UniVerseKeychain"] = {
   get: () => Promise.resolve(null),
   set: () => Promise.resolve(true),
   delete: () => Promise.resolve(true),
 };
 
-const translate: Modules["ArdiaTranslate"] = {
+const translate: Modules["UniVerseTranslate"] = {
   available: false,
   userLanguages: () => ["en"],
   languageName: (identifier) => identifier,
@@ -280,15 +280,15 @@ const translate: Modules["ArdiaTranslate"] = {
   cancel: () => Promise.resolve(),
 };
 
-const magnifyArea: Modules["ArdiaMagnifyArea"] = { devMagnify: () => unfaked("ArdiaMagnifyArea", "devMagnify") };
-const fileDrop: Modules["ArdiaFileDrop"] = {
-  devDrag: () => unfaked("ArdiaFileDrop", "devDrag"),
+const magnifyArea: Modules["UniVerseMagnifyArea"] = { devMagnify: () => unfaked("UniVerseMagnifyArea", "devMagnify") };
+const fileDrop: Modules["UniVerseFileDrop"] = {
+  devDrag: () => unfaked("UniVerseFileDrop", "devDrag"),
   devLastFileDrag: () => Promise.resolve([]),
 };
 
 
 const cliEvents = nativeEvents();
-const cli: Modules["ArdiaCli"] = {
+const cli: Modules["UniVerseCli"] = {
   installedVersion: () => null,
   install: () => Promise.resolve({ ok: false, appVersion: appInfo.appVersion ?? "", error: "no installs in tests", lines: [] }),
   addListener: cliEvents.addListener,
@@ -296,7 +296,7 @@ const cli: Modules["ArdiaCli"] = {
 
 const noUserScripts: UserScriptsHost = { watching: [], writes: [], status: null, change: null, read: async () => ({ state: "empty" }) };
 const userScriptsHost = () => testGlobals.acTestUserScripts ?? noUserScripts;
-const userScripts: Modules["ArdiaUserScripts"] = {
+const userScripts: Modules["UniVerseUserScripts"] = {
   watch: (on) => void userScriptsHost().watching.push(on),
   read: () => userScriptsHost().read(),
   readStatus: async () => userScriptsHost().status,
@@ -313,7 +313,7 @@ const userScripts: Modules["ArdiaUserScripts"] = {
 export const configFolder = { files: new Map<string, string>(), stamps: new Map<string, string>(), watched: [] as string[][], schemaWrites: [] as Record<string, string>[], arming: null as Promise<void> | null };
 const configEvents = nativeEvents();
 export const emitConfigChange = () => configEvents.emit("onChange", {});
-const config: Modules["ArdiaConfig"] = {
+const config: Modules["UniVerseConfig"] = {
   addListener: configEvents.addListener,
   readFile: (name) => {
     const text = configFolder.files.get(name);
@@ -346,11 +346,11 @@ export function writeHeldReplies() {
   const tickets = controlSocket.held.splice(0);
   if (tickets.length) controlEvents.emit("onWritten", { tickets });
 }
-const automation: Modules["ArdiaAutomation"] = {
+const automation: Modules["UniVerseAutomation"] = {
   start: async () => {
     if (!controlSocket.running) controlSocket.generation++;
     controlSocket.running = true;
-    return { state: "on", generation: controlSocket.generation, path: "/data/ArdiaControl.sock" };
+    return { state: "on", generation: controlSocket.generation, path: "/data/UniVerseControl.sock" };
   },
   stop: async () => {
     controlSocket.running = false;
@@ -374,7 +374,7 @@ export const systemSignals = {
 };
 const systemSignalEvents = nativeEvents();
 export const emitSystemSignal = (signal: SystemSignal) => systemSignalEvents.emit("onSystemSignal", signal);
-const systemSignalsModule: Modules["ArdiaSystemSignals"] = {
+const systemSignalsModule: Modules["UniVerseSystemSignals"] = {
   watchIdle: (thresholds) => void (systemSignals.idleThresholds = [...thresholds]),
   holdsIncomingLinks: () => systemSignals.holdsIncomingLinks,
   setHoldIncomingLinks: (hold, hooksStamp) => void Object.assign(systemSignals, { holdsIncomingLinks: hold, hooksStamp }),
@@ -385,32 +385,32 @@ const systemSignalsModule: Modules["ArdiaSystemSignals"] = {
 };
 
 export const shellNativeModules: Modules = {
-  ArdiaShell: shell,
-  ArdiaAppWindows: windowsModule,
-  ArdiaFocus: focus,
-  ArdiaMenus: menus,
-  ArdiaDialogs: dialogs,
-  ArdiaDocuments: documents,
-  ArdiaApp: app,
-  ArdiaUpdater: updater,
-  ArdiaNotifications: notifications,
-  ArdiaLocation: location,
-  ArdiaScripting: scripting,
-  ArdiaDev: dev,
-  ArdiaSystem: system,
-  ArdiaCalendar: calendar,
-  ArdiaKeychain: keychain,
-  ArdiaGlassEffect: { isLiquidGlass: () => false },
-  ArdiaDockSelection: { iconTheme: () => Promise.resolve(null), iconAccent: () => Promise.resolve(null) },
-  ArdiaInlineCompletion: { complete: () => Promise.resolve(0) },
-  ArdiaTranslate: translate,
-  ArdiaMagnifyArea: magnifyArea,
-  ArdiaFileDrop: fileDrop,
-  ArdiaCli: cli,
-  ArdiaUserScripts: userScripts,
-  ArdiaConfig: config,
-  ArdiaAutomation: automation,
-  ArdiaSystemSignals: systemSignalsModule,
-  ArdiaTelemetryLocal: telemetryLocalModule,
-  ArdiaReport: reportModule,
+  UniVerseShell: shell,
+  UniVerseAppWindows: windowsModule,
+  UniVerseFocus: focus,
+  UniVerseMenus: menus,
+  UniVerseDialogs: dialogs,
+  UniVerseDocuments: documents,
+  UniVerseApp: app,
+  UniVerseUpdater: updater,
+  UniVerseNotifications: notifications,
+  UniVerseLocation: location,
+  UniVerseScripting: scripting,
+  UniVerseDev: dev,
+  UniVerseSystem: system,
+  UniVerseCalendar: calendar,
+  UniVerseKeychain: keychain,
+  UniVerseGlassEffect: { isLiquidGlass: () => false },
+  UniVerseDockSelection: { iconTheme: () => Promise.resolve(null), iconAccent: () => Promise.resolve(null) },
+  UniVerseInlineCompletion: { complete: () => Promise.resolve(0) },
+  UniVerseTranslate: translate,
+  UniVerseMagnifyArea: magnifyArea,
+  UniVerseFileDrop: fileDrop,
+  UniVerseCli: cli,
+  UniVerseUserScripts: userScripts,
+  UniVerseConfig: config,
+  UniVerseAutomation: automation,
+  UniVerseSystemSignals: systemSignalsModule,
+  UniVerseTelemetryLocal: telemetryLocalModule,
+  UniVerseReport: reportModule,
 };

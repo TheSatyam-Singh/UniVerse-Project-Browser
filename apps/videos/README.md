@@ -28,7 +28,7 @@ Every other browser asks for something. Four brass stabs carry "SIGN IN. / TRY A
 each over a site interrupting you in a real UniVerse Project Browser window: a login wall sliding up, an AI copilot panel sliding
 in over an article, a cookie wall, an "upgrade to keep typing" modal, with a pointer heading for each button. Then
 the asks get stamped onto it on a snare roll. UniVerse Project Browser's painted hills (the logo) rise beside the pile, lean back
-and shove it off on the drop, and the sun rises over them as "ARDIA — THE SIDEBAR BROWSER FOR MAC" lands,
+and shove it off on the drop, and the sun rises over them as "UNIVERSE — THE SIDEBAR BROWSER FOR MAC" lands,
 glinting as "ASKS FOR NOTHING." is stamped. (The sun has already peeked over the window to cheer the first NO.)
 
 The product follows, live:
@@ -47,7 +47,7 @@ paper taking each profile's colour. Then:
 - "SEVEN APP ICONS. ONE DOCK." (the seven painted icon variants, from Settings › Appearance);
 - four "NO" cards;
 - github.com/TheSatyam-Singh/UniVerse-Project-Browser typed into the address bar, the camera diving into the site's "Touch grass.";
-- "TOUCH GRASS." on the end hit, then the end card: the icon, the name, DOWNLOAD FOR MAC / ARDIA.DEV and the GitHub address, beside the painted mark:
+- "TOUCH GRASS." on the end hit, then the end card: the icon, the name, DOWNLOAD FOR MAC / UNIVERSE.DEV and the GitHub address, beside the painted mark:
   the sun rises over the hills on the hit, hops on the three march taps and leaps on the last brass button, glowing.
 
 The film uses about 80 words on screen. The type is the site's poster system on warm stock: Archivo, Newsreader and
@@ -179,7 +179,7 @@ scripts/capture/run-all.sh ../browser/build-videos/Build/Products/Debug/UniVerse
 ### How the footage is made
 
 Every UI pixel comes from UniVerse Project Browser itself, never a mock-up. `run-all.sh` launches a hidden DEV instance
-(`ARDIA_BACKGROUND=1`, a scratch `ARDIA_DATA_DIR`, `--session` from `scripts/capture/session.mjs`). That
+(`UNIVERSE_BACKGROUND=1`, a scratch `UNIVERSE_DATA_DIR`, `--session` from `scripts/capture/session.mjs`). That
 session has five profiles, each with real sites, in light appearance with the address in the toolbar, so each
 profile's name sits next to the traffic lights in its colour:
 - Personal (plum)

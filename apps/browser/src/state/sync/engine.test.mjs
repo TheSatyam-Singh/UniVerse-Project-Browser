@@ -11,7 +11,7 @@ let readFails = false;
 const knownAtRead = [];
 let ids = 0;
 globalThis.acTestNativeModules = {
-  ArdiaSync: {
+  UniVerseSync: {
     newDeviceId: () => `dev${++ids}`,
     deviceName: () => "Test Mac",
     createPhrase: async () => true,
@@ -218,7 +218,7 @@ test("a Keychain unlock that fails outright reads as stalled with its error inst
   first.startSync();
   assert.ok("ok" in (await first.turnOnSync("/sync")));
   await first.syncNow();
-  const native = globalThis.acTestNativeModules.ArdiaSync;
+  const native = globalThis.acTestNativeModules.UniVerseSync;
   const unlock = native.unlock;
   native.unlock = async () => {
     throw new Error("The Keychain couldn't be read");

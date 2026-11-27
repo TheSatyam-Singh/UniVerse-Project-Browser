@@ -1,6 +1,6 @@
 import { nativeModule } from "@universe/shell";
 
-const Keychain = nativeModule("ArdiaKeychain");
+const Keychain = nativeModule("UniVerseKeychain");
 
 export const keychainGet = (account: string) => Keychain.get(account);
 export const keychainSet = (account: string, secret: string) => Keychain.set(account, secret);

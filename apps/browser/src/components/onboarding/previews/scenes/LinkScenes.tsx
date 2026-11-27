@@ -10,7 +10,7 @@ import { Cursor } from "../Floating";
 import { mockArt, mockInk, sceneMs } from "../tokens";
 import { font, radius, space } from "../../../ui/tokens";
 import type { Scene } from "../scene";
-import { Desktop, MINI_SIDE, MiniArdia, Window } from "./SceneParts";
+import { Desktop, MINI_SIDE, MiniUniVerse, Window } from "./SceneParts";
 
 function Bubble({ g, look, mine, children, style }: { g: Geo; look: Look; mine?: boolean; children: ReactNode; style?: object }) {
   return (
@@ -38,7 +38,7 @@ export function links(little: boolean): Scene {
     return (
       <>
         <Desktop look={look} />
-        <MiniArdia
+        <MiniUniVerse
           g={g}
           look={look}
           rect={universe}

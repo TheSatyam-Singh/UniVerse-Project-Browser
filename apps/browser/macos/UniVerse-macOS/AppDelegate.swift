@@ -1,9 +1,9 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import Expo
 import React
-import ArdiaShell
-import ArdiaSync
+import UniVerseShell
+import UniVerseSync
 import ReactAppDependencyProvider
 
 final class AppDelegate: ExpoAppDelegate {

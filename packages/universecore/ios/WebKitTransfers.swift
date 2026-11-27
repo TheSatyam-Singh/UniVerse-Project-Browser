@@ -9,7 +9,7 @@ final class WebKitTransfers {
 
   private var owners: [ObjectIdentifier: WeakTab] = [:]
   private var liveByKey: [String: WeakTab] = [:]
-  private let ledger = ArdiaTransferLedger()
+  private let ledger = UniVerseTransferLedger()
   private var parked: [String: WKWebView] = [:]
   private var offered: [String: WKWebView] = [:]
   private var lastOffer = 0

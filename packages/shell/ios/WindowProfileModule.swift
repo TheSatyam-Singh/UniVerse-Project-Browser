@@ -3,7 +3,7 @@ import ExpoModulesCore
 
 public class WindowProfileModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaWindowProfile")
+    Name("UniVerseWindowProfile")
 
     View(WindowProfileView.self) {
       Prop("profile") { (view: WindowProfileView, value: String?) in view.profile = value ?? "" }

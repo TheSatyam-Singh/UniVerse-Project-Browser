@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import Carbon.HIToolbox
 import ExpoModulesCore
 

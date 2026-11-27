@@ -1,11 +1,11 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import CoreImage
 import ExpoModulesCore
 
 public class DockSelectionModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaDockSelection")
+    Name("UniVerseDockSelection")
 
     AsyncFunction("iconTheme") { (uri: String?, emoji: String?) -> [String: Any]? in
       guard let source = IconSource(uri: uri, emoji: emoji), let image = source.load() else { return nil }

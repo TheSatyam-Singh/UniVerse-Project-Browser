@@ -37,7 +37,7 @@ and entitlements only when something changed (the bundle, or the dyld and librar
 The app side of the JS benches is `apps/browser/src/state/app/perfProbe.ts`. It only turns on in an isolated instance
 whose data folder holds a `perf-probe` file.
 
-Each bench drives the app through files in the instance's `ARDIA_DATA_DIR`:
+Each bench drives the app through files in the instance's `UNIVERSE_DATA_DIR`:
 
 | Files | Used by | Written by |
 |---|---|---|
@@ -430,9 +430,9 @@ folder where every profile had run before. Later switches cost what they did bef
 
 | Row | Why | Compare instead |
 |---|---|---|
-| launch → window shown, new window → on screen | CEF builds put a window on screen empty and fill it after. ArdiaCore keeps it transparent until its content commits. The same row times an empty window on one engine and a full one on the other. | the "with its content" rows |
-| launch → first page painted, new tab → first paint, new window → first paint | CEF stamps first-contentful-paint with the start of the frame. Chrome (ArdiaCore) stamps it with the frame on screen, about a frame later. | the "first frame" rows |
-| main-thread samples `engineWork` | The engine's main-thread work goes through different functions: CEF's `CefDoMessageLoopWork` against ArdiaCore's `RunWorkSource`. | treat as indicative only |
+| launch → window shown, new window → on screen | CEF builds put a window on screen empty and fill it after. UniVerseCore keeps it transparent until its content commits. The same row times an empty window on one engine and a full one on the other. | the "with its content" rows |
+| launch → first page painted, new tab → first paint, new window → first paint | CEF stamps first-contentful-paint with the start of the frame. Chrome (UniVerseCore) stamps it with the frame on screen, about a frame later. | the "first frame" rows |
+| main-thread samples `engineWork` | The engine's main-thread work goes through different functions: CEF's `CefDoMessageLoopWork` against UniVerseCore's `RunWorkSource`. | treat as indicative only |
 | js-bench `taskMs`, `tasks`, `otherJsMs`, `startup.*` task counts | Probe revision 1 (0.2.21) didn't time Expo module events as tasks. Revision 2 (6232fa43) does. | numbers from bundles of one probe revision |
 
 The JS reports stamp `probeRevision` (from `PERF_PROBE_REVISION` in `perfProbe.ts`, inferred for older bundles)

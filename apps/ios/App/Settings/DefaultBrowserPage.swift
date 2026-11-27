@@ -1,4 +1,4 @@
-import ArdiaDesign
+import UniVerseDesign
 import SwiftUI
 
 struct DefaultBrowserPage: View {
@@ -28,7 +28,7 @@ struct DefaultBrowserInstructions: View {
       VStack(spacing: Spacing.small) {
         Text("How to change your default browser")
           .font(.system(.title, design: .rounded, weight: .bold))
-          .foregroundStyle(Color.ardiaTitle)
+          .foregroundStyle(Color.universeTitle)
           .multilineTextAlignment(.center)
           .fixedSize(horizontal: false, vertical: true)
           .accessibilityAddTraits(.isHeader)
@@ -68,7 +68,7 @@ struct DefaultBrowserInstructions: View {
         if let onLater {
           Button("Maybe Later", action: onLater)
             .font(.body.weight(.semibold))
-            .foregroundStyle(Color.ardiaTitle)
+            .foregroundStyle(Color.universeTitle)
             .frame(minHeight: 44)
         }
       }

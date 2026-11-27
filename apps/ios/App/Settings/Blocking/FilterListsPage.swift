@@ -1,5 +1,5 @@
-import ArdiaBrowser
-import ArdiaDesign
+import UniVerseBrowser
+import UniVerseDesign
 import SwiftUI
 
 struct FilterListsPage: View {
@@ -92,7 +92,7 @@ struct FilterListsPage: View {
     .sensoryFeedback(.error, trigger: updateFailures)
     #if DEBUG
     .onAppear {
-      if ProcessInfo.processInfo.arguments.contains("-ArdiaFilterAdd") { isAdding = true }
+      if ProcessInfo.processInfo.arguments.contains("-UniVerseFilterAdd") { isAdding = true }
     }
     #endif
   }

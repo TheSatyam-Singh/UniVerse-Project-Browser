@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 
 public enum OpenURLInbox {
   private struct Batch {
@@ -31,7 +31,7 @@ public enum OpenURLInbox {
   private static func batches(_ urls: [String], _ pointer: NSPoint) -> [Batch] {
     var result: [Batch] = []
     for url in urls {
-      let source = ArdiaHost.senderOfOpenedURL(url).map { $0 as NSDictionary }
+      let source = UniVerseHost.senderOfOpenedURL(url).map { $0 as NSDictionary }
       if let last = result.last, sameSource(last.source, source) {
         result[result.count - 1].urls.append(url)
       } else {

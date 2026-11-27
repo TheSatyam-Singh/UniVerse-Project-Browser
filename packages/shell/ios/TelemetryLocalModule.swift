@@ -6,7 +6,7 @@ public class TelemetryLocalModule: Module {
   }
 
   public func definition() -> ModuleDefinition {
-    Name("ArdiaTelemetryLocal")
+    Name("UniVerseTelemetryLocal")
 
     Function("append") { (day: String, text: String) in TelemetryLocalStore.append(day: day, text: text) }
     Function("appendNow") { (day: String, text: String) in TelemetryLocalStore.appendNow(day: day, text: text) }

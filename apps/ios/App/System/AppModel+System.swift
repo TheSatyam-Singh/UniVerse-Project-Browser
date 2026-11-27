@@ -1,11 +1,11 @@
-import ArdiaBrowser
-import ArdiaDesign
-import ArdiaSync
+import UniVerseBrowser
+import UniVerseDesign
+import UniVerseSync
 import Foundation
 
 extension AppModel {
   var systemStore: SystemStore? {
-    isDemo ? SystemStore(directory: URL.temporaryDirectory.appending(path: "ArdiaDemoSystem", directoryHint: .isDirectory)) : SystemStore.shared
+    isDemo ? SystemStore(directory: URL.temporaryDirectory.appending(path: "UniVerseDemoSystem", directoryHint: .isDirectory)) : SystemStore.shared
   }
 
   func handle(_ link: SystemLink) {

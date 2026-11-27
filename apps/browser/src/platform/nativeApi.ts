@@ -3,7 +3,7 @@ import { DEV_EVAL_RESULT, watchDevEval } from "../lib/devEval";
 
 export const NATIVE_API_VERSION = 62;
 
-const built = requireOptionalNativeModule<{ apiVersion?: number }>("ArdiaApp")?.apiVersion ?? 0;
+const built = requireOptionalNativeModule<{ apiVersion?: number }>("UniVerseApp")?.apiVersion ?? 0;
 
 export const nativeApiSkew =
   built === NATIVE_API_VERSION
@@ -14,13 +14,13 @@ export const nativeApiSkew =
 type Windows = { openWindow(id: string, options: { kind: string; title: string; focus: boolean }): Promise<void> };
 type Documents = { readDocument(name: string): string | null; writeDocument(name: string, contents: string): void };
 
-const skewedModule = <Module,>(name: string) => requireOptionalNativeModule<Module>(name) ?? requireNativeModule<Module>("ArdiaShell");
+const skewedModule = <Module,>(name: string) => requireOptionalNativeModule<Module>(name) ?? requireNativeModule<Module>("UniVerseShell");
 
 export function openSkewWindow() {
-  void skewedModule<Windows>("ArdiaAppWindows").openWindow("native-api-skew", { kind: "settings", title: "UniVerse Project Browser", focus: false });
+  void skewedModule<Windows>("UniVerseAppWindows").openWindow("native-api-skew", { kind: "settings", title: "UniVerse Project Browser", focus: false });
 }
 
 export function answerWithSkew(message: string) {
-  const documents = skewedModule<Documents>("ArdiaDocuments");
+  const documents = skewedModule<Documents>("UniVerseDocuments");
   watchDevEval(documents.readDocument, 250, (id) => documents.writeDocument(DEV_EVAL_RESULT, JSON.stringify({ id, error: message })));
 }

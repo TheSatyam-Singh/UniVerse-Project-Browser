@@ -1,7 +1,7 @@
 import type { AdoptId, AdoptKind, Tab } from "../browser/types";
 import { wakeOf } from "./pageSession";
 
-const KINDS: readonly AdoptKind[] = ["restore", "clone", "tab", "ardiacore", "webkit", "link"];
+const KINDS: readonly AdoptKind[] = ["restore", "clone", "tab", "universecore", "webkit", "link"];
 
 export const restoreId = (tabId: string): AdoptId => `restore:${tabId}`;
 export const cloneId = (tabId: string): AdoptId => `clone:${tabId}`;

@@ -4,7 +4,7 @@ export type InlineCompletionNative = {
   complete(tag: number, typed: string, completion: string): Promise<InlineWrite>;
 };
 
-const InlineCompletionModule = nativeModule("ArdiaInlineCompletion");
+const InlineCompletionModule = nativeModule("UniVerseInlineCompletion");
 
 export type InlineWrite = 0 | 1 | 2;
 

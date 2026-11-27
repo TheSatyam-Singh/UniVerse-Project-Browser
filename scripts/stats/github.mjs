@@ -5,8 +5,8 @@ import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { REPO } from "../lib/repo.mjs";
 
-const TRAFFIC_CACHE = join(homedir(), ".cache/ardia/github-traffic.json");
-const RELEASES_CACHE = join(homedir(), ".cache/ardia/github-older-releases.json");
+const TRAFFIC_CACHE = join(homedir(), ".cache/universe/github-traffic.json");
+const RELEASES_CACHE = join(homedir(), ".cache/universe/github-older-releases.json");
 
 export function readCache(file) {
   try {

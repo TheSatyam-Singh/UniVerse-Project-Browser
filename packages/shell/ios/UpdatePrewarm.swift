@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import Sparkle
 
 enum UpdatePrewarm {
@@ -128,7 +128,7 @@ enum UpdatePrewarm {
     attempt = tried
     runningVersion = version
     var env = LaunchConfig.shared.environmentForChildProcesses.filter { !$0.key.hasPrefix("DYLD_") }
-    env["ARDIA_PREWARM"] = "1"
+    env["UNIVERSE_PREWARM"] = "1"
     DispatchQueue.global(qos: .utility).async {
       guard signedLikeThisApp(bundle) else {
         tried.record(status: statusRejected)

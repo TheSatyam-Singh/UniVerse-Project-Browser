@@ -29,13 +29,13 @@ export function installWindowsEngineBridge(): boolean {
   const host = hostObject();
   if (!host) return false;
   for (const domain of ENGINE_DOMAINS) {
-    provideNativeModule(`Ardia${capitalized(domain)}`, {
+    provideNativeModule(`UniVerse${capitalized(domain)}`, {
       call: (name: string, profile: string, args: string) => host.engineCall(domain, name, profile, args),
     });
   }
   onShellMessage((message) => {
     if (message.kind !== "engine-event") return;
-    emitNativeEvent(`Ardia${capitalized(message.domain)}`, message.domain, { name: message.name, data: message.data });
+    emitNativeEvent(`UniVerse${capitalized(message.domain)}`, message.domain, { name: message.name, data: message.data });
   });
   installed = true;
   return true;

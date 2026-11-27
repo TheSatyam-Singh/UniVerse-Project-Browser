@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ArdiaSyncCore
+@testable import UniVerseSyncCore
 
 final class FakeKeychain: SecretStore {
   var items: [String: [String: Data]] = [:]
@@ -115,7 +115,7 @@ final class LegacyMigrationTests: XCTestCase {
     try write(#"{"roots":{"bookmark_bar":{"children":[{"type":"url","name":"Handy: OLDdownloads","url":"OLDdownloads","meta_info":{"KEY":"bm-1"}}],"type":"folder"}},"version":1,"checksum":"x"}"#
       .replacingOccurrences(of: "OLD", with: oldScheme).replacingOccurrences(of: "KEY", with: old("ac_sync_key")), "Chromium/Default/Bookmarks")
     try write(#"{"profile":{"info_cache":{"Default":{}}}}"#, "Chromium/Local State")
-    try write("<?xml version=\"1.0\"?><plist version=\"1.0\"><array><real>1</real></array></plist>", oldPath("Chromium/ArdiaPictureInPicture.plist"))
+    try write("<?xml version=\"1.0\"?><plist version=\"1.0\"><array><real>1</real></array></plist>", oldPath("Chromium/UniVersePictureInPicture.plist"))
     try write(#"["com.1password.1password.json"]"#, oldPath("Chromium/NativeMessagingHosts/.universe-managed.json"))
     try write("png", oldPath("Chromium/*/UniVerse Project Browser Favicons").replacingOccurrences(of: "*", with: "Default") + "/abc.png")
     try Data(repeating: 7, count: 300_000).write(to: oldData.appendingPathComponent("Chromium/Default/Cookies"))
@@ -202,14 +202,14 @@ final class LegacyMigrationTests: XCTestCase {
     XCTAssertTrue(bookmarks.contains("\"name\":\"Handy: \(oldScheme)downloads\""))
 
     let fm = FileManager.default
-    XCTAssertTrue(fm.fileExists(atPath: newData.appendingPathComponent("Chromium/ArdiaPictureInPicture.plist").path))
+    XCTAssertTrue(fm.fileExists(atPath: newData.appendingPathComponent("Chromium/UniVersePictureInPicture.plist").path))
     XCTAssertTrue(fm.fileExists(atPath: newData.appendingPathComponent("Chromium/NativeMessagingHosts/.universe-managed.json").path))
     XCTAssertTrue(fm.fileExists(atPath: newData.appendingPathComponent("Chromium/Default/UniVerse Project Browser Favicons/abc.png").path))
     XCTAssertEqual(try Data(contentsOf: newData.appendingPathComponent("Chromium/Default/Cookies")).count, 300_000)
     XCTAssertNil(try? fm.destinationOfSymbolicLink(atPath: newData.appendingPathComponent("Chromium/SingletonLock").path))
     XCTAssertFalse(fm.fileExists(atPath: newData.appendingPathComponent(LegacyMigrator.stagingName).path))
 
-    XCTAssertEqual(newKeychain.items["Ardia Safe Storage"], ["Ardia": safeStorageKey])
+    XCTAssertEqual(newKeychain.items["UniVerse Safe Storage"], ["UniVerse": safeStorageKey])
     XCTAssertEqual(newKeychain.items["UniVerse Project Browser Connected Accounts"], ["github": Data("gh-token".utf8), "google": Data("g-token".utf8)])
     XCTAssertEqual(newKeychain.items["UniVerse Project Browser Sync Key"], ["device-1": Data(repeating: 1, count: 32)])
     XCTAssertNil(newKeychain.items["Chrome Safe Storage"])
@@ -217,7 +217,7 @@ final class LegacyMigrationTests: XCTestCase {
     let prefs = PreferencesDomain(id: newPrefs.path).all()
     XCTAssertEqual(prefs["ACAppIcon"] as? String, "plum")
     XCTAssertNil(prefs[oldDefault("ACAppIcon")])
-    XCTAssertEqual(prefs["NSWindow Frame ArdiaSettings"] as? String, "10 10 800 600")
+    XCTAssertEqual(prefs["NSWindow Frame UniVerseSettings"] as? String, "10 10 800 600")
     XCTAssertEqual(prefs["NSUserKeyEquivalents"] as? [String: String], ["New Little UniVerse Window": "@~n", "Quit UniVerse Project Browser": "@q"])
     XCTAssertEqual(prefs["SUAutomaticallyUpdate"] as? Bool, false)
     XCTAssertEqual(prefs["SULastCheckTime"] as? Date, Date(timeIntervalSince1970: 1_800_000_000))
@@ -283,7 +283,7 @@ final class LegacyMigrationTests: XCTestCase {
     oldKeychain.denials[Renamed.safeStorage.oldService] = 1
     answers = [2]
     XCTAssertEqual(run(), .proceed)
-    XCTAssertNil(newKeychain.items["Ardia Safe Storage"])
+    XCTAssertNil(newKeychain.items["UniVerse Safe Storage"])
     XCTAssertEqual(LegacyMigrator(context()).readJournal()?.outcome, "fresh")
     XCTAssertFalse(FileManager.default.fileExists(atPath: newData.appendingPathComponent("Chromium").path))
     XCTAssertTrue(LegacyMigrator.Context.isDone(newData))
@@ -480,7 +480,7 @@ final class LegacyMigrationTests: XCTestCase {
     runningAnswers = [false, false, true, true]
     answers = [0]
     XCTAssertEqual(run(), .proceed)
-    XCTAssertEqual(newKeychain.items["Ardia Safe Storage"], ["Ardia": safeStorageKey])
+    XCTAssertEqual(newKeychain.items["UniVerse Safe Storage"], ["UniVerse": safeStorageKey])
   }
 
   func testAResumePublishesTheVerifiedCopy() throws {
@@ -558,7 +558,7 @@ final class LegacyMigrationTests: XCTestCase {
     XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: newCache.deletingLastPathComponent().path), ["Cache"])
   }
 
-  func testLeavesAnExistingArdiaInstallAlone() throws {
+  func testLeavesAnExistingUniVerseInstallAlone() throws {
     try write(#"{"version":2,"tabs":[]}"#, "session.json", in: newData)
     XCTAssertEqual(run(), .proceed)
     XCTAssertEqual(LegacyMigrator(context()).readJournal()?.outcome, "existing")

@@ -45,17 +45,17 @@ function pendingClear(engine) {
     return () => (module.call = call);
   };
   const engineCalls = [];
-  const restore = [recording(universeCoreNativeModules.ArdiaSites, engineCalls)];
+  const restore = [recording(universeCoreNativeModules.UniVerseSites, engineCalls)];
   let answer;
   const asked = [];
-  const confirm = shellNativeModules.ArdiaDialogs.confirm;
-  shellNativeModules.ArdiaDialogs.confirm = (options) => (asked.push(options.title), new Promise((resolve) => (answer = (confirmed) => resolve({ confirmed, suppressed: false }))));
+  const confirm = shellNativeModules.UniVerseDialogs.confirm;
+  shellNativeModules.UniVerseDialogs.confirm = (options) => (asked.push(options.title), new Promise((resolve) => (answer = (confirmed) => resolve({ confirmed, suppressed: false }))));
   const done = clearSiteDataAfterConfirm(S().tabs[id], "https://a.com");
   const finish = async (confirmed) => {
     answer(confirmed);
     const result = await done;
     restore.forEach((undo) => undo());
-    shellNativeModules.ArdiaDialogs.confirm = confirm;
+    shellNativeModules.UniVerseDialogs.confirm = confirm;
     webviews.delete(id);
     return result;
   };

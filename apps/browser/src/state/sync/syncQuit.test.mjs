@@ -11,7 +11,7 @@ let releaseRead = null;
 let heldSeal = null;
 let releaseSeal = null;
 globalThis.acTestNativeModules = {
-  ArdiaSync: {
+  UniVerseSync: {
     newDeviceId: () => "devC",
     deviceName: () => "Test Mac",
     createPhrase: async () => true,

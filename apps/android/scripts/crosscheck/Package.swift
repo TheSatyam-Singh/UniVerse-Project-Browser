@@ -5,9 +5,9 @@ let package = Package(
   name: "CrossCheck",
   platforms: [.macOS(.v14)],
   dependencies: [
-    .package(name: "ArdiaSyncCore", path: "../../../../packages/sync"),
+    .package(name: "UniVerseSyncCore", path: "../../../../packages/sync"),
   ],
   targets: [
-    .executableTarget(name: "CrossCheck", dependencies: [.product(name: "ArdiaSyncCore", package: "ArdiaSyncCore")]),
+    .executableTarget(name: "CrossCheck", dependencies: [.product(name: "UniVerseSyncCore", package: "UniVerseSyncCore")]),
   ]
 )

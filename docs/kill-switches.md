@@ -35,8 +35,8 @@ another. Disclosed in Settings › What's Sent (“Even with sharing off”) and
 
 ## For a bench or a test instance
 
-`ARDIA_SWITCHES="newTabPrewarm=off,lazySidebarRows=off"` sets a launch's values over everything else, in every build.
-`ArdiaLaunchConfig` parses it once; native code asks it (`switchOn:`, `experimentOn:`), JS through
+`UNIVERSE_SWITCHES="newTabPrewarm=off,lazySidebarRows=off"` sets a launch's values over everything else, in every build.
+`UniVerseLaunchConfig` parses it once; native code asks it (`switchOn:`, `experimentOn:`), JS through
 `platform/launchConfig.ts`, and the engine's browser process gets it as `--universe-switches`. A test instance has no
 updater, so it never fetches.
 
@@ -55,7 +55,7 @@ updater, so it never fetches.
 
 ## Experiments (off by default; `EXPERIMENTS`)
 
-A change still being tried, off for everyone until `ARDIA_SWITCHES` turns it on for a launch. Experiments have an owner
+A change still being tried, off for everyone until `UNIVERSE_SWITCHES` turns it on for a launch. Experiments have an owner
 and a `removeBy` like the switches, don't count against the 8, and the site's switches.json can't name them.
 
 | Experiment | On means |
@@ -63,8 +63,8 @@ and a `removeBy` like the switches, don't count against the 8, and the site's sw
 | `serverWindowDragAllOpen` | with `serverWindowDrag`, every view in the titlebar band is left open to window moves (`ServerWindowDrag.swift`) |
 | `webkitSignIn` | moving a Chromium page to WebKit first copies the cookies that page's own address gets (HttpOnly included, partitioned ones left out) into the profile's WebKit store, so a cookie sign-in (Netflix, Spotify…) comes along; at most 1.5 s, then the move goes ahead either way (`state/engines/engineSignIn.ts`, `WebKitCookieImport.swift`) |
 
-The environment-only switches of 2026-10-17 to 10-20 (`ARDIA_EARLY_WINDOW_FIRST`, `ARDIA_SCROLL_FULL_RATE`,
-`ARDIA_WALLET_PASSES`, …) shipped their default in 0.2.40 and are gone with their other branch.
+The environment-only switches of 2026-10-17 to 10-20 (`UNIVERSE_EARLY_WINDOW_FIRST`, `UNIVERSE_SCROLL_FULL_RATE`,
+`UNIVERSE_WALLET_PASSES`, …) shipped their default in 0.2.40 and are gone with their other branch.
 
 ## Staged rollout
 

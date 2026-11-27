@@ -1,5 +1,5 @@
-import ArdiaBrowser
-import ArdiaDesign
+import UniVerseBrowser
+import UniVerseDesign
 import UIKit
 import SwiftUI
 
@@ -17,7 +17,7 @@ struct VoiceSearchView: View {
         .ignoresSafeArea()
       VStack(spacing: Spacing.section) {
         Spacer()
-        ArdiaLogoMark()
+        UniVerseLogoMark()
           .frame(width: 128, height: 128)
           .scaleEffect(reduceMotion ? 1 : 0.92 + dictation.level * 0.16)
           .shadow(color: .black.opacity(0.15), radius: 12, y: 6)

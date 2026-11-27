@@ -9,7 +9,7 @@ Pod::Spec.new do |s|
   s.source         = { git: '' }
   s.static_framework = true
   s.dependency 'ExpoModulesCore'
-  s.dependency 'ArdiaCore'
+  s.dependency 'UniVerseCore'
   s.frameworks     = 'Metal', 'MetalKit', 'WebKit'
   s.source_files   = '**/*.{h,m,swift}'
   s.resource_bundles = { 'UniVerseMeadow' => ['Meadow/*'] }

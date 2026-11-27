@@ -15,15 +15,15 @@ case "$signing" in
 esac
 
 echo "==> Content blocker"
-"$ardiacore/scripts/ubo.sh"
-[ -f "$ardiacore/vendor/ubo/ext/manifest.json" ] || die "uBlock Origin isn't installed ($ardiacore/scripts/ubo.sh)"
-"$ardiacore/scripts/ubol.sh"
-[ -f "$ardiacore/vendor/ubol-webkit/rules/rulesets.json" ] || die "uBlock Origin Lite's WebKit rules aren't built ($ardiacore/scripts/ubol.sh)"
+"$universecore/scripts/ubo.sh"
+[ -f "$universecore/vendor/ubo/ext/manifest.json" ] || die "uBlock Origin isn't installed ($universecore/scripts/ubo.sh)"
+"$universecore/scripts/ubol.sh"
+[ -f "$universecore/vendor/ubol-webkit/rules/rulesets.json" ] || die "uBlock Origin Lite's WebKit rules aren't built ($universecore/scripts/ubol.sh)"
 
 echo "==> Archive"
-(cd "$root/apps/browser" && ARDIACORE_FRAMEWORK="$framework" "$root/scripts/agent/locked" pod --wait 1800 -- \
+(cd "$root/apps/browser" && UNIVERSECORE_FRAMEWORK="$framework" "$root/scripts/agent/locked" pod --wait 1800 -- \
   "$root/scripts/agent/locked" xcodebuild --wait 1800 -- xcodebuild -workspace macos/UniVerse-Project-Browser.xcworkspace -scheme UniVerse-macOS \
-  -configuration Release -destination 'generic/platform=macOS' ARCHS=arm64 ARDIACORE_STAGE_DIR="$build/UniVerseCoreFramework" \
+  -configuration Release -destination 'generic/platform=macOS' ARCHS=arm64 UNIVERSECORE_STAGE_DIR="$build/UniVerseCoreFramework" \
   "$@" -derivedDataPath "$build" -archivePath "$dist/UniVerse-Project-Browser.xcarchive" "${archive_signing[@]}" archive) \
   > "$dist/archive.log" 2>&1 || {
   grep -E "error:|build commands failed" -A2 "$dist/archive.log" | grep -v MACOSX_DEPLOYMENT_TARGET | tail -20 >&2

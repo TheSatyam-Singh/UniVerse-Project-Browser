@@ -1,4 +1,4 @@
-import ArdiaDesign
+import UniVerseDesign
 import SwiftUI
 
 struct PoofBurst: View {

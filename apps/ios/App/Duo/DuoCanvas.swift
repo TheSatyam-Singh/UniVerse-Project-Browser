@@ -12,7 +12,7 @@ enum DuoCanvas {
   static let mode: Mode? = {
     #if DEBUG
     let arguments = ProcessInfo.processInfo.arguments
-    guard let index = arguments.firstIndex(of: "-ArdiaDuoCanvas"), arguments.indices.contains(index + 1) else { return nil }
+    guard let index = arguments.firstIndex(of: "-UniVerseDuoCanvas"), arguments.indices.contains(index + 1) else { return nil }
     return Mode(rawValue: arguments[index + 1])
     #else
     return nil

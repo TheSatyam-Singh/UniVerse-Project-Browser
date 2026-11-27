@@ -7,11 +7,11 @@ Issue #717. Config files and themes are `docs/config.md`; page scripting over CD
 ## The control socket
 
 - While "Let the universe command control UniVerse Project Browser" (`cliControl`) is on, the app listens on a Unix socket at exactly
-  `<data dir>/ArdiaControl.sock` (the app's own data dir; `ARDIA_DATA_DIR` for test instances).
+  `<data dir>/UniVerseControl.sock` (the app's own data dir; `UNIVERSE_DATA_DIR` for test instances).
 - **Safe place.** The server starts only if the data dir is a real directory (not a symlink) owned by the user and not
   writable by group or others; otherwise it logs one line and reports an error status. The socket is created under a
   0177 umask, so it is 0600 from the start (a socket is made 0777 less the umask, so 0077 would leave it 0700).
-- **One owner.** The server holds an exclusive `flock` on `<data dir>/ArdiaControl.sock.lock` for as long as it
+- **One owner.** The server holds an exclusive `flock` on `<data dir>/UniVerseControl.sock.lock` for as long as it
   serves. Only after taking the lock may it remove an old path, and only a socket (never a regular file, directory or
   symlink). It records the device and inode it bound and, on stop, unlinks the path only if it is still that socket.
   A second instance that can't take the lock serves nothing and disturbs nothing.
@@ -269,7 +269,7 @@ clipboard writes, internal pages). That is the point of it, and it is opt-in beh
 | `page.error` | `windowId`, `tabId`, `profile`, `url`, `status` |
 
 \* Named-only: `"*"` never includes them; a subscriber names each one. Notification text never goes into a hook's
-environment (no `ARDIA_TITLE`, no `ARDIA_URL`) and the runner never logs it.
+environment (no `UNIVERSE_TITLE`, no `UNIVERSE_URL`) and the runner never logs it.
 
 - **URLs** are minimized by default: no query, no fragment. A connection (or a hook, `"fullUrls": true`) asks for
   full ones. Internal pages report their redacted URL either way.
@@ -287,7 +287,7 @@ environment (no `ARDIA_TITLE`, no `ARDIA_URL`) and the runner never logs it.
 - `app.launched` is recorded once per process, after the session is restored and the first window is up, with its
   original time. The server keeps it and replays it to a connection that subscribes to it within 2 minutes of
   launch (monotonic clock), once per connection. The hooks runner runs a launch hook at most once per `launchId`,
-  hook and hook revision, kept in `<data dir>/ArdiaHooks.state.json` across runner restarts, so a reconnect never
+  hook and hook revision, kept in `<data dir>/UniVerseHooks.state.json` across runner restarts, so a reconnect never
   runs launch hooks twice. A hook added after the launch doesn't get a stale launch: the connection that already
   received it isn't sent it again.
 - `app.quitting` is sent when the app starts to quit, best effort: it is queued before the socket closes and never
@@ -316,7 +316,7 @@ Hooks that answer before something happens, with a deadline after which UniVerse
 - **Two forms.** Declarative rules in hooks.json that the app evaluates itself, in process and synchronously, with
   no program and no deadline to speak of; they work with CLI control off, since they are config. Or a program hook
   (`run`) served by the hooks runner: the request's JSON is its stdin (`{"decide", "event", "deadline", "data"}`),
-  its stdout JSON is the answer, and only `ARDIA_EVENT` is set. Program hooks need control on and a runner.
+  its stdout JSON is the answer, and only `UNIVERSE_EVENT` is set. Program hooks need control on and a runner.
 - **Precedence.** Hooks are tried in file order; the first that applies (its `match` patterns, `from`, `kinds`)
   and is active (approved where approval is needed) answers. A rewrite list where no rule matches doesn't apply, so
   the next hook gets its turn. A program hook that applies while no runner serves it means the default; it never
@@ -389,7 +389,7 @@ Hooks that answer before something happens, with a deadline after which UniVerse
   **Trust boundary.** The checks stop a swapped or linked file from being moved in place of the download; they don't
   stop a process running as the same user that already holds a writable descriptor or a hard link to the file from
   rewriting it after the check. Such a process is outside what UniVerse Project Browser defends against: it can already read
-  `ArdiaControl.json` and drive the browser.
+  `UniVerseControl.json` and drive the browser.
   Code: `state/automation/downloadHooks.ts`.
 - **Floods.** At most 64 pending decisions (16 per runner connection), 200 hooks and 50 rewrite rules per hook; the
   runner runs at most 16 decide programs at once (4 per hook) and gives up at the deadline. Command hooks run at
@@ -464,7 +464,7 @@ runner connected all day doesn't keep it up. Stop hides it at once.
 
 ## The universe command
 
-Every command finds the socket from `--data-dir` / `$ARDIA_DATA_DIR`, else the installed app's data dir, connects,
+Every command finds the socket from `--data-dir` / `$UNIVERSE_DATA_DIR`, else the installed app's data dir, connects,
 checks the server's uid, and exits 2 with one line when UniVerse Project Browser isn't running, control is off or the check fails.
 
 - `universe run COMMAND [ARG] [--window ID] [--tab ID] [--json]` runs a command (`COMMAND:ARG` works too, as in
@@ -494,16 +494,16 @@ checks the server's uid, and exits 2 with one line when UniVerse Project Browser
   `scheduled`, `omnibox`), trigger and action.
 - From a script or a hook's program, call the commands: `universe run … --json`, `universe windows --json` and
   `universe events --json` give the same replies and lines as the socket, and `universe browse` drives the pages. They
-  find the socket the same way (`--data-dir`, `$ARDIA_DATA_DIR`, else the installed app's), and the shared options
+  find the socket the same way (`--data-dir`, `$UNIVERSE_DATA_DIR`, else the installed app's), and the shared options
   go before or after the command (`docs/cli.md`, Shared options).
 
 ### Running a hook
 
-- The event's JSON line is the hook's stdin (authoritative). The environment gets `ARDIA_EVENT`, `ARDIA_WINDOW_ID`,
-  `ARDIA_TAB_ID`, `ARDIA_PROFILE`, `ARDIA_URL`, `ARDIA_TITLE`, all set or removed for every run (never inherited from
-  the runner), NULs stripped and each cut to 4 KB. `notification.shown` sets neither `ARDIA_TITLE` nor `ARDIA_URL`.
+- The event's JSON line is the hook's stdin (authoritative). The environment gets `UNIVERSE_EVENT`, `UNIVERSE_WINDOW_ID`,
+  `UNIVERSE_TAB_ID`, `UNIVERSE_PROFILE`, `UNIVERSE_URL`, `UNIVERSE_TITLE`, all set or removed for every run (never inherited from
+  the runner), NULs stripped and each cut to 4 KB. `notification.shown` sets neither `UNIVERSE_TITLE` nor `UNIVERSE_URL`.
   A hook without `fullUrls` gets URLs without their query and fragment even when another hook asked for full ones.
-  Event data (`ARDIA_TITLE`, `ARDIA_URL`, the JSON line) comes from pages, so a program that prints it to a terminal
+  Event data (`UNIVERSE_TITLE`, `UNIVERSE_URL`, the JSON line) comes from pages, so a program that prints it to a terminal
   should escape control characters first, as the CLI's own output does; the runner leaves PROGRAM's output alone.
 - PROGRAM runs from argv, never through a shell unless PROGRAM is one; event values are never put into the command
   line. A leading `~` in PROGRAM is expanded, nothing else is.
@@ -579,14 +579,14 @@ The runner fires them and passes a `schedule.fired` event (it never comes from U
 - No overlapping runs: if the hook's previous run is still going or waiting, that firing is skipped and logged.
 
 - `hooks install` writes the user LaunchAgent `dev.universe.hooks` (`ProgramArguments` = the installed `universe` launcher's
-  stable path, `$ARDIA_CLI_HOME/current/bin/universe`, then `hooks run --log ~/Library/Logs/UniVerse Project Browser/hooks.log`;
+  stable path, `$UNIVERSE_CLI_HOME/current/bin/universe`, then `hooks run --log ~/Library/Logs/UniVerse Project Browser/hooks.log`;
   `RunAtLoad`, `KeepAlive`, `ProcessType` `Background`; `WorkingDirectory` the home folder; `EnvironmentVariables`
-  with the installing shell's `PATH` and `ARDIA_DATA_DIR` set to empty) and loads it with `launchctl bootout` then
-  `bootstrap gui/<uid>` (bootstrap retried twice). The data dir is pinned by the empty `ARDIA_DATA_DIR`, not by
+  with the installing shell's `PATH` and `UNIVERSE_DATA_DIR` set to empty) and loads it with `launchctl bootout` then
+  `bootstrap gui/<uid>` (bootstrap retried twice). The data dir is pinned by the empty `UNIVERSE_DATA_DIR`, not by
   `--data-dir`: `--data-dir` would also move the config folder to `<data dir>/config`, and the empty value keeps a
-  `launchctl setenv ARDIA_DATA_DIR` from redirecting the agent. It refuses when the launcher isn't installed.
+  `launchctl setenv UNIVERSE_DATA_DIR` from redirecting the agent. It refuses when the launcher isn't installed.
   `uninstall` runs `bootout` and removes the plist. Both refuse when a scratch data dir is in use (`--data-dir` /
-  `$ARDIA_DATA_DIR`), so tests never touch the real LaunchAgent. `hooks list` shows the hooks, checks the file
+  `$UNIVERSE_DATA_DIR`), so tests never touch the real LaunchAgent. `hooks list` shows the hooks, checks the file
   (exit 1 when it's invalid) and reads `launchctl print` for the agent's state.
 - Output goes to `~/Library/Logs/UniVerse Project Browser/hooks.log` (0600, opened without following links), rotated at 5 MB to one
   `hooks.log.1`; stdout and stderr are drained as they come and a single line longer than 64 KB is cut. `hooks run`

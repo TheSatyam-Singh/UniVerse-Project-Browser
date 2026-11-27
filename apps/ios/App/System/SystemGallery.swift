@@ -1,5 +1,5 @@
 #if DEBUG
-  import ArdiaDesign
+  import UniVerseDesign
   import OSLog
   import SwiftUI
   import UIKit

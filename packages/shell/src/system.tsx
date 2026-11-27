@@ -28,7 +28,7 @@ export type SystemNative = {
   setThinScrollBars(thin: boolean): Promise<void>;
 };
 
-const System = nativeModule("ArdiaSystem");
+const System = nativeModule("UniVerseSystem");
 
 export const backgroundInstance = System.backgroundInstance === true;
 export const isDefaultBrowser = () => System.isDefaultBrowser();
@@ -54,7 +54,7 @@ export type MouseAreaProps = ViewProps & {
 
 type NativeMouseAreaProps = Omit<MouseAreaProps, "onMiddleClick"> & { onMiddleClick?: (e: { nativeEvent: MiddleClickEvent }) => void };
 
-const NativeMouseArea = requireNativeViewManager<NativeMouseAreaProps>("ArdiaFileDrag");
+const NativeMouseArea = requireNativeViewManager<NativeMouseAreaProps>("UniVerseFileDrag");
 
 export function MouseArea({ path, onMiddleClick, ...props }: MouseAreaProps) {
   return <NativeMouseArea path={path} onMiddleClick={onMiddleClick && ((e) => onMiddleClick(e.nativeEvent))} {...props} />;
@@ -75,7 +75,7 @@ type NativeFileDropAreaProps = ViewProps & {
   onDropUpdate?: (e: { nativeEvent: DropUpdate }) => void;
 };
 
-const NativeFileDropArea = requireNativeViewManager<NativeFileDropAreaProps>("ArdiaFileDrop");
+const NativeFileDropArea = requireNativeViewManager<NativeFileDropAreaProps>("UniVerseFileDrop");
 
 export type MagnifyPhase = "began" | "changed" | "ended" | "cancelled";
 export type MagnifyUpdate = { phase: MagnifyPhase; magnification: number };
@@ -86,12 +86,12 @@ export type MagnifyAreaProps = ViewProps & {
 
 type NativeMagnifyAreaProps = ViewProps & { enabled?: boolean; onMagnify?: (e: { nativeEvent: MagnifyUpdate }) => void };
 
-const NativeMagnifyArea = requireNativeViewManager<NativeMagnifyAreaProps>("ArdiaMagnifyArea");
+const NativeMagnifyArea = requireNativeViewManager<NativeMagnifyAreaProps>("UniVerseMagnifyArea");
 export type MagnifyAreaNative = {
   devMagnify(windowId: string, x: number, y: number, steps: MagnifyUpdate[]): Promise<{ claimed?: boolean[]; hit?: string; error?: string }>;
 };
 
-const MagnifyModule = nativeModule("ArdiaMagnifyArea");
+const MagnifyModule = nativeModule("UniVerseMagnifyArea");
 
 export function MagnifyArea({ onMagnify, enabled = true, ...props }: MagnifyAreaProps) {
   return <NativeMagnifyArea enabled={enabled} onMagnify={onMagnify && ((e) => onMagnify(e.nativeEvent))} {...props} />;
@@ -123,7 +123,7 @@ export type FileDropNative = {
   devLastFileDrag(): Promise<string[]>;
 };
 
-const FileDrop = nativeModule("ArdiaFileDrop");
+const FileDrop = nativeModule("UniVerseFileDrop");
 
 export const devFileDrag = {
   drag: (windowId: string, action: DevDragAction, x: number, y: number, payload?: DevDragPayload) =>

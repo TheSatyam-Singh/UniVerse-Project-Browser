@@ -53,8 +53,8 @@ existing="$(awk -v t="$tree" '$1 == t { print $2; exit }' "$table")"
 out="${out:-$root/dist/$tag}"
 rm -rf "$out" && mkdir -p "$out"
 out="$(cd "$out" && pwd -P)"
-archive="$out/ArdiaCore-$short.tar.xz"
-source_archive="$out/ArdiaCore-$short-source.tar.xz"
+archive="$out/UniVerseCore-$short.tar.xz"
+source_archive="$out/UniVerseCore-$short-source.tar.xz"
 work="$out/pack"
 mkdir -p "$work/UniVerse-Project-Browser.app/Contents/Frameworks"
 echo "==> Copy the engine"
@@ -76,7 +76,7 @@ assets=("$archive" "$archive.sha256" "$source_archive")
 line="$(printf '%s\t%s\t%s' "$tree" "$tag" "$sha")"
 
 echo "==> Publish"
-notes="ArdiaCore's engine for engine key $tree (commit $commit), for builds without a Chromium tree (packages/universecore/scripts/fetch-engine.sh). Not an app release."
+notes="UniVerseCore's engine for engine key $tree (commit $commit), for builds without a Chromium tree (packages/universecore/scripts/fetch-engine.sh). Not an app release."
 if [ "$dry" = 1 ] || ! gh release view "$tag" -R "$REPO" >/dev/null 2>&1; then
   run gh release create "$tag" -R "$REPO" --prerelease --latest=false --target "$commit" --title "Engine $short" --notes "$notes"
 fi

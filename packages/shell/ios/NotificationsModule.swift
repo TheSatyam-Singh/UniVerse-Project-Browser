@@ -5,7 +5,7 @@ public class NotificationsModule: Module {
   private let lifetime = ModuleLifetime()
 
   public func definition() -> ModuleDefinition {
-    Name("ArdiaNotifications")
+    Name("UniVerseNotifications")
     Events(ShellEvents.Channel.notificationResponse.rawValue)
 
     OnCreate {

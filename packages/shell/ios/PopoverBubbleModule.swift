@@ -1,11 +1,11 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import Carbon.HIToolbox
 import ExpoModulesCore
 
 public class PopoverBubbleModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaPopoverBubble")
+    Name("UniVersePopoverBubble")
 
     View(PopoverBubble.self) {
       Prop("material") { (view: PopoverBubble, name: String?) in view.setMaterial(name) }

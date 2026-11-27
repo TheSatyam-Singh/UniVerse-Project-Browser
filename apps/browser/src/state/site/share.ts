@@ -21,3 +21,5 @@ export function shareFromPage(tab: Pick<Tab, "url" | "title" | "customTitle" | "
   if (!url) return;
   return sharePage(url === share.fileUrl ? url : cleanUrl(url), share.title || null, tab.windowId, anchor);
 }
+
+export { sharePage };

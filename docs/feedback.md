@@ -80,16 +80,16 @@ contract the app, the CLI, the feedback service and the dashboard build against.
   points the server at it. Run it before the dashboard deploys (the dashboard points at the store's host), then
   redeploy the dashboard so it reads from it.
 - `node infra/feedback/server.mjs --local <dir>` runs it with no ClickHouse, SeaweedFS or GitHub, writing
-  to `<dir>`, for tests. The app reads `ARDIA_FEEDBACK_URL`, the CLI `ARDIA_FEEDBACK_URL` too.
+  to `<dir>`, for tests. The app reads `UNIVERSE_FEEDBACK_URL`, the CLI `UNIVERSE_FEEDBACK_URL` too.
 
 ### Local mode
 
 ```
 node infra/feedback/server.mjs --local ~/universe-scratch/feedback   # http://127.0.0.1:4319
-ARDIA_FEEDBACK_URL=http://127.0.0.1:4319                          # in the app's or the CLI's env
+UNIVERSE_FEEDBACK_URL=http://127.0.0.1:4319                          # in the app's or the CLI's env
 ```
 
-- `ARDIA_FEEDBACK_URL` is an origin, without a path: clients POST to `$ARDIA_FEEDBACK_URL/api/feedback`.
+- `UNIVERSE_FEEDBACK_URL` is an origin, without a path: clients POST to `$UNIVERSE_FEEDBACK_URL/api/feedback`.
   Unset, it is `https://github.com/TheSatyam-Singh/UniVerse-Project-Browser`. Local mode serves the same paths as production.
 - Options: `--port <n>` (default `$PORT`, else 4319), `--host <addr>` (default 127.0.0.1), `--rate-limits` (off
   in local mode). `FEEDBACK_UPLOAD_SECRET` is optional there; without it a secret is made once and kept in

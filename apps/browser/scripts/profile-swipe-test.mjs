@@ -106,7 +106,7 @@ function fixtureFidelity(steps, result) {
     maxLateMs: Math.max(0, ...events.map((e) => e.lateMs ?? 0)), errors };
 }
 const simulate = (steps, source) => ac(source
-  ? `return globalThis.expo.modules.ArdiaSwipe.devSimulate(120, 400, ${source}, ${JSON.stringify(steps)}, true);`
+  ? `return globalThis.expo.modules.UniVerseSwipe.devSimulate(120, 400, ${source}, ${JSON.stringify(steps)}, true);`
   : `return globalThis.acSwipe.sidebar("w1").devSimulate(${JSON.stringify(steps)}, {ignorePreference:true});`);
 function alternatingGestures(count, gapMs = 112) {
   return Array.from({ length: count }, (_, n) => gesture(n % 2 ? 1 : -1).map((step) => ({
@@ -120,7 +120,7 @@ async function nativeBatch(steps, blockedMs = 0) {
       const until=performance.now()+${blockedMs}; while(performance.now()<until){}
     },20);
     return simulation.then(result=>new Promise(resolve=>setTimeout(()=>{
-      globalThis.expo.modules.ArdiaSwipe.devPagerState("w1").then(state=>resolve({result,state,
+      globalThis.expo.modules.UniVerseSwipe.devPagerState("w1").then(state=>resolve({result,state,
         profile:ac.store.getState().windows.w1.profileId,pager:globalThis.acPager("w1").debug()}));
     },650)));
   `, 15000);
@@ -263,7 +263,7 @@ try {
     await ac('ac.runCommand({command:"nextProfile",windowId:"w1"}); ac.runCommand({command:"nextProfile",windowId:"w1"}); ac.runCommand({command:"nextProfile",windowId:"w1"}); return true;');
     await waitProfile("work");
     await sleep(450);
-    const result = await ac('return globalThis.expo.modules.ArdiaSwipe.devPagerState("w1");');
+    const result = await ac('return globalThis.expo.modules.UniVerseSwipe.devPagerState("w1");');
     assert.equal(result.profileId, "work");
     assert.equal(result.selected, 1);
     assert.equal(result.phase, "idle");
@@ -277,7 +277,7 @@ try {
       setTimeout(()=>ac.store.getState().switchProfile("w1","work"),40);
       setTimeout(()=>ac.store.getState().switchProfile("w1","default"),56);
       return simulation.then(native=>new Promise(resolve=>setTimeout(()=>{
-        globalThis.expo.modules.ArdiaSwipe.devPagerState("w1").then(state=>resolve({native,state,
+        globalThis.expo.modules.UniVerseSwipe.devPagerState("w1").then(state=>resolve({native,state,
           profile:ac.store.getState().windows.w1.profileId}));
       },650)));
     `);
@@ -292,7 +292,7 @@ try {
     await ac('const p=globalThis.acPager("w1"); p.switchTo("default"); p.switchTo("work"); return true;');
     await waitProfile("work");
     await sleep(650);
-    const result = await ac('return globalThis.expo.modules.ArdiaSwipe.devPagerState("w1");');
+    const result = await ac('return globalThis.expo.modules.UniVerseSwipe.devPagerState("w1");');
     assert.equal(result.selected, 1);
     assert.equal(result.phase, "idle");
     assert.ok(Math.abs(result.position - 1) < 0.003);
@@ -448,7 +448,7 @@ try {
   await test("a real web hit inside the renderer keeps page ownership", async () => {
     await reset();
     const source = (await nativeWindow()).window;
-    const result = await ac(`return globalThis.expo.modules.ArdiaSwipe.devSimulate(700, 400, ${source}, ${JSON.stringify(gesture(-1))}, true);`);
+    const result = await ac(`return globalThis.expo.modules.UniVerseSwipe.devSimulate(700, 400, ${source}, ${JSON.stringify(gesture(-1))}, true);`);
     await sleep(600);
     assert.equal(routing(result)?.raw?.[0]?.class, "RenderWidgetHostViewCocoa", "the point should hit the page renderer");
     assert.equal(routing(result)?.fallback, false, "a hit inside the renderer must not fall back");
@@ -494,7 +494,7 @@ try {
     await openScrollFixture("localhost");
     const source = (await nativeWindow()).window;
     const at = (steps, ignorePreference) =>
-      ac(`return globalThis.expo.modules.ArdiaSwipe.devSimulate(700, 400, ${source}, ${JSON.stringify(steps)}, ${ignorePreference});`);
+      ac(`return globalThis.expo.modules.UniVerseSwipe.devSimulate(700, 400, ${source}, ${JSON.stringify(steps)}, ${ignorePreference});`);
     const untouched = await at([], true);
     assert.equal(untouched.where.hit, "RenderWidgetHostViewCocoa", "the point must hit the new page view");
     assert.equal(untouched.responder.takesSwipes, false, "a page view no gesture has reached keeps Chrome's swiper");
@@ -552,7 +552,7 @@ try {
           ac.store.getState().reorderProfiles(["work","default"]);
         },20);
         return simulation.then(native=>new Promise(resolve=>setTimeout(()=>{
-          globalThis.expo.modules.ArdiaSwipe.devPagerState("w1").then(state=>resolve({native,state,
+          globalThis.expo.modules.UniVerseSwipe.devPagerState("w1").then(state=>resolve({native,state,
             profile:ac.store.getState().windows.w1.profileId,order:ac.store.getState().profileOrder}));
         },650)));
       `);
@@ -571,7 +571,7 @@ try {
     await sleep(350);
     await ac('ac.store.getState().deleteProfile("default"); return true;');
     await sleep(350);
-    const result = await ac('return globalThis.expo.modules.ArdiaSwipe.devPagerState("w1");');
+    const result = await ac('return globalThis.expo.modules.UniVerseSwipe.devPagerState("w1");');
     assert.equal(await profile(), "work");
     assert.equal(result.count, 1);
     assert.equal(result.selected, 0);

@@ -5,7 +5,7 @@ diff --git a/chrome/browser/media/webrtc/media_capture_devices_dispatcher.cc b/c
  #include "chrome/browser/media/prefs/capture_device_ranking.h"
  #include "chrome/browser/media/webrtc/media_stream_capture_indicator.h"
  #include "chrome/browser/media/webrtc/permission_bubble_media_access_handler.h"
-+#include "ardia/core/ac_hooks.h"  // nogncheck
++#include "universe/core/ac_hooks.h"  // nogncheck
  #include "chrome/browser/profiles/profile.h"
  #include "chrome/common/chrome_switches.h"
  #include "chrome/common/pref_names.h"
@@ -13,7 +13,7 @@ diff --git a/chrome/browser/media/webrtc/media_capture_devices_dispatcher.cc b/c
    observers_.RemoveObserver(observer);
  }
  
-+bool (*g_ardia_media_access_request)(
++bool (*g_universe_media_access_request)(
 +    content::WebContents* web_contents,
 +    const content::MediaStreamRequest& request,
 +    content::MediaResponseCallback* callback) = nullptr;
@@ -24,8 +24,8 @@ diff --git a/chrome/browser/media/webrtc/media_capture_devices_dispatcher.cc b/c
      content::MediaResponseCallback callback,
      const extensions::Extension* extension) {
    CHECK_CURRENTLY_ON(BrowserThread::UI, base::NotFatalUntil::M161);
-+  if (g_ardia_media_access_request &&
-+      g_ardia_media_access_request(web_contents, request, &callback)) {
++  if (g_universe_media_access_request &&
++      g_universe_media_access_request(web_contents, request, &callback)) {
 +    return;
 +  }
  

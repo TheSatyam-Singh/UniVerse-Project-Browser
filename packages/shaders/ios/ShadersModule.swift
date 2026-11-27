@@ -1,9 +1,9 @@
-import ArdiaCore
+import UniVerseCore
 import ExpoModulesCore
 
 public class AreaLightModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaAreaLight")
+    Name("UniVerseAreaLight")
 
     AsyncFunction("debugSnapshot") { (dir: String) -> [[String: Any]] in
       try? FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
@@ -25,7 +25,7 @@ public class AreaLightModule: Module {
 
 public class WindowBackdropModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaWindowBackdrop")
+    Name("UniVerseWindowBackdrop")
 
     AsyncFunction("holdKeyLook") { (on: Bool) in WindowTreatmentView.holdsKeyLook = on }.runOnQueue(.main)
 
@@ -69,7 +69,7 @@ public class ThemeSwatchModule: Module {
 
 public class PowerUpModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaPowerUp")
+    Name("UniVersePowerUp")
 
     View(PowerUpView.self) {
       Prop("palette") { (view: PowerUpView, v: [String]) in view.setPalette(v) }

@@ -2,7 +2,7 @@ import { nativeModule, type ConfigFileRead } from "@universe/shell";
 
 export type { ConfigFileRead };
 
-const Config = nativeModule("ArdiaConfig");
+const Config = nativeModule("UniVerseConfig");
 
 export const readConfigFile = (name: string): ConfigFileRead => Config.readFile(name);
 export const watchConfigFiles = (names: string[]) => Config.watch(names);

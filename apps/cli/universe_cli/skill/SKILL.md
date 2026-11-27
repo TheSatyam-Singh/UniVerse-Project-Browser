@@ -104,7 +104,7 @@ EOF
 
 ## Look it up
 
-- `--port N` anywhere on the line (or `ARDIA_PORT`). Write `universe browse` out in each command. Exit 2: UniVerse Project Browser
+- `--port N` anywhere on the line (or `UNIVERSE_PORT`). Write `universe browse` out in each command. Exit 2: UniVerse Project Browser
   isn't reachable; its message says what to ask the user.
 - `universe browse <command> --help`. `references/troubleshooting.md`: input that doesn't land, background tabs,
   refused commands, sessions, exit codes. `automation.md`: tabs and groups (`universe tabs --usage`), events, hooks. `userscripts.md`, `config.md`, `daily-reports.md`.

@@ -21,7 +21,7 @@ from universe_cli.browse.page import Element
 
 CLI = Path(__file__).resolve().parents[1]
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "browse"
-CHROME = os.environ.get("ARDIA_BROWSE_CHROME")
+CHROME = os.environ.get("UNIVERSE_BROWSE_CHROME")
 
 
 def run(coroutine):
@@ -191,7 +191,7 @@ def wait_for(check, seconds: float, what: str):
     raise AssertionError(f"timed out waiting for {what}")
 
 
-@unittest.skipUnless(CHROME and Path(CHROME).exists(), "set ARDIA_BROWSE_CHROME to a Chrome binary to act on real cells and lists")
+@unittest.skipUnless(CHROME and Path(CHROME).exists(), "set UNIVERSE_BROWSE_CHROME to a Chrome binary to act on real cells and lists")
 class ActInChrome(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

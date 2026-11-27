@@ -31,7 +31,7 @@
 //
 // Window states: visible launches run every browser as if in view whatever covers it (UniVerse Project Browser's background mode with
 // its forced visibility; Helium and Dia with --disable-backgrounding-occluded-windows), hidden launches let occlusion
-// act (ARDIA_INSTANCE allowOcclusion; no switch) and minimize the window through CDP. All get --mute-audio.
+// act (UNIVERSE_INSTANCE allowOcclusion; no switch) and minimize the window through CDP. All get --mute-audio.
 // Metrics per process, summed per kind: CPU time, idle + interrupt wakeups, ri_energy_nj (macOS's per-process energy
 // estimate), ri_billed_energy, and GPU time from the AGX user clients the process created.
 import { execFileSync, spawn, spawnSync } from "node:child_process";
@@ -433,7 +433,7 @@ class Instance {
     const env = { HOME: this.home, CFFIXED_USER_HOME: this.home };
     if (isUniverse(this.name)) {
       const instance = { updateFeed: `http://127.0.0.1:${opt["page-port"]}/appcast.xml`, ...(this.mode === "hidden" ? { allowOcclusion: true } : {}) };
-      Object.assign(env, { ARDIA_BACKGROUND: "1", ARDIA_DATA_DIR: join(this.home, "data"), ARDIA_REMOTE_DEBUGGING_PORT: String(port), ...launchVariables({ instance }) });
+      Object.assign(env, { UNIVERSE_BACKGROUND: "1", UNIVERSE_DATA_DIR: join(this.home, "data"), UNIVERSE_REMOTE_DEBUGGING_PORT: String(port), ...launchVariables({ instance }) });
     }
     const extra = perName(opt.env, this.name).map((e) => ({ [e.slice(0, e.indexOf("="))]: e.slice(e.indexOf("=") + 1) }));
     const merged = mergeLaunchEnv(env, ...extra);

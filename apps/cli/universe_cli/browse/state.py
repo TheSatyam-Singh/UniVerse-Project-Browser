@@ -501,7 +501,7 @@ class State:
         while True:
             frame = self.frame_for(page) or page.main_frame
             try:
-                remote = await page.call("(s) => ardiaBrowse.query(s)", selector, frame=frame, by_value=False, read=True)
+                remote = await page.call("(s) => universeBrowse.query(s)", selector, frame=frame, by_value=False, read=True)
             except BrowseError as error:
                 raise BrowseError(f"Invalid selector {selector}: {error.message}") from None
             element = await page.element_from(remote, frame, selector)

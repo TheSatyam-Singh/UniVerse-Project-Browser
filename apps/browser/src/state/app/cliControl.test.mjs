@@ -54,7 +54,7 @@ test("a failure from a superseded enable doesn't turn off a newer retry", async 
 });
 
 test("a failure of the current start still turns the setting off and keeps the reason", async () => {
-  emit({ state: "off", generation: 2, reason: "Couldn't write ArdiaControl.json: is a directory" });
+  emit({ state: "off", generation: 2, reason: "Couldn't write UniVerseControl.json: is a directory" });
   await settle();
   assert.equal(useBrowser.getState().settings.cliControl, false);
   assert.match(cli.useCli.getState().server?.reason ?? "", /is a directory/);

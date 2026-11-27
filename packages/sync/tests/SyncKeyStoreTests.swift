@@ -1,7 +1,7 @@
 import Foundation
 import Security
 import XCTest
-@testable import ArdiaSyncCore
+@testable import UniVerseSyncCore
 
 private final class FakeKeychainCalls: KeychainCalls {
   var items: [String: Data] = [:]

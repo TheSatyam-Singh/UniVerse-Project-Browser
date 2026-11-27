@@ -27,4 +27,4 @@ type SharedFoldersNative = {
   addListener(name: "onChange", listener: (event: { paths: string[] }) => void): { remove(): void };
 };
 
-export const SharedFoldersNative = requireOptionalNativeModule<SharedFoldersNative>("ArdiaSharedFolders");
+export const SharedFoldersNative = requireOptionalNativeModule<SharedFoldersNative>("UniVerseSharedFolders");

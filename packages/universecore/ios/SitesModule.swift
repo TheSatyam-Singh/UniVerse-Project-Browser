@@ -26,17 +26,17 @@ public class SitesModule: Module {
       try engine(args).setSiteSetting(profile: args.profile, origin: try args.text("origin"), type: try args.text("type"), value: try args.text("value"))
       reply.ok()
     },
-    "origins": { args, reply in ArdiaServices.siteSettingsOrigins(profile: args.profile) { reply.service($0, $1) } },
+    "origins": { args, reply in UniVerseServices.siteSettingsOrigins(profile: args.profile) { reply.service($0, $1) } },
     "reset": { args, reply in
-      ArdiaServices.resetSiteSettings(profile: args.profile, origin: try args.text("origin"))
+      UniVerseServices.resetSiteSettings(profile: args.profile, origin: try args.text("origin"))
       reply.ok()
     },
     "clearData": { args, reply in
       try engine(args).clearSiteData(profile: args.profile, origin: try args.text("origin")) { reply.service($0, $1) }
     },
-    "zoomLevels": { args, reply in ArdiaServices.zoomLevels(profile: args.profile) { reply.service($0, $1) } },
+    "zoomLevels": { args, reply in UniVerseServices.zoomLevels(profile: args.profile) { reply.service($0, $1) } },
     "setZoom": { args, reply in
-      ArdiaServices.setZoom(try args.double("zoom"), profile: args.profile, host: try args.text("host"))
+      UniVerseServices.setZoom(try args.double("zoom"), profile: args.profile, host: try args.text("host"))
       reply.ok()
     },
   ])

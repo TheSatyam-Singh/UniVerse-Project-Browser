@@ -90,7 +90,7 @@ export const appEnv = (app, env) => {
   const binary = binaryOf(app);
   const forThisBuild = forBuild(binary, env);
   if (basename(binary) !== "Netnyahoo") return forThisBuild;
-  const legacy = Object.fromEntries(Object.entries(forThisBuild).filter(([k]) => k.startsWith("ARDIA_")).map(([k, v]) => [`NETNYAHOO_${k.slice("ARDIA_".length)}`, v]));
+  const legacy = Object.fromEntries(Object.entries(forThisBuild).filter(([k]) => k.startsWith("UNIVERSE_")).map(([k, v]) => [`NETNYAHOO_${k.slice("UNIVERSE_".length)}`, v]));
   return { ...forThisBuild, ...legacy };
 };
 export const onScreenWindows = (pid) => JSON.parse(execFileSync("osascript", ["-l", "JavaScript", "-e",
@@ -369,7 +369,7 @@ export async function launch(app, opts = {}) {
   const location = jsMode === "pinned" ? `localhost:${js.port}` : jsMode === "live" ? `localhost:${metroPort}` : jsMode === "none" ? null : jsMode;
   const switches = [opts.switches].flat().filter(Boolean).join(" ");
   const env = appEnv(app, mergeLaunchEnv({
-    ARDIA_BACKGROUND: "1", ARDIA_DATA_DIR: data, ARDIA_REMOTE_DEBUGGING_PORT: String(port),
+    UNIVERSE_BACKGROUND: "1", UNIVERSE_DATA_DIR: data, UNIVERSE_REMOTE_DEBUGGING_PORT: String(port),
     ...launchVariables({
       instance: { ...(location ? { jsLocation: location } : {}), ...(switches ? { chromiumSwitches: switches } : {}), ...opts.instance },
       test: opts.test, trace: opts.trace, switchOverrides: opts.switchOverrides,

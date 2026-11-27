@@ -1,11 +1,11 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import MachO
 import ExpoModulesCore
 
 public class AppModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaApp")
+    Name("UniVerseApp")
     Constant("apiVersion") { () -> Int in 62 }
 
     OnCreate {
@@ -69,8 +69,8 @@ public class AppModule: Module {
         "forceReleaseNotes": config.instanceFlag("releaseNotes"),
         "processStart": Self.processStart as Any,
         "bootTime": Self.bootTime as Any,
-        "launchMarks": ArdiaHost.launchMarks,
-        "launchedHidden": ArdiaHost.launchedHidden as Any,
+        "launchMarks": UniVerseHost.launchMarks,
+        "launchedHidden": UniVerseHost.launchedHidden as Any,
         "loadAverage1m": Self.loadAverage1m as Any,
         "inApplicationsFolder": Self.inApplicationsFolder,
         "updatePrewarm": UserDefaults.standard.dictionary(forKey: UpdatePrewarm.lastRunKey) as Any,

@@ -124,7 +124,7 @@ def call(root, name: str, capability: str, request) -> object:
     if capability not in plugin["capabilities"] and capability != "command.run":
         raise BrowseError(f"Plugin {name} doesn't declare {capability} (it declares {', '.join(plugin['capabilities'])})")
     payload = json.dumps({"protocol": PROTOCOL, "capability": capability, "type": capability, "request": request})
-    env = {key: value for key, value in os.environ.items() if not key.startswith(("ARDIA_", "AGENT_BROWSER_"))}
+    env = {key: value for key, value in os.environ.items() if not key.startswith(("UNIVERSE_", "AGENT_BROWSER_"))}
     try:
         done = subprocess.run([plugin["command"]], input=payload.encode(), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                               timeout=RUN_TIMEOUT, close_fds=True, env=env, cwd=str(Path(plugin["command"]).parent))

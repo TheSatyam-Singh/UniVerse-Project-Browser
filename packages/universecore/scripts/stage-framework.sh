@@ -15,11 +15,11 @@ fi
 
 . "$repo/scripts/lib/paths.sh"
 src=$chromium_framework
-if [[ -z "${ARDIACORE_FRAMEWORK:-}" && ! -d "$src" ]]; then
+if [[ -z "${UNIVERSECORE_FRAMEWORK:-}" && ! -d "$src" ]]; then
   src=$("$here/fetch-engine.sh") || exit 1
 fi
-dest=${ARDIACORE_STAGE_DIR:-$repo/apps/browser/build-universecore/UniVerseCoreFramework}
-cache=${ARDIACORE_STAGE_CACHE:-$repo/apps/browser/build-universecore/staged}
+dest=${UNIVERSECORE_STAGE_DIR:-$repo/apps/browser/build-universecore/UniVerseCoreFramework}
+cache=${UNIVERSECORE_STAGE_CACHE:-$repo/apps/browser/build-universecore/staged}
 
 if [[ "${1:-}" == --publish ]]; then
   tmp=$2 key=$3
@@ -39,7 +39,7 @@ if [[ "${1:-}" == --publish ]]; then
   exit 0
 fi
 
-[[ -d "$src" ]] || { echo "error: no ArdiaCore framework at $src (engine/ardiacore/apply.sh, then build chrome_framework)" >&2; exit 1; }
+[[ -d "$src" ]] || { echo "error: no UniVerseCore framework at $src (engine/universecore/apply.sh, then build chrome_framework)" >&2; exit 1; }
 stamp="$dest/.stamp"
 
 fill_cache() {
@@ -77,7 +77,7 @@ fi
 mkdir -p "$cache" "$dest"
 for attempt in 1 2 3; do
   if [[ ! -f "$cache/$key/.complete" ]]; then
-    key=$(fill_cache) || { echo "error: staging ArdiaCore from $src failed" >&2; exit 1; }
+    key=$(fill_cache) || { echo "error: staging UniVerseCore from $src failed" >&2; exit 1; }
   fi
   touch "$cache/$key/.used" 2>/dev/null || continue
   rm -rf "$dest/$name.framework.new"
@@ -87,5 +87,5 @@ for attempt in 1 2 3; do
   echo "$key" >"$stamp"
   exit 0
 done
-echo "error: couldn't stage ArdiaCore from $cache (it kept changing under this build)" >&2
+echo "error: couldn't stage UniVerseCore from $cache (it kept changing under this build)" >&2
 exit 1

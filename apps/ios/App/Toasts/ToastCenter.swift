@@ -1,4 +1,4 @@
-import ArdiaDesign
+import UniVerseDesign
 import Observation
 import SwiftUI
 import UIKit

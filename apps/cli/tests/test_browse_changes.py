@@ -126,7 +126,7 @@ class FillFormats(unittest.TestCase):
                 calls.append("focus")
 
             async def call(self, function, *args, **kwargs):
-                if "ardiaBrowse.info" in function:
+                if "universeBrowse.info" in function:
                     return {"tag": "input", "type": "time", "editable": True, "disabled": False, "value": ""}
                 calls.append(("set", args[1]))
                 return {"set": True, "stored": args[1]}

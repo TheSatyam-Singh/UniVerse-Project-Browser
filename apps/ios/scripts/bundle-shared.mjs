@@ -9,11 +9,11 @@ import { fileURLToPath } from "node:url";
 import { stripTypeScriptTypes } from "node:module";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const out = join(root, "apps/ios/Packages/ArdiaKit/Sources/ArdiaShared/Scripts");
+const out = join(root, "apps/ios/Packages/UniVerseKit/Sources/UniVerseShared/Scripts");
 
 const BUNDLES = [
-  { file: "ardia-sync.js", global: "ArdiaSync", entry: "packages/sync/src/companion/index.ts" },
-  { file: "ardia-core.js", global: "ArdiaCore", entry: "packages/core/src/mobile.ts" },
+  { file: "universe-sync.js", global: "UniVerseSync", entry: "packages/sync/src/companion/index.ts" },
+  { file: "universe-core.js", global: "UniVerseCore", entry: "packages/core/src/mobile.ts" },
 ];
 
 const IMPORT = /^import\s+(?:type\s+)?(?:\{([^}]*)\}|\*\s+as\s+(\w+))\s+from\s+"([^"]+)";?[^\S\n]*$/gm;

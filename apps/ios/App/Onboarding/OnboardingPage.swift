@@ -1,4 +1,4 @@
-import ArdiaDesign
+import UniVerseDesign
 import SwiftUI
 
 struct OnboardingPage<Illustration: View, Actions: View>: View {
@@ -29,7 +29,7 @@ struct OnboardingPage<Illustration: View, Actions: View>: View {
       VStack(spacing: Spacing.small) {
         title
           .font(.title.bold())
-          .foregroundStyle(Color.ardiaTitle)
+          .foregroundStyle(Color.universeTitle)
           .multilineTextAlignment(.center)
           .minimumScaleFactor(0.8)
           .fixedSize(horizontal: false, vertical: true)
@@ -100,7 +100,7 @@ struct OnboardingSecondaryButton: View {
   var body: some View {
     Button(title, action: action)
       .font(.body.weight(.semibold))
-      .foregroundStyle(Color.ardiaTitle)
+      .foregroundStyle(Color.universeTitle)
       .frame(maxWidth: .infinity, minHeight: 44)
       .contentShape(.rect)
   }
@@ -108,6 +108,6 @@ struct OnboardingSecondaryButton: View {
 
 extension Text {
   static func emphasized(_ key: LocalizedStringKey) -> Text {
-    Text(key).foregroundStyle(Color.ardiaAccentText)
+    Text(key).foregroundStyle(Color.universeAccentText)
   }
 }

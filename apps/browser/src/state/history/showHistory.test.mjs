@@ -14,7 +14,7 @@ const requested = () => useHistorySearchFocusRequest.getState().tabId;
 
 function recordFocusSenders() {
   const sent = { claims: [], cancels: [] };
-  const shell = shellNativeModules.ArdiaFocus;
+  const shell = shellNativeModules.UniVerseFocus;
   shell.claimFocus = (generation, tag) => Promise.resolve(void sent.claims.push([generation, tag]));
   shell.cancelFocusMove = (generation, restoring) => Promise.resolve(void sent.cancels.push([generation, restoring]));
   return sent;

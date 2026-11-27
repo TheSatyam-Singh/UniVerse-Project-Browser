@@ -223,7 +223,7 @@ const Native = requireNativeModule<{
   importPasswordsCSV(path: string): Promise<string>;
   chooseImportFile(kind: "safariExport" | "bookmarksHTML" | "passwordsCSV"): Promise<string | null>;
   readDiaTabs(): Promise<string>;
-}>("ArdiaImport");
+}>("UniVerseImport");
 
 let jobSeq = 0;
 

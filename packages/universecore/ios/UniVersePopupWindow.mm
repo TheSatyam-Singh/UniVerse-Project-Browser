@@ -1,0 +1,421 @@
+#import "UniVerseChromeWindowInternal.h"
+#import "UniVerseWebViewInternal.h"
+
+using namespace universe_window;
+
+@interface UniVersePopupWindow : NSObject <UniVerseCoreWindowDelegate, UniVerseCoreTabDelegate>
+@property(nonatomic, readonly) UniVerseCoreTab *tab;
+@property(nonatomic, readonly) UniVerseCoreWindow *coreWindow;
+- (void)askPermission:(NSDictionary *)request;
+- (BOOL)dropPermission:(NSString *)requestId;
+@end
+
+namespace {
+
+constexpr CGFloat kPopupOriginStripHeight = 28;
+
+NSMutableSet<UniVersePopupWindow *> *PopupWindows() {
+  static NSMutableSet *windows = [NSMutableSet set];
+  return windows;
+}
+
+NSMapTable<UniVerseWebView *, NSPointerArray *> *PasswordPromptSources() {
+  static NSMapTable *sources = [NSMapTable weakToStrongObjectsMapTable];
+  return sources;
+}
+
+NSString *HostOf(NSString *url) {
+  return [NSURL URLWithString:url ?: @""].host ?: @"";
+}
+
+NSDictionary<NSString *, NSArray<NSString *> *> *PermissionKinds() {
+  static NSDictionary *kinds = @{
+    @"camera" : @[ @"video", @"camera" ],
+    @"microphone" : @[ @"mic", @"microphone" ],
+    @"cameraPanTiltZoom" : @[ @"video", @"camera's pan, tilt and zoom" ],
+    @"screen" : @[ @"rectangle.on.rectangle", @"", @"Allow %@ to share your screen?" ],
+    @"location" : @[ @"location", @"location" ],
+    @"notifications" : @[ @"bell", @"", @"Allow %@ to send you notifications?" ],
+    @"clipboard" : @[ @"doc.on.clipboard", @"clipboard" ],
+    @"midi" : @[ @"pianokeys", @"MIDI devices" ],
+    @"multipleDownloads" : @[ @"arrow.down.circle", @"", @"Allow %@ to download multiple files?" ],
+    @"localFonts" : @[ @"textformat", @"fonts" ],
+    @"idleDetection" : @[ @"person.crop.circle.badge.clock", @"", @"Allow %@ to know when you're actively using this device?" ],
+    @"storageAccess" : @[ @"externaldrive", @"", @"Allow %@ to use cookies and site data while embedded?" ],
+    @"diskQuota" : @[ @"internaldrive", @"", @"Allow %@ to store files on your device?" ],
+    @"windowManagement" : @[ @"macwindow.on.rectangle", @"displays to open and place windows" ],
+    @"fileSystem" : @[ @"folder", @"files" ],
+    @"keyboardLock" : @[ @"keyboard", @"keyboard" ],
+    @"pointerLock" : @[ @"cursorarrow", @"mouse pointer" ],
+    @"protocolHandler" : @[ @"envelope", @"", @"Make %@ your default mail app?" ],
+    @"sensors" : @[ @"gyroscope", @"motion sensors" ],
+    @"localNetwork" : @[ @"network", @"devices on your local network" ],
+    @"vr" : @[ @"visionpro", @"virtual reality devices" ],
+    @"ar" : @[ @"visionpro", @"augmented reality data" ],
+    @"handTracking" : @[ @"hand.raised", @"hand tracking" ],
+    @"identityProvider" : @[ @"person.badge.key", @"", @"Allow %@ to sign you in with an identity provider?" ],
+    @"webAppInstallation" : @[ @"app.badge", @"", @"Allow %@ to install web apps?" ],
+    @"capturedSurfaceControl" : @[ @"rectangle.on.rectangle", @"", @"Allow %@ to scroll and zoom the tab you share?" ],
+  };
+  return kinds;
+}
+
+NSString *ListOf(NSArray<NSString *> *words) {
+  if (words.count < 2) return words.firstObject ?: @"";
+  NSString *head = [[words subarrayWithRange:NSMakeRange(0, words.count - 1)] componentsJoinedByString:@", "];
+  return [NSString stringWithFormat:@"%@ and %@", head, words.lastObject];
+}
+
+NSString *PermissionQuestion(NSDictionary *request) {
+  NSString *origin = [request[@"origin"] isKindOfClass:NSString.class] ? request[@"origin"] : @"";
+  NSString *site = HostOf(origin);
+  if ([site hasPrefix:@"www."]) site = [site substringFromIndex:4];
+  if (!site.length) site = origin;
+  NSArray<NSString *> *kinds = [request[@"permissions"] isKindOfClass:NSArray.class] ? request[@"permissions"] : @[];
+  if (kinds.count == 1 && PermissionKinds()[kinds[0]].count > 2)
+    return [NSString stringWithFormat:PermissionKinds()[kinds[0]][2], site];
+  NSMutableArray<NSString *> *nouns = [NSMutableArray array];
+  BOOL allNouns = YES;
+  for (NSString *kind in kinds) {
+    NSString *noun = PermissionKinds()[kind][1] ?: kind;
+    allNouns &= noun.length > 0;
+    [nouns addObject:noun.length ? noun : kind];
+  }
+  return allNouns ? [NSString stringWithFormat:@"Allow %@ to access your %@?", site, ListOf(nouns)]
+                  : [NSString stringWithFormat:@"Allow %@ to use %@?", site, ListOf(nouns)];
+}
+
+NSImage *_Nullable PermissionIcon(NSDictionary *request) {
+  NSArray<NSString *> *kinds = [request[@"permissions"] isKindOfClass:NSArray.class] ? request[@"permissions"] : @[];
+  NSString *symbol = PermissionKinds()[kinds.firstObject ?: @""].firstObject ?: @"questionmark.circle";
+  NSImageSymbolConfiguration *config = [NSImageSymbolConfiguration configurationWithPointSize:32 weight:NSFontWeightRegular];
+  return [[NSImage imageWithSystemSymbolName:symbol accessibilityDescription:nil] imageWithSymbolConfiguration:config];
+}
+
+}
+
+@implementation UniVersePopupWindow {
+  UniVerseCoreWindow *_coreWindow;
+  UniVerseCoreTab *_tab;
+  __weak UniVerseWebView *_opener;
+  UniVersePopupOriginStrip *_strip;
+  id _closeObserver;
+  BOOL _adopting;
+  BOOL _showInactive;
+  BOOL _shown;
+  NSMutableArray<NSDictionary *> *_permissionQueue;
+  NSDictionary *_shownPermission;
+  NSAlert *_permissionAlert;
+}
+
+- (UniVerseCoreTab *)tab {
+  return _tab;
+}
+
+- (UniVerseCoreWindow *)coreWindow {
+  return _coreWindow;
+}
+
+- (void)askPermission:(NSDictionary *)request {
+  [_permissionQueue addObject:request];
+  [self showNextPermission];
+}
+
+- (void)showNextPermission {
+  NSWindow *window = _coreWindow.window;
+  if (_shownPermission || !_permissionQueue.count || !window) return;
+  NSDictionary *request = _permissionQueue.firstObject;
+  [_permissionQueue removeObjectAtIndex:0];
+  _shownPermission = request;
+  NSAlert *alert = [[NSAlert alloc] init];
+  alert.messageText = PermissionQuestion(request);
+  alert.informativeText = @"";
+  if (NSImage *icon = PermissionIcon(request)) alert.icon = icon;
+  [alert addButtonWithTitle:@"Allow"];
+  [alert addButtonWithTitle:@"Don't Allow"].keyEquivalent = @"\e";
+  _permissionAlert = alert;
+  NSString *requestId = request[@"id"];
+  __weak UniVersePopupWindow *weakSelf = self;
+  [alert beginSheetModalForWindow:window
+                completionHandler:^(NSModalResponse response) {
+                  [weakSelf permission:requestId answered:response];
+                }];
+}
+
+- (void)permission:(NSString *)requestId answered:(NSModalResponse)response {
+  if (![_shownPermission[@"id"] isEqual:requestId]) return;
+  _shownPermission = nil;
+  _permissionAlert = nil;
+  if (response == NSAlertFirstButtonReturn) [UniVerseHost resolvePermission:requestId result:@"accept" remember:YES];
+  else if (response == NSAlertSecondButtonReturn) [UniVerseHost resolvePermission:requestId result:@"deny" remember:YES];
+  [self showNextPermission];
+}
+
+- (BOOL)dropPermission:(NSString *)requestId {
+  NSUInteger queued = [_permissionQueue indexOfObjectPassingTest:^BOOL(NSDictionary *request, NSUInteger, BOOL *) {
+    return [request[@"id"] isEqual:requestId];
+  }];
+  if (queued != NSNotFound) {
+    [_permissionQueue removeObjectAtIndex:queued];
+    return YES;
+  }
+  if (![_shownPermission[@"id"] isEqual:requestId]) return NO;
+  NSAlert *alert = _permissionAlert;
+  _shownPermission = nil;
+  _permissionAlert = nil;
+  if (alert.window.sheetParent) [alert.window.sheetParent endSheet:alert.window returnCode:NSModalResponseAbort];
+  [self showNextPermission];
+  return YES;
+}
+
+- (instancetype)initWithTab:(UniVerseCoreTab *)tab opener:(UniVerseWebView *)opener {
+  if (!(self = [super init])) return nil;
+  _tab = tab;
+  _opener = opener;
+  _permissionQueue = [NSMutableArray array];
+  NSDictionary<NSString *, NSNumber *> *features = tab.popupFeatures ?: @{};
+  const NSSize size = NSMakeSize(MAX(features[@"width"] ? features[@"width"].doubleValue : 500, 200),
+                                 MAX(features[@"height"] ? features[@"height"].doubleValue : 600, 150) + kPopupOriginStripHeight);
+  _coreWindow = [[UniVerseCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, size.width, size.height)];
+  NSWindow *window = _coreWindow.window;
+  if (!window) return nil;
+  _coreWindow.delegate = self;
+  window.styleMask |= NSWindowStyleMaskTitled | NSWindowStyleMaskClosable | NSWindowStyleMaskMiniaturizable |
+                      NSWindowStyleMaskResizable;
+  window.releasedWhenClosed = NO;
+  window.tabbingMode = NSWindowTabbingModeDisallowed;
+  window.minSize = NSMakeSize(200, 150);
+  [window setContentSize:size];
+  [self placeWithFeatures:features];
+  __weak UniVersePopupWindow *weakSelf = self;
+  _closeObserver = [NSNotificationCenter.defaultCenter addObserverForName:NSWindowWillCloseNotification
+                                                                   object:window
+                                                                    queue:nil
+                                                               usingBlock:^(NSNotification *) { [weakSelf windowWillClose]; }];
+  return self;
+}
+
+- (void)placeWithFeatures:(NSDictionary<NSString *, NSNumber *> *)features {
+  NSWindow *window = _coreWindow.window;
+  NSWindow *parent = _opener.window;
+  NSScreen *screen = parent.screen ?: NSScreen.mainScreen;
+  const NSRect visible = screen.visibleFrame;
+  NSRect frame = window.frame;
+  if (!NSIsEmptyRect(visible))
+    frame.size = NSMakeSize(MIN(NSWidth(frame), NSWidth(visible)), MIN(NSHeight(frame), NSHeight(visible)));
+  if (features[@"x"] || features[@"y"]) {
+    const NSRect primary = NSScreen.screens.firstObject.frame;
+    const NSRect content = [window contentRectForFrameRect:frame];
+    const CGFloat left = features[@"x"] ? features[@"x"].doubleValue : NSMidX(parent.frame) - NSWidth(frame) / 2;
+    const CGFloat top = features[@"y"] ? features[@"y"].doubleValue : NSMaxY(primary) - NSMaxY(parent.frame) + 60;
+    frame.origin = NSMakePoint(left, NSMaxY(primary) - top - NSHeight(content));
+  } else if (parent) {
+    frame.origin = NSMakePoint(NSMidX(parent.frame) - NSWidth(frame) / 2, NSMaxY(parent.frame) - NSHeight(frame) - 60);
+  } else {
+    [window center];
+    frame.origin = window.frame.origin;
+  }
+  frame.origin.x = MAX(NSMinX(visible), MIN(NSMinX(frame), NSMaxX(visible) - NSWidth(frame)));
+  frame.origin.y = MAX(NSMinY(visible), MIN(NSMinY(frame), NSMaxY(visible) - NSHeight(frame)));
+  [window setFrame:frame display:NO];
+}
+
+- (void)closeIfNeverGivenTab {
+  if (!_tab) [_coreWindow close];
+}
+
+- (void)takeTab {
+  if (_tab.closed) return [_coreWindow close];
+  _adopting = YES;
+  const UniVerseCoreAdoption adoption = [_coreWindow adoptTab:_tab];
+  _adopting = NO;
+  if (adoption == UniVerseCoreAdoptionBusy) {
+    __weak UniVersePopupWindow *weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{
+      [weakSelf takeTab];
+    });
+    return;
+  }
+  if (adoption == UniVerseCoreAdoptionRefused) return [_coreWindow close];
+  [self showTab];
+}
+
+- (void)showTab {
+  if (!_tab || _tab.closed) return [_coreWindow close];
+  if (UniVerseCoreProfile *profile = _tab.profile) _coreWindow.activeProfile = profile;
+  _tab.delegate = self;
+  NSView *page = _tab.view, *host = _coreWindow.hostView;
+  [page removeFromSuperview];
+  const NSRect bounds = host.bounds;
+  const CGFloat pageHeight = MAX(NSHeight(bounds) - kPopupOriginStripHeight, 0);
+  const BOOL flipped = host.isFlipped;
+  page.frame = NSMakeRect(0, flipped ? kPopupOriginStripHeight : 0, NSWidth(bounds), pageHeight);
+  page.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+  [_tab noteInShownSlot];
+  [host addSubview:page];
+  _strip = [[UniVersePopupOriginStrip alloc]
+      initWithFrame:NSMakeRect(0, flipped ? 0 : pageHeight, NSWidth(bounds), kPopupOriginStripHeight)];
+  _strip.autoresizingMask = NSViewWidthSizable | (flipped ? NSViewMaxYMargin : NSViewMinYMargin);
+  [host addSubview:_strip positioned:NSWindowAbove relativeTo:page];
+  [self updateTitle];
+  [self updateOrigin];
+  _shown = YES;
+  if (universe_host::Background() || _showInactive) [_coreWindow showInactive];
+  else [_coreWindow.window makeKeyAndOrderFront:nil];
+  [_tab focus];
+}
+
+- (void)updateTitle {
+  NSString *url = _tab.url ?: @"", *title = _tab.title;
+  _coreWindow.window.title = title.length && ![title isEqualToString:url] ? title : PopupOriginText(url);
+}
+
+- (void)updateOrigin {
+  id level = _tab.securityInfo[@"level"];
+  [_strip showURL:_tab.url ?: @"" security:[level isKindOfClass:NSString.class] ? level : nil];
+}
+
+- (void)windowWillClose {
+  if (_closeObserver) [NSNotificationCenter.defaultCenter removeObserver:_closeObserver];
+  _closeObserver = nil;
+  [_permissionQueue removeAllObjects];
+  NSAlert *alert = _permissionAlert;
+  _shownPermission = nil;
+  _permissionAlert = nil;
+  if (alert.window.sheetParent) [alert.window.sheetParent endSheet:alert.window returnCode:NSModalResponseAbort];
+  if (_tab.delegate == self) _tab.delegate = nil;
+  UniVersePopupWindow *me = self;
+  dispatch_async(dispatch_get_main_queue(), ^{ [PopupWindows() removeObject:me]; });
+}
+
+- (void)tabDidChangeTitle:(UniVerseCoreTab *)tab {
+  [self updateTitle];
+}
+
+- (void)tabDidChangeURL:(UniVerseCoreTab *)tab {
+  [self updateTitle];
+  [self updateOrigin];
+}
+
+- (void)tabDidChangeSecurity:(UniVerseCoreTab *)tab {
+  [self updateOrigin];
+}
+
+- (void)tab:(UniVerseCoreTab *)tab requestsActivation:(NSString *)reason {
+  if (!universe_host::Background()) [_coreWindow.window makeKeyAndOrderFront:nil];
+}
+
+- (UniVerseWebView *)promptHost {
+  return _opener ?: [UniVerseWindowController hostingViewForProfile:_tab.profile];
+}
+
+- (void)tab:(UniVerseCoreTab *)tab externalAppRequest:(NSDictionary<NSString *, id> *)request {
+  [[self promptHost] tab:tab externalAppRequest:request];
+}
+
+- (void)window:(UniVerseCoreWindow *)window showRequestedActive:(BOOL)active {
+  if (!_shown) _showInactive = !active;
+}
+
+- (void)window:(UniVerseCoreWindow *)window didInsertTab:(UniVerseCoreTab *)tab opener:(UniVerseCoreTab *)opener disposition:(NSString *)disposition {
+  if (_adopting || tab == _tab) return;
+  if (!_tab) {
+    _tab = tab;
+    __weak UniVersePopupWindow *weakSelf = self;
+    dispatch_async(dispatch_get_main_queue(), ^{ [weakSelf showTab]; });
+    return;
+  }
+  if ([disposition isEqualToString:@"popup"]) return universe_host::OpenPopupWindow(tab, _opener);
+  UniVerseWebView *view = _opener ?: [UniVerseWindowController hostingViewForProfile:tab.profile];
+  if (view) [view openedTab:tab adoptId:[UniVerseTabRegistry offerTab:tab] disposition:universe_host::AppDisposition(disposition)];
+  else [tab closeNow];
+}
+
+- (void)window:(UniVerseCoreWindow *)window passwordPrompt:(NSDictionary<NSString *, id> *)prompt forTab:(UniVerseCoreTab *)tab {
+  if (tab != _tab) return;
+  UniVerseWebView *opener = [self promptHost];
+  if (!opener) {
+    NSLog(@"[universecore] dropped a popup's password prompt: no window of its profile is open");
+    return;
+  }
+  universe_host::NotePasswordPromptSource(opener, tab);
+  [opener emit:@"passwordPrompt" payload:prompt];
+}
+
+- (void)window:(UniVerseCoreWindow *)window didRemoveTab:(UniVerseCoreTab *)tab {
+  if (tab != _tab) return;
+  __weak UniVerseCoreWindow *coreWindow = _coreWindow;
+  dispatch_async(dispatch_get_main_queue(), ^{ [coreWindow close]; });
+}
+
+- (BOOL)window:(UniVerseCoreWindow *)window preHandleKeyEvent:(NSEvent *)event {
+  NSMenuItem *reserved = ReservedMenuItemForEvent(event);
+  if (!reserved) return NO;
+  if ([reserved.identifier isEqualToString:@"universe.command.closeTab"]) {
+    [_coreWindow close];
+    return YES;
+  }
+  return [NSApp.mainMenu performKeyEquivalent:event];
+}
+
+@end
+
+namespace universe_host {
+
+void OpenPopupWindow(UniVerseCoreTab *tab, UniVerseWebView *opener) {
+  UniVersePopupWindow *popup = [[UniVersePopupWindow alloc] initWithTab:tab opener:opener];
+  if (!popup) {
+    if (opener) [opener openedTab:tab adoptId:[UniVerseTabRegistry offerTab:tab] disposition:@"foreground"];
+    return;
+  }
+  [PopupWindows() addObject:popup];
+  __weak UniVersePopupWindow *weakPopup = popup;
+  dispatch_async(dispatch_get_main_queue(), ^{ [weakPopup takeTab]; });
+}
+
+UniVerseCoreWindow *PopupWindowForChromeBrowser(UniVerseCoreProfile *profile) {
+  UniVersePopupWindow *popup = [[UniVersePopupWindow alloc] initWithTab:nil opener:[UniVerseWindowController hostingViewForProfile:profile]];
+  if (!popup) return nil;
+  [PopupWindows() addObject:popup];
+  __weak UniVersePopupWindow *weakPopup = popup;
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{ [weakPopup closeIfNeverGivenTab]; });
+  return popup.coreWindow;
+}
+
+NSUInteger PopupWindowCount() {
+  return PopupWindows().count;
+}
+
+bool AskPermissionInPopupWindow(UniVerseCoreTab *tab, NSDictionary *request) {
+  for (UniVersePopupWindow *popup in PopupWindows()) {
+    if (popup.tab != tab) continue;
+    [popup askPermission:request];
+    return true;
+  }
+  return false;
+}
+
+void DropPopupWindowPermission(NSString *requestId) {
+  for (UniVersePopupWindow *popup in PopupWindows().allObjects)
+    if ([popup dropPermission:requestId]) return;
+}
+
+void NotePasswordPromptSource(UniVerseWebView *view, UniVerseCoreTab *source) {
+  if (!source) {
+    [PasswordPromptSources() removeObjectForKey:view];
+    return;
+  }
+  NSPointerArray *route = [NSPointerArray weakObjectsPointerArray];
+  [route addPointer:(__bridge void *)source];
+  [PasswordPromptSources() setObject:route forKey:view];
+}
+
+UniVerseCoreTab *PasswordPromptTab(UniVerseWebView *view, UniVerseCoreTab *own) {
+  NSPointerArray *route = [PasswordPromptSources() objectForKey:view];
+  if (!route) return own;
+  [PasswordPromptSources() removeObjectForKey:view];
+  UniVerseCoreTab *source = (__bridge UniVerseCoreTab *)[route pointerAtIndex:0];
+  return source.closed ? nil : source;
+}
+
+}

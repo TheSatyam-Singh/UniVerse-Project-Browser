@@ -78,7 +78,7 @@ patch("js/vapi-background.js",
       "    if ( true ) {\n        return {")
 patch("js/diff-updater.js",
       "const resolveURL = (path, url) => {\n",
-      "const ardiaPatchAllowed = (patchPath, base, patchURL) => {\n"
+      "const universePatchAllowed = (patchPath, base, patchURL) => {\n"
       "    if ( typeof patchPath !== 'string' || /^(?:[a-z][a-z0-9+.-]*:|[\\\\/])/i.test(patchPath) ) { return false; }\n"
       "    let baseURL;\n"
       "    try { baseURL = new URL(base); } catch { return false; }\n"
@@ -88,7 +88,7 @@ patch("js/diff-updater.js",
       "    return patchURL.pathname.startsWith(parent);\n"
       "};\n"
       "\n"
-      "const ardiaPatchCacheKey = assetDetails =>\n"
+      "const universePatchCacheKey = assetDetails =>\n"
       "    [ assetDetails.assetKey, assetDetails.patchPath, ...(assetDetails.patchURLs || assetDetails.cdnURLs || []) ].join('\\n');\n"
       "\n"
       "const resolveURL = (path, url) => {\n")
@@ -96,14 +96,14 @@ patch("js/diff-updater.js",
       "    const patchFile = basename(patchPath);\n"
       "    return patchFile !== '' && patches.has(patchFile);\n",
       "    const patchFile = basename(patchPath);\n"
-      "    return patchFile !== '' && patches.has(ardiaPatchCacheKey(assetDetails));\n")
+      "    return patchFile !== '' && patches.has(universePatchCacheKey(assetDetails));\n")
 patch("js/diff-updater.js",
       "    if ( patches.has(patchFile) ) {\n"
       "        return patches.get(patchFile);\n"
       "    }\n"
       "    const patchDetailsPromise = fetchPatchDetailsFromCDNs(assetDetails);\n"
       "    patches.set(patchFile, patchDetailsPromise);\n",
-      "    const patchCacheKey = ardiaPatchCacheKey(assetDetails);\n"
+      "    const patchCacheKey = universePatchCacheKey(assetDetails);\n"
       "    if ( patches.has(patchCacheKey) ) {\n"
       "        return patches.get(patchCacheKey);\n"
       "    }\n"
@@ -114,7 +114,7 @@ patch("js/diff-updater.js",
       "        if ( patchURL === undefined ) { continue; }\n",
       "        const patchURL = resolveURL(patchPath, cdnURL);\n"
       "        if ( patchURL === undefined ) { continue; }\n"
-      "        if ( ardiaPatchAllowed(patchPath, cdnURL, patchURL) === false ) { continue; }\n")
+      "        if ( universePatchAllowed(patchPath, cdnURL, patchURL) === false ) { continue; }\n")
 patch("js/diff-updater.js",
       "        const response = await fetch(patchURL).catch(reason => {\n"
       "            console.error(reason, patchURL);\n"

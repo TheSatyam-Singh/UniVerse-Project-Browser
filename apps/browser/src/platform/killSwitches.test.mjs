@@ -53,7 +53,7 @@ test("a cached value is read synchronously; unknown names and non-booleans are i
   assert.equal(ks.switchOn("sidebarSlide"), true);
 });
 
-test("an ARDIA_SWITCHES value from the launch config wins over the cache", () => {
+test("an UNIVERSE_SWITCHES value from the launch config wins over the cache", () => {
   reset();
   docs.set("switches-cache.json", JSON.stringify(file({ sidebarSlide: false, lazySidebarRows: false })));
   launch.switches = { sidebarSlide: true, lazySidebarRows: false, newTabPrewarm: false };
@@ -64,7 +64,7 @@ test("an ARDIA_SWITCHES value from the launch config wins over the cache", () =>
   reset();
 });
 
-test("experiments are off unless ARDIA_SWITCHES turns them on, and don't count against the live cap", () => {
+test("experiments are off unless UNIVERSE_SWITCHES turns them on, and don't count against the live cap", () => {
   reset();
   const today = new Date().toISOString().slice(0, 10);
   for (const [name, def] of Object.entries(ks.EXPERIMENTS)) {

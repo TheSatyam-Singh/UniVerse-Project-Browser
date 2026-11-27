@@ -1,5 +1,5 @@
 import AppIntents
-import ArdiaBrowser
+import UniVerseBrowser
 import CoreSpotlight
 import Foundation
 import SwiftData

@@ -1,4 +1,4 @@
-import ArdiaDesign
+import UniVerseDesign
 import SwiftUI
 
 struct OnboardingBlockingStep: View {
@@ -105,7 +105,7 @@ private struct LinkBubbleIllustration: View {
       .shadow(color: .black.opacity(0.08), radius: 12, y: 6)
       Image(systemName: "arrow.right")
         .font(.title3.weight(.bold))
-        .foregroundStyle(Color.ardiaAccentText)
+        .foregroundStyle(Color.universeAccentText)
         .padding(.bottom, 26)
       AppIconPreview(side: 60)
         .shadow(color: .black.opacity(0.12), radius: 10, y: 4)

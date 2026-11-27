@@ -4,7 +4,7 @@ import WebKit
 
 final class WebKitContentBlocker {
   static let shared = WebKitContentBlocker()
-  static let changed = Notification.Name("ArdiaContentBlockerDidChange")
+  static let changed = Notification.Name("UniVerseContentBlockerDidChange")
 
   private static let settingsWriter = DispatchQueue(label: "universe.webkit-content-blocker.settings", qos: .utility)
   private static let format = "f3"
@@ -44,7 +44,7 @@ final class WebKitContentBlocker {
     .flatMap { try? Data(contentsOf: $0.appendingPathComponent("rulesets.json")) }
     .flatMap { try? JSONDecoder().decode(Bundled.self, from: $0) }
   private var base: URL {
-    URL(fileURLWithPath: (ArdiaHost.dataDirectory as NSString).deletingLastPathComponent).appendingPathComponent("WebKit Content Rules")
+    URL(fileURLWithPath: (UniVerseHost.dataDirectory as NSString).deletingLastPathComponent).appendingPathComponent("WebKit Content Rules")
   }
   private lazy var store: WKContentRuleListStore? = {
     let url = base.appendingPathComponent("Store")
@@ -116,7 +116,7 @@ final class WebKitContentBlocker {
       if Thread.isMainThread { self?.noteChange(info) } else { DispatchQueue.main.async { self?.noteChange(info) } }
     }
     reselect()
-    DispatchQueue.main.asyncAfter(deadline: .now() + 2) { ArdiaContentBlocker.state { _ in } }
+    DispatchQueue.main.asyncAfter(deadline: .now() + 2) { UniVerseContentBlocker.state { _ in } }
   }
 
   private func noteChange(_ info: [AnyHashable: Any]) {

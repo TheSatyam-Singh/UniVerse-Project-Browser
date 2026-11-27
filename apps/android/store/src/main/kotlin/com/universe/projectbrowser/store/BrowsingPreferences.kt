@@ -34,7 +34,7 @@ enum class SwipeNavigationMode(val raw: String, val title: String) {
 
 @Serializable
 enum class AppLinkPreference(val title: String) {
-    @SerialName("universe") ARDIA("UniVerse Project Browser"),
+    @SerialName("universe") UNIVERSE("UniVerse Project Browser"),
     @SerialName("app") APP("App");
 
     val raw: String get() = name.lowercase()
@@ -58,7 +58,7 @@ data class SiteSettings(
 data class BrowsingSettings(
     val nightShade: NightShadeMode = NightShadeMode.DISABLED,
     val swipeNavigation: SwipeNavigationMode = SwipeNavigationMode.ANYWHERE,
-    val appLinks: AppLinkPreference = AppLinkPreference.ARDIA,
+    val appLinks: AppLinkPreference = AppLinkPreference.UNIVERSE,
     val searchSuggestions: Boolean = true,
     val searchEngineId: String = "google",
     val sites: Map<String, SiteSettings> = emptyMap(),
@@ -126,7 +126,7 @@ class BrowsingPreferences(private val store: KeyValueStore) {
     private fun load(): BrowsingSettings = BrowsingSettings(
         nightShade = NightShadeMode.of(store.string(KEYS_NIGHT_SHADE)) ?: NightShadeMode.DISABLED,
         swipeNavigation = SwipeNavigationMode.of(store.string(KEYS_SWIPE)) ?: SwipeNavigationMode.ANYWHERE,
-        appLinks = AppLinkPreference.of(store.string(KEYS_APP_LINKS)) ?: AppLinkPreference.ARDIA,
+        appLinks = AppLinkPreference.of(store.string(KEYS_APP_LINKS)) ?: AppLinkPreference.UNIVERSE,
         searchSuggestions = store.boolean(KEYS_SUGGESTIONS) ?: true,
         searchEngineId = store.string(KEYS_ENGINE) ?: "google",
         sites = store.string(KEYS_SITES)?.let { runCatching { json.decodeFromString(sitesSerializer, it) }.getOrNull() } ?: emptyMap(),

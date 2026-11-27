@@ -1,12 +1,12 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import ExpoModulesCore
 
 public class MenusModule: Module {
   private let lifetime = ModuleLifetime()
 
   public func definition() -> ModuleDefinition {
-    Name("ArdiaMenus")
+    Name("UniVerseMenus")
     Events(ShellEvents.Channel.command.rawValue)
 
     OnCreate {

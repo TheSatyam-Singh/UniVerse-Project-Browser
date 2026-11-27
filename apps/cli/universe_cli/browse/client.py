@@ -16,7 +16,7 @@ MAX_RESPONSE = 256 * 1024 * 1024
 def endpoint_key(ws: str | None, port: int | None, root: Path) -> tuple[str, str]:
     from urllib.parse import urlsplit
 
-    url = ws or (None if port is not None else os.environ.get("ARDIA_CDP_URL"))
+    url = ws or (None if port is not None else os.environ.get("UNIVERSE_CDP_URL"))
     if url:
         parts = urlsplit(url)
         return f"ws:{parts.scheme}://{parts.netloc}{parts.path}", f"{parts.netloc}{parts.path}"

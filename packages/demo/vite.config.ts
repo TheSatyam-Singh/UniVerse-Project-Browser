@@ -12,7 +12,7 @@ const reactNativeWeb = dirname(createRequire(import.meta.url).resolve("react-nat
 
 const realPackages: Record<string, string> = {
   shell: `${repo}packages/shell/src/index.tsx`,
-  ardiacore: `${repo}packages/universecore/src/index.ts`,
+  universecore: `${repo}packages/universecore/src/index.ts`,
   universecore: `${repo}packages/universecore/src/index.ts`,
   shaders: `${repo}packages/shaders/src/index.tsx`,
   sync: `${repo}packages/sync/src/index.ts`,
@@ -52,7 +52,7 @@ const LAZY_COMPONENTS: Record<string, string[]> = {
   [`${repo}apps/browser/src/components/littleUniverse/LittleUniverseWindow.tsx`]: ["LittleUniverseWindow"],
 };
 
-const LAZY_PREFIX = "\0ardia-lazy:";
+const LAZY_PREFIX = "\0universe-lazy:";
 const EAGER_QUERY = "?universe-eager";
 
 function lazyComponents(): Plugin {
@@ -82,7 +82,7 @@ function lazyComponents(): Plugin {
   };
 }
 
-const analyze = !!process.env.ARDIA_DEMO_ANALYZE;
+const analyze = !!process.env.UNIVERSE_DEMO_ANALYZE;
 
 export default defineConfig({
   plugins: [

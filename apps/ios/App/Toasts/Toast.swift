@@ -1,4 +1,4 @@
-import ArdiaSync
+import UniVerseSync
 import Foundation
 
 struct Toast: Identifiable, Equatable {

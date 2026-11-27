@@ -84,7 +84,7 @@ takes effect with the first release after 0.2.13):
   offline isn't retried as first.
 - **Still running:** a running copy checks at launch (once 8 h have passed since the last check) and every
   8 h, so 1 to 3 checks a day. Copies running on a day are between checks/3 and checks.
-- **Test instances** (`ARDIA_BACKGROUND=1` or `ARDIA_DATA_DIR` set: smoke tests, agents) poll GitHub
+- **Test instances** (`UNIVERSE_BACKGROUND=1` or `UNIVERSE_DATA_DIR` set: smoke tests, agents) poll GitHub
   directly, so they aren't counted.
 - **Copies from 0.2.13 and earlier** still poll GitHub directly. They show up only as the latest release's
   `appcast.xml` download count (all versions together, no days).
@@ -93,7 +93,7 @@ Where it's disclosed: Settings › General › "Check for updates automatically"
 Settings › Privacy & Security, and the site's Q&A ("What does it collect?").
 
 **Read the counts:** `node scripts/update-checks.mjs [days]` (reads ClickHouse with the credentials in
-`~/.config/ardia/telemetry.env`, see Telemetry). It prints, per version, DMG downloads, first launches,
+`~/.config/universe/telemetry.env`, see Telemetry). It prints, per version, DMG downloads, first launches,
 first/DMG, update downloads and GitHub feed fetches, then checks and first launches per day and version.
 Without the env file it prints the GitHub columns. The same query with `node scripts/telemetry-sql.mjs`:
 
@@ -150,11 +150,11 @@ owner's Mac ──▶ github.com/TheSatyam-Singh/UniVerse-Project-Browser/_ch/ (
   `otel_logs` (new data) and `posthog_events` (PostHog Cloud history, 2026-09-29 09:04 → 2026-09-30).
   `telemetry.logs` holds plain warnings/errors from the site and app (kept 90 days).
   `telemetry.replay_sessions` has one row per recorded session. Events are kept; replays 30 days.
-- **Reading it:** `~/.config/ardia/telemetry.env` (not in git, mode 600) has the read-only ClickHouse user
+- **Reading it:** `~/.config/universe/telemetry.env` (not in git, mode 600) has the read-only ClickHouse user
   and the replay token. Use `node scripts/telemetry-sql.mjs "<SQL>"`, `node scripts/update-checks.mjs`, and
   `node scripts/replay.mjs --list` / `<session-id>`. The stats skill's queries are in
   `.claude/skills/stats/queries.md`. Secrets are Hexclave project secrets (`TELEMETRY_*`); a backup is in
-  `~/.config/ardia/telemetry-secrets.env`.
+  `~/.config/universe/telemetry-secrets.env`.
   hekuto reads the same tables as `reader` through a Composio ClickHouse connection (Basic auth, base URL
   `https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/_ch`); `/_ch/` takes `reader` only, as Basic auth or `X-ClickHouse-User`.
 - **Ingest keys (since 2026-11):** senders put a public key per surface in `X-Universe-Key` (site beacons, which

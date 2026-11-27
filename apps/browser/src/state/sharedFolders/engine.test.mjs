@@ -26,8 +26,8 @@ function land(name) {
 }
 
 globalThis.acTestNativeModules = {
-  ArdiaApp: { ...shellNativeModules.ArdiaApp, share: async (url) => void (shares.push(url), events.push("share")) },
-  ArdiaDocuments: {
+  UniVerseApp: { ...shellNativeModules.UniVerseApp, share: async (url) => void (shares.push(url), events.push("share")) },
+  UniVerseDocuments: {
     readDocument: (name) => pending.get(name) ?? landed.get(name) ?? null,
     writeDocument: (name, contents) => {
       if (unstageable.has(name)) throw new Error(`can't stage ${name}`);
@@ -45,7 +45,7 @@ globalThis.acTestNativeModules = {
       ),
     removeDocument: (name) => void (pending.delete(name), landed.delete(name)),
   },
-  ArdiaSharedFolders: {
+  UniVerseSharedFolders: {
     location: () => ({ path: "/scratch/UniVerse Project Browser Shared", iCloudAvailable: true, iCloudPath: "/scratch" }),
     read: async (path) => {
       events.push(`read ${path}`);
@@ -196,12 +196,12 @@ test("Share Folder doesn't open the share sheet when the folder's first sync fai
   const g = S().groupTabs([t], { pinned: true, name: "Third" });
   await wait(900);
   shares.length = 0;
-  const read = globalThis.acTestNativeModules.ArdiaSharedFolders.read;
-  globalThis.acTestNativeModules.ArdiaSharedFolders.read = async () => {
+  const read = globalThis.acTestNativeModules.UniVerseSharedFolders.read;
+  globalThis.acTestNativeModules.UniVerseSharedFolders.read = async () => {
     throw new Error("disk went away");
   };
   await settled(shareFolder(w, g));
-  globalThis.acTestNativeModules.ArdiaSharedFolders.read = read;
+  globalThis.acTestNativeModules.UniVerseSharedFolders.read = read;
   assert.deepEqual(shares, [], "no share sheet for a folder whose links weren't written");
   await settled(shareFolder(w, g));
   assert.equal(shares.length, 1, "once the folder syncs, Share Folder opens the sheet");

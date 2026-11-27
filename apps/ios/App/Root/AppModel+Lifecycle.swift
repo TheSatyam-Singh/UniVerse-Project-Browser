@@ -1,5 +1,5 @@
-import ArdiaBrowser
-import ArdiaSync
+import UniVerseBrowser
+import UniVerseSync
 import Foundation
 import Observation
 import UIKit

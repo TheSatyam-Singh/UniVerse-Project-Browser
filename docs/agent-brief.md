@@ -13,21 +13,21 @@ variables) is in `docs/conventions.md`, enforced by `apps/browser/src/convention
 - `apps/browser`: Expo SDK 54 + react-native-macos 0.81 (Legacy architecture), zustand store,
   inline styles.
 - Native code lives in Expo modules under `packages/*/ios` (Swift / Objective-C++):
-  - `packages/universecore`: the web engine, **ArdiaCore**: Chrome's own framework (`Chromium Framework.framework`,
+  - `packages/universecore`: the web engine, **UniVerseCore**: Chrome's own framework (`Chromium Framework.framework`,
     Chromium 157.0.8103.50 + Helium 0.21.2 + our patch series, `docs/engine-build.md`) with our layer linked
     in, and the Expo modules and JS API the app uses (`docs/universecore-spike.md`, `docs/universecore-parity.md`).
-    - **Chromium runs the process.** `main.swift` calls `ArdiaHost.run`: `ChromeMain` starts with our
+    - **Chromium runs the process.** `main.swift` calls `UniVerseHost.run`: `ChromeMain` starts with our
       `ACMainDelegate`, `NSApp` is Chrome's `BrowserCrApplication`, and the React Native host (`AppDelegate`) starts
       inside Chrome's run loop. Nothing may touch `NSApp` before that.
-    - **Every app window is one `ArdiaCoreWindow`** (a Views-backed `NSWindow`, so Chrome's bubbles, dialogs, menus and
+    - **Every app window is one `UniVerseCoreWindow`** (a Views-backed `NSWindow`, so Chrome's bubbles, dialogs, menus and
       autofill dropdowns attach to it) holding a Chrome `Browser` per profile shown in it, each with no
-      `BrowserView`, tab strip or toolbar (`ArdiaChromeWindowHost.mm`, which packages/shell's
-      `ChromeWindows.swift` calls through the ArdiaCore pod). Paging between profiles changes the active profile; the window stays.
+      `BrowserView`, tab strip or toolbar (`UniVerseChromeWindowHost.mm`, which packages/shell's
+      `ChromeWindows.swift` calls through the UniVerseCore pod). Paging between profiles changes the active profile; the window stays.
     - Every tab is a real Chrome tab of its window's Browser; its `WebContents` view is hosted in our React Native
-      views (`ArdiaWebView`). Popups, `target=_blank` and ⌘-click keep Chrome's own new `WebContents`.
+      views (`UniVerseWebView`). Popups, `target=_blank` and ⌘-click keep Chrome's own new `WebContents`.
     - Passwords, autofill, extensions, zoom and search engines call Chrome's services directly through our
-      own Chromium code, `//chrome/browser/ardia` (`engine/chromium`), exported as plain C
-      (`ArdiaEngineBridge`, `ArdiaServices`); ArdiaCore's own layer is `//ardia/core` (`engine/ardiacore`).
+      own Chromium code, `//chrome/browser/universe` (`engine/chromium`), exported as plain C
+      (`UniVerseEngineBridge`, `UniVerseServices`); UniVerseCore's own layer is `//universe/core` (`engine/universecore`).
       No chrome:// page is scripted.
     - JS API in `packages/universecore/src`: `engine.call("domain.verb", args)` and `on("domain.event", …)`, typed from
       `src/engine/api.ts`, plus the views (`WebView`, `SwipeArea`). Each domain is one Expo module, `UniVerse Project Browser<Domain>` in
@@ -55,11 +55,11 @@ variables) is in `docs/conventions.md`, enforced by `apps/browser/src/convention
   runtime is prepared on the JS thread only, 364f5f7e).
 
 ## The engine
-- ArdiaCore is built outside the repo in `~/chromium-build` (the tree and its patches: `engine/patches`,
-  `docs/engine-build.md` › "Rebuilding"; `engine/chromium/apply.sh` and `engine/ardiacore/apply.sh` copy our code in).
+- UniVerseCore is built outside the repo in `~/chromium-build` (the tree and its patches: `engine/patches`,
+  `docs/engine-build.md` › "Rebuilding"; `engine/chromium/apply.sh` and `engine/universecore/apply.sh` copy our code in).
   The app's build stages a copy of `out/Release_GN_arm64/Chromium Framework.framework`
   (`packages/universecore/scripts/stage-framework.sh`: copied and signed once per engine build into
-  `apps/browser/build-universecore/staged`, then cloned into each build's own derived data, `ARDIACORE_STAGE_DIR`), links it
+  `apps/browser/build-universecore/staged`, then cloned into each build's own derived data, `UNIVERSECORE_STAGE_DIR`), links it
   and embeds it (`embed.sh`), so every agent's next build picks up a new framework.
 - One agent at a time edits or builds `~/chromium-build`: hold the chromium lock for the whole edit → build cycle
   (`scripts/agent/locked chromium --take <you>`, then each command as `scripts/agent/locked chromium --as <you> --
@@ -67,82 +67,82 @@ variables) is in `docs/conventions.md`, enforced by `apps/browser/src/convention
   with `--as`). Builds are incremental only: `scripts/agent/engine-build [--as <you>] [target…]` (default
   `chrome_framework`; `--help`) runs both `apply.sh` and their checks, then autoninja, under the chromium lock; run it
   with `run_in_background`. By hand, after both `apply.sh`:
-  `cd ~/chromium-build/chromium_git/chromium/src && PATH=$HOME/chromium-build/depot_tools:$PATH DEPOT_TOOLS_UPDATE=0 ~/Documents/ardia/scripts/agent/locked chromium [--as <you>] -- autoninja -C out/Release_GN_arm64 chrome_framework`.
+  `cd ~/chromium-build/chromium_git/chromium/src && PATH=$HOME/chromium-build/depot_tools:$PATH DEPOT_TOOLS_UPDATE=0 ~/Documents/universe/scripts/agent/locked chromium [--as <you>] -- autoninja -C out/Release_GN_arm64 chrome_framework`.
   `apply.sh` copies the whole working tree, so other agents' uncommitted engine files get compiled too.
   A new framework changes every agent's next build, so say so in your report. To try one privately, build the app with
-  `ARDIACORE_FRAMEWORK=<framework> scripts/agent/build-app --as <you>` (it stages into your own derived data).
-- New engine code goes in `//chrome/browser/ardia` (`engine/chromium/src`) or `//ardia/core`
-  (`engine/ardiacore/src`), never straight into the tree (`docs/engine-build.md` › "Our own code in the tree").
+  `UNIVERSECORE_FRAMEWORK=<framework> scripts/agent/build-app --as <you>` (it stages into your own derived data).
+- New engine code goes in `//chrome/browser/universe` (`engine/chromium/src`) or `//universe/core`
+  (`engine/universecore/src`), never straight into the tree (`docs/engine-build.md` › "Our own code in the tree").
   `engine/patches/series` is the apply order of our patches to Chromium; `engine/patches/series.py check` proves the
-  series reproduces the tree. Hooks in Chrome's code are `g_ardia_*` pointers ArdiaCore sets (`ac_seams.mm`). CEF
+  series reproduces the tree. Hooks in Chrome's code are `g_universe_*` pointers UniVerseCore sets (`ac_seams.mm`). CEF
   left the tree on 2026-10-09: the few of its patches we keep are `chromium-cef-carryover.patch`, and the seams of its
-  that ArdiaCore used are our hooks H1–H6 in `engine/ardiacore/apply.sh` (`docs/engine-build.md` › "Our hooks in Chrome's
-  code"). Whether a Browser is ArdiaCore's is `WindowHost::ForBrowser`.
+  that UniVerseCore used are our hooks H1–H6 in `engine/universecore/apply.sh` (`docs/engine-build.md` › "Our hooks in Chrome's
+  code"). Whether a Browser is UniVerseCore's is `WindowHost::ForBrowser`.
 
-### ArdiaCore code map
-Engine files are in `engine/ardiacore/src/ardia/core`, app files in `packages/universecore/ios`, JS in `apps/browser/src`.
+### UniVerseCore code map
+Engine files are in `engine/universecore/src/universe/core`, app files in `packages/universecore/ios`, JS in `apps/browser/src`.
 
 | Concern | Engine | App | JS |
 | --- | --- | --- | --- |
-| Windows, tab ownership | `ac_browser.h` (`WindowHost` in `ac_window_host*.mm`, `ACWebContentsDelegate` in `ac_web_contents_delegate.mm`, `TabBridge` in `ac_tab_bridge*.mm`), `ac_browser_window*.mm` | `ArdiaWindowController.mm`, `ArdiaChromeWindowHost.mm`, `ArdiaTabStrip.mm` | `state/tabs/chromeTabs.ts`, `state/tabs/liveTabs.ts` |
-| Tab activation | `ardiacore_window.mm` `-activateTab:`, `ac_window_host_tabs.mm` `ActiveTabChanged` | `ArdiaWebView+Tab.mm` `-tabActivatedByChrome:`, `ArdiaTabStrip.mm` | same |
-| Focus guard (test instances) | `ac_window_host.mm` (`WindowHost` activation) | `ArdiaActivation.mm` (`activation.log`), `ArdiaWindowFullScreen.mm` (acted-out occlusion), `ArdiaWebView+Focus.mm` | `packages/shell/ios/WindowManager.swift` |
-| Fullscreen | `ac_browser_window_exclusive_access.mm` (`ExclusiveAccessContext`), `ac_window_host_tabs.mm` `FullscreenChanged` | `ArdiaWindowFullScreen.mm` (acted out in test instances), `ArdiaPageCover.mm` | `components/window/ContentCard.tsx`, `state/tabs/pageState.ts` |
-| Picture in Picture | `ac_picture_in_picture.mm`; Dia's window and controls in `engine/chromium/…/ardia/pip/`; the auto-PiP hook in `engine/ardiacore/apply.sh` | `ArdiaPictureInPicture.mm` (monitors, `universe_pip`), `ArdiaPiPController.mm` (+`Swipe`, +`SelfTest`), `ArdiaPiPZoom.mm`, `ArdiaWebView+PictureInPicture.mm` | `state/media/pip.ts` |
-| Password and autofill bubbles | `ac_password_prompt.mm`, `ac_browser_window.h` (`ACAutofillBubbleHandler`), `ac_autofill_trigger.mm` (dropdown) | `ArdiaWindowController.mm` (`window:passwordPrompt:forTab:`) → `ArdiaWebView` event | `components/site/Prompts.tsx`, `site/Autofill.tsx` |
-| Share tab, screen share | `ardiacore_tab_media.mm` (`TabSharingDelegateFor`), `ac_desktop_capture.mm` | `ArdiaHost.mm` `shareTabInstead`, `MediaModule.swift` | `components/media/ShareBar.tsx`, `SharePicker.tsx` |
-| Restore, discard | `engine/chromium/…/ac_tab_restore.cc` (closed tabs), `ac_tab_restore_history.cc` (each tab's history) | `ArdiaWebView+Tab.mm` (`discard:`), `ArdiaWebView+Transfer.mm` (`transferKey`), `ArdiaTabParking.mm` | `state/tabs/tabLifecycle.ts`, `state/windows/windows.ts` |
-| Permissions | `ac_permissions.mm` | `ArdiaHostEngineDelegate.mm` (`permissionRequest`), `ArdiaPopupWindow.mm` | `state/site/permissions.ts`, `Prompts.tsx` |
-| Page script | `ac_page_channel.mm` (+`ac_page_channel_held.mm`, messages held for a page not shown yet), `renderer/ac_content_renderer_client.cc` | `page_script.js`, `ArdiaWebView+PageMessages.mm`, `ArdiaWebView+Peek.mm` | `onPageMessage` (`packages/universecore/src/WebView.tsx`) |
+| Windows, tab ownership | `ac_browser.h` (`WindowHost` in `ac_window_host*.mm`, `ACWebContentsDelegate` in `ac_web_contents_delegate.mm`, `TabBridge` in `ac_tab_bridge*.mm`), `ac_browser_window*.mm` | `UniVerseWindowController.mm`, `UniVerseChromeWindowHost.mm`, `UniVerseTabStrip.mm` | `state/tabs/chromeTabs.ts`, `state/tabs/liveTabs.ts` |
+| Tab activation | `universecore_window.mm` `-activateTab:`, `ac_window_host_tabs.mm` `ActiveTabChanged` | `UniVerseWebView+Tab.mm` `-tabActivatedByChrome:`, `UniVerseTabStrip.mm` | same |
+| Focus guard (test instances) | `ac_window_host.mm` (`WindowHost` activation) | `UniVerseActivation.mm` (`activation.log`), `UniVerseWindowFullScreen.mm` (acted-out occlusion), `UniVerseWebView+Focus.mm` | `packages/shell/ios/WindowManager.swift` |
+| Fullscreen | `ac_browser_window_exclusive_access.mm` (`ExclusiveAccessContext`), `ac_window_host_tabs.mm` `FullscreenChanged` | `UniVerseWindowFullScreen.mm` (acted out in test instances), `UniVersePageCover.mm` | `components/window/ContentCard.tsx`, `state/tabs/pageState.ts` |
+| Picture in Picture | `ac_picture_in_picture.mm`; Dia's window and controls in `engine/chromium/…/universe/pip/`; the auto-PiP hook in `engine/universecore/apply.sh` | `UniVersePictureInPicture.mm` (monitors, `universe_pip`), `UniVersePiPController.mm` (+`Swipe`, +`SelfTest`), `UniVersePiPZoom.mm`, `UniVerseWebView+PictureInPicture.mm` | `state/media/pip.ts` |
+| Password and autofill bubbles | `ac_password_prompt.mm`, `ac_browser_window.h` (`ACAutofillBubbleHandler`), `ac_autofill_trigger.mm` (dropdown) | `UniVerseWindowController.mm` (`window:passwordPrompt:forTab:`) → `UniVerseWebView` event | `components/site/Prompts.tsx`, `site/Autofill.tsx` |
+| Share tab, screen share | `universecore_tab_media.mm` (`TabSharingDelegateFor`), `ac_desktop_capture.mm` | `UniVerseHost.mm` `shareTabInstead`, `MediaModule.swift` | `components/media/ShareBar.tsx`, `SharePicker.tsx` |
+| Restore, discard | `engine/chromium/…/ac_tab_restore.cc` (closed tabs), `ac_tab_restore_history.cc` (each tab's history) | `UniVerseWebView+Tab.mm` (`discard:`), `UniVerseWebView+Transfer.mm` (`transferKey`), `UniVerseTabParking.mm` | `state/tabs/tabLifecycle.ts`, `state/windows/windows.ts` |
+| Permissions | `ac_permissions.mm` | `UniVerseHostEngineDelegate.mm` (`permissionRequest`), `UniVersePopupWindow.mm` | `state/site/permissions.ts`, `Prompts.tsx` |
+| Page script | `ac_page_channel.mm` (+`ac_page_channel_held.mm`, messages held for a page not shown yet), `renderer/ac_content_renderer_client.cc` | `page_script.js`, `UniVerseWebView+PageMessages.mm`, `UniVerseWebView+Peek.mm` | `onPageMessage` (`packages/universecore/src/WebView.tsx`) |
 
 - **Pod layout** (`packages/universecore/ios`): one class per file, or one category per file named `Class+Concern`.
-  A split class shares its ivars, private methods and helpers through one internal header (`ArdiaWebViewInternal.h`,
-  `ArdiaChromeWindowInternal.h`, `ArdiaEarlyWindowInternal.h`, `ArdiaPictureInPictureInternal.h`, `ArdiaSwipeInternal.h`,
-  `ArdiaContentBlockerInternal.h`, `ArdiaHostInternal.h`), and the helpers live in one C++ namespace per family
+  A split class shares its ivars, private methods and helpers through one internal header (`UniVerseWebViewInternal.h`,
+  `UniVerseChromeWindowInternal.h`, `UniVerseEarlyWindowInternal.h`, `UniVersePictureInPictureInternal.h`, `UniVerseSwipeInternal.h`,
+  `UniVerseContentBlockerInternal.h`, `UniVerseHostInternal.h`), and the helpers live in one C++ namespace per family
   (`universe_web_view`, `universe_window`, `universe_early_window`, `universe_pip`, `universe_swipe`, `universe_content_blocker`,
   `universe_host`). Property accessors, `+initialize` and `dealloc` stay in the class's primary file, so no category
-  overrides them. `ArdiaWebView` is split into `+Transfer` (parking, launch and link tabs), `+Tab` (attach, detach,
+  overrides them. `UniVerseWebView` is split into `+Transfer` (parking, launch and link tabs), `+Tab` (attach, detach,
   Chrome's tab events, discard), `+Painting`, `+StandIn` (a closing page kept up for the next tab), `+Focus`, `+Reveals`, `+PageMessages`, `+Peek`, `+PictureInPicture`,
-  `+ContextMenu`, `+Navigation`, `+PageCommands`, `+Site` and `+InputMonitors`. `ArdiaTabRegistry.mm` holds tab
-  ↔ view, offered tabs and browser ids. Windows: `ArdiaWindowController`, `ArdiaChromeWindowHost` (+`Dev`, the dev harness),
-  `ArdiaTrafficLights`, `ArdiaWindowFullScreen`, `ArdiaPopupWindow`, `ArdiaReservedKeys`. Launch: `ArdiaHost+Launch`,
-  `ArdiaHostEngineDelegate`, `ArdiaProfiles`, `ArdiaEarlyWindow` (+`Pages`, `Layouts`, `Covers`, `ArdiaLaunchPicture`).
+  `+ContextMenu`, `+Navigation`, `+PageCommands`, `+Site` and `+InputMonitors`. `UniVerseTabRegistry.mm` holds tab
+  ↔ view, offered tabs and browser ids. Windows: `UniVerseWindowController`, `UniVerseChromeWindowHost` (+`Dev`, the dev harness),
+  `UniVerseTrafficLights`, `UniVerseWindowFullScreen`, `UniVersePopupWindow`, `UniVerseReservedKeys`. Launch: `UniVerseHost+Launch`,
+  `UniVerseHostEngineDelegate`, `UniVerseProfiles`, `UniVerseEarlyWindow` (+`Pages`, `Layouts`, `Covers`, `UniVerseLaunchPicture`).
 - **Call path:** JS `call("domain.verb", args)` (`packages/universecore/src/engine/call.ts`) → that domain module's `call`
-  table (`<Domain>Module.swift`, `EngineCall.swift`) → `ArdiaHost` / `ArdiaServices` / `ArdiaWebView` or straight to an
-  `ac_*` export → `public/ArdiaCore.h` → `ardiacore_<class>.mm` → `ac_*.mm`. Replies cross as JSON, parsed once in JS.
-  App events go through `ArdiaEvents` (`emit:@"domain.event"`) to that domain module's one channel (its event name is the domain); a page's
-  events come back through an `ArdiaCore*Delegate` method and `-emit:payload:` to the view's one `onPageEvent` channel
+  table (`<Domain>Module.swift`, `EngineCall.swift`) → `UniVerseHost` / `UniVerseServices` / `UniVerseWebView` or straight to an
+  `ac_*` export → `public/UniVerseCore.h` → `universecore_<class>.mm` → `ac_*.mm`. Replies cross as JSON, parsed once in JS.
+  App events go through `UniVerseEvents` (`emit:@"domain.event"`) to that domain module's one channel (its event name is the domain); a page's
+  events come back through an `UniVerseCore*Delegate` method and `-emit:payload:` to the view's one `onPageEvent` channel
   (`PageEvents.swift`, only the names JS listens to), demuxed in `WebView.tsx`. Both page engines implement
   `PageEngine` (`PageEngine.swift`): ids they minted (`wk-…` for WebKit) route to them natively.
-- **Engine layout** (`//ardia/core`, `//chrome/browser/ardia`): one class, or one category or concern, per file, named after
-  it. `ArdiaCore.h`'s classes live in `ardiacore_engine.mm` (+`ardiacore_engine_tracing.mm`), `ardiacore_profile.mm`,
-  `ardiacore_window.mm` and `ardiacore_tab.mm`, whose categories (`Navigation`, `Page`, `Commands`, `Media`,
-  `Extensions`) are `ardiacore_tab_<category>.mm`; the engine's calls into the app delegate are `ardiacore_hooks.mm`. A
-  split class or file shares its ivars and helpers through one internal header (`ardiacore_api_internal.h`,
-  `ardiacore_tab_internal.h`, `ac_browser_internal.h`, `ac_video_upscaler_internal.h`; in `chrome/browser/ardia`,
+- **Engine layout** (`//universe/core`, `//chrome/browser/universe`): one class, or one category or concern, per file, named after
+  it. `UniVerseCore.h`'s classes live in `universecore_engine.mm` (+`universecore_engine_tracing.mm`), `universecore_profile.mm`,
+  `universecore_window.mm` and `universecore_tab.mm`, whose categories (`Navigation`, `Page`, `Commands`, `Media`,
+  `Extensions`) are `universecore_tab_<category>.mm`; the engine's calls into the app delegate are `universecore_hooks.mm`. A
+  split class or file shares its ivars and helpers through one internal header (`universecore_api_internal.h`,
+  `universecore_tab_internal.h`, `ac_browser_internal.h`, `ac_video_upscaler_internal.h`; in `chrome/browser/universe`,
   `ac_<domain>_internal.h` in namespace `universe::<domain>_internal`).
-- **Adding to `ArdiaCore.h`:** one form per call. Implement it in its class's file, or a category's (a new file goes in
-  `BUILD.gn` `sources`); a member implemented in a category file is declared in that category in `ArdiaCore.h`. A new class
-  must be named `ArdiaCore*` to be exported (the `ardiacore.exports` wildcard). The pod reads `ArdiaCore.h` from the repo and
+- **Adding to `UniVerseCore.h`:** one form per call. Implement it in its class's file, or a category's (a new file goes in
+  `BUILD.gn` `sources`); a member implemented in a category file is declared in that category in `UniVerseCore.h`. A new class
+  must be named `UniVerseCore*` to be exported (the `universecore.exports` wildcard). The pod reads `UniVerseCore.h` from the repo and
   the app and the engine ship together, so the app calls new selectors directly (no `respondsToSelector:`).
 - **Adding an engine call** (Chrome's services are `ac_*` C calls in `engine/chromium`, which the app finds with
-  dlsym through `ArdiaEngineBridge`): (1) write `AC_PROFILE_CALL(ac_<domain>_<verb>) { … }` in
-  `engine/chromium/src/chrome/browser/ardia/ac_<domain>.cc` (`AC_ARGS_CALL` for a call that needs no profile; conventions
+  dlsym through `UniVerseEngineBridge`): (1) write `AC_PROFILE_CALL(ac_<domain>_<verb>) { … }` in
+  `engine/chromium/src/chrome/browser/universe/ac_<domain>.cc` (`AC_ARGS_CALL` for a call that needs no profile; conventions
   in `public/ac_engine.h` and `ac_engine.h`; a new file goes in that `BUILD.gn`; `ac_engine.exports` exports every
   `ac_*`). A private window's calls arrive with `offTheRecord: true` and are refused unless the call says
   `universe::OffTheRecord::kAllow`: the engine alone decides which calls serve a private session; (2) `scripts/agent/engine-build`; (3) call it with
-  `ArdiaEngineBridge call:` (`callWithSecret:` for secrets); for JS, add `"verb": EngineCall.passing("ac_<domain>_<verb>")`
+  `UniVerseEngineBridge call:` (`callWithSecret:` for secrets); for JS, add `"verb": EngineCall.passing("ac_<domain>_<verb>")`
   to the domain module's call table and its `"domain.verb": [args, result]` row to `packages/universecore/src/engine/api.ts`.
-- **The page script** is `packages/universecore/ios/page_script.js`, a pod resource: `ArdiaHostEngineDelegate.mm` hands it to the
+- **The page script** is `packages/universecore/ios/page_script.js`, a pod resource: `UniVerseHostEngineDelegate.mm` hands it to the
   engine at launch and the renderer runs it in every http(s) and file frame. Changing it needs an app rebuild, not an
-  engine one. Its `post(kind, json)` crosses the page channel to `-[ArdiaWebView tab:didReceivePageMessage:…]` (`ArdiaWebView+PageMessages.mm`),
+  engine one. Its `post(kind, json)` crosses the page channel to `-[UniVerseWebView tab:didReceivePageMessage:…]` (`UniVerseWebView+PageMessages.mm`),
   which handles it or emits `pageMessage` (JS `onPageMessage`).
 - **CEF-era code** (removed in 6bdf66ce): `git show 6bdf66ce^:packages/cef/ios/<file>`. Comments citing
-  `packages/cef/…` mean: `ACBrowserView.mm`, `ACClient.mm` → `ArdiaWebView*.mm`; `ACChromeWindow.mm`,
-  `ACPopupWindow.mm` → `ArdiaWindowController.mm`, `ArdiaPopupWindow.mm`; `ACActivation`, `ACTabStrip`, `ACPictureInPicture`,
+  `packages/cef/…` mean: `ACBrowserView.mm`, `ACClient.mm` → `UniVerseWebView*.mm`; `ACChromeWindow.mm`,
+  `ACPopupWindow.mm` → `UniVerseWindowController.mm`, `UniVersePopupWindow.mm`; `ACActivation`, `ACTabStrip`, `ACPictureInPicture`,
   `ACContentBlocker`, `ACEngineBridge` → `UniVerse Project Browser<same>*.mm`; `ACPasswords`, `ACAutofill`, `ACZoom` →
-  `ArdiaServices.mm`; `ACExtensions.mm` → `ExtensionsModule.swift`; `ACCef.mm` → `ArdiaHost*.mm`,
-  `ArdiaStartup.mm`; `ACEngine.mm` → `ardiacore_*.mm`; `helper/page_script.js` → `packages/universecore/ios/`;
+  `UniVerseServices.mm`; `ACExtensions.mm` → `ExtensionsModule.swift`; `ACCef.mm` → `UniVerseHost*.mm`,
+  `UniVerseStartup.mm`; `ACEngine.mm` → `universecore_*.mm`; `helper/page_script.js` → `packages/universecore/ios/`;
   `packages/cef/src` → `packages/universecore/src`.
 
 ## Rules
@@ -159,10 +159,10 @@ Engine files are in `engine/ardiacore/src/ardia/core`, app files in `packages/un
   100644,<blob>,<path>`) and check `git diff --cached`.
 - **Never steal focus from the user.** They are working in other apps.
   - Launch the app only with `open -g` (never plain `open`, never `activate`) **and** with
-    `ARDIA_BACKGROUND=1`: `open -g` alone does not stop LaunchServices from making the app
+    `UNIVERSE_BACKGROUND=1`: `open -g` alone does not stop LaunchServices from making the app
     frontmost once its windows appear (this stole the user's keystrokes). With it the process is
-    BackgroundOnly and every activation path is guarded (`packages/universecore/ios/ArdiaActivation.mm`); each
-    attempt is logged to `$ARDIA_DATA_DIR/activation.log`. `lsappinfo front` must never show
+    BackgroundOnly and every activation path is guarded (`packages/universecore/ios/UniVerseActivation.mm`); each
+    attempt is logged to `$UNIVERSE_DATA_DIR/activation.log`. `lsappinfo front` must never show
     your pid. Its windows never come up over the owner's: every window (Chrome's bubbles and popups, panels, PiP,
     Little UniVerse, sheets) has its level set a band below normal (normal at layer -1000000, floating at -999997), so
     it sits behind every other app's window, above the desktop, in production's order among its own and out of Mission
@@ -186,10 +186,10 @@ Engine files are in `engine/ardiacore/src/ardia/core`, app files in `packages/un
     When the main session runs the build train (`scripts/agent/train serve`: one shared build of the tree), don't
     build yourself: `train request --as <you>`, then `train wait --as <you>` prints the app to run.
   - Run: `scripts/agent/ac launch apps/browser/build-<you>/Build/Products/Debug/UniVerse-Project-Browser.app --data <scratch>/data`
-    (hidden: `open -g -n`, `ARDIA_BACKGROUND=1`, its own data dir and DevTools port; prints the pid and port).
+    (hidden: `open -g -n`, `UNIVERSE_BACKGROUND=1`, its own data dir and DevTools port; prints the pid and port).
     `ac eval|page|quit|status` take that data dir (`--help`); scripts use `scripts/lib/instance.mjs` (`launch`,
     `attach`, `session`, `reporter`), whose pid is the DevTools port's listener, never a process-list diff
-    (`ARDIA_DATA_DIR` isolates Chrome's and the app's data; a Debug build refuses to start without one).
+    (`UNIVERSE_DATA_DIR` isolates Chrome's and the app's data; a Debug build refuses to start without one).
     Quit only your own instance (`ac quit`), never `pkill UniVerse Project Browser`.
   - Open a URL in your instance: CDP `Target.createTarget`, or the dev harness
     (`ac.actions.openUrls([url])`); `open -a` routes to whichever instance macOS picks.
@@ -214,9 +214,9 @@ Engine files are in `engine/ardiacore/src/ardia/core`, app files in `packages/un
     the module provider).
 - **Shared files** several agents must touch — `packages/shell/ios/MainMenu.swift`,
   `apps/browser/src/state/commands/commands.ts`, `apps/browser/src/App.tsx`, `apps/browser/src/state/settings/settings.ts`,
-  `apps/browser/src/components/ui/theme.ts`, `packages/universecore/ios/ArdiaInternal.h`, `packages/universecore/ios/ArdiaCore.podspec`,
-  `packages/universecore/ios/ArdiaWebViewInternal.h`, `packages/universecore/scripts/acceptance.mjs`, ArdiaCore's `public/ArdiaCore.h`,
-  `ardiacore_*.mm` and `ac_browser*.mm`, the `expo-module.config.json` files: re-read right before each edit, keep
+  `apps/browser/src/components/ui/theme.ts`, `packages/universecore/ios/UniVerseInternal.h`, `packages/universecore/ios/UniVerseCore.podspec`,
+  `packages/universecore/ios/UniVerseWebViewInternal.h`, `packages/universecore/scripts/acceptance.mjs`, UniVerseCore's `public/UniVerseCore.h`,
+  `universecore_*.mm` and `ac_browser*.mm`, the `expo-module.config.json` files: re-read right before each edit, keep
   edits small and additive (add your case/item/field; don't restructure), and never undo someone else's lines.
   Native files there compile into everyone's build: check one pod with `scripts/agent/typecheck-pod <Pod>` before saving more.
 - **Scratch files** go in a subdirectory of the session scratchpad named for your task; clean up only that
@@ -233,7 +233,7 @@ Engine files are in `engine/ardiacore/src/ardia/core`, app files in `packages/un
     (`components/dev/devHarness.ts`); Expo modules are on `globalThis.expo.modules`. `ac.runCommand` takes an object:
     `ac.runCommand({ command: "importBrowserData", arg: null, windowId: null })`; the utility windows' ids are
     `"settings"` and `"import"`.
-  - The ArdiaCore acceptance run (`docs/testing.md` › "ArdiaCore acceptance"): `node
+  - The UniVerseCore acceptance run (`docs/testing.md` › "UniVerseCore acceptance"): `node
     packages/universecore/scripts/acceptance.mjs <Debug app> <scratch dir> --keep [check…]` once, then `--attach <scratch
     dir> [check…]` for each try (no boot: seconds). `--list` names every check and what it needs; each check prints
     one line, the details go to `<scratch dir>/data/acceptance.log`.
@@ -245,17 +245,17 @@ Engine files are in `engine/ardiacore/src/ardia/core`, app files in `packages/un
     key as AppKit dispatches it (Chrome's window, then the menu bar), `ac.shell.devTypeKeys("key", text, ms)` types
     into whatever window is key, and
     `node apps/browser/scripts/shortcuts-test.mjs <Debug app>` checks every shortcut in every focus.
-    `expo.modules.ArdiaDev.devMenuBar()` returns the whole menu bar (titles, keys, hidden, checked, enabled) to diff
+    `expo.modules.UniVerseDev.devMenuBar()` returns the whole menu bar (titles, keys, hidden, checked, enabled) to diff
     a menu change before and after. The menu's titles and default keys live in `state/commands/commandCatalog.ts`;
     after editing it, run `node apps/browser/scripts/command-tables.mjs` to regenerate `BrowserCommand` and
     `packages/shell/ios/CommandTable.swift`.
   - Page content: `scripts/agent/ac page <data dir> <url part> '<expression>'`, or CDP on the instance's port
-    (`http://localhost:<port>/json`, `Runtime.evaluate`, `Page.captureScreenshot`). A `ARDIA_BACKGROUND` instance's windows answer NO to
-    `-[NSWindow isOccluded]` (`ArdiaHost+Launch.mm`), so a covered window shows a tab at once instead of after Chrome's 1 s
+    (`http://localhost:<port>/json`, `Runtime.evaluate`, `Page.captureScreenshot`). A `UNIVERSE_BACKGROUND` instance's windows answer NO to
+    `-[NSWindow isOccluded]` (`UniVerseHost+Launch.mm`), so a covered window shows a tab at once instead of after Chrome's 1 s
     occlusion delay; launch with `--instance allowOcclusion` to test occlusion itself.
-  - CDP (`ARDIA_REMOTE_DEBUGGING_PORT`), argv and `ARDIA_INSTANCE` `chromiumSwitches` only reach Chrome where it runs on its mock
-    keychain: a scratch `ARDIA_DATA_DIR`, or a build without a team signature (ad hoc copies such as carryover.sh's). A
-    team-signed build on its real data dir forwards none of them (`ArdiaHost+Launch.mm`), and its browser process removes
+  - CDP (`UNIVERSE_REMOTE_DEBUGGING_PORT`), argv and `UNIVERSE_INSTANCE` `chromiumSwitches` only reach Chrome where it runs on its mock
+    keychain: a scratch `UNIVERSE_DATA_DIR`, or a build without a team signature (ad hoc copies such as carryover.sh's). A
+    team-signed build on its real data dir forwards none of them (`UniVerseHost+Launch.mm`), and its browser process removes
     every switch that opens the profile to outside control (remote debugging, unpacked extensions, automation, proxies,
     certificate overrides, net-log), also after chrome://flags have been applied, and unsets `SSLKEYLOGFILE`
     (`ac_main_delegate.cc`), so nothing drives or records the real profile, with its real Safe Storage key; Chrome 136
@@ -266,7 +266,7 @@ Engine files are in `engine/ardiacore/src/ardia/core`, app files in `packages/un
   - The user's screen may be locked: screen captures then fail or deliver no frames. Fall back to
     `ac.shell.devSnapshotWindow(windowId, path)` (`false` means it failed; the window's layers at 2x; Metal views
     render blank; text opacity is applied twice, so a label at α reads 1 − (1 − α)², don't match colours on it),
-    `globalThis.expo.modules.ArdiaAreaLight.debugSnapshot(dir)` (every Metal view, offscreen, with its frame),
+    `globalThis.expo.modules.UniVerseAreaLight.debugSnapshot(dir)` (every Metal view, offscreen, with its frame),
     the accessibility tree and store state, and list "needs visual check" items in your report.
   - Hover and pressed states in a hidden instance (Debug builds): `ac.shell.devSetPointer(windowId, { x, y })` puts the
     pointer at a window point (points from the window's top left) for every hover check, `null` gives the real pointer back.
@@ -282,7 +282,7 @@ Engine files are in `engine/ardiacore/src/ardia/core`, app files in `packages/un
 
 ## Launch variables
 
-The only variables the app and engine read, through `ArdiaLaunchConfig` (`packages/universecore/ios`; JS:
+The only variables the app and engine read, through `UniVerseLaunchConfig` (`packages/universecore/ios`; JS:
 `platform/launchConfig.ts`; the engine gets `--universe-*` switches from it, `ac_launch_switches.cc`). Set them with
 `scripts/agent/ac launch … --instance K=V --test K[=V] --trace AREA`, or `launch(app, { instance, test, trace })` in
 `scripts/lib/instance.mjs`. A list splits at a comma unless the entry before it takes commas (paths, URLs,
@@ -290,10 +290,10 @@ The only variables the app and engine read, through `ArdiaLaunchConfig` (`packag
 
 | Variable | Key / value | What it does |
 | --- | --- | --- |
-| `ARDIA_DATA_DIR` | path | Scratch data dir: Chrome's data in `<dir>/Chromium`, the app's documents, defaults, keychain items and Sparkle state (`packages/shell/ios/ArdiaIsolation.m`); Chrome gets `--use-mock-keychain`. A Debug build refuses to start without one |
-| `ARDIA_BACKGROUND` | `1` (anything but empty or `0`) | Hidden test instance (Rules › never steal focus; `docs/testing.md`) |
-| `ARDIA_REMOTE_DEBUGGING_PORT` | port | CDP on that port, only on the mock keychain |
-| `ARDIA_INSTANCE` | `jsLocation=host:port` | This launch's Metro (Debug builds) |
+| `UNIVERSE_DATA_DIR` | path | Scratch data dir: Chrome's data in `<dir>/Chromium`, the app's documents, defaults, keychain items and Sparkle state (`packages/shell/ios/UniVerseIsolation.m`); Chrome gets `--use-mock-keychain`. A Debug build refuses to start without one |
+| `UNIVERSE_BACKGROUND` | `1` (anything but empty or `0`) | Hidden test instance (Rules › never steal focus; `docs/testing.md`) |
+| `UNIVERSE_REMOTE_DEBUGGING_PORT` | port | CDP on that port, only on the mock keychain |
+| `UNIVERSE_INSTANCE` | `jsLocation=host:port` | This launch's Metro (Debug builds) |
 | | `chromiumSwitches=--a --b=x,y` | Extra Chrome switches, space-separated, only on the mock keychain; background mode drops the auto-accept capture ones, and `--universe-*` never passes |
 | | `downloadsDir=<dir>` | Chrome's default download folder for this launch, never written to the profile |
 | | `updateFeed=<url>` | Sparkle's feed; a scratch instance checks for updates only with one |
@@ -303,12 +303,12 @@ The only variables the app and engine read, through `ArdiaLaunchConfig` (`packag
 | | `syncFolder=<dir>` | The sync folder (`packages/sync/scripts/e2e.mjs`) |
 | | `sharedFolders=<dir>` | Where Share Folder… creates shared folders and where Add Shared Folder… starts (`iCloud Drive › UniVerse Project Browser Shared` otherwise; a scratch data dir uses `<data dir>/UniVerse Project Browser Shared`), `docs/shared-folders.md` |
 | | `importSourceDir=<dir>` · `importSafariHome=<dir>` | Where import looks for other browsers and Safari's home, so a scratch instance never sees the owner's profiles |
-| `ARDIA_SWITCHES` | `name=on\|off,…` | Kill switches (`platform/killSwitches.ts` `SWITCHES`, at most 8, on by default) and experiments (`EXPERIMENTS`: `serverWindowDragAllOpen`, `webkitSignIn`, off by default). Honoured in every build (`docs/kill-switches.md`) |
-| `ARDIA_TRACE` | `visibility` | Occlusion and each WebView attach/detach, `[universecore-vis]` in the system log |
+| `UNIVERSE_SWITCHES` | `name=on\|off,…` | Kill switches (`platform/killSwitches.ts` `SWITCHES`, at most 8, on by default) and experiments (`EXPERIMENTS`: `serverWindowDragAllOpen`, `webkitSignIn`, off by default). Honoured in every build (`docs/kill-switches.md`) |
+| `UNIVERSE_TRACE` | `visibility` | Occlusion and each WebView attach/detach, `[universecore-vis]` in the system log |
 | | `pip` · `pipZoom` | PiP windows to `/tmp/ac-pip-trace.log` · PiP zoom gestures, `[pip-zoom]` |
 | | `trafficLights` | Every traffic-light change to `<data dir>/traffic-lights.log` |
 | | `profileGate` | The browser process's parsed and gated command lines, at startup and after chrome://flags |
-| `ARDIA_TEST` | `keychain=file` (+ `keychainHiddenReads=<n>`, `keychainFail=decode\|denied\|interaction\|entitlement\|io`) | A file-backed keychain in the data dir instead of the login keychain |
+| `UNIVERSE_TEST` | `keychain=file` (+ `keychainHiddenReads=<n>`, `keychainFail=decode\|denied\|interaction\|entitlement\|io`) | A file-backed keychain in the data dir instead of the login keychain |
 | | `safeStorageAnswer=start-over` | Answers the Safe Storage dialog with Start Over (background mode) |
 | | `reauth=granted` | Grants macOS re-auth requests in background mode (otherwise refused) |
 | | `bluetoothChooser` · `mediaRouteProvider` · `externalProtocolNoLaunch` · `systemMediaPermission=denied\|ask\|ask-slow` | Engine fakes: Bluetooth chooser events, a test Cast sink, external protocols recorded instead of opened, camera and microphone permission |
@@ -316,7 +316,7 @@ The only variables the app and engine read, through `ArdiaLaunchConfig` (`packag
 | | `applyProfileGate` | Applies the real-profile switch gate on the mock keychain too |
 | | `screenRecording=allowed\|denied` | What the share sheet is told about macOS Screen Recording permission (Chrome still checks the real one); background mode never asks macOS for it |
 | | `contextMenu` | Context menus dump to `<data dir>/context-menu.json` and take their pick from `….pick` |
-| | `systemLocationPermission=ask\|denied\|granted` | The app's macOS location access (`ArdiaLocation`): `ask` is not determined and a request answers Allow. A background instance never asks macOS and reads as not determined without it |
+| | `systemLocationPermission=ask\|denied\|granted` | The app's macOS location access (`UniVerseLocation`): `ask` is not determined and a request answers Allow. A background instance never asks macOS and reads as not determined without it |
 | | `appMenu` · `appDialog` | The app's own menus (`showMenu`) dump to `<data dir>/menu.json` and take their pick from `….pick` · `confirm` and `prompt` dump to `dialog.json` and take their answer from `….pick` |
 | | `pipSelfTest=close\|backToTab\|hover\|style` · `pipHover=close\|back` | PiP self-tests on the first PiP window (background mode), results in the data dir |
 | | `fakeFullScreenMs=<ms>` | Length of the acted-out full-screen transition |
@@ -326,16 +326,16 @@ The only variables the app and engine read, through `ArdiaLaunchConfig` (`packag
 | | `cliInstallScript=<path>` | Another `universe` installer script |
 | | `legacySource=<home>` · `legacyCrashAfter=<step>` | The Netnyahoo → UniVerse Project Browser migration from a scratch home |
 | | `bangsUrl` · `onboarding` · `whatsNew` · `telemetry` · `liveMock=<url>` · `calendarFixture` | Debug builds only: bang list, run onboarding, show What's New, send telemetry, live folders from a mock, the calendar fixture |
-| | `cdpTabsVisible` | A tab that a DevTools-port client (`ARDIA_REMOTE_DEBUGGING_PORT`) attaches to stays visible to its renderer until that session detaches, as on the `universe` command's token path (`ac_cli_visible_tabs.cc`; `docs/cli.md` › Input) |
+| | `cdpTabsVisible` | A tab that a DevTools-port client (`UNIVERSE_REMOTE_DEBUGGING_PORT`) attaches to stays visible to its renderer until that session detaches, as on the `universe` command's token path (`ac_cli_visible_tabs.cc`; `docs/cli.md` › Input) |
 | | `nativeDragRefused` | The engine refuses every macOS drag session a page asks for, as when one is already open, and ends the page's drag (`drag-end-check.mjs`; `docs/engine-build.md`, `chromium-drag-always-ends.patch`) |
 | | `loginsDelay=<profile\|account>:<ms>`, `loginsReleaseAfter=<profile\|account>`, `loginsTimeout=<s>` | Sync's password read (`ac_passwords_logins`): hold one store's answer, drop the read as a profile shutdown does once that store has answered, and the bridge's deadline (30 s otherwise) |
-| `ARDIA_FEEDBACK_URL` | URL | Report a Problem's endpoint, e.g. `http://127.0.0.1:4319/api/feedback` for `node infra/feedback/server.mjs --local <dir>` |
-| `ARDIA_PREWARM` | set | Not a setting: an older running app sets it on the staged update it prewarms, which then exits at once |
+| `UNIVERSE_FEEDBACK_URL` | URL | Report a Problem's endpoint, e.g. `http://127.0.0.1:4319/api/feedback` for `node infra/feedback/server.mjs --local <dir>` |
+| `UNIVERSE_PREWARM` | set | Not a setting: an older running app sets it on the staged update it prewarms, which then exits at once |
 
-`ARDIA_TEST` and `ARDIA_TRACE` count only in a test instance: a build that isn't signed for distribution (Debug and
-train builds qualify; `release.sh` builds don't), a scratch `ARDIA_DATA_DIR`, and, in the engine, `--user-data-dir` at
+`UNIVERSE_TEST` and `UNIVERSE_TRACE` count only in a test instance: a build that isn't signed for distribution (Debug and
+train builds qualify; `release.sh` builds don't), a scratch `UNIVERSE_DATA_DIR`, and, in the engine, `--user-data-dir` at
 `<data dir>/Chromium` on the mock keychain. Otherwise they're ignored with one log line. Seams marked background mode
-also need `ARDIA_BACKGROUND`. A build from before ArdiaLaunchConfig gets the old variable names from
+also need `UNIVERSE_BACKGROUND`. A build from before UniVerseLaunchConfig gets the old variable names from
 `scripts/lib/launchEnv.mjs`, so benches and carry-over checks against the previous stable still work.
 
 ## Report format (your final message)

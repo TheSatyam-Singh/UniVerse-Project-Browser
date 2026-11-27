@@ -5,7 +5,7 @@ final class WebKitWebView: WKWebView {
   var onFocus: (() -> Void)?
   var mediaFrames: [String: WKFrameInfo] = [:]
   var playingFrames = Set<String>()
-  let nowPlaying = ArdiaNowPlaying()
+  let nowPlaying = UniVerseNowPlaying()
   var captureOrigins: [String: Set<String>] = [:]
   var autoPictureInPictureRule = WebKitAutoPictureInPicture()
   private var keyUpOfReservedKey: UInt16?
@@ -48,7 +48,7 @@ final class WebKitWebView: WKWebView {
 
   override func performKeyEquivalent(with event: NSEvent) -> Bool {
     guard (window?.firstResponder as? NSView)?.isDescendant(of: self) == true else { return super.performKeyEquivalent(with: event) }
-    let reserved = ArdiaPerformReservedKey(event)
+    let reserved = UniVersePerformReservedKey(event)
     keyUpOfReservedKey = reserved ? event.keyCode : nil
     return reserved || super.performKeyEquivalent(with: event)
   }

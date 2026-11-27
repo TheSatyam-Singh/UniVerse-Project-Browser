@@ -27,7 +27,7 @@ const ZEN = {
 
 let zen = ZEN;
 globalThis.acTestNativeModules = {
-  ArdiaImport: {
+  UniVerseImport: {
     addListener: () => ({ remove() {} }),
     isBrowserUnlocked: () => true,
     forgetUnlockedKeys() {},

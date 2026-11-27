@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 
 const answers = [];
-globalThis.acTestNativeModules = { ArdiaSync: { qrCode: () => answers.shift()() } };
+globalThis.acTestNativeModules = { UniVerseSync: { qrCode: () => answers.shift()() } };
 
 const { recoveryQrCode, takeSyncCodeCounts } = await import("./recoveryKit.ts");
 

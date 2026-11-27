@@ -41,7 +41,7 @@ installErrorReporting();
 after(() => setSharing(false, "settings"));
 assert.equal(holdFatalReports(ExceptionsManager), true);
 
-const shell = stub.shellNativeModules.ArdiaDocuments;
+const shell = stub.shellNativeModules.UniVerseDocuments;
 const realSave = shell.saveDocument;
 let saves = 0;
 shell.saveDocument = (...args) => (saves++, realSave(...args));

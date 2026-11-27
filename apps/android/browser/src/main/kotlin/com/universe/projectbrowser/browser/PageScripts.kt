@@ -3,7 +3,7 @@ package com.universe.projectbrowser
 import android.content.res.AssetManager
 
 object PageScripts {
-    const val BRIDGE_NAME = "ardiaPage"
+    const val BRIDGE_NAME = "universePage"
     const val NIGHT_SHADE_MESSAGE = "nightShade"
 
     fun mainFrameOnly(script: String): String = "if (window === window.top) {\n$script\n}"

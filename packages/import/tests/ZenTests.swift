@@ -1,6 +1,6 @@
 import Foundation
 import XCTest
-@testable import ArdiaImportCore
+@testable import UniVerseImportCore
 
 final class ZenTests: XCTestCase {
   let main = "Profiles/zen12345.Default (release)"

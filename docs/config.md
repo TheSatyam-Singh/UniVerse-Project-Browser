@@ -4,13 +4,13 @@ UniVerse Project Browser can be set up from plain files, dotfiles style, and fro
 
 ## Where
 
-The config folder is `~/.config/ardia/`. An instance started with `ARDIA_DATA_DIR` uses `<data dir>/config` instead,
+The config folder is `~/.config/universe/`. An instance started with `UNIVERSE_DATA_DIR` uses `<data dir>/config` instead,
 so test instances never read the owner's files. No other environment variable picks it (a Finder-launched app never
 sees the shell's `XDG_CONFIG_HOME`, so honouring it would make the app and the CLI disagree). The app resolves it in
-`ArdiaLaunchConfig`; the CLI resolves it the same way from `--data-dir` / `$ARDIA_DATA_DIR`.
+`UniVerseLaunchConfig`; the CLI resolves it the same way from `--data-dir` / `$UNIVERSE_DATA_DIR`.
 
 ```
-~/.config/ardia/
+~/.config/universe/
   config.json          settings and the theme choice
   hooks.json           automation hooks (docs/automation.md)
   themes/<name>.json   colour overrides
@@ -282,7 +282,7 @@ They use only this subset, which `universe` checks itself without a JSON Schema 
 
 None of these need UniVerse Project Browser running; they read and write the files, and a running UniVerse Project Browser picks the change up at once.
 Keys, values and defaults come from the schemas in the config folder, else `<data dir>/config-schema/` (the
-`--data-dir` / `$ARDIA_DATA_DIR` one, else the installed app's). With neither, `set` writes without checking and says
+`--data-dir` / `$UNIVERSE_DATA_DIR` one, else the installed app's). With neither, `set` writes without checking and says
 so. Exit codes: 0 done, 1 a check failed or the input is wrong.
 
 - `universe config path` prints the config folder.

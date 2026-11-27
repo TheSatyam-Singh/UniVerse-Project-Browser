@@ -16,12 +16,12 @@ GitHub Actions. Each has these assets:
   `https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases/latest/download/appcast.xml`, the URL 0.2.13 and
   earlier poll directly. The count can't block an update: see `infra/site/nginx.conf` and `docs/growth.md`
   › Installs.
-- `ArdiaCore-<engine tree>.tar.xz`, only in a release built locally from a Chromium tree whose `engine/` changed since
+- `UniVerseCore-<engine tree>.tar.xz`, only in a release built locally from a Chromium tree whose `engine/` changed since
   the last one: the release's engine (Chrome's framework, stripped), so the app builds without a Chromium tree. Engines
   for CI releases go to their own prerelease instead, `engine-<engine tree:12>` ("Engines" below). `packages/universecore/prebuilt-engines.tsv` maps
   `engine/`'s git tree to the release and the archive's SHA-256; `packages/universecore/scripts/fetch-engine.sh` downloads
   it (the app's build runs it when there's no local engine build).
-- `ArdiaCore-<engine tree>-source.tar.xz`, with that archive when the engine is built on Helium (release.sh finds
+- `UniVerseCore-<engine tree>-source.tar.xz`, with that archive when the engine is built on Helium (release.sh finds
   Helium's code in the framework): copies of the GitHub tags `engine/patches/build/env.sh` pins that aren't in this
   repo (`scripts/engine-source.sh`), and where Chromium's source is. See "Source and licenses" below.
 
@@ -86,7 +86,7 @@ stays up. That's GPL-3.0 §6(d) for the GPL parts (uBlock Origin today), and it'
 
 - Every release's notes end with a Source section (`release.sh` writes it). It links the tag's tree: the app, the
   engine's patches, `gn_defines.sh`, the step scripts and this release flow. Once the engine is built on Helium, it
-  also links the `ArdiaCore-<tree>-source.tar.xz` asset of the release that carries that engine (the `v<version>` that first shipped it, or its `engine-<tree:12>` prerelease)
+  also links the `UniVerseCore-<tree>-source.tar.xz` asset of the release that carries that engine (the `v<version>` that first shipped it, or its `engine-<tree:12>` prerelease)
   (`packages/universecore/prebuilt-engines.tsv`); `release.sh` refuses such an engine when it can't name that release.
 - The `nightly` release's body names the nightly its `UniVerse-Project-Browser-Nightly.dmg` is and links that release
   (`publish.sh` rewrites it each time).
@@ -114,9 +114,9 @@ stays up. That's GPL-3.0 §6(d) for the GPL parts (uBlock Origin today), and it'
   `xcrun notarytool store-credentials universe --apple-id <id> --team-id U5L5T3NGVV` (it asks for an
   app-specific password). Without either, release.sh stops before building unless `ALLOW_UNNOTARIZED=1` is set; then
   it builds and signs, but the release is unnotarized and Gatekeeper blocks the first launch.
-- The engine: ArdiaCore's `Chromium Framework.framework` built in `~/chromium-build` (`scripts/agent/engine-build`;
+- The engine: UniVerseCore's `Chromium Framework.framework` built in `~/chromium-build` (`scripts/agent/engine-build`;
   `docs/engine-build.md`), and `pod install` in `apps/browser/macos`. A framework built elsewhere goes in through
-  `ARDIACORE_FRAMEWORK`. That skips the tree checks and ships no engine archive, unless `ARDIACORE_FRAMEWORK_ENGINE`
+  `UNIVERSECORE_FRAMEWORK`. That skips the tree checks and ships no engine archive, unless `UNIVERSECORE_FRAMEWORK_ENGINE`
   names the `engine/` git tree it was built from (`engine/engine-key.sh`: one hash of `engine/` and the offline game it packs, checked against HEAD). Then the
   release packs that engine, and its source when it's Helium, as a build from the tree would.
 
@@ -132,7 +132,7 @@ stays up. That's GPL-3.0 §6(d) for the GPL parts (uBlock Origin today), and it'
    below), which runs the rest. Or run it here: `scripts/release.sh <version>` (a `-nightly.<n>`
    version is a nightly). It stops right away if the notes file is missing or lacks its `date` and
    `headline`, if the tree under `apps/browser`, `apps/cli`, `packages`, `engine` or `scripts/dmg` has uncommitted changes, or if the engine
-   framework is older than the tree's ArdiaCore sources or the Chromium tree differs from `engine/ardiacore`
+   framework is older than the tree's UniVerseCore sources or the Chromium tree differs from `engine/universecore`
    (`apply.sh --check`), if the version doesn't fit the channel or the notes' `channel`, if it can't read the published
    appcast, if the build number isn't above every build in it, or (outside `--rc`) if `prebuilt-engines.tsv` lists no
    published engine for HEAD's `engine/` tree. Then it runs the stages in `scripts/release/` (`archive.sh`,
@@ -151,8 +151,8 @@ stays up. That's GPL-3.0 §6(d) for the GPL parts (uBlock Origin today), and it'
      loader (WebGL and WebGPU run on Metal; Chrome dropped SwiftShader's WebGL fallback), Chrome's first-run sounds
      and pictures inside `resources.pak` (blanked by hash, `first-run-resources.sha256`; UniVerse Project Browser always passes
      `--no-first-run`), uBlock Origin's locales that no declared locale or its language falls back to, React Native's `@3x` images (Macs draw at 1x or 2x) and hermes's
-     local symbols. Each step has a kill switch: `ARDIA_PRUNE_LOCALES`, `ARDIA_PRUNE_SWIFTSHADER`,
-     `ARDIA_PRUNE_FIRST_RUN`, `ARDIA_PRUNE_UBO_LOCALES`, `ARDIA_PRUNE_RN_3X`, `ARDIA_STRIP_HERMES` (or `ARDIA_PRUNE` for
+     local symbols. Each step has a kill switch: `UNIVERSE_PRUNE_LOCALES`, `UNIVERSE_PRUNE_SWIFTSHADER`,
+     `UNIVERSE_PRUNE_FIRST_RUN`, `UNIVERSE_PRUNE_UBO_LOCALES`, `UNIVERSE_PRUNE_RN_3X`, `UNIVERSE_STRIP_HERMES` (or `UNIVERSE_PRUNE` for
      all) set to `off`. Chrome's opt-in software GPU modes are unsupported in a release build: with
      `--use-angle=swiftshader`, `--enable-unsafe-swiftshader --disable-gpu` or WebGPU's
      `requestAdapter({forceFallbackAdapter: true})` under `--enable-unsafe-webgpu`, WebGL and WebGPU are unavailable
@@ -173,7 +173,7 @@ stays up. That's GPL-3.0 §6(d) for the GPL parts (uBlock Origin today), and it'
    - launches the app once in the background (throwaway data dir), waits for uBlock's rulesets to be indexed,
      quits it and checks the signature again: the app must never write into its own bundle,
    - notarizes and staples the app and the DMG,
-   - packages the DMG (lzma in 4 MB chunks, `udif-chunk-size=8192`, hdiutil's largest; `ARDIA_DMG_CHUNK=off` goes back
+   - packages the DMG (lzma in 4 MB chunks, `udif-chunk-size=8192`, hdiutil's largest; `UNIVERSE_DMG_CHUNK=off` goes back
      to its 1 MB default) and the zip, and signs `appcast.xml` (`generate_appcast` names the feed after the app's
      `SUFeedURL`, so release.sh passes it `-o`) with the Sparkle key. It starts from the
      published appcast, so earlier versions and the other channel's items stay listed; a nightly's item gets
@@ -209,13 +209,13 @@ Before publishing, run the smoke test: `.claude/skills/release/scripts/smoke.sh 
 previous build's designated requirement, a higher build number), the appcast's EdDSA signature of the zip, Gatekeeper
 on the app and the DMG, Sparkle actually updating a copy of the previous build (`update-test.sh`) and the previous
 build's data opening in the new one (`carryover.sh`). By hand, check the build the way the script can't: launch
-`dist/<version>/export/UniVerse-Project-Browser.app` with `ARDIA_BACKGROUND=1`, a throwaway `ARDIA_DATA_DIR` and
-`ARDIA_REMOTE_DEBUGGING_PORT`, and load a page over CDP. Afterwards `codesign --verify --deep --strict` must still
+`dist/<version>/export/UniVerse-Project-Browser.app` with `UNIVERSE_BACKGROUND=1`, a throwaway `UNIVERSE_DATA_DIR` and
+`UNIVERSE_REMOTE_DEBUGGING_PORT`, and load a page over CDP. Afterwards `codesign --verify --deep --strict` must still
 pass on it.
 
 To check the after-update tab too: in that data dir, set `lastVersion` in `release-notes.json` to the
 previous version (`{"version":1,"lastVersion":"<previous>","pending":null}`) and relaunch with
-`ARDIA_INSTANCE=releaseNotes` added (test instances skip the tab without it). `curl localhost:<port>/json` must
+`UNIVERSE_INSTANCE=releaseNotes` added (test instances skip the tab without it). `curl localhost:<port>/json` must
 list one `…/release-notes#<version>` page; a second launch opens none.
 
 ## CI releases
@@ -303,22 +303,22 @@ tree has no engine fails its build at once, saying which script to run.
 
 ## The engine switch (0.2.21 → 0.2.22)
 
-0.2.22 is the first release on ArdiaCore; 0.2.21 and earlier ran on CEF. It's the same app to macOS and Sparkle (bundle
+0.2.22 is the first release on UniVerseCore; 0.2.21 and earlier ran on CEF. It's the same app to macOS and Sparkle (bundle
 id, executable, Developer ID team, designated requirement, feed and key), so Sparkle updates a CEF copy in place and
 macOS keeps its permissions, keychain items and passkeys.
 
-Nothing is migrated. A release build without `ARDIA_DATA_DIR` opens the CEF build's data where it is
-(`InstalledDataDirectory` in `packages/universecore/ios/ArdiaProfiles.mm`): Chrome's user data dir
+Nothing is migrated. A release build without `UNIVERSE_DATA_DIR` opens the CEF build's data where it is
+(`InstalledDataDirectory` in `packages/universecore/ios/UniVerseProfiles.mm`): Chrome's user data dir
 `~/Library/Application Support/com.universe.projectbrowser/Chromium` (profiles `Default` and `Profile <id>`), with the app's
 own documents (session, settings) in the folder above. Both engines are Chromium 154.0.8037.58, so every store keeps its
-format, and both read the same "Ardia Safe Storage" keychain item, which trusts the app by its designated
-requirement. Only Developer ID builds use the login keychain; test instances (`ARDIA_DATA_DIR` or
-`ARDIA_BACKGROUND`) and ad hoc builds use Chrome's mock keychain. `carryover.sh` checks it: the previous build makes
+format, and both read the same "UniVerse Safe Storage" keychain item, which trusts the app by its designated
+requirement. Only Developer ID builds use the login keychain; test instances (`UNIVERSE_DATA_DIR` or
+`UNIVERSE_BACKGROUND`) and ad hoc builds use Chrome's mock keychain. `carryover.sh` checks it: the previous build makes
 two profiles with tabs, persistent and session cookies, localStorage, saved passwords, bookmarks, history, an address,
-a site permission, a zoom level and an unpacked extension, and the new build, started without `ARDIA_DATA_DIR`,
+a site permission, a zoom level and an unpacked extension, and the new build, started without `UNIVERSE_DATA_DIR`,
 must find and read all of it. Saved passwords are shown only after macOS re-authentication, which a hidden instance
-grants only as the `ARDIA_TEST` `reauth=granted` fake, and that counts only in a test instance (a scratch
-`ARDIA_DATA_DIR`), so the new build reveals them in a second launch on the same folder named as `ARDIA_DATA_DIR`. Both run as test copies (bundle id `com.universe.projectbrowser.carryover`, signed ad hoc) in
+grants only as the `UNIVERSE_TEST` `reauth=granted` fake, and that counts only in a test instance (a scratch
+`UNIVERSE_DATA_DIR`), so the new build reveals them in a second launch on the same folder named as `UNIVERSE_DATA_DIR`. Both run as test copies (bundle id `com.universe.projectbrowser.carryover`, signed ad hoc) in
 a fake home (`HOME` and `CFFIXED_USER_HOME`), so the real app's data, defaults and keychain are never touched.
 `carryover.sh <previous app> <new app> --back` (not part of smoke.sh) checks going back on the same setup: the previous build,
 then the new one adding a second session, then the previous one again must show both sessions' data without crashing

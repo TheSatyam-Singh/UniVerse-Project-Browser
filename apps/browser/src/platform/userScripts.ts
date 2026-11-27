@@ -2,7 +2,7 @@ import { nativeModule, type UserScriptsFolder } from "@universe/shell";
 
 export type { UserScriptsFolder };
 
-const UserScripts = nativeModule("ArdiaUserScripts");
+const UserScripts = nativeModule("UniVerseUserScripts");
 
 export const watchUserScripts = (on: boolean) => UserScripts.watch(on);
 export const readUserScripts = () => UserScripts.read();

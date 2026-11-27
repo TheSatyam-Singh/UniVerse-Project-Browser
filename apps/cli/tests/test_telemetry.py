@@ -25,8 +25,8 @@ REAL_SPAWN = telemetry.spawn_flusher
 SCRATCH = Path.home() / "universe-scratch"
 INSTALL_ID = "0b6f4c1e-8d2a-4f3b-9c5d-1e2f3a4b5c6d"
 CLEARED = (
-    "ARDIA_PORT", "ARDIA_WS", "ARDIA_CDP_URL", "ARDIA_DATA_DIR", "AGENT_BROWSER_CDP", "DO_NOT_TRACK", "ARDIA_TELEMETRY",
-    telemetry.TEST_URL_ENV, "ARDIA_FEEDBACK_URL",
+    "UNIVERSE_PORT", "UNIVERSE_WS", "UNIVERSE_CDP_URL", "UNIVERSE_DATA_DIR", "AGENT_BROWSER_CDP", "DO_NOT_TRACK", "UNIVERSE_TELEMETRY",
+    telemetry.TEST_URL_ENV, "UNIVERSE_FEEDBACK_URL",
 )
 
 
@@ -87,7 +87,7 @@ class TelemetryCase(unittest.TestCase):
         self.stub = Stub()
         self.addCleanup(self.stub.close)
         env = {k: v for k, v in os.environ.items() if k not in CLEARED}
-        env.update({"ARDIA_DATA_DIR": str(self.root), telemetry.TEST_URL_ENV: self.stub.url})
+        env.update({"UNIVERSE_DATA_DIR": str(self.root), telemetry.TEST_URL_ENV: self.stub.url})
         for patch in (
             mock.patch.dict(os.environ, env, clear=True),
             mock.patch.object(endpoint, "INSTALLED_DATA_DIR", self.root / "not-the-installed-app"),
@@ -147,11 +147,11 @@ class ConsentTest(TelemetryCase):
         cases = [
             ({"DO_NOT_TRACK": "1"}, ["config", "path"]),
             ({"DO_NOT_TRACK": "true"}, ["config", "path"]),
-            ({"ARDIA_TELEMETRY": "0"}, ["config", "path"]),
-            ({"ARDIA_TELEMETRY": "off"}, ["config", "path"]),
-            ({"ARDIA_PORT": "9222"}, ["config", "path"]),
-            ({"ARDIA_WS": "ws://127.0.0.1:1/devtools/browser/x"}, ["config", "path"]),
-            ({"ARDIA_CDP_URL": "ws://127.0.0.1:1/devtools/browser/x"}, ["config", "path"]),
+            ({"UNIVERSE_TELEMETRY": "0"}, ["config", "path"]),
+            ({"UNIVERSE_TELEMETRY": "off"}, ["config", "path"]),
+            ({"UNIVERSE_PORT": "9222"}, ["config", "path"]),
+            ({"UNIVERSE_WS": "ws://127.0.0.1:1/devtools/browser/x"}, ["config", "path"]),
+            ({"UNIVERSE_CDP_URL": "ws://127.0.0.1:1/devtools/browser/x"}, ["config", "path"]),
             ({"AGENT_BROWSER_CDP": "9222"}, ["config", "path"]),
             ({telemetry.TEST_URL_ENV: "https://example.com/v1/logs"}, ["config", "path"]),
             ({}, ["--port", "1", "windows"]),

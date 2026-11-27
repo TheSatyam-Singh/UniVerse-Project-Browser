@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import UniVerseBrowser
 import UIKit
 
 enum PageMenuFollowUp: Equatable {

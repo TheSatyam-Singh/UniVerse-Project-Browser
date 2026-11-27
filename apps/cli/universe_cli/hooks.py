@@ -25,12 +25,12 @@ BACKOFF_START = 1.0
 BACKOFF_MAX = 30.0
 WATCH_INTERVAL = 1.0
 EVENT_ENV = {
-    "ARDIA_EVENT": None,
-    "ARDIA_WINDOW_ID": "windowId",
-    "ARDIA_TAB_ID": "tabId",
-    "ARDIA_PROFILE": "profile",
-    "ARDIA_URL": "url",
-    "ARDIA_TITLE": "title",
+    "UNIVERSE_EVENT": None,
+    "UNIVERSE_WINDOW_ID": "windowId",
+    "UNIVERSE_TAB_ID": "tabId",
+    "UNIVERSE_PROFILE": "profile",
+    "UNIVERSE_URL": "url",
+    "UNIVERSE_TITLE": "title",
 }
 HOOK_KEYS = (
     "name", "on", "at", "days", "timezone", "every", "match", "run", "command", "arg", "timeout", "idle", "fullUrls",
@@ -690,7 +690,7 @@ class HookRunner:
             self.task.cancel()
 
 
-LAUNCH_STATE = "ArdiaHooks.state.json"
+LAUNCH_STATE = "UniVerseHooks.state.json"
 LAUNCH_SEEN_CAP = 200
 
 
@@ -1045,7 +1045,7 @@ def agent_plist(paths: AgentPaths, path_env: str | None) -> dict:
         "KeepAlive": True,
         "ProcessType": "Background",
         "WorkingDirectory": str(paths.home),
-        "EnvironmentVariables": {"PATH": path_env or DEFAULT_PATH, "ARDIA_DATA_DIR": ""},
+        "EnvironmentVariables": {"PATH": path_env or DEFAULT_PATH, "UNIVERSE_DATA_DIR": ""},
         "StandardOutPath": "/dev/null",
         "StandardErrorPath": "/dev/null",
     }

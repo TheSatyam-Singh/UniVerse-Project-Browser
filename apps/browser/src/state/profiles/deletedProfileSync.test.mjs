@@ -118,7 +118,7 @@ test("a profile deleted while its history and bookmarks are loading is not read 
     await reloadHistory();
     await reloadBookmarks();
     await settle();
-    const releases = [holdWatch("ArdiaHistory", engine), holdWatch("ArdiaBookmarks", engine)];
+    const releases = [holdWatch("UniVerseHistory", engine), holdWatch("UniVerseBookmarks", engine)];
     stub.chromeHistoryEvent({ kind: "deleted", profile: engine, all: true, urls: [] });
     stub.chromeBookmarkEdit(engine, []);
     await settle();

@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import UniVerseBrowser
 import Foundation
 
 struct SearchSuggestion: Identifiable, Hashable {

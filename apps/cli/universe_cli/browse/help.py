@@ -92,7 +92,7 @@ Options:
   --no-humanize           Instant input (the default; AGENT_BROWSER_NO_HUMANIZE=1 forces it)
   --no-changes            Don't report what an action changed (skips its snapshots and network watch)
   --no-text               Leave the page text (`text:` lines) out of an action's change report
-  --data-dir <dir>        UniVerse Project Browser data dir to find (default $ARDIA_DATA_DIR, else the installed app's)
+  --data-dir <dir>        UniVerse Project Browser data dir to find (default $UNIVERSE_DATA_DIR, else the installed app's)
   --port <n>, --cdp <n>   A plain DevTools test server on 127.0.0.1:n (testing only)
   --ws <url>              A browser WebSocket URL
   --capture-console       With open: start console and error capture before the page loads

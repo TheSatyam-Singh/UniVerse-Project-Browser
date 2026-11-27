@@ -4,7 +4,7 @@
  // found in the LICENSE file.
  
  #include "chrome/browser/extensions/extension_install_prompt.h"
-+#include "ardia/core/ac_hooks.h"  // nogncheck
++#include "universe/core/ac_hooks.h"  // nogncheck
  
  #include <optional>
  #include <utility>
@@ -12,8 +12,8 @@
  #include "ui/gfx/image/image_skia.h"
  #include "ui/gfx/image/image_skia_rep.h"
  
-+// Ardia: ArdiaCore (engine/ardiacore) may ask with its own install prompt.
-+bool (*g_ardia_extension_install_prompt)(
++// UniVerse: UniVerseCore (engine/universecore) may ask with its own install prompt.
++bool (*g_universe_extension_install_prompt)(
 +    Profile* profile,
 +    content::WebContents* parent,
 +    const extensions::InstallPromptData& prompt,
@@ -27,9 +27,9 @@
    if (AutoConfirmPromptIfEnabled())
      return;
  
-+  // Ardia: ArdiaCore may show its own install prompt.
-+  if (g_ardia_extension_install_prompt &&
-+      g_ardia_extension_install_prompt(
++  // UniVerse: UniVerseCore may show its own install prompt.
++  if (g_universe_extension_install_prompt &&
++      g_universe_extension_install_prompt(
 +          profile_, show_params_->GetParentWebContents(), *prompt_,
 +          &done_callback_)) {
 +    return;

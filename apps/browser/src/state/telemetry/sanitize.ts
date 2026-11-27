@@ -146,8 +146,8 @@ export function parseStack(stack: unknown, limit = 50): ExceptionFrame[] {
 export type NativeFrame = { image: string; symbol?: string; symbolOffset?: number; offset?: number };
 export type NativeImage = { name: string; uuid: string };
 
-const OUR_IMAGES = /^(UniVerse Project Browser|ArdiaCore|ArdiaShell|Chromium Framework|Expo|ExpoModulesCore|React|hermes|RCT|Sparkle)/;
-const STRIPPED_EXPORT = /^(?:ArdiaCoreMain|ChromeMain|ChromeWebAppShortcutCopierMain|ac_[a-z0-9_]+)$/;
+const OUR_IMAGES = /^(UniVerse Project Browser|UniVerseCore|UniVerseShell|Chromium Framework|Expo|ExpoModulesCore|React|hermes|RCT|Sparkle)/;
+const STRIPPED_EXPORT = /^(?:UniVerseCoreMain|ChromeMain|ChromeWebAppShortcutCopierMain|ac_[a-z0-9_]+)$/;
 const NEAREST_EXPORT_DISTANCE = 0x4000;
 
 function nativeImageName(image: unknown): string {

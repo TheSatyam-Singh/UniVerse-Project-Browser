@@ -1,4 +1,4 @@
-import ArdiaDesign
+import UniVerseDesign
 import SwiftUI
 
 struct DeckColumn: View {
@@ -38,7 +38,7 @@ struct DeckColumn: View {
   private func fillQueryForDemo() async {
     #if DEBUG
     let arguments = ProcessInfo.processInfo.arguments
-    guard app.isDemo, let index = arguments.firstIndex(of: "-ArdiaDeckQuery"), arguments.indices.contains(index + 1) else { return }
+    guard app.isDemo, let index = arguments.firstIndex(of: "-UniVerseDeckQuery"), arguments.indices.contains(index + 1) else { return }
     try? await Task.sleep(for: .seconds(1.5))
     query = arguments[index + 1]
     #endif

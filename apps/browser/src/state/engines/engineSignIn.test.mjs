@@ -9,7 +9,7 @@ const webKitCalls = {
   importCookies: ({ profile, storeKey, cookies }) => (imports.push({ profile, key: storeKey, cookies }), cookies.length),
 };
 globalThis.acTestNativeModules = {
-  ArdiaWebKit: {
+  UniVerseWebKit: {
     addListener: () => ({ remove() {} }),
     call: async (name, profile, json) => JSON.stringify(webKitCalls[name]({ ...JSON.parse(json), profile }) ?? null),
   },

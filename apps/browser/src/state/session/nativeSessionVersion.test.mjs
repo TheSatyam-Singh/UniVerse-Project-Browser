@@ -10,8 +10,8 @@ const read = (path) => readFileSync(new URL(path, import.meta.url), "utf8");
 
 test("the native launch reader expects the session.json version persist.ts writes", () => {
   const js = Number(read("./persist.ts").match(/const SESSION_VERSION = (\d+);/)[1]);
-  const native = Number(read("../../../../../packages/universecore/ios/ArdiaSavedSession.mm").match(/\+ \(NSInteger\)version \{\s*return (\d+);/)[1]);
-  assert.equal(native, js, "bump ArdiaSavedSession.version with SESSION_VERSION, and check the fields it reads still exist");
+  const native = Number(read("../../../../../packages/universecore/ios/UniVerseSavedSession.mm").match(/\+ \(NSInteger\)version \{\s*return (\d+);/)[1]);
+  assert.equal(native, js, "bump UniVerseSavedSession.version with SESSION_VERSION, and check the fields it reads still exist");
 });
 
 test("the native reader takes each field it reads from the shape of the file's own version", (t) => {
@@ -20,7 +20,7 @@ test("the native reader takes each field it reads from the shape of the file's o
   t.after(() => rmSync(dir, { recursive: true, force: true }));
   const probe = join(dir, "probe");
   try {
-    execFileSync("xcrun", ["clang++", "-std=c++20", "-fobjc-arc", "-framework", "Foundation", "-I", ios, "-w", fileURLToPath(new URL("./fixtures/savedSessionProbe.mm", import.meta.url)), join(ios, "ArdiaSavedSession.mm"), join(ios, "ArdiaSavedDocument.mm"), "-o", probe]);
+    execFileSync("xcrun", ["clang++", "-std=c++20", "-fobjc-arc", "-framework", "Foundation", "-I", ios, "-w", fileURLToPath(new URL("./fixtures/savedSessionProbe.mm", import.meta.url)), join(ios, "UniVerseSavedSession.mm"), join(ios, "UniVerseSavedDocument.mm"), "-o", probe]);
   } catch (error) {
     if (error.code === "ENOENT") return t.skip("no clang here");
     throw error;

@@ -5,7 +5,7 @@ import { awaitsFirstPage, firstPagePending, noteFirstPagePending, reachableByAno
 const SLOW = "https://slow.example/release";
 const appTab = { adoptId: undefined, openedByPage: false };
 const linkTab = { adoptId: "link:0", openedByPage: false };
-const pageTab = { adoptId: "ardiacore:8", openedByPage: true };
+const pageTab = { adoptId: "universecore:8", openedByPage: true };
 
 test("a tab the app made keeps its pending address after the app's own script or capture touched its blank document", () => {
   const touched = { url: SLOW, initialDocumentAccessed: true, committedInitial: true };
@@ -35,7 +35,7 @@ test("only tabs the app made itself are out of another page's reach", () => {
   assert.equal(reachableByAnotherPage(undefined), false);
   assert.equal(reachableByAnotherPage("link:2"), false);
   assert.equal(reachableByAnotherPage("restore:t1"), false);
-  for (const id of ["ardiacore:1", "tab:1", "clone:t1", "webkit:1"]) assert.equal(reachableByAnotherPage(id), true, id);
+  for (const id of ["universecore:1", "tab:1", "clone:t1", "webkit:1"]) assert.equal(reachableByAnotherPage(id), true, id);
 });
 
 test("a first page is pending while the initial document loads toward a real address", () => {

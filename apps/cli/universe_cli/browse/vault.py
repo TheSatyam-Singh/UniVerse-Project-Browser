@@ -17,7 +17,7 @@ SECURITY_TIMEOUT = 20
 
 
 def keychain_args() -> list[str]:
-    path = os.environ.get("ARDIA_BROWSE_KEYCHAIN")
+    path = os.environ.get("UNIVERSE_BROWSE_KEYCHAIN")
     return [path] if path else []
 
 
@@ -200,7 +200,7 @@ async def login(ctx, argv):
             found_page, element = await ctx.state.locate(password_selector, page)
         except BrowseError:
             return None
-        visible = await found_page.call("(el) => ardiaBrowse.visible(el)", element, frame=element.frame)
+        visible = await found_page.call("(el) => universeBrowse.visible(el)", element, frame=element.frame)
         return element if visible else None
 
     password_element = await wait_until(password_field, ctx.timeout, 0.2, "the password field")
@@ -210,7 +210,7 @@ async def login(ctx, argv):
             _, username_element = await ctx.state.locate(meta["usernameSelector"], page)
         else:
             remote = await page.call(
-                "(pw) => { const inputs = Array.from(document.querySelectorAll('input')).filter((i) => ardiaBrowse.visible(i) && !i.disabled);"
+                "(pw) => { const inputs = Array.from(document.querySelectorAll('input')).filter((i) => universeBrowse.visible(i) && !i.disabled);"
                 " const named = inputs.find((i) => /username|email/.test(i.autocomplete || '')); if (named) return named;"
                 " const before = inputs.filter((i) => i.compareDocumentPosition(pw) & Node.DOCUMENT_POSITION_FOLLOWING && /^(text|email|tel|)$/.test(i.type));"
                 " return before.length ? before[before.length - 1] : null; }",
@@ -246,7 +246,7 @@ async def login(ctx, argv):
         return guard
 
     async def type_guarded(element, text):
-        info = await page.call("(el) => ardiaBrowse.info(el)", element, frame=frame)
+        info = await page.call("(el) => universeBrowse.info(el)", element, frame=frame)
         await actions.focus_field(page, element, info, humanize)
         await actions.clear_field(page, element, humanize)
         guard = make_guard(element)

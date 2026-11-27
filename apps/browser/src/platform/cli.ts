@@ -3,7 +3,7 @@ import { nativeModule, type CliInstallResult } from "@universe/shell";
 
 export type { CliControlStatus, CliInstallResult };
 
-const Cli = nativeModule("ArdiaCli");
+const Cli = nativeModule("UniVerseCli");
 
 export const installedCliVersion = () => Cli.installedVersion();
 export const installCli = () => Cli.install();

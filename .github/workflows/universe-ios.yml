@@ -7,7 +7,7 @@
 # No secrets are used: the simulator build runs with CODE_SIGNING_ALLOWED=NO.
 # No vouch gate — this repo has no vouch system.
 # Note the iOS app was not rebranded in Phase 1: the project is still
-# apps/ios/Ardia.xcodeproj, scheme Ardia, and the ArdiaKit packages.
+# apps/ios/UniVerse.xcodeproj, scheme UniVerse, and the UniVerseKit packages.
 name: iOS
 
 on:
@@ -37,7 +37,7 @@ jobs:
           xcrun --sdk iphonesimulator --show-sdk-version
       - name: Build the app for the simulator
         run: >-
-          xcodebuild -project apps/ios/Ardia.xcodeproj -scheme Ardia -configuration Debug
+          xcodebuild -project apps/ios/UniVerse.xcodeproj -scheme UniVerse -configuration Debug
           -destination 'generic/platform=iOS Simulator' -derivedDataPath "$SCRATCH/dd"
           CODE_SIGNING_ALLOWED=NO COMPILER_INDEX_STORE_ENABLE=NO -quiet build
 
@@ -58,20 +58,20 @@ jobs:
       - uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: |
-            .ci/ardiakit
+            .ci/universekit
             .ci/sync
           key: swiftpm-xcode-27.1-${{ github.sha }}
           restore-keys: swiftpm-xcode-27.1-
       - name: The JavaScriptCore bundles match their TypeScript
         run: node apps/ios/scripts/bundle-shared.mjs --check
-      - name: ArdiaKit tests
-        run: swift test --package-path apps/ios/Packages/ArdiaKit --scratch-path "$SCRATCH/ardiakit"
+      - name: UniVerseKit tests
+        run: swift test --package-path apps/ios/Packages/UniVerseKit --scratch-path "$SCRATCH/universekit"
       - name: Sync core tests
         run: swift test --package-path packages/sync --scratch-path "$SCRATCH/sync"
       - if: github.event_name == 'push'
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
         with:
           path: |
-            .ci/ardiakit
+            .ci/universekit
             .ci/sync
           key: swiftpm-xcode-27.1-${{ github.sha }}

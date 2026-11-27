@@ -1,0 +1,184 @@
+#import "UniVerseWebViewInternal.h"
+#import "UniVerseTabParking.h"
+
+using namespace universe_web_view;
+
+namespace {
+
+constexpr CFTimeInterval kRevealBackstopSeconds = 5;
+
+void OnMain(void (^block)(void)) {
+  if (NSThread.isMainThread) block();
+  else dispatch_async(dispatch_get_main_queue(), block);
+}
+}
+
+namespace universe_web_view {
+
+NSView *PaneUnder(NSView *view, NSView *ancestor) {
+  for (NSView *v = view; v; v = v.superview)
+    if (v.superview == ancestor) return v;
+  return nil;
+}
+
+NSView *SharedAncestor(NSView *a, NSView *b) {
+  NSHashTable<NSView *> *chain = [NSHashTable weakObjectsHashTable];
+  for (NSView *v = a.superview; v; v = v.superview) [chain addObject:v];
+  for (NSView *v = b.superview; v; v = v.superview)
+    if ([chain containsObject:v]) return v;
+  return nil;
+}
+}
+
+@implementation UniVerseWebView (Reveals)
+
+static UniVerseWebView *ViewForKey(NSString *key) {
+  for (UniVerseWebView *view in LiveViews().allObjects)
+    if (view->_tab && [view->_transferKey isEqualToString:key]) return view;
+  return nil;
+}
+
++ (void)revealTab:(NSString *)transferKey {
+  if (!transferKey.length) return;
+  NSString *key = [transferKey copy];
+  OnMain(^{
+    UniVerseWebView *view = ViewForKey(key);
+    if (!view.window) return;
+    [UniVerseWebView dropRevealsInWindow:view.window except:view];
+    [view revealAhead];
+  });
+}
+
++ (void)dropTabReveals:(NSString *)transferKey {
+  if (!transferKey.length) return;
+  NSString *key = [transferKey copy];
+  OnMain(^{
+    UniVerseWebView *view = ViewForKey(key);
+    if (view.window) [UniVerseWebView dropRevealsInWindow:view.window except:nil];
+  });
+}
+
++ (void)dropRevealsInWindow:(NSWindow *)window except:(UniVerseWebView *)keep {
+  for (UniVerseWebView *other in LiveViews().allObjects) {
+    if (other.window != window) continue;
+    [other dropFront];
+    if (other != keep) [other dropReveal];
+  }
+}
+
++ (void)revealOffered:(NSString *)adoptId over:(NSString *)transferKey {
+  if (!adoptId.length || !transferKey.length) return;
+  NSString *offer = [adoptId copy], *key = [transferKey copy];
+  OnMain(^{
+    UniVerseWebView *view = ViewForKey(key);
+    if (!view.window) return;
+    [UniVerseWebView dropRevealsInWindow:view.window except:nil];
+    UniVerseCoreTab *tab = [UniVerseTabRegistry offeredTab:offer];
+    NSView *page = tab.view;
+    if (TraceVisibility())
+      NSLog(@"[universecore-vis] %@ front %@ offered=%d closed=%d superview=%@ adopted=%d", key, offer, tab != nil, tab.closed,
+            page.superview.className, [UniVerseTabRegistry viewForTab:tab] != nil);
+    if (!tab || tab.closed || !page || page.superview || [UniVerseTabRegistry viewForTab:tab]) return;
+    [tab noteInShownSlot];
+    [view frontPage:page profile:tab.profile];
+  });
+}
+
++ (BOOL)discardOffered:(NSString *)adoptId {
+  if (![adoptId hasPrefix:@"universecore:"]) return NO;
+  UniVerseCoreTab *tab = [UniVerseTabRegistry offeredTab:adoptId];
+  if (!tab || tab.closed || [UniVerseTabRegistry viewForTab:tab] || [UniVerseTabParking linkMarkForTab:tab]) return NO;
+  if (NSView *page = tab.view)
+    for (UniVerseWebView *view in LiveViews().allObjects)
+      if (view->_reveal.frontedPage == page) [view dropFront];
+  if ([UniVerseTabRegistry takeOffered:adoptId] != tab) return NO;
+  [tab close];
+  return YES;
+}
+
+- (BOOL)onlyShownInWindow {
+  NSWindow *window = self.window;
+  if (!_visible || _warm || _reveal.active || _standalone || _life.closed() || !window || self.alphaValue < 1 || self.isHiddenOrHasHiddenAncestor) return NO;
+  for (UniVerseWebView *other in LiveViews().allObjects)
+    if (other != self && other.window == window && (other->_visible || other->_warm || other->_reveal.active)) return NO;
+  return YES;
+}
+
+- (void)frontPage:(NSView *)page profile:(UniVerseCoreProfile *)profile {
+  NSView *mine = _tab.view;
+  if (_reveal.frontedPage || _devtoolsView || !mine || mine.superview != self || mine.hidden || _tab.profile != profile || ![self onlyShownInWindow]) return;
+  page.frame = self.bounds;
+  page.hidden = NO;
+  [self addSubview:page positioned:NSWindowAbove relativeTo:mine];
+  _reveal.frontedPage = page;
+  if (TraceVisibility()) NSLog(@"[universecore-vis] %@ fronts a new tab's page", _transferKey);
+  const NSUInteger generation = ++_reveal.frontGeneration;
+  __weak UniVerseWebView *weakSelf = self;
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kRevealBackstopSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    UniVerseWebView *view = weakSelf;
+    if (view && view->_reveal.frontGeneration == generation) [view dropFront];
+  });
+}
+
+- (void)dropFront {
+  NSView *fronted = _reveal.frontedPage;
+  _reveal.frontedPage = nil;
+  _reveal.frontGeneration++;
+  if (fronted.superview == self) [fronted removeFromSuperview];
+}
+
+- (void)revealAhead {
+  NSWindow *window = self.window;
+  NSView *page = _tab.view;
+  if (_visible || _reveal.active || _warm || _standalone || _life.closed() || !window || !page || page.superview != self) return;
+  UniVerseWebView *shown = nil;
+  for (UniVerseWebView *other in LiveViews().allObjects) {
+    if (other == self || other.window != window) continue;
+    if (other->_warm || other->_reveal.active) return;
+    if (!other->_visible) continue;
+    if (shown) return;
+    shown = other;
+  }
+  if (!shown || shown.alphaValue < 1 || shown->_reveal.frontedPage) return;
+  const NSRect mine = [self convertRect:self.bounds toView:nil];
+  if (NSIsEmptyRect(mine) || !NSEqualRects(mine, [shown convertRect:shown.bounds toView:nil])) return;
+  NSView *shared = SharedAncestor(self, shown);
+  NSView *pane = PaneUnder(self, shared);
+  NSView *shownPane = PaneUnder(shown, shared);
+  if (!shared || !pane || !shownPane || !shownPane.layer || pane == shownPane || pane.isHiddenOrHasHiddenAncestor || pane.alphaValue < 1) return;
+  if (TraceVisibility()) NSLog(@"[universecore-vis] %@ revealed over %@", _transferKey, shown->_transferKey);
+  [self exposePage];
+  _reveal.active = YES;
+  _reveal.loweredPane = shownPane;
+  _reveal.loweredPaneZ = shownPane.layer.zPosition;
+  shownPane.layer.zPosition = _reveal.loweredPaneZ - 1;
+  [self applyPainting];
+  const NSUInteger generation = ++_reveal.generation;
+  __weak UniVerseWebView *weakSelf = self;
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kRevealBackstopSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+    UniVerseWebView *view = weakSelf;
+    if (view && view->_reveal.generation == generation && view->_reveal.active) [view dropReveal];
+  });
+}
+
+- (void)endReveal {
+  if (!_reveal.active) return;
+  _reveal.active = NO;
+  _reveal.generation++;
+  if (NSView *pane = _reveal.loweredPane) pane.layer.zPosition = _reveal.loweredPaneZ;
+  _reveal.loweredPane = nil;
+}
+
+- (void)dropReveal {
+  if (!_reveal.active) return;
+  [self endReveal];
+  [self schedulePainting];
+}
+
+- (void)settleRevealsInWindow {
+  [self endReveal];
+  NSWindow *window = self.window;
+  if (window) [UniVerseWebView dropRevealsInWindow:window except:self];
+}
+
+@end

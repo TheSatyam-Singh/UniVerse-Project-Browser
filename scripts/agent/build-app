@@ -64,7 +64,7 @@ native_stamp() {
       'packages/*/ios/*' 'packages/*/expo-module.config.json' packages/shell/docktile \
       packages/universecore/scripts/embed.sh packages/universecore/scripts/stage-framework.sh packages/universecore/scripts/ubo.sh \
       packages/universecore/extensions \
-      packages/universecore/scripts/signing engine/ardiacore/src/ardia/core/public patches pnpm-lock.yaml
+      packages/universecore/scripts/signing engine/universecore/src/universe/core/public patches pnpm-lock.yaml
     echo apps/browser/macos/Pods/Manifest.lock
   ) | python3 -c '
 import hashlib, os, sys

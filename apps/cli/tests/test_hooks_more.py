@@ -132,8 +132,8 @@ class Subscribing(unittest.TestCase):
 
     def test_notification_text_stays_out_of_the_environment(self):
         env = hooks.hook_env(event("notification.shown", title="secret", url="https://a/", origin="https://a"), base={})
-        self.assertNotIn("ARDIA_TITLE", env)
-        self.assertNotIn("ARDIA_URL", env)
+        self.assertNotIn("UNIVERSE_TITLE", env)
+        self.assertNotIn("UNIVERSE_URL", env)
 
 
 class _scratch:

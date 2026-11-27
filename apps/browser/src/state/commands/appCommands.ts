@@ -33,7 +33,7 @@ export async function diagnostics(): Promise<string> {
   const regular = s.windowOrder.filter((id) => s.windows[id]?.kind !== "private");
   return [
     `${app.appName} ${app.appVersion} (${app.appBuild}) — ${app.configuration}`,
-    engine ? `Engine: ArdiaCore, Chromium ${engine.chromiumVersion}` : "Engine: unavailable",
+    engine ? `Engine: UniVerseCore, Chromium ${engine.chromiumVersion}` : "Engine: unavailable",
     `macOS ${app.osVersion} (${app.osBuild}), ${app.arch}, ${app.model}, ${Math.round(app.memoryGB)} GB`,
     `Bundle: ${app.bundleId}, locale ${app.locale}`,
     `Windows: ${regular.length} (+${s.windowOrder.length - regular.length} incognito), tabs: ${Object.keys(s.tabs).length}, profiles: ${s.profileOrder.length}`,

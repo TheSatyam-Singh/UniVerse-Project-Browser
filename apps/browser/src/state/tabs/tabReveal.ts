@@ -9,7 +9,7 @@ import { splitOf } from "../splits/splits";
 import type { Tab } from "../browser/types";
 import { isWebPageUrl } from "../../lib/url";
 
-const OFFERED = /^(tab|ardiacore):/;
+const OFFERED = /^(tab|universecore):/;
 
 export type Switch = { tabId: string; offered?: string; over: string } | { tabId: null; over: string };
 

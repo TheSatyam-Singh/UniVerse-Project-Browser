@@ -16,7 +16,7 @@ const urlsClosedLast = () => S().closedWindows.at(-1).tabs.map((t) => t.url).sor
 const asked = [];
 let answer = true;
 let held = null;
-shellNativeModules.ArdiaDialogs.confirm = (options) => {
+shellNativeModules.UniVerseDialogs.confirm = (options) => {
   asked.push(options);
   if (held) return new Promise((resolve) => held.push(() => resolve({ confirmed: true, suppressed: false })));
   return Promise.resolve({ confirmed: answer, suppressed: false });
@@ -139,15 +139,15 @@ test("with sharing off, a profile only the closing window shows still closes wit
 test("a window already closing doesn't count as open: the next close is the last window's and asks nothing", async () => {
   const { a, b } = twoWindows();
   const gates = [];
-  const animateWindowClose = shellNativeModules.ArdiaAppWindows.animateWindowClose;
-  shellNativeModules.ArdiaAppWindows.animateWindowClose = () => new Promise((resolve) => gates.push(resolve));
+  const animateWindowClose = shellNativeModules.UniVerseAppWindows.animateWindowClose;
+  shellNativeModules.UniVerseAppWindows.animateWindowClose = () => new Promise((resolve) => gates.push(resolve));
   try {
     assert.deepEqual((await closeByUser(a)).map((d) => d.title), [], "A's tabs stay open in B");
     assert.ok(S().windows[a], "A is still in the store while it animates");
     assert.deepEqual((await closeByUser(b)).map((d) => d.title), [], "B is the last open window");
   } finally {
     gates.splice(0).forEach((resolve) => resolve());
-    shellNativeModules.ArdiaAppWindows.animateWindowClose = animateWindowClose;
+    shellNativeModules.UniVerseAppWindows.animateWindowClose = animateWindowClose;
   }
   await tick();
   await tick();
@@ -198,8 +198,8 @@ test("closing a window's last tab still asks about the tabs of its window", asyn
 
 async function withHeldAnimations(run) {
   const gates = new Map();
-  const animateWindowClose = shellNativeModules.ArdiaAppWindows.animateWindowClose;
-  shellNativeModules.ArdiaAppWindows.animateWindowClose = (id) => new Promise((resolve) => gates.set(id, resolve));
+  const animateWindowClose = shellNativeModules.UniVerseAppWindows.animateWindowClose;
+  shellNativeModules.UniVerseAppWindows.animateWindowClose = (id) => new Promise((resolve) => gates.set(id, resolve));
   const finish = async (id) => {
     gates.get(id)();
     gates.delete(id);
@@ -210,7 +210,7 @@ async function withHeldAnimations(run) {
     await run(finish);
   } finally {
     [...gates.values()].forEach((resolve) => resolve());
-    shellNativeModules.ArdiaAppWindows.animateWindowClose = animateWindowClose;
+    shellNativeModules.UniVerseAppWindows.animateWindowClose = animateWindowClose;
     await tick();
   }
 }

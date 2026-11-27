@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import Carbon.HIToolbox
 import ExpoModulesCore
 
@@ -219,7 +219,7 @@ enum ServerWindowDrag {
   }
 
   static func embeddedRoot(_ window: NSWindow?) -> NSView? {
-    window.flatMap { ArdiaChromeWindowHost.embeddedRoot(of: $0) }
+    window.flatMap { UniVerseChromeWindowHost.embeddedRoot(of: $0) }
   }
 
   static func hostsRoot(_ view: NSView) -> Bool {
@@ -285,7 +285,7 @@ enum ServerWindowDrag {
 
   private static let capable: Bool = {
     let noArguments = { (types: String) in types.hasSuffix("@0:8") }
-    let host: AnyClass = ArdiaChromeWindowHost.contentViewClass
+    let host: AnyClass = UniVerseChromeWindowHost.contentViewClass
     guard NSClassFromString("RCTView") != nil,
           matches(NSView.self, opaqueRectSelector, { $0.hasPrefix("{CGRect=") && noArguments($0) }),
           matches(host, opaqueRectSelector, { $0.hasPrefix("{CGRect=") && noArguments($0) }),

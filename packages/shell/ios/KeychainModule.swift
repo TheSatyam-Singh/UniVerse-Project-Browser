@@ -1,4 +1,4 @@
-import ArdiaCore
+import UniVerseCore
 import ExpoModulesCore
 import Foundation
 import Security
@@ -7,7 +7,7 @@ public class KeychainModule: Module {
   private static let service = "UniVerse Project Browser Connected Accounts"
 
   public func definition() -> ModuleDefinition {
-    Name("ArdiaKeychain")
+    Name("UniVerseKeychain")
 
     AsyncFunction("get") { (account: String) -> String? in
       if let store = IsolatedSecrets.shared { return store.get(account) }

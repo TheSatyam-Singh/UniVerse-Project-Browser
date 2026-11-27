@@ -13,6 +13,6 @@ export type TranslationModule = {
   open(owner: string): Promise<void>;
   cancel(owner: string): Promise<void>;
 };
-const TranslationNative = nativeModule("ArdiaTranslate");
+const TranslationNative = nativeModule("UniVerseTranslate");
 
 export const translation: Omit<TranslationModule, "available"> | null = TranslationNative.available ? TranslationNative : null;

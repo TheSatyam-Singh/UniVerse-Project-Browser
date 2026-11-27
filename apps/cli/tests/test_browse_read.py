@@ -17,7 +17,7 @@ from universe_cli.browse.errors import Usage
 CLI = Path(__file__).resolve().parents[1]
 REPO = CLI.parents[1]
 FIXTURES = Path(__file__).resolve().parent / "fixtures" / "browse"
-CHROME = os.environ.get("ARDIA_BROWSE_CHROME")
+CHROME = os.environ.get("UNIVERSE_BROWSE_CHROME")
 
 
 def record(index: int, length: int) -> dict:
@@ -154,7 +154,7 @@ def answers(url: str) -> bool:
         return response.status == 200
 
 
-@unittest.skipUnless(CHROME and Path(CHROME).exists(), "set ARDIA_BROWSE_CHROME to a Chrome binary to read real lists")
+@unittest.skipUnless(CHROME and Path(CHROME).exists(), "set UNIVERSE_BROWSE_CHROME to a Chrome binary to read real lists")
 class ReadListsInChrome(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

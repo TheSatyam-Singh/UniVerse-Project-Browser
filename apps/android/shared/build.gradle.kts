@@ -114,7 +114,7 @@ abstract class ExtractJsi : DefaultTask() {
     }
 }
 
-val bundleSources = rootProject.layout.projectDirectory.dir("../ios/Packages/ArdiaKit/Sources/ArdiaShared/Scripts")
+val bundleSources = rootProject.layout.projectDirectory.dir("../ios/Packages/UniVerseKit/Sources/UniVerseShared/Scripts")
 
 val jsiArchive = configurations.create("jsiArchive") {
     isTransitive = false
@@ -139,7 +139,7 @@ val fetchHermesCompiler = tasks.register<FetchHermesCompiler>("fetchHermesCompil
 
 val compileSharedBundles = tasks.register<CompileSharedBundles>("compileSharedBundles") {
     compiler.set(fetchHermesCompiler.flatMap { it.outputDir })
-    bundles.from(bundleSources.file("ardia-sync.js"), bundleSources.file("ardia-core.js"))
+    bundles.from(bundleSources.file("universe-sync.js"), bundleSources.file("universe-core.js"))
     outputDir.set(layout.buildDirectory.dir("generated/hermes"))
 }
 

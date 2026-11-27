@@ -1,7 +1,6 @@
 {
   "layout": {},
   "imports": {
-    "apps/browser/src/components/pages/PdfViewerPage.tsx": 2,
     "apps/browser/src/components/settings/panes/Boosts.tsx": 1,
     "apps/browser/src/components/sidebar/AiSidebar.tsx": 1
   },
@@ -35,7 +34,6 @@
     "apps/browser/src/components/pages/SurfPage.tsx": 1
   },
   "store-shape": {
-    "apps/browser/src/components/ntp/BetaBanner.tsx": 1,
     "apps/browser/src/state/ai/aiSidebar.ts": 1,
     "apps/browser/src/state/notes/notes.ts": 1,
     "apps/browser/src/state/pdf/pdfAnnotations.ts": 1,

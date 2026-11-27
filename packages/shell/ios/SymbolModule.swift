@@ -1,11 +1,11 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import Carbon.HIToolbox
 import ExpoModulesCore
 
 public class SymbolModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaSymbol")
+    Name("UniVerseSymbol")
 
     View(SymbolView.self) {
       Prop("name") { (view: SymbolView, name: String) in view.name = name }

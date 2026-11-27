@@ -1,4 +1,4 @@
-import ArdiaDesign
+import UniVerseDesign
 import SwiftUI
 
 struct SyncSetupView: View {
@@ -22,7 +22,7 @@ struct SyncSetupView: View {
       .lookBackdrop()
       .navigationDestination(for: SettingsRoute.self) { $0.destination.lookBackdrop() }
     }
-    .tint(Color.ardiaAccentText)
+    .tint(Color.universeAccentText)
   }
 }
 

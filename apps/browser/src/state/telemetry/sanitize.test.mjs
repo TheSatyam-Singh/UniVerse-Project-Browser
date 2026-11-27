@@ -107,7 +107,7 @@ test("an uncaught NSException sends its name and its throw site first, never its
     exceptionFrames: [
       { image: "CoreFoundation", symbol: "__exceptionPreprocess", offset: 0x1007b0 },
       { image: "libobjc.A.dylib", symbol: "objc_exception_throw", offset: 0x165c },
-      { image: "ArdiaShell", symbol: "TabStrip.select(_:)", offset: 0x2010, symbolOffset: 40 },
+      { image: "UniVerseShell", symbol: "TabStrip.select(_:)", offset: 0x2010, symbolOffset: 40 },
     ],
   });
   assert.equal(name, "NSRangeException");
@@ -143,9 +143,9 @@ test("an exception without a name or reason still says what it was", () => {
 
 test("native frames keep their image offset and drop a stripped image's nearest export", () => {
   const frames = nativeFrames([
-    { image: "Chromium Framework", symbol: "ArdiaCoreMain", symbolOffset: 66417332, offset: 0x41a36e8 },
+    { image: "Chromium Framework", symbol: "UniVerseCoreMain", symbolOffset: 66417332, offset: 0x41a36e8 },
     { image: "Chromium Framework", symbol: "ac_engine_set_event_sink", offset: 0x2139600 },
-    { image: "Chromium Framework", symbol: "ArdiaCoreMain", symbolOffset: 760, offset: 0x442c72c },
+    { image: "Chromium Framework", symbol: "UniVerseCoreMain", symbolOffset: 760, offset: 0x442c72c },
     { image: "Chromium Framework", offset: 0x2ef170 },
     { image: "UniVerse Project Browser", offset: 0x3fd9f0 },
     { image: "CoreAutoLayout", symbol: "_NSBitSetResize", symbolOffset: 120000, offset: 0x9a10 },
@@ -156,7 +156,7 @@ test("native frames keep their image offset and drop a stripped image's nearest 
     [
       ["Chromium Framework + 0x41a36e8", "0x41a36e8", false],
       ["Chromium Framework + 0x2139600", "0x2139600", false],
-      ["ArdiaCoreMain", "0x442c72c", true],
+      ["UniVerseCoreMain", "0x442c72c", true],
       ["Chromium Framework + 0x2ef170", "0x2ef170", false],
       ["UniVerse Project Browser + 0x3fd9f0", "0x3fd9f0", false],
       ["_NSBitSetResize", "0x9a10", true],

@@ -19,7 +19,7 @@
 		<key>NSExtensionPointIdentifier</key>
 		<string>com.apple.ui-services</string>
 		<key>NSExtensionPrincipalClass</key>
-		<string>$(PRODUCT_MODULE_NAME).OpenInArdiaViewController</string>
+		<string>$(PRODUCT_MODULE_NAME).OpenInUniVerseViewController</string>
 	</dict>
 </dict>
 </plist>

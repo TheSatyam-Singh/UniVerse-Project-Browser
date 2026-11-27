@@ -95,9 +95,9 @@ class FeedbackCase(unittest.TestCase):
         self.home = self.temp / "cli"
         self.service = FeedbackService()
         self.addCleanup(self.service.close)
-        dropped = CLEARED + ("ARDIA_CLI_HOME", feedback.TEST_URL_ENV, usage.STAR_PROMPT_ENV) + usage.CI_ENV
+        dropped = CLEARED + ("UNIVERSE_CLI_HOME", feedback.TEST_URL_ENV, usage.STAR_PROMPT_ENV) + usage.CI_ENV
         env = {k: v for k, v in os.environ.items() if k not in dropped}
-        env.update({"ARDIA_CLI_HOME": str(self.home), feedback.TEST_URL_ENV: self.service.url})
+        env.update({"UNIVERSE_CLI_HOME": str(self.home), feedback.TEST_URL_ENV: self.service.url})
         for patch in (
             mock.patch.dict(os.environ, env, clear=True),
             mock.patch.object(endpoint, "INSTALLED_DATA_DIR", self.temp / "not-the-installed-app"),
@@ -401,9 +401,9 @@ class SendingTest(FeedbackCase):
     def test_each_reason_is_named(self):
         cases = [
             ({"DO_NOT_TRACK": "1"}, "DO_NOT_TRACK=1 is set"),
-            ({"ARDIA_TELEMETRY": "off"}, "ARDIA_TELEMETRY=off is set"),
-            ({"ARDIA_PORT": "9222"}, "ARDIA_PORT points universe at a test browser"),
-            ({feedback.TEST_URL_ENV: "https://evil.example/api/feedback"}, "ARDIA_FEEDBACK_URL isn't a loopback http:// URL"),
+            ({"UNIVERSE_TELEMETRY": "off"}, "UNIVERSE_TELEMETRY=off is set"),
+            ({"UNIVERSE_PORT": "9222"}, "UNIVERSE_PORT points universe at a test browser"),
+            ({feedback.TEST_URL_ENV: "https://evil.example/api/feedback"}, "UNIVERSE_FEEDBACK_URL isn't a loopback http:// URL"),
             ({feedback.TEST_URL_ENV: ""}, "this universe is a checkout build (0.0.0.dev0)"),
         ]
         for extra, reason in cases:
@@ -448,7 +448,7 @@ class SendingTest(FeedbackCase):
         self.assertEqual(self.kept()[0]["description"], "busy")
 
     def test_a_checkout_without_a_cli_home_writes_nothing(self):
-        os.environ.pop("ARDIA_CLI_HOME")
+        os.environ.pop("UNIVERSE_CLI_HOME")
         with mock.patch.object(usage, "open_folder") as opened, mock.patch.object(usage, "locked") as locked:
             status, out, _ = self.send("--title", "t", "no home")
             self.assertEqual(status, 0)
@@ -506,7 +506,7 @@ class TelemetrySessionAndKeyTest(unittest.TestCase):
         self.stub = Stub()
         self.addCleanup(self.stub.close)
         env = {k: v for k, v in os.environ.items() if k not in CLEARED}
-        env.update({"ARDIA_DATA_DIR": str(self.root), telemetry.TEST_URL_ENV: self.stub.url})
+        env.update({"UNIVERSE_DATA_DIR": str(self.root), telemetry.TEST_URL_ENV: self.stub.url})
         for patch in (
             mock.patch.dict(os.environ, env, clear=True),
             mock.patch.object(endpoint, "INSTALLED_DATA_DIR", self.root / "not-the-installed-app"),
@@ -664,8 +664,8 @@ class LocalServiceEndToEndTest(unittest.TestCase):
         self.server.stdout.close()
 
     def universe(self, *argv) -> subprocess.CompletedProcess:
-        env = {k: v for k, v in os.environ.items() if k not in CLEARED + ("ARDIA_CLI_HOME",)}
-        env.update({"ARDIA_CLI_HOME": str(self.home), feedback.TEST_URL_ENV: self.url})
+        env = {k: v for k, v in os.environ.items() if k not in CLEARED + ("UNIVERSE_CLI_HOME",)}
+        env.update({"UNIVERSE_CLI_HOME": str(self.home), feedback.TEST_URL_ENV: self.url})
         return subprocess.run(
             [sys.executable, "-m", "universe_cli", "feedback", "--data-dir", str(self.data), *argv],
             cwd=REPO / "apps" / "cli", env=env, capture_output=True, text=True, timeout=60,

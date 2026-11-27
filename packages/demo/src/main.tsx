@@ -29,7 +29,7 @@ const params = new URLSearchParams(location.search);
 const embed = params.has("embed");
 const bare = embed || params.has("bare");
 
-Object.assign(globalThis, { ardiaDemo: { store: useBrowser, emitCommand } });
+Object.assign(globalThis, { universeDemo: { store: useBrowser, emitCommand } });
 
 function warmOtherProfiles() {
   const s = useBrowser.getState();

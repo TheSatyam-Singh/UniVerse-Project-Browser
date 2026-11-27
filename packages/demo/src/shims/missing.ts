@@ -8,4 +8,4 @@ export function noteMissing(what: string) {
 
 export const missingOnWeb = () => [...seen].sort();
 
-Object.assign(globalThis, { ardiaDemoMissing: missingOnWeb });
+Object.assign(globalThis, { universeDemoMissing: missingOnWeb });

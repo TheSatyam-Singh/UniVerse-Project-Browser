@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import ExpoModulesCore
 import LocalAuthentication
 
@@ -9,7 +9,7 @@ public class SyncModule: Module {
   private static let work = DispatchQueue(label: "universe.sync", qos: .utility)
 
   public func definition() -> ModuleDefinition {
-    Name("ArdiaSync")
+    Name("UniVerseSync")
 
     OnCreate { Self.work.async { Self.removeTemporaryKits() } }
 
@@ -214,7 +214,7 @@ public class SyncModule: Module {
 
     AsyncFunction("readPasswords") { (engineProfile: String, promise: Promise) in
       DispatchQueue.main.async {
-        ArdiaEngineBridge.callForSecretReply("ac_passwords_logins", profile: engineProfile, timeout: Self.loginsTimeout) { reply in
+        UniVerseEngineBridge.callForSecretReply("ac_passwords_logins", profile: engineProfile, timeout: Self.loginsTimeout) { reply in
           promise.resolve(self.sealedLogins(reply))
         }
       }
@@ -226,14 +226,14 @@ public class SyncModule: Module {
         return promise.resolve(false)
       }
       let save = {
-        ArdiaServices.savePassword(profile: engineProfile, origin: origin, username: username, password: password) { _, error in
+        UniVerseServices.savePassword(profile: engineProfile, origin: origin, username: username, password: password) { _, error in
           if let error { NSLog("[sync] saving a synced password: \(error)") }
           promise.resolve(error == nil)
         }
       }
       DispatchQueue.main.async {
         guard replacing else { return save() }
-        ArdiaServices.deletePassword(profile: engineProfile, origin: origin, username: username) { _, error in
+        UniVerseServices.deletePassword(profile: engineProfile, origin: origin, username: username) { _, error in
           guard let error else { return save() }
           NSLog("[sync] replacing a saved password: \(error)")
           promise.resolve(false)

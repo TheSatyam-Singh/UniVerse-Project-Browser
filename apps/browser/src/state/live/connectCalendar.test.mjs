@@ -5,8 +5,8 @@ import { shellNativeModules, windows } from "../../test-native/index.ts";
 const { connectCalendar, refreshCalendar, startCalendar, useCalendar } = await import("./calendar.ts");
 const { slowTimersForTests } = await import("../../platform/slowTimers.ts");
 
-const native = shellNativeModules.ArdiaCalendar;
-const app = shellNativeModules.ArdiaApp;
+const native = shellNativeModules.UniVerseCalendar;
+const app = shellNativeModules.UniVerseApp;
 const original = { native: { ...native }, openExternalURL: app.openExternalURL };
 const PRIVACY = "x-apple.systempreferences:com.apple.preference.security?Privacy_Calendars";
 let opened = [];
@@ -109,9 +109,9 @@ test("a build whose request resolves a bare boolean still connects", async () =>
 
 test("a request that throws shows its message and ends the busy state", async () => {
   native.authorizationStatus = () => "notDetermined";
-  native.requestAccess = () => Promise.reject(new Error("ArdiaCalendar is unavailable"));
+  native.requestAccess = () => Promise.reject(new Error("UniVerseCalendar is unavailable"));
   assert.equal(await connectCalendar(), false);
-  assert.match(useCalendar.getState().requestError ?? "", /ArdiaCalendar is unavailable/);
+  assert.match(useCalendar.getState().requestError ?? "", /UniVerseCalendar is unavailable/);
   assert.equal(useCalendar.getState().requesting, false);
 });
 

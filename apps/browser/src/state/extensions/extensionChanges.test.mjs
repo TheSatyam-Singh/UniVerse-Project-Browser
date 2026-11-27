@@ -9,7 +9,7 @@ const actions = await import("./actions.ts");
 const EXT = { id: "gone", name: "Gone", enabled: true, pinned: false, hasAction: true, incognito: false, mayModify: true, errors: [] };
 const listed = [];
 globalThis.acTestUserScripts = { engine: { list: async () => listed, install: async () => "x", reload: async () => {}, uninstall: async () => {} } };
-native.shellNativeModules.ArdiaDialogs.confirm = async () => ({ confirmed: true, suppressed: false });
+native.shellNativeModules.UniVerseDialogs.confirm = async () => ({ confirmed: true, suppressed: false });
 native.extensionAnswers.change = async () => {
   throw Object.assign(new Error("No such extension"), { code: "ERR_ENGINE" });
 };

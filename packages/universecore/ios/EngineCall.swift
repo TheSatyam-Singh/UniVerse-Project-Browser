@@ -94,7 +94,7 @@ struct CallTable {
   let domain: String
   let handlers: [String: CallHandler]
 
-  var moduleName: String { "Ardia\(domain.prefix(1).uppercased())\(domain.dropFirst())" }
+  var moduleName: String { "UniVerse\(domain.prefix(1).uppercased())\(domain.dropFirst())" }
 
   var function: AnyDefinition {
     AsyncFunction("call") { (name: String, profile: String, args: String, promise: Promise) in
@@ -104,7 +104,7 @@ struct CallTable {
 
   func forwardEvents(to module: Module) -> AnyDefinition {
     OnCreate { [domain, weak module] in
-      ArdiaEvents.setSender({ [weak module] name, data in module?.sendEvent(domain, ["name": name, "data": data]) }, forDomain: domain)
+      UniVerseEvents.setSender({ [weak module] name, data in module?.sendEvent(domain, ["name": name, "data": data]) }, forDomain: domain)
     }
   }
 
@@ -123,7 +123,7 @@ struct CallTable {
 enum EngineCall {
   static func passing(_ name: String) -> CallHandler {
     { args, reply in
-      ArdiaEngineBridge.call(name, profile: args.profile, args: args.json) { reply.engine($0) }
+      UniVerseEngineBridge.call(name, profile: args.profile, args: args.json) { reply.engine($0) }
     }
   }
 
@@ -131,7 +131,7 @@ enum EngineCall {
     guard let data = try? JSONSerialization.data(withJSONObject: args), let json = String(data: data, encoding: .utf8) else {
       return reply.fail("ERR_BAD_ARGS", "\(name): the arguments aren't JSON")
     }
-    ArdiaEngineBridge.call(name, profile: profile, args: json) { reply.engine($0) }
+    UniVerseEngineBridge.call(name, profile: profile, args: json) { reply.engine($0) }
   }
 
 }

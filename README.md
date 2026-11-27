@@ -156,7 +156,7 @@ No Windows secret is needed until the Windows shell and its workflow exist.
 # Build it yourself
 
 A macOS browser that looks and feels like [Dia](https://diabrowser.com): Chrome's own framework from our
-patched Chromium with our layer on top (ArdiaCore), an Expo + React Native macOS shell, and Metal shaders
+patched Chromium with our layer on top (UniVerseCore), an Expo + React Native macOS shell, and Metal shaders
 reconstructed from Dia's own New Tab effects.
 
 ```
@@ -189,7 +189,7 @@ cards need our team ID and won't work in a build signed by anyone else.
 To change the engine itself (anything under `engine/`), build it from source: Chrome's framework from our patched
 Chromium tree in `~/chromium-build` (Chromium 157.0.8103.50 with the patch series in `engine/patches`;
 `docs/engine-build.md` › "Rebuilding", then `engine/chromium/apply.sh`,
-`engine/ardiacore/apply.sh` and `autoninja -C out/Release_GN_arm64 chrome_framework`; the first build takes about 2
+`engine/universecore/apply.sh` and `autoninja -C out/Release_GN_arm64 chrome_framework`; the first build takes about 2
 hours). The app's build stages it from there when it exists.
 
 ```bash
@@ -203,7 +203,7 @@ pnpm dev
 ```
 
 In another, build and launch the Debug app (on its own data, `~/Library/Application Support/UniVerse Project Browser Dev`, or
-`ARDIA_DATA_DIR`):
+`UNIVERSE_DATA_DIR`):
 
 ```bash
 pnpm macos
@@ -288,8 +288,8 @@ UniVerse Project Browser is derived from [Ardia](https://github.com/mantrakp04/a
 distributed under the [GNU General Public License v3](LICENSE). It cannot be closed-sourced:
 its engine carries Helium's GPL-3.0 patches.
 
-- Ardia's own source files are under the [Apache License 2.0](LICENSE.Apache-2.0) (copyright
-  Mantra Patel; see [NOTICE](NOTICE) for Ardia's attributions). Apache-2.0 code may be combined
+- UniVerse's own source files are under the [Apache License 2.0](LICENSE.Apache-2.0) (copyright
+  Mantra Patel; see [NOTICE](NOTICE) for UniVerse's attributions). Apache-2.0 code may be combined
   into a GPL-3.0 work, so those files keep that licence on their own.
 - The browser builds on Chromium, carries a few of the Chromium Embedded Framework's patches to
   Chromium (BSD-3-Clause), and bundles uBlock Origin, each under its own license; see
@@ -298,5 +298,5 @@ its engine carries Helium's GPL-3.0 patches.
 Corresponding Source: every release's notes on GitHub
 (https://github.com/TheSatyam-Singh/UniVerse-Project-Browser/releases) link the repository at
 that release's tag, with the engine's patch series and build scripts (`engine/`,
-`docs/engine-build.md`), and the release's `ArdiaCore-<tree>-source.tar.xz`, which holds the
+`docs/engine-build.md`), and the release's `UniVerseCore-<tree>-source.tar.xz`, which holds the
 Helium sources the engine was built from and says where Chromium's source is.

@@ -58,7 +58,7 @@ Phases (medians, same runs):
 
 | Phase | 1 tab, warm (round A) | big session, warm |
 |---|---|---|
-| t0 → JS running (process start, framework, ArdiaCore, bundle eval) | 387 ms (79% of content) | 499 ms |
+| t0 → JS running (process start, framework, UniVerseCore, bundle eval) | 387 ms (79% of content) | 499 ms |
 | JS running → window's content committed (first React commit) | 113 | 601 |
 | content committed → page's first frame | 94 | 107 |
 | first frame → first paint | 30 | 70 |
@@ -110,7 +110,7 @@ after the commit), so the lab and the field agree. Each key renders 63 component
 
 native-bench `--only newtabkey`: a real ⌘T posted to the instance's pid (nnperf `postkeys`, `CGEventPostToPid`), one
 real key `n` once the bar is focused, 10 per run, 3 runs. Rows start at the key down's own timestamp (what the field's
-`perf_journeys` starts from) and end at the app's field-timing marks (`ArdiaFieldTiming.mm`: a post-commit handler on
+`perf_journeys` starts from) and end at the app's field-timing marks (`UniVerseFieldTiming.mm`: a post-commit handler on
 the Core Animation transaction carrying the change). Cumulative from the key, n=30, median, p75, min–max:
 
 | Step (`perf_journeys` name) | All 3 runs | Run 1 (load 15 to 55) | Run 2 (load 55 to 5) | Run 3 (load 5 to 12) |

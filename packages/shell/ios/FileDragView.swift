@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import ExpoModulesCore
 import ServiceManagement
 import UniformTypeIdentifiers

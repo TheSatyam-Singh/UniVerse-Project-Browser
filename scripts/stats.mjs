@@ -21,7 +21,7 @@ ending now, plus what changed since the last run. Writes the visual as an SVG an
   --json           print the data as JSON instead of the report
   --no-save        don't record this run as the last check`;
 
-const STATE = join(homedir(), ".local/state/ardia/stats-last.json");
+const STATE = join(homedir(), ".local/state/universe/stats-last.json");
 const SVG_DIR = "/tmp/universe-stats";
 const TZ = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
@@ -122,7 +122,7 @@ const headline = () =>
            FROM telemetry.otel_logs FINAL WHERE ${DAILY} AND Timestamp > now() - INTERVAL 40 DAY))`);
 
 const [rows, head, gitHub] = await Promise.all([
-  hasTelemetryEnv() ? attempt("telemetry (window)", windowRows) : (problems.push("telemetry: ~/.config/ardia/telemetry.env is missing (docs/growth.md, Telemetry)"), null),
+  hasTelemetryEnv() ? attempt("telemetry (window)", windowRows) : (problems.push("telemetry: ~/.config/universe/telemetry.env is missing (docs/growth.md, Telemetry)"), null),
   hasTelemetryEnv() ? attempt("telemetry (headline)", headline) : null,
   attempt("github", () => github({ now, since })),
 ]);

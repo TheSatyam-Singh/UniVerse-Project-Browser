@@ -164,7 +164,7 @@ function onBlur() {
   emitAppEvent({ type: "switcherReleased" });
 }
 
-provideNativeModule("ArdiaFocus", {
+provideNativeModule("UniVerseFocus", {
   setSwitcherCapture: async (active: boolean) => void (switcher.capturing = active),
 });
 

@@ -1651,7 +1651,7 @@ index 0a4efc1fff0a6e32ea1634ab5f863c211f452409..8554a54819424c7b724d8400125721ab
 -                     additionalData:nil];
 -    }
 -  }
-+  [RCTView ardia_markHoverDirty];
++  [RCTView universe_markHoverDirty];
  }
  #endif // macOS]
  
@@ -1660,7 +1660,7 @@ index 0a4efc1fff0a6e32ea1634ab5f863c211f452409..8554a54819424c7b724d8400125721ab
  - (void)didUpdateReactSubviews
  {
 +#if TARGET_OS_OSX // [macOS
-+  [RCTView ardia_markHoverDirty]; // [UniVerse: hover follows layout. UniVerse]
++  [RCTView universe_markHoverDirty]; // [UniVerse: hover follows layout. UniVerse]
 +#endif // macOS]
    if (_removeClippedSubviews) {
      [self updateClippedSubviews];
@@ -1678,7 +1678,7 @@ index 0a4efc1fff0a6e32ea1634ab5f863c211f452409..8554a54819424c7b724d8400125721ab
    }
 +#if TARGET_OS_OSX // [macOS
 +  if (!CGRectEqualToRect(self.frame, oldFrame)) {
-+    [RCTView ardia_markHoverDirty]; // [UniVerse: hover follows layout. UniVerse]
++    [RCTView universe_markHoverDirty]; // [UniVerse: hover follows layout. UniVerse]
 +  }
 +#endif // macOS]
 +}
@@ -1767,7 +1767,7 @@ index 0a4efc1fff0a6e32ea1634ab5f863c211f452409..8554a54819424c7b724d8400125721ab
                                                    userInfo:nil];
        [self addTrackingArea:_trackingArea];
 +      if (_hasMouseOver) {
-+        [RCTView ardia_markHoverDirty]; // [UniVerse: hover follows layout: the resized view may have left the pointer. UniVerse]
++        [RCTView universe_markHoverDirty]; // [UniVerse: hover follows layout: the resized view may have left the pointer. UniVerse]
 +      }
 +    }
 +  }
@@ -1791,7 +1791,7 @@ index 0a4efc1fff0a6e32ea1634ab5f863c211f452409..8554a54819424c7b724d8400125721ab
 +// animation still slides it there. All leaves go out before any enter, innermost first, then the enters, outermost
 +// first, so a row taking another's place under the pointer isn't left by a late leave. Enters wait while a mouse
 +// button is down, as AppKit's do. UniVerse]
-++ (void)ardia_markHoverDirty
+++ (void)universe_markHoverDirty
 +{
 +  if (UniVerseHoverDirty || UniVerseHoverViews.count == 0) {
 +    return;
@@ -1805,7 +1805,7 @@ index 0a4efc1fff0a6e32ea1634ab5f863c211f452409..8554a54819424c7b724d8400125721ab
 +                                          handler:^NSEvent *(NSEvent *event) {
 +                                            if (event.type == NSEventTypeLeftMouseDragged || event.type == NSEventTypeRightMouseDragged ||
 +                                                event.type == NSEventTypeOtherMouseDragged || UniVerseHoverHeld) {
-+                                              [RCTView ardia_markHoverDirty];
++                                              [RCTView universe_markHoverDirty];
 +                                            }
 +                                            return event;
 +                                          }];
@@ -1820,13 +1820,13 @@ index 0a4efc1fff0a6e32ea1634ab5f863c211f452409..8554a54819424c7b724d8400125721ab
 ++ (void)universe_setPointerOverride:(NSValue *)screenPoint
 +{
 +  UniVersePointerOverride = screenPoint;
-+  [self ardia_markHoverDirty];
++  [self universe_markHoverDirty];
 +}
 +
 ++ (void)universe_setButtonsOverride:(NSNumber *)pressed
 +{
 +  UniVerseButtonsOverride = pressed;
-+  [self ardia_markHoverDirty];
++  [self universe_markHoverDirty];
 +}
 +
 ++ (NSDictionary *)universe_hoverStats:(NSNumber *)reset

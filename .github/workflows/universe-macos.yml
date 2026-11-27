@@ -148,13 +148,13 @@ jobs:
           key: engine-${{ env.TREE }}
       - name: Engine
         env:
-          ARDIACORE_PREBUILT_REPO: ardia-browser/ardia
+          UNIVERSECORE_PREBUILT_REPO: ardia-browser/ardia
         run: |
           if ! framework=$(packages/universecore/scripts/fetch-engine.sh --nearest); then
             echo "::error::no engine for ${TREE:0:12}: build it here and publish it with scripts/publish-engine.sh, then commit prebuilt-engines.tsv"
             exit 1
           fi
-          { echo "ARDIACORE_FRAMEWORK=$framework"; echo "ARDIACORE_FRAMEWORK_ENGINE=$TREE"; } >> "$GITHUB_ENV"
+          { echo "UNIVERSECORE_FRAMEWORK=$framework"; echo "UNIVERSECORE_FRAMEWORK_ENGINE=$TREE"; } >> "$GITHUB_ENV"
       - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
         with:
@@ -426,7 +426,7 @@ jobs:
             sleep 2
           done
           dmg_chunks=(-imagekey udif-chunk-size=8192)
-          [ "${ARDIA_DMG_CHUNK:-on}" = off ] && dmg_chunks=()
+          [ "${UNIVERSE_DMG_CHUNK:-on}" = off ] && dmg_chunks=()
           hdiutil convert "$dmg_rw" -format ULMO ${dmg_chunks[@]+"${dmg_chunks[@]}"} -ov -o "$dist/UniVerse-Project-Browser-$VERSION.dmg" >/dev/null
           rm -rf "$dmg_rw" "$dmg_mnt"
           {

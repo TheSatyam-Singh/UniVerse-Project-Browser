@@ -7,8 +7,8 @@ once, drops what's in flight (a launch that saw it off is never sent), and a JS 
 state, while the old bridge going away turns native timing off. Everything sent is a duration, a count or a rough
 range: never a URL, a title, or what was typed.
 
-Code: `apps/browser/src/state/telemetry/journeys.ts` (journeys, aggregation, events), `packages/universecore/ios/ArdiaFieldTiming.mm`
-(native marks), hooks in `Omnibox.tsx`, `main.tsx`, `ArdiaWebView+Navigation.mm` and `page_script.js` (› Field timing).
+Code: `apps/browser/src/state/telemetry/journeys.ts` (journeys, aggregation, events), `packages/universecore/ios/UniVerseFieldTiming.mm`
+(native marks), hooks in `Omnibox.tsx`, `main.tsx`, `UniVerseWebView+Navigation.mm` and `page_script.js` (› Field timing).
 
 ## How a journey is timed
 
@@ -20,7 +20,7 @@ the start unless noted. All clocks are epoch ms on the same Mac: JS's `Date.now(
 - **On screen** means the Core Animation transaction carrying the change has committed (a post-commit handler); the
   display shows it at the next refresh, ≤ 1 frame later. A JS step's frame is marked through the UI manager's queue
   (`ACFieldTiming.markFrame`), so it rides the same batch as the commit's view updates.
-- **Engine steps** come from `ArdiaWebView`: `request` (we asked the engine to load), `start` (Chrome's loading
+- **Engine steps** come from `UniVerseWebView`: `request` (we asked the engine to load), `start` (Chrome's loading
   began), `commit` (`tabDidCommitDocument:`), `fcp` (the page's first-contentful-paint entry, Chrome's presentation
   time) and `shown` (a page that was hidden: two `requestAnimationFrame`s after it became visible, as native-bench's
   tab switch).
@@ -31,9 +31,9 @@ the start unless noted. All clocks are epoch ms on the same Mac: JS's `Date.now(
 
 | Journey | Step | From → to |
 |---|---|---|
-| J1 launch (`perf_launch`, one per launch) | `main_ms` | process start → the first statement of `main.swift` (`ArdiaHost.markMainStarted`, before `LaunchConfig` and the legacy-folder migration; from the first nightly after 0.2.46-nightly.7). Time before `main`: the OS loading and checking the app |
+| J1 launch (`perf_launch`, one per launch) | `main_ms` | process start → the first statement of `main.swift` (`UniVerseHost.markMainStarted`, before `LaunchConfig` and the legacy-folder migration; from the first nightly after 0.2.46-nightly.7). Time before `main`: the OS loading and checking the app |
 | | `startup_ms` | → `PrepareStartup` has returned in `runWithArgc` (the data directory and its first-run work; from the same nightly). `startup_ms - main_ms` is our code between `main` and the engine run |
-| | `chromium_ms` | → just before Chromium's own run starts (`ArdiaCoreEngine runWithArgc:`; from the same nightly). `chromium_ms - startup_ms` is the rest of our setup |
+| | `chromium_ms` | → just before Chromium's own run starts (`UniVerseCoreEngine runWithArgc:`; from the same nightly). `chromium_ms - startup_ms` is the rest of our setup |
 | | `engine_ms` | → Chrome's engine is up (`engineDidStart`; from 0.2.46-nightly.7). `engine_ms - chromium_ms` is Chromium starting: its profile and its browser process |
 | | `early_window_ms` | → the early window ordered on screen (`TryEarlyWindow`; null when the launch didn't show one; from 0.2.46-nightly.7) |
 | | `rn_ms` | → React Native starts loading the bundle (`launchApp`, after the early window and its first commit; from 0.2.46-nightly.7). `js_ms - rn_ms` is the bundle load, `rn_ms - engine_ms` the early window |
@@ -87,7 +87,7 @@ value was read). Both, and `main_ms`, `startup_ms` and `chromium_ms`, come from 
 ### A session's payload
 
 A Debug build with Metro (so slower than a release), in a hidden instance, with every journey driven by posted key
-events (`expo.modules.ArdiaDev.devPostKey`): ⌘1–4 between four restored tabs, ⌘T and an address typed into the
+events (`expo.modules.UniVerseDev.devPostKey`): ⌘1–4 between four restored tabs, ⌘T and an address typed into the
 new tab's bar, Enter, and ⌘L, an address, Enter. The `$`-context properties are left out.
 
 ```json

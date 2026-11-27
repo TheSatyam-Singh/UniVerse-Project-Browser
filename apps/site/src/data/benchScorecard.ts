@@ -128,8 +128,8 @@ function cardOf(group: Bench["groups"][number], roster: string[]): Card {
 
 export function scorecardOf(bench: Bench): Scorecard {
   const rows = bench.groups.flatMap((g) => g.rows);
-  const ardiaName = rows[0].bars.find((b) => b.isUniverse)!.name;
-  const roster = [ardiaName, ...bench.rivals];
+  const universeName = rows[0].bars.find((b) => b.isUniverse)!.name;
+  const roster = [universeName, ...bench.rivals];
   const cards = bench.groups.map((g) => cardOf(g, roster));
   const singles = cards.filter((c) => !c.wide);
   if (singles.length % 2 === 1) singles[singles.length - 1].solo = true;

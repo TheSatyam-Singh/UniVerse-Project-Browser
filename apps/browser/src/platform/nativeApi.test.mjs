@@ -27,7 +27,7 @@ const registrationsIn = (where, source) => {
     else if (directive === "elseif" || directive === "else") branches.at(-1).arm += 1;
     else if (directive === "endif") branches.pop();
     const name = line.match(/^ {4}Name\((?:"([^"]+)"|Self\.calls\.moduleName)\)/);
-    if (name) found.push({ name: name[1] ?? `Ardia${domain[0].toUpperCase()}${domain.slice(1)}`, module: `${where} ${owner}`, branch: branches.map((b) => ({ ...b })) });
+    if (name) found.push({ name: name[1] ?? `UniVerse${domain[0].toUpperCase()}${domain.slice(1)}`, module: `${where} ${owner}`, branch: branches.map((b) => ({ ...b })) });
   }
   return found;
 };
@@ -71,34 +71,34 @@ const duplicates = (entries) => {
 test("no two Expo modules register the same name, so neither shadows the other", () => {
   const registrations = declaredRegistrations();
   const names = new Set(registrations.map((r) => r.name));
-  assert.ok(names.has("ArdiaShell") && names.has("ArdiaWindows"), "found the shell and ArdiaCore modules");
+  assert.ok(names.has("UniVerseShell") && names.has("UniVerseWindows"), "found the shell and UniVerseCore modules");
   assert.deepEqual(registrationProblems(registrations), []);
 });
 
 test("the module-name check tells modules apart by class, not file, and lets exclusive #if branches repeat a name", () => {
   const twoInOneFile = `public class FirstModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaSame")
+    Name("UniVerseSame")
   }
 }
 
 public class SecondModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaSame")
+    Name("UniVerseSame")
   }
 }
 `;
   assert.deepEqual(registrationProblems(registrationsIn("fixture/Two.swift", twoInOneFile)), [
-    "ArdiaSame: fixture/Two.swift FirstModule, fixture/Two.swift SecondModule",
+    "UniVerseSame: fixture/Two.swift FirstModule, fixture/Two.swift SecondModule",
   ]);
   const debugAndRelease = `public class DevModule: Module {
   #if DEBUG
   public func definition() -> ModuleDefinition {
-    Name("ArdiaDev")
+    Name("UniVerseDev")
   }
   #else
   public func definition() -> ModuleDefinition {
-    Name("ArdiaDev")
+    Name("UniVerseDev")
   }
   #endif
 }
@@ -107,18 +107,18 @@ public class SecondModule: Module {
   const twiceInOneBranch = `public class TwiceModule: Module {
   #if DEBUG
   public func definition() -> ModuleDefinition {
-    Name("ArdiaTwice")
+    Name("UniVerseTwice")
   }
   #endif
   #if DEBUG
   public func other() -> ModuleDefinition {
-    Name("ArdiaTwice")
+    Name("UniVerseTwice")
   }
   #endif
 }
 `;
   assert.deepEqual(registrationProblems(registrationsIn("fixture/Twice.swift", twiceInOneBranch)), [
-    "fixture/Twice.swift TwiceModule registers twice: ArdiaTwice, ArdiaTwice",
+    "fixture/Twice.swift TwiceModule registers twice: UniVerseTwice, UniVerseTwice",
   ]);
 });
 

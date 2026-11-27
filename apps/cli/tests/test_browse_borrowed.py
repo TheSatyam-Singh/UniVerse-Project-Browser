@@ -379,7 +379,7 @@ class BorrowedTab(unittest.TestCase):
         async def browser_send(method, params=None, *args, **kwargs):
             browser_calls.append(method)
             if method == "Target.getTargetInfo":
-                return {"targetInfo": {"targetId": params["targetId"], **({"ardiaOffscreen": True} if engine_says_off_screen else {})}}
+                return {"targetInfo": {"targetId": params["targetId"], **({"universeOffscreen": True} if engine_says_off_screen else {})}}
             return {}
 
         async def new_tab(ctx, url, label=None, window=False, show=False):

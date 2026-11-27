@@ -47,28 +47,28 @@ const LAUNCH_CONFIG: LaunchConfig = {
   test: {},
 };
 
-provideNativeModule("ArdiaApp", {
+provideNativeModule("UniVerseApp", {
   launchEnvironment: () => null,
   systemInfo: () => SYSTEM_INFO,
   launchConfig: () => LAUNCH_CONFIG,
   appIcons: async () => [],
   appIcon: async () => null,
 });
-provideNativeModule("ArdiaCalendar", { authorizationStatus: () => "notDetermined" });
-provideNativeModule("ArdiaCli", { installedVersion: () => null });
-provideNativeModule("ArdiaUserScripts", { watch: () => {}, read: async () => ({ state: "empty" }), readStatus: async () => null });
+provideNativeModule("UniVerseCalendar", { authorizationStatus: () => "notDetermined" });
+provideNativeModule("UniVerseCli", { installedVersion: () => null });
+provideNativeModule("UniVerseUserScripts", { watch: () => {}, read: async () => ({ state: "empty" }), readStatus: async () => null });
 
 const documents = new Map<string, string>();
 const darkQuery = typeof window === "undefined" ? null : window.matchMedia("(prefers-color-scheme: dark)");
 let appearance: "auto" | "light" | "dark" = "auto";
 
-provideNativeModule("ArdiaDocuments", {
+provideNativeModule("UniVerseDocuments", {
   readDocument: (name: string) => documents.get(name) ?? null,
   writeDocument: (name: string, contents: string) => void documents.set(name, contents),
   saveDocument: async (name: string, contents: string) => void documents.set(name, contents),
   removeDocument: (name: string) => void documents.delete(name),
 });
-provideNativeModule("ArdiaShell", {
+provideNativeModule("UniVerseShell", {
   fetchBangList: async (_etag: string | null) => ({ status: 304, etag: null, contentType: null, body: null, bytes: 0 }),
   copyText: (text: string) => void navigator.clipboard?.writeText(text).catch(() => {}),
   isDarkAppearance: async () => !!darkQuery?.matches,
@@ -78,7 +78,7 @@ provideNativeModule("ArdiaShell", {
     emitAppEvent({ type: "appearance", dark: mode === "auto" ? !!darkQuery?.matches : mode === "dark" });
   },
 });
-provideNativeModule("ArdiaDialogs", {
+provideNativeModule("UniVerseDialogs", {
   confirm: async (options: ConfirmOptions) => ({
     confirmed: window.confirm([options.title, options.message].filter(Boolean).join("\n\n")),
     suppressed: false,
@@ -86,7 +86,7 @@ provideNativeModule("ArdiaDialogs", {
   prompt: async (options: PromptOptions) =>
     window.prompt(options.message ? `${options.title}\n\n${options.message}` : options.title, options.value ?? ""),
 });
-provideNativeModule("ArdiaAppWindows", {
+provideNativeModule("UniVerseAppWindows", {
   windowCornerRadius: () => 19,
   windowIds: async () => [] as string[],
   windowFrame: async (_id: string): Promise<[number, number, number, number] | null> => null,
@@ -110,6 +110,6 @@ export async function completeInline(tag: number, typed: string, completion: str
   return 1;
 }
 
-export const emitCommand = (event: CommandEvent) => emitNativeEvent("ArdiaMenus", "onCommand", event);
-export const emitWindowEvent = (event: WindowEvent) => emitNativeEvent("ArdiaAppWindows", "onWindowEvent", event);
-export const emitAppEvent = (event: AppEvent) => emitNativeEvent("ArdiaShell", "onAppEvent", event);
+export const emitCommand = (event: CommandEvent) => emitNativeEvent("UniVerseMenus", "onCommand", event);
+export const emitWindowEvent = (event: WindowEvent) => emitNativeEvent("UniVerseAppWindows", "onWindowEvent", event);
+export const emitAppEvent = (event: AppEvent) => emitNativeEvent("UniVerseShell", "onAppEvent", event);

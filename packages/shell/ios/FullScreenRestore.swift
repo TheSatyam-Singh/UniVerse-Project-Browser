@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 
 final class FullScreenRestore {
   private unowned let windows: WindowManager

@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import AVFoundation
 import WebKit
 
@@ -319,7 +319,7 @@ final class ReportRecorder {
 
   private func collectOverlays(of window: NSWindow) -> [Overlay] {
     let excluded = Set(excludedWindows().map(\.windowNumber))
-    var owned: [(window: NSWindow, kind: ReportOverlayKind)] = ArdiaWebView.recordingPictureInPictureWindows(of: window).map { ($0, .pictureInPicture) }
+    var owned: [(window: NSWindow, kind: ReportOverlayKind)] = UniVerseWebView.recordingPictureInPictureWindows(of: window).map { ($0, .pictureInPicture) }
     var seen = Set(owned.map { ObjectIdentifier($0.window) })
     seen.insert(ObjectIdentifier(window))
     func adopt(_ child: NSWindow) {
@@ -350,8 +350,8 @@ final class ReportRecorder {
       let pages = placement.candidate.kind == .app ? Self.scan(content, collectingStills: false).pages : []
       return Overlay(
         window: entry.window, content: content, placement: placement, pages: pages,
-        cornerRadius: ArdiaWebView.recordingCornerRadius(of: entry.window),
-        controls: placement.candidate.kind == .pictureInPicture ? ArdiaWebView.recordingControls(of: entry.window) : nil)
+        cornerRadius: UniVerseWebView.recordingCornerRadius(of: entry.window),
+        controls: placement.candidate.kind == .pictureInPicture ? UniVerseWebView.recordingControls(of: entry.window) : nil)
     }
   }
 
@@ -396,14 +396,14 @@ final class ReportRecorder {
 
   private static func traits(of view: NSView) -> ReportViewTraits {
     let cls: AnyClass = type(of: view)
-    let engine = view is ArdiaWebView || view is WKWebView || pageEngineClasses.contains { view.isKind(of: $0) }
+    let engine = view is UniVerseWebView || view is WKWebView || pageEngineClasses.contains { view.isKind(of: $0) }
     return ReportViewTraits(
       pageEngine: engine, pagePicture: view.accessibilityIdentifier() == ReportPageMask.pagePictureIdentifier, origin: origin(of: cls),
       chromiumContainer: ReportPageMask.chromiumContainers.contains(NSStringFromClass(cls)))
   }
 
   private static func source(of view: NSView, traits: ReportViewTraits) -> PageSource {
-    if let web = view as? ArdiaWebView { return web.recordingShowsPage ? .engine : .idle }
+    if let web = view as? UniVerseWebView { return web.recordingShowsPage ? .engine : .idle }
     if view is WKWebView { return .engine }
     return traits.pagePicture && !traits.pageEngine && traits.origin != .chromium ? .picture : .unknown
   }
@@ -496,7 +496,7 @@ final class ReportRecorder {
         if entry.clock.receive(generation, ok: kept != nil, now: CACurrentMediaTime()) { entry.image = kept }
         self.pagePictures[key] = entry
       }
-      if let web = page.view as? ArdiaWebView {
+      if let web = page.view as? UniVerseWebView {
         web.copyRecordingPicture { image in
           let kept = image
           DispatchQueue.main.async { done(kept) }
@@ -513,7 +513,7 @@ final class ReportRecorder {
       guard let generation = entry.clock.request(now: now) else { continue }
       windowPictures[number] = entry
       let points = overlay.placement.rect.size
-      ArdiaWebView.copyRecordingPicture(of: overlay.window) { [weak self] image in
+      UniVerseWebView.copyRecordingPicture(of: overlay.window) { [weak self] image in
         let kept = image
         DispatchQueue.main.async {
           guard let self, var entry = self.windowPictures[number] else { return }

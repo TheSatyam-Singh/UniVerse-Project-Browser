@@ -3,7 +3,7 @@ import Foundation
 
 public class CliModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaCli")
+    Name("UniVerseCli")
 
     Events("onInstallLine")
 

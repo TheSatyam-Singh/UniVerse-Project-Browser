@@ -4,7 +4,7 @@ public class ScriptingModule: Module {
   private let lifetime = ModuleLifetime()
 
   public func definition() -> ModuleDefinition {
-    Name("ArdiaScripting")
+    Name("UniVerseScripting")
     Events(ShellEvents.Channel.scriptCommand.rawValue)
 
     OnCreate { self.lifetime.begin(self) { ShellEvents.retire(self) } }

@@ -26,19 +26,19 @@ const HANDS_PLATFORM_TO_SCRIPTS = new Set(["components/dev/devHarness.ts"]);
 
 const RULES = ["layout", "imports", "native-calls", "tokens", "scale", "get-state", "set-state", "store-reads", "store-shape", "size", "env", "naming", "comments", "file-names"];
 const SIZE_CAP = { js: 400, native: 600 };
-const SCOPES = ["apps/browser/src", "packages", "engine/ardiacore/src", "engine/chromium/src"];
+const SCOPES = ["apps/browser/src", "packages", "engine/universecore/src", "engine/chromium/src"];
 const GENERATED = new Set(["packages/core/src/bangList.ts", "packages/demo/src/shims/web/symbols/data.ts", "apps/browser/src/lib/emojiData.ts"]);
 const ONE_INJECTED_SCRIPT = new Set(["packages/universecore/ios/page_script.js"]);
 const FROZEN_SPECS = new Set(["packages/core/src/suggest.reference.ts"]);
-const LAUNCH_CONFIG = [/^packages\/universecore\/ios\/ArdiaLaunchConfig\.\w+$/, /^apps\/browser\/src\/platform\/launchConfig\.ts$/];
+const LAUNCH_CONFIG = [/^packages\/universecore\/ios\/UniVerseLaunchConfig\.\w+$/, /^apps\/browser\/src\/platform\/launchConfig\.ts$/];
 const MIGRATION_FILE = /(?:^|\/)(?:LegacyMigration\.swift|legacy\.ts|\w*[Mm]igrations?\.(?:ts|swift|mm|m))$/;
 const TOKEN_FILE = /(?:^|\/)(?:tokens|motion)\.ts$/;
 const ENGINE_ENV_READS = {
-  "engine/ardiacore/src/ardia/core/ac_main_delegate.cc": [
+  "engine/universecore/src/universe/core/ac_main_delegate.cc": [
     "std::string EnvironmentThatOpensTheProfile(base::Environment& env) {",
     "std::unique_ptr<base::Environment> env = base::Environment::Create();",
   ],
-  "engine/chromium/src/chrome/browser/ardia/ac_scripts_policy.cc": ['if (const char* home = getenv("HOME")) {'],
+  "engine/chromium/src/chrome/browser/universe/ac_scripts_policy.cc": ['if (const char* home = getenv("HOME")) {'],
 };
 
 const APP_SRC = "apps/browser/src/";
@@ -46,7 +46,7 @@ const BASELINE_PATH = `${APP_SRC}conventions-baseline.json`;
 const ROOT = fileURLToPath(new URL("../../../", import.meta.url));
 
 const SOURCE_FILE = /\.(?:tsx?|mjs|js|swift|h|m|mm|cc|mojom)$/;
-const SCOPE_FILE = /^(?:apps\/browser\/src\/|packages\/[^/]+\/(?:src|ios)\/|engine\/(?:ardiacore|chromium)\/src\/)/;
+const SCOPE_FILE = /^(?:apps\/browser\/src\/|packages\/[^/]+\/(?:src|ios)\/|engine\/(?:universecore|chromium)\/src\/)/;
 const TEST_FILE = /\.test\.[cm]?[jt]sx?$|(?:^|\/)(?:test-native|fixtures|tests|Tests)\/|(?:^|\/)test-(?:loader|hooks)\.mjs$/;
 
 const TOOL_DIRECTIVE =
@@ -317,9 +317,9 @@ const ENV_READ =
 const CEF_NAME = /(?<![A-Za-z])(?:[Cc]ef|CEF)(?![a-z])|(?<=[a-z0-9_])(?:Cef|CEF)(?![a-z])/g;
 const LEGACY_BRAND = /netnyahoo/gi;
 const LEGACY_PREFIX = /\bNN[A-Z][a-z]\w*/g;
-const APP_SIDE_OBJC_FILE = /^(?:AC[A-Z]|ArdiaCore[A-Z])\w*\.(?:h|m|mm|swift)$/;
+const APP_SIDE_OBJC_FILE = /^(?:AC[A-Z]|UniVerseCore[A-Z])\w*\.(?:h|m|mm|swift)$/;
 const APP_SIDE_OBJC_CLASS =
-  /@(?:interface|implementation|protocol)\s+(?:AC[A-Z]|ArdiaCore[A-Z])\w*\b(?!\s*[(;])|(?<!@)\b(?:class|struct|enum|protocol|actor|typealias)\s+(?:AC[A-Z]|ArdiaCore[A-Z])\w*|@objc\(\s*(?:AC[A-Z]|ArdiaCore[A-Z])\w*\s*\)/g;
+  /@(?:interface|implementation|protocol)\s+(?:AC[A-Z]|UniVerseCore[A-Z])\w*\b(?!\s*[(;])|(?<!@)\b(?:class|struct|enum|protocol|actor|typealias)\s+(?:AC[A-Z]|UniVerseCore[A-Z])\w*|@objc\(\s*(?:AC[A-Z]|UniVerseCore[A-Z])\w*\s*\)/g;
 const IMPORT_SPEC =
   /\b(?:import|export)\b[^;"'`]*?\bfrom\s*(["'])([^"'\n]+)\1|\bimport\s*(?:\(\s*)?(["'])([^"'\n]+)\3|\brequire\s*\(\s*(["'])([^"'\n]+)\5/g;
 const NATIVE_PACKAGE = /^(?:@universe\/(?:universecore|shell|shaders|import|sync)(?:\/.*)?|expo-modules-core)$/;
@@ -612,9 +612,9 @@ if (process.argv.includes("--write-baseline")) {
     assert.deepEqual(violationsOf("apps/browser/src/state/hello/colors.ts", 'export const white = `#${"fff"}`;\n'), { tokens: 1 });
     assert.deepEqual(violationsOf("apps/browser/src/state/hello/colors.ts", 'const hex = "fff";\nexport const color = `#${hex}`;\n'), { tokens: 1 });
   });
-  test("a forward declaration of the engine's ArdiaCore classes isn't an app-side class", () => {
-    assert.deepEqual(violationsOf("packages/hello/ios/HelloWindow.h", "@class ArdiaCoreTab;\n"), {});
-    assert.deepEqual(violationsOf("packages/hello/ios/HelloWindow.h", "@interface ArdiaCoreHello : NSObject\n@end\n"), { naming: 1 });
+  test("a forward declaration of the engine's UniVerseCore classes isn't an app-side class", () => {
+    assert.deepEqual(violationsOf("packages/hello/ios/HelloWindow.h", "@class UniVerseCoreTab;\n"), {});
+    assert.deepEqual(violationsOf("packages/hello/ios/HelloWindow.h", "@interface UniVerseCoreHello : NSObject\n@end\n"), { naming: 1 });
   });
   test("components neither write a store nor subscribe to the workspace store directly", () => {
     const component = (body) => violationsOf("apps/browser/src/components/hello/Hello.tsx", `${body}\n`);
@@ -632,14 +632,14 @@ if (process.argv.includes("--write-baseline")) {
     assert.deepEqual(imports("apps/browser/src/state/tabs/webviewHandles.ts", "../../platform/webviews"), {});
   });
   test("only the engine's named environment reads are exempt", () => {
-    const delegate = "engine/ardiacore/src/ardia/core/ac_main_delegate.cc";
-    const policy = "engine/chromium/src/chrome/browser/ardia/ac_scripts_policy.cc";
+    const delegate = "engine/universecore/src/universe/core/ac_main_delegate.cc";
+    const policy = "engine/chromium/src/chrome/browser/universe/ac_scripts_policy.cc";
     const create = "  std::unique_ptr<base::Environment> env = base::Environment::Create();\n";
     assert.deepEqual(violationsOf(delegate, create), {});
     assert.deepEqual(violationsOf(delegate, `${create}  const char* port = getenv("PORT");\n`), { env: 1 });
     assert.deepEqual(violationsOf(policy, '    if (const char* home = getenv("HOME")) {\n'), {});
     assert.deepEqual(violationsOf(policy, '    const char* user = getenv("USER");\n'), { env: 1 });
-    assert.deepEqual(violationsOf("engine/chromium/src/chrome/browser/ardia/ac_other.cc", '    if (const char* home = getenv("HOME")) {\n'), { env: 1 });
+    assert.deepEqual(violationsOf("engine/chromium/src/chrome/browser/universe/ac_other.cc", '    if (const char* home = getenv("HOME")) {\n'), { env: 1 });
   });
   test("conventions hold, except what the baseline lists", (t) => {
     const baseline = JSON.parse(readFileSync(ROOT + BASELINE_PATH, "utf8"));

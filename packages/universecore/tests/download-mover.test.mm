@@ -1,4 +1,4 @@
-#import "../ios/ArdiaDownloadMover.h"
+#import "../ios/UniVerseDownloadMover.h"
 
 #include <CommonCrypto/CommonDigest.h>
 #include <atomic>
@@ -63,7 +63,7 @@ static NSArray<NSString *> *StagingDirs() {
   return found;
 }
 
-static NSString *Finished(ArdiaDownloadMover *mover, NSString *name, NSString *text, NSDictionary *extra = @{}) {
+static NSString *Finished(UniVerseDownloadMover *mover, NSString *name, NSString *text, NSDictionary *extra = @{}) {
   NSString *path = Make([@"src" stringByAppendingPathComponent:name], text);
   NSMutableDictionary *event = FinishedEvent(path, text);
   [event addEntriesFromDictionary:extra];
@@ -86,7 +86,7 @@ int main() {
     gSource = [gHome stringByAppendingPathComponent:@"src"];
     NSUserDefaults *defaults = [[NSUserDefaults alloc] initWithSuiteName:[gHome stringByAppendingPathComponent:@"prefs"]];
     [NSFileManager.defaultManager createDirectoryAtPath:[gHome stringByAppendingPathComponent:@"Downloads"] withIntermediateDirectories:YES attributes:nil error:nil];
-    ArdiaDownloadMover *mover = [[ArdiaDownloadMover alloc] initWithHome:gHome defaults:defaults];
+    UniVerseDownloadMover *mover = [[UniVerseDownloadMover alloc] initWithHome:gHome defaults:defaults];
 
     {
       NSString *stranger = Make(@"src/stranger.txt", @"not ours");
@@ -151,7 +151,7 @@ int main() {
       NSString *movedId = [NSString stringWithFormat:@"d%d", gNextId - 2];
       NSDictionary *replayed = [mover noteDownloadEvent:@{@"id" : movedId, @"path" : second, @"state" : @"finished"}];
       CHECK([replayed[@"path"] isEqual:again[@"path"]]);
-      ArdiaDownloadMover *relaunched = [[ArdiaDownloadMover alloc] initWithHome:gHome defaults:defaults];
+      UniVerseDownloadMover *relaunched = [[UniVerseDownloadMover alloc] initWithHome:gHome defaults:defaults];
       NSDictionary *afterRelaunch = [relaunched noteDownloadEvent:@{@"id" : movedId, @"path" : second, @"state" : @"finished"}];
       CHECK([afterRelaunch[@"path"] isEqual:again[@"path"]]);
     }
@@ -327,16 +327,16 @@ int main() {
         return path;
       };
       NSString *freed = crashAt(@"crash-free.txt", @"put back", @"claimed");
-      ArdiaDownloadMover *restarted = [[ArdiaDownloadMover alloc] initWithHome:gHome defaults:defaults];
+      UniVerseDownloadMover *restarted = [[UniVerseDownloadMover alloc] initWithHome:gHome defaults:defaults];
       CHECK([Text(freed) isEqual:@"put back"]);
       CHECK(StagingDirs().count == 0);
-      CHECK([defaults dictionaryForKey:@"ArdiaDownloadMoveJournal"] == nil);
+      CHECK([defaults dictionaryForKey:@"UniVerseDownloadMoveJournal"] == nil);
 
       mover = restarted;
       NSString *taken = crashAt(@"crash-taken.txt", @"still mine", @"claimed");
       NSString *takenId = [NSString stringWithFormat:@"d%d", gNextId];
       Make(@"src/crash-taken.txt", @"someone else");
-      restarted = [[ArdiaDownloadMover alloc] initWithHome:gHome defaults:defaults];
+      restarted = [[UniVerseDownloadMover alloc] initWithHome:gHome defaults:defaults];
       NSString *reported = [restarted noteDownloadEvent:@{@"id" : takenId, @"path" : taken}][@"path"];
       CHECK([reported hasPrefix:[gSource stringByAppendingPathComponent:@".universe-moving-"]]);
       CHECK([Text(reported) isEqual:@"still mine"]);
@@ -346,7 +346,7 @@ int main() {
       mover = restarted;
       NSString *placed = crashAt(@"crash-placed.txt", @"landed", @"placed");
       NSString *placedId = [NSString stringWithFormat:@"d%d", gNextId];
-      restarted = [[ArdiaDownloadMover alloc] initWithHome:gHome defaults:defaults];
+      restarted = [[UniVerseDownloadMover alloc] initWithHome:gHome defaults:defaults];
       NSString *landed = [gHome stringByAppendingPathComponent:@"Downloads/Crash/crash-placed.txt"];
       NSDictionary *committed = [restarted noteDownloadEvent:@{@"id" : placedId, @"path" : placed}];
       CHECK([committed[@"path"] isEqual:landed]);
@@ -396,13 +396,13 @@ int main() {
       unlink([gHome stringByAppendingPathComponent:@"Downloads/Large/large.bin"].fileSystemRepresentation);
     }
     {
-      CHECK([[ArdiaDownloadMover safeFileName:@".hidden"] isEqual:@"hidden"]);
-      CHECK([[ArdiaDownloadMover safeFileName:@"a/b:c.txt"] isEqual:@"a_b_c.txt"]);
-      CHECK([[ArdiaDownloadMover safeFileName:@"in‮gnp.exe"] isEqual:@"ingnp.exe"]);
-      CHECK([[ArdiaDownloadMover safeFileName:@"tab\there\n.txt"] isEqual:@"tabhere.txt"]);
-      CHECK([[ArdiaDownloadMover safeFileName:@" .. "] isEqual:@"download"]);
+      CHECK([[UniVerseDownloadMover safeFileName:@".hidden"] isEqual:@"hidden"]);
+      CHECK([[UniVerseDownloadMover safeFileName:@"a/b:c.txt"] isEqual:@"a_b_c.txt"]);
+      CHECK([[UniVerseDownloadMover safeFileName:@"in‮gnp.exe"] isEqual:@"ingnp.exe"]);
+      CHECK([[UniVerseDownloadMover safeFileName:@"tab\there\n.txt"] isEqual:@"tabhere.txt"]);
+      CHECK([[UniVerseDownloadMover safeFileName:@" .. "] isEqual:@"download"]);
       NSString *longName = [[@"" stringByPaddingToLength:400 withString:@"é" startingAtIndex:0] stringByAppendingString:@".pdf"];
-      NSString *cut = [ArdiaDownloadMover safeFileName:longName];
+      NSString *cut = [UniVerseDownloadMover safeFileName:longName];
       CHECK([cut lengthOfBytesUsingEncoding:NSUTF8StringEncoding] <= 255);
       CHECK([cut hasSuffix:@".pdf"]);
     }

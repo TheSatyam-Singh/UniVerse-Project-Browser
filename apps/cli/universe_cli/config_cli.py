@@ -13,11 +13,11 @@ from universe_cli.printable import complain, say
 from universe_cli.schema_check import Problem, describe, did_you_mean, ecma_pattern, format_path, show, validate
 
 CONFIG_DESCRIPTION = """\
-Set UniVerse Project Browser up from ~/.config/ardia/config.json, dotfiles style. UniVerse Project Browser reads the file at launch and whenever it
+Set UniVerse Project Browser up from ~/.config/universe/config.json, dotfiles style. UniVerse Project Browser reads the file at launch and whenever it
 changes, and never writes it; these commands edit it for you and check it against the schema UniVerse Project Browser writes.
 None of them need UniVerse Project Browser running.
 
-The config folder is ~/.config/universe, or <data dir>/config with --data-dir or $ARDIA_DATA_DIR. Keys, allowed
+The config folder is ~/.config/universe, or <data dir>/config with --data-dir or $UNIVERSE_DATA_DIR. Keys, allowed
 values and defaults come from config.schema.json in the config folder, else <data dir>/config-schema/ (the named
 data dir, else the installed app's).
 
@@ -66,7 +66,7 @@ SHORTCUT_HELP = (
     " then a character, f1-f20, space, tab, return, escape, delete, up, down, left, right, home, end, pageup or"
     " pagedown; or glyphs like ⌘⇧T; '' unbinds."
 )
-DATA_DIR_HELP = "the UniVerse Project Browser data dir; the config folder is <DIR>/config (default: $ARDIA_DATA_DIR, else ~/.config/universe)"
+DATA_DIR_HELP = "the UniVerse Project Browser data dir; the config folder is <DIR>/config (default: $UNIVERSE_DATA_DIR, else ~/.config/universe)"
 CHANNEL = r"\s*(?:25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\s*"
 ALPHA = r"\s*(?:0|1|0?\.[0-9]+|1\.0+)\s*"
 COLOUR = re.compile(

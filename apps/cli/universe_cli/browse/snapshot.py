@@ -261,10 +261,10 @@ def render(nodes: list[Node], interactive: bool = False, compact: bool = False, 
 async def clickable_map(page, frame: str) -> dict[int, list]:
     try:
         remote = await page.call(
-            "() => { const r = ardiaBrowse.clickables(); globalThis.ardiaBrowseHints = r.hints; return r.elements; }",
+            "() => { const r = universeBrowse.clickables(); globalThis.universeBrowseHints = r.hints; return r.elements; }",
             frame=frame, by_value=False, read=True,
         )
-        hints = await page.call("() => globalThis.ardiaBrowseHints", frame=frame, read=True)
+        hints = await page.call("() => globalThis.universeBrowseHints", frame=frame, read=True)
         elements = await page.elements_from(remote, frame, "clickable")
     except BrowseError:
         return {}
@@ -310,7 +310,7 @@ async def scope_elements(state, page, selector: str):
         return element.frame, [element]
     frame = state.frame_for(page) or page.main_frame
     try:
-        remote = await page.call("(s) => ardiaBrowse.queryAll(s)", selector, frame=frame, by_value=False, read=True)
+        remote = await page.call("(s) => universeBrowse.queryAll(s)", selector, frame=frame, by_value=False, read=True)
     except BrowseError as error:
         raise BrowseError(f"Invalid selector {selector}: {error.message}") from None
     elements = await page.elements_from(remote, frame, selector, MAX_SCOPES)

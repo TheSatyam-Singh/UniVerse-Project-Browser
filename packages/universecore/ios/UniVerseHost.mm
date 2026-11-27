@@ -1,0 +1,470 @@
+#import "UniVerseHostInternal.h"
+#import "UniVerseLaunchConfig.h"
+#import "UniVerseEarlyWindow.h"
+#import "UniVerseServices.h"
+#import "UniVerseNavigationDownloads.h"
+#import "UniVerseStartup.h"
+#import "UniVerseTabParking.h"
+#import "UniVerseWebViewInternal.h"
+
+#import <Security/Security.h>
+#import <objc/runtime.h>
+
+#include <cctype>
+#include <cstring>
+#include <set>
+#include <string>
+#include <vector>
+
+using namespace universe_host;
+
+namespace universe_host {
+
+id<NSApplicationDelegate> (^gMakeDelegate)(void);
+
+id<NSApplicationDelegate> gAppDelegate;
+
+
+NSString *gDataDirectory;
+
+}
+
+namespace {
+
+BOOL gMenuShortcutsReady;
+
+void SendReservedShortcuts() {
+  if (!UniVerseLaunchSequence.shared.engineRunning || !gMenuShortcutsReady) return;
+  [UniVerseCoreEngine reservedShortcutsChanged];
+}
+
+}
+
+namespace universe_host {
+
+void WatchReservedShortcuts() {
+  static dispatch_once_t once;
+  dispatch_once(&once, ^{
+    [NSNotificationCenter.defaultCenter addObserverForName:NSTextInputContextKeyboardSelectionDidChangeNotification object:nil queue:NSOperationQueue.mainQueue
+                    usingBlock:^(NSNotification *) { SendReservedShortcuts(); }];
+  });
+  SendReservedShortcuts();
+}
+
+bool IsTeamSigned() {
+  SecCodeRef code = nullptr;
+  if (SecCodeCopySelf(kSecCSDefaultFlags, &code) != errSecSuccess) return false;
+  CFDictionaryRef info = nullptr;
+  OSStatus status = SecCodeCopySigningInformation((SecStaticCodeRef)code, kSecCSSigningInformation, &info);
+  CFRelease(code);
+  if (status != errSecSuccess || !info) return false;
+  bool team = CFDictionaryGetValue(info, kSecCodeInfoTeamIdentifier) != nullptr;
+  CFRelease(info);
+  return team;
+}
+
+UniVerseBootstrapDelegate *gBootstrap;
+
+bool gScratchDataDir = false;
+
+
+
+
+
+
+
+NSMutableDictionary<NSString *, NSDictionary *> *gInstallPrompts = [NSMutableDictionary dictionary];
+
+}
+
+@implementation UniVerseHost
+
+static void (^gQuitCancelledHandler)(void);
+
++ (void (^)(void))quitCancelledHandler {
+  return gQuitCancelledHandler;
+}
+
++ (void)setQuitCancelledHandler:(void (^)(void))handler {
+  gQuitCancelledHandler = [handler copy];
+}
+
++ (void)menuShortcutsChanged {
+  gMenuShortcutsReady = YES;
+  SendReservedShortcuts();
+}
+
++ (void)replayInstallPrompts {
+  for (NSDictionary *prompt in gInstallPrompts.allValues) [UniVerseEvents emit:@"extensions.installPrompt" data:prompt];
+}
+
++ (void)resolveExtensionInstallPrompt:(NSString *)requestId accepted:(BOOL)accepted {
+  [gInstallPrompts removeObjectForKey:requestId ?: @""];
+  [UniVerseCoreEngine resolveExtensionInstallPrompt:requestId accepted:accepted];
+}
+
++ (void)beginTracing:(void (^)(BOOL))completion {
+  [UniVerseCoreEngine beginTracing:completion];
+}
+
++ (void)endTracing:(BOOL)keep completion:(void (^)(NSString *))completion {
+  [UniVerseCoreEngine endTracing:keep completion:completion];
+}
+
++ (BOOL)isTracing {
+  return UniVerseCoreEngine.isTracing;
+}
+
++ (void)deleteProfileData:(NSString *)profile completion:(void (^)(NSArray<NSString *> *))completion {
+  if (universe_host::IsPrivateProfile(profile)) return completion(@[]);
+  UniVerseCoreEngine *engine = UniVerseCoreEngine.sharedEngine;
+  UniVerseCoreProfile *p = universe_host::LoadedProfile(profile);
+  if (!profile.length || !engine) return completion(@[ @"data" ]);
+  [DeletedProfiles() addObject:profile];
+  void (^remove)(UniVerseCoreProfile *) = ^(UniVerseCoreProfile *loaded) {
+    if (!loaded) {
+      NSString *path = [gDataDirectory stringByAppendingPathComponent:universe_host::ProfileDirectoryName(profile)];
+      [NSFileManager.defaultManager removeItemAtPath:path error:nil];
+      return completion([NSFileManager.defaultManager fileExistsAtPath:path] ? @[ @"files" ] : @[]);
+    }
+    [engine deleteProfile:loaded completion:^(BOOL deleted) {
+      if (deleted) [Profiles() removeObjectForKey:profile];
+      else [DeletedProfiles() removeObject:profile];
+      completion(deleted ? @[] : @[ @"data" ]);
+    }];
+  };
+  if (!p && ProfileWaiters()[profile]) {
+    DeletionsAfterLoad()[profile] = [remove copy];
+    return;
+  }
+  remove(p);
+}
+
++ (void)releaseProfile:(NSString *)profile {
+  UniVerseCoreEngine *engine = UniVerseCoreEngine.sharedEngine;
+  UniVerseCoreProfile *p = universe_host::LoadedProfile(profile);
+  if (universe_host::IsPrivateProfile(profile)) {
+    if (profile) [ReleasedPrivateNames() addObject:profile];
+    [Profiles() removeObjectForKey:profile];
+    NSArray *waiting = ProfileWaiters()[profile];
+    [ProfileWaiters() removeObjectForKey:profile];
+    for (void (^waiter)(UniVerseCoreProfile *) in waiting) waiter(nil);
+    universe_host::ForgetPrivateNavigationDownloads(profile);
+    if ([Profiles().allValues containsObject:p]) return;
+  }
+  if (p) [engine releaseProfile:p];
+}
+
++ (NSArray<NSString *> *)loadedProfiles {
+  return universe_host::LoadedDataProfileNames();
+}
+
++ (BOOL)stopCapture:(NSString *)tabId {
+  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  return [tab stopCapture];
+}
+
++ (BOOL)showAutofillSuggestions:(NSString *)tabId passwords:(BOOL)passwords {
+  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  return [tab showAutofillSuggestions:passwords];
+}
+
++ (void)deviceChooser:(int)chooserId select:(int)index {
+  [UniVerseCoreEngine selectDevice:chooserId index:index];
+}
+
++ (void)deviceChooser:(int)chooserId action:(NSString *)action {
+  if ([action isEqualToString:@"cancel"])
+    [UniVerseCoreEngine cancelDeviceChooser:chooserId];
+  else if ([action isEqualToString:@"refresh"])
+    [UniVerseCoreEngine refreshDeviceChooser:chooserId];
+  else if ([action isEqualToString:@"settings"])
+    [UniVerseCoreEngine openDeviceChooserSettings:chooserId];
+}
+
++ (NSArray<NSDictionary *> *)testExternalLaunches {
+  return UniVerseCoreEngine.testExternalLaunches ?: @[];
+}
+
++ (BOOL)devShowBluetoothChooser:(NSString *)tabId unauthorized:(BOOL)unauthorized {
+  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  return [tab devShowBluetoothChooser:unauthorized];
+}
+
++ (NSArray<NSDictionary *> *)testChooserEvents {
+  return UniVerseCoreEngine.testChooserEvents ?: @[];
+}
+
++ (BOOL)shareTabInstead:(NSString *)capturerTabId target:(NSString *)targetTabId {
+  UniVerseCoreTab *capturer = universe_host::TabWithAppTabId(capturerTabId);
+  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(targetTabId);
+  return capturer && [tab shareThisTabInsteadFor:capturer];
+}
+
++ (BOOL)showCastDialog:(NSString *)tabId {
+  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  return [tab showCastDialog];
+}
+
++ (void)castDialog:(int)dialogId start:(NSString *)sink mode:(int)mode {
+  [UniVerseCoreEngine startCasting:dialogId sink:sink mode:mode];
+}
+
++ (void)castDialog:(int)dialogId stop:(NSString *)route {
+  [UniVerseCoreEngine stopCasting:dialogId route:route];
+}
+
++ (void)closeCastDialog:(int)dialogId {
+  [UniVerseCoreEngine closeCastDialog:dialogId];
+}
+
++ (void)watchCastRoutes:(NSString *)profileName {
+  universe_host::WithProfile(profileName, ^(UniVerseCoreProfile *profile) {
+    [profile watchCastRoutes];
+  });
+}
+
++ (void)terminateCastRoute:(NSString *)route {
+  [UniVerseCoreEngine terminateCastRoute:route];
+}
+
++ (void)resolveExternalApp:(NSString *)requestId open:(BOOL)open remember:(BOOL)remember {
+  [UniVerseCoreEngine resolveExternalApp:requestId open:open remember:remember];
+}
+
++ (NSDictionary *)actionStates:(NSString *)tabId extensions:(NSArray<NSString *> *)ids {
+  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  return [tab actionStatesForExtensions:ids] ?: @{};
+}
+
++ (NSString *)sidePanelURL:(NSString *)tabId extension:(NSString *)extensionId {
+  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  return [tab sidePanelURLForExtension:extensionId];
+}
+
++ (BOOL)isPrivateProfile:(NSString *)profile {
+  return universe_host::IsPrivateProfile(profile);
+}
+
++ (NSString *)baseProfileOf:(NSString *)profile {
+  return universe_host::OriginalProfileName(profile);
+}
+
++ (int)chromeTabIdOfTab:(NSString *)tabId {
+  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  return tab ? tab.tabId : -1;
+}
+
+static NSMutableDictionary<NSString *, UniVerseCoreWindow *> *OffscreenWindows() {
+  static NSMutableDictionary<NSString *, UniVerseCoreWindow *> *windows = [NSMutableDictionary dictionary];
+  return windows;
+}
+
+static UniVerseCoreWindow *OffscreenWindowFor(UniVerseCoreProfile *profile) {
+  NSString *name = universe_host::ProfileName(profile);
+  UniVerseCoreWindow *window = OffscreenWindows()[name];
+  if (window.window) return window;
+  window = [[UniVerseCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1280, 800)];
+  if (!window.window) return nil;
+  window.internal = YES;
+  window.automation = YES;
+  OffscreenWindows()[name] = window;
+  return window;
+}
+
+static NSDictionary<NSString *, id> *OffscreenRefusal(NSString *reason) {
+  return @{@"ok" : @NO, @"reason" : reason};
+}
+
++ (void)cliMoveOffscreen:(NSString *)tabId tries:(NSInteger)tries completion:(void (^)(NSDictionary<NSString *, id> *moved))completion {
+  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  UniVerseWebView *view = tab ? [UniVerseTabRegistry viewForTab:tab] : nil;
+  if (!tab || tab.closed || tab.discarded || !view) return completion(OffscreenRefusal(@"That tab has no page loaded."));
+  UniVerseCoreWindow *window = OffscreenWindowFor(tab.profile);
+  const UniVerseCoreAdoption adoption = window ? [window canAdoptTab:tab] : UniVerseCoreAdoptionRefused;
+  if (adoption == UniVerseCoreAdoptionBusy && tries > 0) {
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
+      [self cliMoveOffscreen:tabId tries:tries - 1 completion:completion];
+    });
+    return;
+  }
+  if (adoption != UniVerseCoreAdoptionAdopted) return completion(OffscreenRefusal(@"UniVerse Project Browser couldn't take that tab off-screen."));
+  if (![view releasePageForOffscreen]) return completion(OffscreenRefusal(@"That tab is shown in a window, so it can't go off-screen."));
+  if ([window adoptTab:tab] != UniVerseCoreAdoptionAdopted) {
+    [tab close];
+    return completion(OffscreenRefusal(@"UniVerse Project Browser couldn't take that tab off-screen, and closed it."));
+  }
+  NSView *page = tab.view, *host = window.hostView;
+  [page removeFromSuperview];
+  page.frame = host.bounds;
+  page.autoresizingMask = NSViewWidthSizable | NSViewHeightSizable;
+  page.hidden = NO;
+  [host addSubview:page];
+  completion(@{@"ok" : @YES});
+}
+
++ (void)cliMoveOffscreen:(NSString *)tabId completion:(void (^)(NSDictionary<NSString *, id> *moved))completion {
+  [self cliMoveOffscreen:tabId tries:50 completion:completion];
+}
+
++ (void)cliCloseOffscreenTabs {
+  for (UniVerseCoreWindow *window in OffscreenWindows().allValues)
+    for (UniVerseCoreProfile *profile in universe_host::LoadedProfiles())
+      for (UniVerseCoreTab *tab in [[window tabsForProfile:profile] copy]) [tab close];
+}
+
++ (void)cliTabTargets:(NSArray<NSString *> *)tabIds completion:(void (^)(NSDictionary<NSString *, id> *targets))completion {
+  static NSMutableDictionary<NSString *, NSString *> *lastTarget;
+  static NSMutableDictionary<NSString *, NSNumber *> *generations;
+  if (!lastTarget) {
+    lastTarget = [NSMutableDictionary dictionary];
+    generations = [NSMutableDictionary dictionary];
+  }
+  NSMutableDictionary<NSString *, id> *answer = [NSMutableDictionary dictionary];
+  void (^record)(NSString *, NSString *) = ^(NSString *tabId, NSString *targetId) {
+    if (targetId && ![lastTarget[tabId] isEqualToString:targetId]) {
+      lastTarget[tabId] = targetId;
+      generations[tabId] = @(generations[tabId].integerValue + 1);
+    }
+    answer[tabId] = @{@"targetId" : targetId ?: NSNull.null, @"pageGeneration" : generations[tabId] ?: @0};
+  };
+  dispatch_group_t pending = dispatch_group_create();
+  for (NSString *tabId in tabIds) {
+    UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+    if (!tab || tab.closed || tab.discarded || [UniVerseTabRegistry viewForTab:tab].awaitsFirstDocument) {
+      record(tabId, nil);
+      continue;
+    }
+    dispatch_group_enter(pending);
+    [tab devToolsCall:@"Target.getTargetInfo"
+               params:@{}
+              timeout:1.0
+           completion:^(NSDictionary *result, NSString *error) {
+             id info = result[@"targetInfo"];
+             id targetId = [info isKindOfClass:NSDictionary.class] ? info[@"targetId"] : nil;
+             record(tabId, [targetId isKindOfClass:NSString.class] ? targetId : nil);
+             dispatch_group_leave(pending);
+           }];
+  }
+  dispatch_group_notify(pending, dispatch_get_main_queue(), ^{
+    completion(answer);
+  });
+}
+
++ (void)resolvePermission:(NSString *)requestId result:(NSString *)result remember:(BOOL)remember {
+  [UniVerseCoreEngine resolvePermission:requestId result:result remember:remember];
+}
+
++ (NSArray<NSDictionary<NSString *, id> *> *)displayMediaSources {
+  NSMutableArray *sources = [NSMutableArray array];
+  NSUInteger index = 0;
+  for (NSScreen *screen in NSScreen.screens) {
+    NSNumber *display = screen.deviceDescription[@"NSScreenNumber"];
+    index++;
+    [sources addObject:@{
+      @"id" : [NSString stringWithFormat:@"screen:%u:0", display.unsignedIntValue],
+      @"kind" : @"screen",
+      @"name" : screen.localizedName ?: [NSString stringWithFormat:@"Screen %lu", (unsigned long)index],
+      @"width" : @(screen.frame.size.width),
+      @"height" : @(screen.frame.size.height),
+    }];
+  }
+  NSArray *windows = CFBridgingRelease(
+      CGWindowListCopyWindowInfo(kCGWindowListOptionOnScreenOnly | kCGWindowListExcludeDesktopElements, kCGNullWindowID));
+  for (NSDictionary *w in windows) {
+    if ([w[(id)kCGWindowLayer] intValue] != 0) continue;
+    NSDictionary *bounds = w[(id)kCGWindowBounds];
+    const CGFloat width = [bounds[@"Width"] doubleValue], height = [bounds[@"Height"] doubleValue];
+    if (width < 50 || height < 50) continue;
+    NSString *app = w[(id)kCGWindowOwnerName] ?: @"";
+    NSString *title = w[(id)kCGWindowName];
+    [sources addObject:@{
+      @"id" : [NSString stringWithFormat:@"window:%u:0", [w[(id)kCGWindowNumber] unsignedIntValue]],
+      @"kind" : @"window",
+      @"name" : title.length ? title : app,
+      @"app" : app,
+      @"pid" : w[(id)kCGWindowOwnerPID] ?: @0,
+      @"width" : @(width),
+      @"height" : @(height),
+    }];
+  }
+  return sources;
+}
+
++ (BOOL)screenRecordingAllowed {
+  NSString *answer = [UniVerseLaunchConfig.shared testValue:@"screenRecording"];
+  if (answer.length) return [answer isEqualToString:@"allowed"];
+  return CGPreflightScreenCaptureAccess();
+}
+
++ (BOOL)requestScreenRecording {
+  if (self.screenRecordingAllowed) return YES;
+  if (UniVerseLaunchConfig.shared.background) {
+    NSLog(@"[universe] background mode: Screen Recording request not shown");
+    return NO;
+  }
+  if (CGRequestScreenCaptureAccess()) return YES;
+  [NSWorkspace.sharedWorkspace
+      openURL:[NSURL URLWithString:@"x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture"]];
+  return NO;
+}
+
++ (BOOL)isStarted {
+  return UniVerseLaunchSequence.shared.engineRunning;
+}
+
++ (NSString *)dataDirectory {
+  return gDataDirectory ?: @"";
+}
+
++ (NSDictionary<NSString *, id> *)engineInfo {
+  UniVerseCoreEngine *engine = UniVerseCoreEngine.sharedEngine;
+  NSInteger chromeWindows = 0;
+  for (UniVerseWindowController *c in UniVerseWindowController.all) chromeWindows += c.coreWindow ? 1 : 0;
+  return @{
+    @"pid" : @(NSProcessInfo.processInfo.processIdentifier),
+    @"dataDirectory" : gDataDirectory ?: @"",
+    @"engine" : @"universecore",
+    @"chromiumVersion" : engine.chromiumVersion ?: @"",
+    @"liveBrowsers" : @0,
+    @"popupWindows" : @(universe_host::PopupWindowCount()),
+    @"chromeWindows" : @(chromeWindows),
+    @"keepAlive" : engine.keepAliveState ?: @"",
+    @"lastUsedProfile" : engine.defaultProfile.name ?: @"",
+    @"focus" : universe_host::FocusState(),
+  };
+}
+
++ (NSArray<NSDictionary<NSString *, id> *> *)chromeWindows {
+  NSMutableArray *list = [NSMutableArray array];
+  for (UniVerseWindowController *c in UniVerseWindowController.all) {
+    NSWindow *w = c.coreWindow.window;
+    if (!w) continue;
+    UniVerseCoreProfile *active = c.coreWindow.activeProfile;
+    [list addObject:@{
+      @"profile" : universe_host::ProfileName(active),
+      @"window" : @(w.windowNumber),
+      @"frame" : NSStringFromRect(w.frame),
+      @"alpha" : @(w.alphaValue),
+      @"key" : @(w.isKeyWindow),
+      @"canBecomeKey" : @(w.canBecomeKeyWindow),
+      @"visible" : @(w.isVisible),
+      @"occlusionVisible" : @((w.occlusionState & NSWindowOcclusionStateVisible) != 0),
+      @"chromeOccluded" : [w respondsToSelector:NSSelectorFromString(@"isOccluded")] ? [w valueForKey:@"occluded"] : NSNull.null,
+      @"parentWindow" : @(w.parentWindow.windowNumber),
+      @"chromeWindows" : @1,
+      @"anchorBrowserId" : @0,
+      @"anyTabBrowserId" : @0,
+      @"ready" : @YES,
+      @"active" : @(w.isMainWindow),
+      @"pageInsets" : @[ @0, @0, @0, @0 ],
+      @"hosting" : @(c.root != nil),
+      @"group" : @"",
+      @"hasRoot" : @(c.root != nil),
+      @"translucent" : @(!w.opaque),
+    }];
+  }
+  return list;
+}
+
+@end

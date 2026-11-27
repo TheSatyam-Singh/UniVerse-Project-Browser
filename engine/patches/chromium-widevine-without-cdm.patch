@@ -5,7 +5,7 @@ diff --git a/components/cdm/renderer/key_system_support_update.cc b/components/c
  #include "third_party/widevine/cdm/buildflags.h"
  
  #if BUILDFLAG(ENABLE_WIDEVINE)
-+#include "ardia/core/ac_content_hooks.h"  // nogncheck
++#include "universe/core/ac_content_hooks.h"  // nogncheck
  #include "components/cdm/renderer/widevine_key_system_info.h"
 +#include "media/cdm/supported_audio_codecs.h"
  #include "third_party/widevine/cdm/widevine_cdm_common.h"  // nogncheck
@@ -15,7 +15,7 @@ diff --git a/components/cdm/renderer/key_system_support_update.cc b/components/c
  using media::KeySystemInfos;
  using media::SupportedCodecs;
  
-+bool g_ardia_widevine_without_cdm = false;
++bool g_universe_widevine_without_cdm = false;
 +
  namespace cdm {
  
@@ -50,7 +50,7 @@ diff --git a/components/cdm/renderer/key_system_support_update.cc b/components/c
      content::KeySystemCapabilities key_system_capabilities) {
    KeySystemInfos key_systems;
 +#if BUILDFLAG(ENABLE_WIDEVINE)
-+  if (g_ardia_widevine_without_cdm &&
++  if (g_universe_widevine_without_cdm &&
 +      !key_system_capabilities.contains(kWidevineKeySystem)) {
 +    AddWidevine(WidevineCapabilityWithoutCdm(), can_persist_data,
 +                &key_systems);

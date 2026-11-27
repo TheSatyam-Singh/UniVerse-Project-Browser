@@ -8,9 +8,9 @@ DESCRIPTION = (
 )
 EPILOG = """\
 Shared options go before the command or after it, for the commands that take them:
-  --port N        a plain DevTools server on 127.0.0.1:N (testing; $ARDIA_PORT)
-  --ws URL        a browser WebSocket URL ($ARDIA_WS)
-  --data-dir DIR  the UniVerse Project Browser data dir ($ARDIA_DATA_DIR, else the installed app's)
+  --port N        a plain DevTools server on 127.0.0.1:N (testing; $UNIVERSE_PORT)
+  --ws URL        a browser WebSocket URL ($UNIVERSE_WS)
+  --data-dir DIR  the UniVerse Project Browser data dir ($UNIVERSE_DATA_DIR, else the installed app's)
   --timeout S     and --json
 A flag wins over its environment variable.
 
@@ -129,10 +129,10 @@ def browse_argv(hoisted: list[str], rest: list[str], env) -> list[str]:
         return argv
     if found.keys() & {"ws", "port", "cdp"}:
         return argv
-    if env.get("ARDIA_WS"):
-        return ["--ws", env["ARDIA_WS"], *argv]
-    if env.get("ARDIA_PORT"):
-        return ["--port", env["ARDIA_PORT"], *argv]
+    if env.get("UNIVERSE_WS"):
+        return ["--ws", env["UNIVERSE_WS"], *argv]
+    if env.get("UNIVERSE_PORT"):
+        return ["--port", env["UNIVERSE_PORT"], *argv]
     return argv
 
 

@@ -20,46 +20,46 @@ struct ChromiumPageEngine: PageEngine {
   func owns(_ id: String) -> Bool { true }
 
   func resolvePermission(_ id: String, result: String, remember: Bool) {
-    ArdiaHost.resolvePermission(id, result: result, remember: remember)
+    UniVerseHost.resolvePermission(id, result: result, remember: remember)
   }
 
   func resolveExternalApp(_ id: String, open: Bool, remember: Bool) {
-    ArdiaHost.resolveExternalApp(id, open: open, remember: remember)
+    UniVerseHost.resolveExternalApp(id, open: open, remember: remember)
   }
 
-  func downloadCommand(_ action: String, id: String) { ArdiaServices.downloadCommand(action, id: id) }
+  func downloadCommand(_ action: String, id: String) { UniVerseServices.downloadCommand(action, id: id) }
 
   func externalAppAllowances(profile: String, done: @escaping ([[String: Any]]) -> Void) {
-    ArdiaServices.externalAppAllowances(profile: profile) { value, _ in done(value as? [[String: Any]] ?? []) }
+    UniVerseServices.externalAppAllowances(profile: profile) { value, _ in done(value as? [[String: Any]] ?? []) }
   }
 
   func removeExternalAppAllowance(profile: String, origin: String, scheme: String) {
-    ArdiaServices.removeExternalAppAllowance(profile: profile, origin: origin, scheme: scheme)
+    UniVerseServices.removeExternalAppAllowance(profile: profile, origin: origin, scheme: scheme)
   }
 
   func siteSettings(profile: String, origin: String, done: @escaping (Any?, String?) -> Void) {
-    ArdiaServices.siteSettings(profile: profile, origin: origin, reply: done)
+    UniVerseServices.siteSettings(profile: profile, origin: origin, reply: done)
   }
 
   func setSiteSetting(profile: String, origin: String, type: String, value: String) {
-    ArdiaServices.setSiteSetting(value, profile: profile, origin: origin, type: type)
+    UniVerseServices.setSiteSetting(value, profile: profile, origin: origin, type: type)
   }
 
   func clearSiteData(profile: String, origin: String, done: @escaping (Any?, String?) -> Void) {
-    ArdiaServices.clearSiteData(profile: profile, origin: origin, reply: done)
+    UniVerseServices.clearSiteData(profile: profile, origin: origin, reply: done)
   }
 
-  func prepareTransfer(_ key: String) { ArdiaWebView.prepareTransfer(key) }
+  func prepareTransfer(_ key: String) { UniVerseWebView.prepareTransfer(key) }
 
-  func releaseTransfer(_ key: String) { ArdiaWebView.releaseTransfer(key) }
+  func releaseTransfer(_ key: String) { UniVerseWebView.releaseTransfer(key) }
 
   func clearBrowsingData(profile: String, types: [String], since: Double, done: @escaping () -> Void) {
-    ArdiaServices.clearBrowsingData(profile: profile, types: types, since: since, completion: done)
+    UniVerseServices.clearBrowsingData(profile: profile, types: types, since: since, completion: done)
   }
 
   func deleteProfileData(profile: String, done: @escaping ([String]) -> Void) {
     if profile.isEmpty { return ProfileData.deleteDefault(done) }
-    ArdiaHost.deleteProfileData(profile, completion: done)
+    UniVerseHost.deleteProfileData(profile, completion: done)
   }
 }
 

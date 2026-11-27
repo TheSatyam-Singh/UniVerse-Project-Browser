@@ -12,11 +12,11 @@ const pageEvents = readFileSync(new URL("./pageEvents.ts", import.meta.url), "ut
 const table = pageEvents.slice(pageEvents.indexOf("const PAGE_EVENTS = {"), pageEvents.indexOf("} as const"));
 const PAGE_EVENTS = collect([table], /^ {2}on[A-Za-z]+: "([A-Za-z]+)",$/gm);
 
-const chromiumView = files(/^ArdiaWebView.*\.mm$/).map(native);
+const chromiumView = files(/^UniVerseWebView.*\.mm$/).map(native);
 const chromiumEmitters = files(/\.mm$/).map(native);
 const webKitTab = files(/^WebKitTab.*\.swift$/).map(native);
 const pageScript = native("page_script.js");
-const messageReceivers = ["ArdiaWebView+PageMessages.mm", "ArdiaWebView+Peek.mm"].map(native);
+const messageReceivers = ["UniVerseWebView+PageMessages.mm", "UniVerseWebView+Peek.mm"].map(native);
 
 const WEBKIT_ONLY_EVENTS = new Set(["mediaFault"]);
 

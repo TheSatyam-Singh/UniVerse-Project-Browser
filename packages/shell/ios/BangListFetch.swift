@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import Carbon.HIToolbox
 import ExpoModulesCore
 
@@ -81,12 +81,12 @@ final class BangListFetch: NSObject, URLSessionDataDelegate {
       Self.running.remove(self)
       Self.lock.unlock()
     }
-    if let failure { return done(.failure(NSError(domain: "ArdiaBangs", code: 1, userInfo: [NSLocalizedDescriptionKey: failure]))) }
+    if let failure { return done(.failure(NSError(domain: "UniVerseBangs", code: 1, userInfo: [NSLocalizedDescriptionKey: failure]))) }
     if let error { return done(.failure(error)) }
-    guard let response else { return done(.failure(NSError(domain: "ArdiaBangs", code: 2, userInfo: [NSLocalizedDescriptionKey: "no response"]))) }
+    guard let response else { return done(.failure(NSError(domain: "UniVerseBangs", code: 2, userInfo: [NSLocalizedDescriptionKey: "no response"]))) }
     let text = response.statusCode == 200 ? String(data: body, encoding: .utf8) : nil
     if response.statusCode == 200 && text == nil {
-      return done(.failure(NSError(domain: "ArdiaBangs", code: 3, userInfo: [NSLocalizedDescriptionKey: "not UTF-8"])))
+      return done(.failure(NSError(domain: "UniVerseBangs", code: 3, userInfo: [NSLocalizedDescriptionKey: "not UTF-8"])))
     }
     let orNull = { (value: String?) -> Any in value.map { $0 as Any } ?? NSNull() }
     done(.success([

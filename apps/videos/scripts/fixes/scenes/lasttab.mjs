@@ -5,7 +5,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 export default {
   session: "session-lasttab.json",
-  env: { ARDIA_TEST: "appDialog" },
+  env: { UNIVERSE_TEST: "appDialog" },
   setup: `return sleep(1500).then(() => done({ unloaded: Object.values(st().tabs).filter((t) => t.unloaded).map((t) => t.id) }));`,
   prepare: (instance) => {
     writeFileSync(join(instance.data, "dialog.json.pick"), "cancel");

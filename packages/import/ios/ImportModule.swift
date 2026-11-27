@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import ExpoModulesCore
 
 public class ImportModule: Module {
@@ -39,7 +39,7 @@ public class ImportModule: Module {
   private static let work = DispatchQueue(label: "universe.import", qos: .userInitiated, attributes: .concurrent)
 
   public func definition() -> ModuleDefinition {
-    Name("ArdiaImport")
+    Name("UniVerseImport")
     Events("onImportEvent")
 
     OnCreate { Self.work.async { SQLiteSnapshot.removeLeftovers() } }

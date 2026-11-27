@@ -5,7 +5,7 @@ import type { SwipeModule } from "./swipe";
 type Secret = Promise<string>;
 
 export type UniVerseCoreNativeModules = {
-  ArdiaTabs: {
+  UniVerseTabs: {
     prepareTransfer(tabId: string): void;
     releaseTransfer(tabId: string): void;
     claimLaunchTab(tabId: string, url: string, profile: string): void;
@@ -14,16 +14,16 @@ export type UniVerseCoreNativeModules = {
     revealOffered(adoptId: string, overTabId: string): void;
     discardOffered(adoptId: string): Promise<boolean>;
   };
-  ArdiaEngine: { inputIdleSeconds(): number };
-  ArdiaPasswords: {
+  UniVerseEngine: { inputIdleSeconds(): number };
+  UniVersePasswords: {
     save(profile: string, origin: string, username: string, password: string): Secret;
     update(profile: string, origin: string, username: string, newUsername: string | null, newPassword: string | null): Secret;
   };
-  ArdiaAutofill: { saveCard(profile: string, card: CardInput, number: string | null): Secret };
-  ArdiaSwipe: SwipeModule;
+  UniVerseAutofill: { saveCard(profile: string, card: CardInput, number: string | null): Secret };
+  UniVerseSwipe: SwipeModule;
 };
 
-const domainOfModule = (name: string) => `${name[5]!.toLowerCase()}${name.slice(6)}`;
+const domainOfModule = (name: string) => `${name[8]!.toLowerCase()}${name.slice(9)}`;
 
 export const nativeModule = <Name extends keyof UniVerseCoreNativeModules>(name: Name) =>
   domainModule<UniVerseCoreNativeModules[Name]>(domainOfModule(name));

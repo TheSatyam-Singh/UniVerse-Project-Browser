@@ -15,7 +15,7 @@ def now():
     return dt.datetime.now(dt.timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z')
 
 def connect(path=None):
-    c = sqlite3.connect(path or os.getenv('ARDIA_DB_PATH', '/workspace/universe-db/universe.db'))
+    c = sqlite3.connect(path or os.getenv('UNIVERSE_DB_PATH', '/workspace/universe-db/universe.db'))
     c.row_factory = sqlite3.Row
     ensure(c)
     return c
@@ -150,7 +150,7 @@ def read_json(path):
 
 def main():
     p = argparse.ArgumentParser(description=__doc__)
-    p.add_argument('--db', help='SQLite path (default ARDIA_DB_PATH or /workspace/universe-db/universe.db)')
+    p.add_argument('--db', help='SQLite path (default UNIVERSE_DB_PATH or /workspace/universe-db/universe.db)')
     sub = p.add_subparsers(dest='command', required=True)
     sub.add_parser('init')
     sub.add_parser('wake')

@@ -171,7 +171,7 @@ test("a history read still running when the owner is deleted lands for the profi
   stub.historyDbs.clear();
   const stop = startHistory();
   await reloadHistory();
-  const fake = stub.universeCoreNativeModules.ArdiaHistory;
+  const fake = stub.universeCoreNativeModules.UniVerseHistory;
   const call = fake.call;
   let release;
   const held = new Promise((r) => (release = r));

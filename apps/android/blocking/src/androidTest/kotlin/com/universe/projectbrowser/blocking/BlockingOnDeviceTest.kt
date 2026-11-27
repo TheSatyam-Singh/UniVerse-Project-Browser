@@ -58,7 +58,7 @@ class BlockingOnDeviceTest {
             val start = System.nanoTime()
             repeat(runs) { blocker.blocks(urls[it % urls.size], "https://www.theguardian.com/", false) }
             val micros = (System.nanoTime() - start) / runs / 1000.0
-            Log.i("ArdiaTiming", "blocking seeds: %.2f us per request".format(micros))
+            Log.i("UniVerseTiming", "blocking seeds: %.2f us per request".format(micros))
             assertTrue(micros < 50)
         } finally {
             scope.cancel()

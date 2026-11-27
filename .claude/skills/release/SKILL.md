@@ -69,13 +69,13 @@ everything since the previous stable, nightlies included.
 ## Ground rules (why they exist)
 
 - **Never touch the Chromium build cache.** release.sh only reads the engine framework from
-  `~/chromium-build/chromium_git/chromium/src/out/Release_GN_arm64` (and refuses one older than the tree's ArdiaCore
+  `~/chromium-build/chromium_git/chromium/src/out/Release_GN_arm64` (and refuses one older than the tree's UniVerseCore
   sources: rebuilding it is an incremental `chrome_framework` build under the chromium lock). Never delete or clean
   `~/chromium-build/chromium_git/chromium/src/out`, run `gclient sync` or `gn clean`: a full Chromium
   rebuild costs ~5 hours and the user has been emphatic about it.
 - **Never launch or touch `/Applications/UniVerse-Project-Browser.app`** (`Netnyahoo.app` until the owner updates past the rename) —
   the user is using it. Test only the exported
-  build in `dist/`, only hidden (`ARDIA_BACKGROUND=1`, throwaway `ARDIA_DATA_DIR`), never with
+  build in `dist/`, only hidden (`UNIVERSE_BACKGROUND=1`, throwaway `UNIVERSE_DATA_DIR`), never with
   plain `open`. The smoke script does this for you.
 - **Build from a clean tree.** release.sh archives the working tree, so another agent's half-finished
   edit would ship. Check `git status` first (below).
@@ -184,7 +184,7 @@ Notarization adds a few minutes per submission.
 
 First it checks the update from `<previous>` (its export in `dist/<previous>/export`):
 
-- the engine is ArdiaCore (Chrome's framework, no CEF);
+- the engine is UniVerseCore (Chrome's framework, no CEF);
 - the identity Sparkle, the keychain and TCC compare: same bundle id, executable, feed and EdDSA key, the build
   satisfies `<previous>`'s designated requirement, and its build number is higher;
 - the appcast's EdDSA signature of the zip verifies with the app's key, and the zip holds this very app, sealed and
@@ -193,7 +193,7 @@ First it checks the update from `<previous>` (its export in `dist/<previous>/exp
   the appcast's item (test bundle id and key; no relaunch, no UI);
 - `carryover.sh`: `<previous>`'s data, made where an installed copy keeps it (two profiles: tabs, cookies including
   session ones, localStorage, passwords, bookmarks, history, an address, a site permission, zoom, an extension),
-  opens in this build started without `ARDIA_DATA_DIR` (test copies in a fake home; never the real data).
+  opens in this build started without `UNIVERSE_DATA_DIR` (test copies in a fake home; never the real data).
 
 Then it launches `dist/<version>/export/UniVerse-Project-Browser.app` hidden with a data dir that says `<previous>` ran last,
 and a session whose window was left on its second profile, and checks, over CDP and the window list:
@@ -349,7 +349,7 @@ netnyahoo.com/appcast.xml and later ones github.com/TheSatyam-Singh/UniVerse-Pro
 Info.plist, so it checks what this build will poll; the copies from before the rename poll the other host
 (`curl -sI https://netnyahoo.com/appcast.xml` must redirect to the same file).
 
-### 5b. Staged rollout (an ArdiaCore-sized or risky release)
+### 5b. Staged rollout (an UniVerseCore-sized or risky release)
 
 Three steps, in this order. Nothing here publishes by itself; each needs the owner's go-ahead (the first is the standing
 rule that a release which changes the engine or something users would notice publishes only after the owner has tested
@@ -429,8 +429,8 @@ app (listed in `apps/site/README.md` › Screenshots):
 - **When:** if the release visibly changes something a shot shows (the sidebar, the tiles, the New Tab page,
   the logo or mark, the icon, a Settings pane, the window chrome), retake the affected shots from **this
   release's export** (`dist/<version>/export/UniVerse-Project-Browser.app`).
-- **How:** use a hidden instance with the smoke test's rules (`ARDIA_BACKGROUND=1`, a throwaway
-  `ARDIA_DATA_DIR`, never plain `open`, never `/Applications`).
+- **How:** use a hidden instance with the smoke test's rules (`UNIVERSE_BACKGROUND=1`, a throwaway
+  `UNIVERSE_DATA_DIR`, never plain `open`, never `/Applications`).
   - Set up the same state as the old shot (the same sites, profiles, light or dark).
   - Take a real window capture at 2× with a transparent outside: `screencapture -l <windowID> -o`.
 - **Screen locked:** WindowServer captures fail. Leave the old shot, and tell the user which shots are stale.

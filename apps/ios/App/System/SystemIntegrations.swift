@@ -1,6 +1,6 @@
 import AppIntents
-import ArdiaBrowser
-import ArdiaDesign
+import UniVerseBrowser
+import UniVerseDesign
 import CoreSpotlight
 import SwiftUI
 import UIKit

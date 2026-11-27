@@ -1,6 +1,6 @@
 import AppKit
 
-@objc(ArdiaScriptCreateCommand)
+@objc(UniVerseScriptCreateCommand)
 final class ScriptCreateCommand: NSCreateCommand {
   override func performDefaultImplementation() -> Any? {
     let properties = resolvedKeyDictionary

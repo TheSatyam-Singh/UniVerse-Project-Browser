@@ -1,5 +1,5 @@
 import XCTest
-@testable import ArdiaTranslateCore
+@testable import UniVerseTranslateCore
 
 final class SentenceRunsTests: XCTestCase {
   private func check(_ text: String, limit: Int = 800, file: StaticString = #filePath, line: UInt = #line) -> [SentenceRun] {

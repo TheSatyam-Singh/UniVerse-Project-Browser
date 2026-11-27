@@ -21,9 +21,9 @@ export type WindowBackdropProps = ViewProps &
     grainScale?: number;
   };
 
-const NativeBackdrop = requireNativeViewManager<WindowBackdropProps>("ArdiaWindowBackdrop");
+const NativeBackdrop = requireNativeViewManager<WindowBackdropProps>("UniVerseWindowBackdrop");
 
-const BackdropModule = requireNativeModule<{ holdKeyLook(on: boolean): Promise<void> }>("ArdiaWindowBackdrop");
+const BackdropModule = requireNativeModule<{ holdKeyLook(on: boolean): Promise<void> }>("UniVerseWindowBackdrop");
 
 export function holdThemedWindowsKeyLook(on: boolean) {
   void BackdropModule.holdKeyLook(on);
@@ -45,7 +45,7 @@ export type PowerUpProps = ViewProps & {
 
 type NativePowerUpProps = Omit<PowerUpProps, "palette" | "halo"> & { palette?: string[]; haloFrame: number[] };
 
-const NativePowerUp = requireNativeViewManager<NativePowerUpProps>("ArdiaPowerUp");
+const NativePowerUp = requireNativeViewManager<NativePowerUpProps>("UniVersePowerUp");
 
 export function PowerUp({ palette = "pink", halo = null, ...props }: PowerUpProps) {
   return (

@@ -1,4 +1,4 @@
-import ArdiaBrowser
+import UniVerseBrowser
 
 extension AppModel {
   var filterLists: FilterLists { blocker.filterLists }

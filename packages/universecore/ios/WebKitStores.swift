@@ -44,7 +44,7 @@ final class WebKitStores {
   private var resumeHosts: [StoreID: WKWebView] = [:]
   private var states: [StoreID: StoreState] = [:]
 
-  static func isPrivate(_ profile: String) -> Bool { ArdiaHost.isPrivateProfile(profile) }
+  static func isPrivate(_ profile: String) -> Bool { UniVerseHost.isPrivateProfile(profile) }
 
   private func session(_ name: String) -> PrivateSession {
     if let live = privateSessions[name] { return live }
@@ -55,7 +55,7 @@ final class WebKitStores {
 
   func id(of profile: String) -> StoreID {
     guard Self.isPrivate(profile) else { return .profile(profile) }
-    let name = ArdiaHost.baseProfile(of: profile)
+    let name = UniVerseHost.baseProfile(of: profile)
     return .privateSession(name: name, token: session(name).token)
   }
 
@@ -75,7 +75,7 @@ final class WebKitStores {
   }
 
   func dataStore(for profile: String) -> WKWebsiteDataStore {
-    if Self.isPrivate(profile) { return session(ArdiaHost.baseProfile(of: profile)).store }
+    if Self.isPrivate(profile) { return session(UniVerseHost.baseProfile(of: profile)).store }
     if let store = persistent[profile] ?? deletedProfiles[profile] { return store }
     let store = WKWebsiteDataStore(forIdentifier: Self.storeIdentifier(profile))
     persistent[profile] = store
@@ -84,7 +84,7 @@ final class WebKitStores {
 
   func liveDataStore(for profile: String, wireKey: String) -> WKWebsiteDataStore? {
     guard Self.isPrivate(profile) else { return wireKey == profile ? dataStore(for: profile) : nil }
-    let name = ArdiaHost.baseProfile(of: profile)
+    let name = UniVerseHost.baseProfile(of: profile)
     guard let live = privateSessions[name], wireKey == StoreID.privateSession(name: name, token: live.token).wireKey else { return nil }
     return live.store
   }

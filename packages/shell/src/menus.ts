@@ -70,5 +70,5 @@ export function watchMenus(watcher: () => void): () => void {
 
 export function showMenu(items: MenuItem[]): Promise<string | null> {
   menusChanged(1);
-  return Promise.resolve(nativeModule("ArdiaMenus").showMenu(items)).finally(() => menusChanged(-1));
+  return Promise.resolve(nativeModule("UniVerseMenus").showMenu(items)).finally(() => menusChanged(-1));
 }

@@ -25,7 +25,7 @@ test("a JS error is on disk the moment it's captured, so a crash right after can
 });
 
 test("a native crash names its exception and the app's images at the top level, never its reason", async () => {
-  stub.shellNativeModules.ArdiaApp.crashReports = async () => [
+  stub.shellNativeModules.UniVerseApp.crashReports = async () => [
     {
       time: Date.now(),
       process: "browser",
@@ -34,7 +34,7 @@ test("a native crash names its exception and the app's images at the top level, 
       signal: "SIGABRT",
       exceptionName: "RCTFatalException",
       exceptionReason: "Unhandled JS Exception: moved to \"native\" earlier, js engine: hermes, stack:\nGroupBlock@1:2",
-      frames: [{ image: "Chromium Framework", symbol: "ArdiaCoreMain", symbolOffset: 66417332, offset: 0x41a36e8 }],
+      frames: [{ image: "Chromium Framework", symbol: "UniVerseCoreMain", symbolOffset: 66417332, offset: 0x41a36e8 }],
       exceptionFrames: [{ image: "UniVerse Project Browser", offset: 0x38eab8 }],
       images: [{ name: "UniVerse Project Browser", uuid: "1c77ef99-77d4-3de8-9ba2-6929e276bc60" }],
     },
@@ -58,7 +58,7 @@ test("a native crash carries the built-in page its session was on as ctx_webui_p
   for (const [webui_page, expected] of [["settings/cookies", "settings/cookies"], [null, null], [undefined, null]]) {
     const time = later + 10_000 * ++n;
     const saved = { at: time - 500, session_start: time - 5000, tabs: 4, ...(webui_page === undefined ? {} : { webui_page }) };
-    stub.shellNativeModules.ArdiaApp.crashReports = async () => [
+    stub.shellNativeModules.UniVerseApp.crashReports = async () => [
       { time, fileTime: time, process: "browser", exceptionType: "EXC_BREAKPOINT", signal: "SIGTRAP", frames: [{ image: "Chromium Framework", offset: 0x41a36e8 }] },
     ];
     await reportNativeCrashes([saved]);

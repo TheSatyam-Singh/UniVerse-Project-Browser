@@ -58,7 +58,7 @@ static void *sampler(void *arg) {
     g_count++;
     usleep(900);
   }
-  const char *dir = getenv("ARDIA_DATA_DIR");
+  const char *dir = getenv("UNIVERSE_DATA_DIR");
   if (!dir) return NULL;
   char path[2048];
   snprintf(path, sizeof path, "%s/acsample.txt", dir);

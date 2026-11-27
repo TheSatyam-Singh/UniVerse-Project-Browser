@@ -4,7 +4,7 @@
  // found in the LICENSE file.
  
  #include "chrome/browser/extensions/chrome_extension_function_details.h"
-+#include "ardia/core/ac_hooks.h"  // nogncheck
++#include "universe/core/ac_hooks.h"  // nogncheck
  
  #include "chrome/browser/extensions/browser_extension_window_controller.h"
  #include "chrome/browser/extensions/window_controller.h"
@@ -15,11 +15,11 @@
 -      if (!bwi || !bwi->IsDeleteScheduled()) {
 +      if (!bwi ||
 +          (!bwi->IsDeleteScheduled() &&
-+           // Ardia: extension pages ArdiaCore shows outside any tab strip
++           // UniVerse: extension pages UniVerseCore shows outside any tab strip
 +           // (its popups, side panels) sit in hidden windows: their "current
 +           // window" is the last active one, as for Chrome's popups.
-+           !(g_ardia_hidden_from_extensions &&
-+             g_ardia_hidden_from_extensions(bwi)))) {
++           !(g_universe_hidden_from_extensions &&
++             g_universe_hidden_from_extensions(bwi)))) {
          return window_controller;
        }
      }
@@ -27,9 +27,9 @@
    WindowController* window_controller = nullptr;
    ForEachCurrentBrowserWindowInterfaceOrderedByActivation(
        [&](BrowserWindowInterface* browser) {
-+        // Ardia: ArdiaCore's hidden windows.
-+        if (g_ardia_hidden_from_extensions &&
-+            g_ardia_hidden_from_extensions(browser)) {
++        // UniVerse: UniVerseCore's hidden windows.
++        if (g_universe_hidden_from_extensions &&
++            g_universe_hidden_from_extensions(browser)) {
 +          return true;  // Continue iterating.
 +        }
          if (browser->GetProfile() == profile ||

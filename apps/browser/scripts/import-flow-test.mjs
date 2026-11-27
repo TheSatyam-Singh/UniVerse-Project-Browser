@@ -4,7 +4,7 @@
 //   node apps/browser/scripts/import-flow-test.mjs <Debug UniVerse-Project-Browser.app> <scratch dir> [flow…] [--record <file>] [--compare <file>] [--keep]
 //
 //   <scratch dir>     home/ is a copy of packages/import/fixtures/home (the fake Chrome, Arc, Dia, Firefox, Safari… data)
-//                     and data/ the instance's ARDIA_DATA_DIR; both are wiped first
+//                     and data/ the instance's UNIVERSE_DATA_DIR; both are wiped first
 //   flow              chrome, chromeSkip, chromeBack, arc, firefox, dia, safariDirect, safariExport, safariBadFile
 //                     (default: all of them, in that order)
 //   --record <file>   writes what each flow did (the steps it passed through, counts, failures, notes, extensions and
@@ -12,9 +12,9 @@
 //   --compare <file>  fails each flow whose record differs from the one in <file>
 //   --keep            leaves the instance running
 //
-// The instance is hidden, reads the fake home through ARDIA_INSTANCE importSourceDir/importSafariHome, decrypts with
-// ARDIA_TEST importSecret (the fixtures' Safe Storage secret, so the Keychain is never asked), and takes Dia's open
-// tabs from packages/import/fixtures/dia through ARDIA_TEST importDiaWindows, asked of <scratch dir>/FakeDia.app (a
+// The instance is hidden, reads the fake home through UNIVERSE_INSTANCE importSourceDir/importSafariHome, decrypts with
+// UNIVERSE_TEST importSecret (the fixtures' Safe Storage secret, so the Keychain is never asked), and takes Dia's open
+// tabs from packages/import/fixtures/dia through UNIVERSE_TEST importDiaWindows, asked of <scratch dir>/FakeDia.app (a
 // background-only stand-in registered with Launch Services for the run), so the real Dia is never opened. Every flow
 // opens a fresh import window and drives it through globalThis.acImport. Exit code 1 if any check failed.
 import assert from "node:assert/strict";
@@ -192,7 +192,7 @@ try {
     ready: { timeout: 90_000, test: "return ac.store.getState().windowOrder.length > 0" },
   });
   rep.log("pid", app.pid, "cdp", app.port, "log", app.log);
-  const listed = await run(`return globalThis.expo.modules.ArdiaImport.listBrowsers().then((j) => (typeof j === "string" ? JSON.parse(j) : j).map((b) => b.id));`);
+  const listed = await run(`return globalThis.expo.modules.UniVerseImport.listBrowsers().then((j) => (typeof j === "string" ? JSON.parse(j) : j).map((b) => b.id));`);
   rep.log("listed:", JSON.stringify(listed));
   for (const name of wanted) {
     await rep.check(name, async () => {

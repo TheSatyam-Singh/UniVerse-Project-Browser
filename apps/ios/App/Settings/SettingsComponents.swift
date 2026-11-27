@@ -1,4 +1,4 @@
-import ArdiaDesign
+import UniVerseDesign
 import SwiftUI
 
 struct SettingsRowLabel: View {
@@ -232,8 +232,8 @@ extension SetupStepRow.Progress {
 }
 
 extension Color {
-  static let ardiaAccentText = Palette.formAccent
-  static let ardiaTitle = Color.primary
+  static let universeAccentText = Palette.formAccent
+  static let universeTitle = Color.primary
 }
 
 struct AppIconPreview: View {

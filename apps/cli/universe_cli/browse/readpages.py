@@ -57,19 +57,19 @@ LINKS = r"""() => {
 EXTRACT = r"""(selector) => {
   let roots;
   if (selector) {
-    roots = ardiaBrowse.queryAll(selector);
+    roots = universeBrowse.queryAll(selector);
   } else {
     const main = document.querySelector("main, [role=main]");
     roots = main && (main.innerText || "").trim() ? [main] : [document.body || document.documentElement];
   }
-  const text = roots.filter(Boolean).map((root) => ardiaBrowse.readable(root)).filter(Boolean).join("\n\n");
+  const text = roots.filter(Boolean).map((root) => universeBrowse.readable(root)).filter(Boolean).join("\n\n");
   let status = null;
   try {
     const entry = performance.getEntriesByType("navigation")[0];
     status = entry && entry.responseStatus ? entry.responseStatus : null;
   } catch (e) {}
   let scope = "";
-  try { scope = ardiaBrowse.scope(); } catch (e) {}
+  try { scope = universeBrowse.scope(); } catch (e) {}
   return { title: document.title || "", text, matched: roots.length, status, scope };
 }"""
 
@@ -93,7 +93,7 @@ SCROLL_POLL = 0.04
 SCROLL_STEP = r"""(selector, action, to) => {
   const ROW = "[role=option], [role=row], [role=listitem], [role=treeitem], [role=article], [role=feed] > *, li, tr, article";
   const LOADING = /^\s*loading(\.\.\.|…)?\s*$/i;
-  const found = (typeof selector === "string" ? ardiaBrowse.queryAll(selector) : [selector]).filter((el) => el && el.nodeType === 1);
+  const found = (typeof selector === "string" ? universeBrowse.queryAll(selector) : [selector]).filter((el) => el && el.nodeType === 1);
   if (!found.length) return { missing: true };
   const outermost = (hits, within) => {
     const set = new Set(hits);
@@ -109,7 +109,7 @@ SCROLL_STEP = r"""(selector, action, to) => {
       else return kids;
     }
   };
-  const list = found.find((el) => ardiaBrowse.visible(el)) || found[0];
+  const list = found.find((el) => universeBrowse.visible(el)) || found[0];
   const rows = found.length > 1 && !list.querySelector(ROW) ? found : rowsIn(list);
   const page = document.scrollingElement || document.documentElement;
   const scrolls = (el) => /(auto|scroll|overlay)/.test(getComputedStyle(el).overflowY) && el.scrollHeight > el.clientHeight + 1;
@@ -137,7 +137,7 @@ SCROLL_STEP = r"""(selector, action, to) => {
   const top = position();
   const out = [];
   for (const row of rows) {
-    const text = ardiaBrowse.readable(row).split("\n").map((line) => line.trim()).filter(Boolean).join(" · ");
+    const text = universeBrowse.readable(row).split("\n").map((line) => line.trim()).filter(Boolean).join(" · ");
     if (!text || LOADING.test(text) || row.getAttribute("aria-busy") === "true") continue;
     const raw = row.getAttribute("aria-posinset") || row.getAttribute("aria-rowindex") || row.getAttribute("data-index") || row.getAttribute("data-row-index");
     const index = raw != null && raw !== "" && Number.isFinite(Number(raw)) ? Number(raw) : null;
@@ -147,7 +147,7 @@ SCROLL_STEP = r"""(selector, action, to) => {
   const busy = !!list.querySelector("[aria-busy=true]") || list.getAttribute("aria-busy") === "true"
     || Array.from(scroller.children).some((child) => LOADING.test(child.textContent || ""));
   return { rows: out, before, position: top, moved: Math.abs(top - before) > 1, height, view, busy,
-           atEnd: top + view >= height - 2, scroller: ardiaBrowse.describe(scroller), hidden: document.visibilityState === "hidden" };
+           atEnd: top + view >= height - 2, scroller: universeBrowse.describe(scroller), hidden: document.visibilityState === "hidden" };
 }"""
 
 

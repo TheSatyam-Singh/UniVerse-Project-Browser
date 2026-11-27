@@ -234,7 +234,7 @@ class Confinement(unittest.TestCase):
         (self.work / "secret.js").write_text("export default 1;\n")
         self.data = self.tree / "data"
         (self.data / "Chromium").mkdir(parents=True)
-        (self.data / "Chromium" / "ArdiaControl.json").write_text('{"token": "x"}\n')
+        (self.data / "Chromium" / "UniVerseControl.json").write_text('{"token": "x"}\n')
 
     def tearDown(self):
         shutil.rmtree(self.work, ignore_errors=True)
@@ -259,7 +259,7 @@ class Confinement(unittest.TestCase):
 
     def test_data_dir_refused_even_inside(self):
         with self.assertRaisesRegex(ScriptError, "data folder"):
-            build(self.script('import s from "./data/Chromium/ArdiaControl.json";\nconsole.log(s);\n'), data_dirs=[self.data])
+            build(self.script('import s from "./data/Chromium/UniVerseControl.json";\nconsole.log(s);\n'), data_dirs=[self.data])
 
     def test_data_dir_by_identity_not_spelling(self):
         support = self.tree / "support"
@@ -267,8 +267,8 @@ class Confinement(unittest.TestCase):
         (data / "Chromium").mkdir(parents=True)
         (data / "Chromium" / "secret.js").write_text("export default 1;\n")
         path = support / "s.user.ts"
-        path.write_text("// ==UserScript==\n// @match https://example.com/*\n// ==/UserScript==\nimport s from \"./COM.ARDIA.BROWSER/Chromium/secret.js\";\nconsole.log(s);\n")
-        if not (support / "COM.ARDIA.BROWSER").exists():
+        path.write_text("// ==UserScript==\n// @match https://example.com/*\n// ==/UserScript==\nimport s from \"./COM.UNIVERSE.BROWSER/Chromium/secret.js\";\nconsole.log(s);\n")
+        if not (support / "COM.UNIVERSE.BROWSER").exists():
             self.skipTest("case-sensitive file system")
         with self.assertRaisesRegex(ScriptError, "data folder"):
             build(path, data_dirs=[data])
@@ -459,7 +459,7 @@ class ReadOnlyDefaults(unittest.TestCase):
         for patch in patches:
             patch.start()
             self.addCleanup(patch.stop)
-        for name in ("ARDIA_DATA_DIR", "ARDIA_CDP_URL"):
+        for name in ("UNIVERSE_DATA_DIR", "UNIVERSE_CDP_URL"):
             os.environ.pop(name, None)
 
     def tearDown(self):

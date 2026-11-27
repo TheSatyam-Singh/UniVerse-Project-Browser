@@ -1,5 +1,5 @@
 import XCTest
-@testable import ArdiaUpdaterCore
+@testable import UniVerseUpdaterCore
 
 final class SwitchCheckTests: XCTestCase {
   func run(_ events: [SwitchCheck.Event]) -> SwitchCheck {

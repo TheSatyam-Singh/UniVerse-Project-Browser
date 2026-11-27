@@ -11,34 +11,34 @@ export function launchVariables({ instance = {}, test = {}, trace = [], switchOv
   const instanceList = list(instance);
   const testList = list(test);
   const switchList = Object.entries(switchOverrides).map(([name, on]) => `${name}=${on ? "on" : "off"}`).join(",");
-  if (instanceList) env.ARDIA_INSTANCE = instanceList;
-  if (testList) env.ARDIA_TEST = testList;
-  if (trace.length) env.ARDIA_TRACE = trace.join(",");
-  if (switchList) env.ARDIA_SWITCHES = switchList;
+  if (instanceList) env.UNIVERSE_INSTANCE = instanceList;
+  if (testList) env.UNIVERSE_TEST = testList;
+  if (trace.length) env.UNIVERSE_TRACE = trace.join(",");
+  if (switchList) env.UNIVERSE_SWITCHES = switchList;
   return env;
 }
 
 const OLD_INSTANCE = {
-  jsLocation: "ARDIA_JS_LOCATION", chromiumSwitches: "ARDIA_CHROMIUM_SWITCHES", downloadsDir: "ARDIA_DOWNLOADS_DIR",
-  updateFeed: "ARDIA_UPDATE_FEED_URL", allowAudio: "ARDIA_ALLOW_AUDIO", allowOcclusion: "ARDIA_ALLOW_OCCLUSION",
-  releaseNotes: "ARDIA_RELEASE_NOTES", cliHome: "ARDIA_CLI_HOME", cliBinDir: "ARDIA_CLI_BIN_DIR", cliUrl: "ARDIA_CLI_URL",
-  syncFolder: "ARDIA_SYNC_DEFAULT_FOLDER", importSourceDir: "ARDIA_IMPORT_SOURCE_DIR", importSafariHome: "ARDIA_IMPORT_SAFARI_HOME",
+  jsLocation: "UNIVERSE_JS_LOCATION", chromiumSwitches: "UNIVERSE_CHROMIUM_SWITCHES", downloadsDir: "UNIVERSE_DOWNLOADS_DIR",
+  updateFeed: "UNIVERSE_UPDATE_FEED_URL", allowAudio: "UNIVERSE_ALLOW_AUDIO", allowOcclusion: "UNIVERSE_ALLOW_OCCLUSION",
+  releaseNotes: "UNIVERSE_RELEASE_NOTES", cliHome: "UNIVERSE_CLI_HOME", cliBinDir: "UNIVERSE_CLI_BIN_DIR", cliUrl: "UNIVERSE_CLI_URL",
+  syncFolder: "UNIVERSE_SYNC_DEFAULT_FOLDER", importSourceDir: "UNIVERSE_IMPORT_SOURCE_DIR", importSafariHome: "UNIVERSE_IMPORT_SAFARI_HOME",
 };
 const OLD_TEST = {
-  keychain: "ARDIA_TEST_KEYCHAIN", keychainHiddenReads: "ARDIA_TEST_KEYCHAIN_HIDDEN_READS", keychainFail: "ARDIA_TEST_KEYCHAIN_FAIL",
-  safeStorageAnswer: "ARDIA_TEST_SAFE_STORAGE_ANSWER", reauth: "ARDIA_TEST_REAUTH", pipSelfTest: "ARDIA_PIP_SELFTEST",
-  pipHover: "ARDIA_PIP_HOVER", fakeFullScreenMs: "ARDIA_FAKE_FULLSCREEN_MS", shadersKeyWindow: "ARDIA_SHADERS_FORCE_KEY",
-  peekStrict: "ARDIA_PEEK_STRICT", importSecret: "ARDIA_IMPORT_TEST_SECRET", importDiaBundleId: "ARDIA_IMPORT_DIA_BUNDLE_ID",
-  cliInstallScript: "ARDIA_CLI_INSTALL_SCRIPT", legacySource: "ARDIA_LEGACY_SOURCE", legacyCrashAfter: "ARDIA_LEGACY_CRASH_AFTER",
-  bangsUrl: "ARDIA_BANGS_URL", onboarding: "ARDIA_ONBOARDING", whatsNew: "ARDIA_WHATS_NEW", telemetry: "ARDIA_TELEMETRY",
-  liveMock: "ARDIA_LIVE_MOCK", calendarFixture: "ARDIA_CALENDAR_FIXTURE",
+  keychain: "UNIVERSE_TEST_KEYCHAIN", keychainHiddenReads: "UNIVERSE_TEST_KEYCHAIN_HIDDEN_READS", keychainFail: "UNIVERSE_TEST_KEYCHAIN_FAIL",
+  safeStorageAnswer: "UNIVERSE_TEST_SAFE_STORAGE_ANSWER", reauth: "UNIVERSE_TEST_REAUTH", pipSelfTest: "UNIVERSE_PIP_SELFTEST",
+  pipHover: "UNIVERSE_PIP_HOVER", fakeFullScreenMs: "UNIVERSE_FAKE_FULLSCREEN_MS", shadersKeyWindow: "UNIVERSE_SHADERS_FORCE_KEY",
+  peekStrict: "UNIVERSE_PEEK_STRICT", importSecret: "UNIVERSE_IMPORT_TEST_SECRET", importDiaBundleId: "UNIVERSE_IMPORT_DIA_BUNDLE_ID",
+  cliInstallScript: "UNIVERSE_CLI_INSTALL_SCRIPT", legacySource: "UNIVERSE_LEGACY_SOURCE", legacyCrashAfter: "UNIVERSE_LEGACY_CRASH_AFTER",
+  bangsUrl: "UNIVERSE_BANGS_URL", onboarding: "UNIVERSE_ONBOARDING", whatsNew: "UNIVERSE_WHATS_NEW", telemetry: "UNIVERSE_TELEMETRY",
+  liveMock: "UNIVERSE_LIVE_MOCK", calendarFixture: "UNIVERSE_CALENDAR_FIXTURE",
 };
 const OLD_TEST_SWITCH = {
   bluetoothChooser: "--universe-test-bluetooth-chooser", externalProtocolNoLaunch: "--universe-test-external-protocol-no-launch",
   mediaRouteProvider: "--universe-test-media-route-provider", systemMediaPermission: "--universe-test-system-media-permission",
   applyProfileGate: "--universe-apply-profile-gate",
 };
-const OLD_TRACE = { visibility: "ARDIA_TRACE_VISIBILITY", pip: "ARDIA_TRACE_PIP", pipZoom: "ARDIA_PIP_ZOOM_TRACE" };
+const OLD_TRACE = { visibility: "UNIVERSE_TRACE_VISIBILITY", pip: "UNIVERSE_TRACE_PIP", pipZoom: "UNIVERSE_PIP_ZOOM_TRACE" };
 
 export const INSTANCE_KEYS = [
   "jsLocation", "chromiumSwitches", "downloadsDir", "updateFeed", "allowAudio", "allowOcclusion", "releaseNotes",
@@ -62,7 +62,7 @@ const commaKeys = new Set(COMMA_KEYS);
 
 export const instanceEntries = (text) => entriesOf(text, knownKeys.instance);
 
-const LIST_VARIABLES = new Set(["ARDIA_INSTANCE", "ARDIA_TEST", "ARDIA_TRACE", "ARDIA_SWITCHES"]);
+const LIST_VARIABLES = new Set(["UNIVERSE_INSTANCE", "UNIVERSE_TEST", "UNIVERSE_TRACE", "UNIVERSE_SWITCHES"]);
 
 export function mergeLaunchEnv(...envs) {
   const out = {};
@@ -74,9 +74,9 @@ export function mergeLaunchEnv(...envs) {
         out[name] = value;
         continue;
       }
-      if (name === "ARDIA_INSTANCE") Object.assign(instance, entriesOf(value, knownKeys.instance));
-      else if (name === "ARDIA_TEST") Object.assign(test, entriesOf(value, knownKeys.test));
-      else if (name === "ARDIA_TRACE") for (const area of value.split(",").map((a) => a.trim()).filter(Boolean)) trace.add(area);
+      if (name === "UNIVERSE_INSTANCE") Object.assign(instance, entriesOf(value, knownKeys.instance));
+      else if (name === "UNIVERSE_TEST") Object.assign(test, entriesOf(value, knownKeys.test));
+      else if (name === "UNIVERSE_TRACE") for (const area of value.split(",").map((a) => a.trim()).filter(Boolean)) trace.add(area);
       else
         for (const piece of value.split(",")) {
           const [switchName, on] = piece.split("=").map((s) => s.trim());
@@ -109,7 +109,7 @@ function binaryReadsLaunchConfig(binary) {
   const debugDylib = `${binary}.debug.dylib`;
   if (existsSync(debugDylib)) binary = debugDylib;
   if (readsLaunchConfig.has(binary)) return readsLaunchConfig.get(binary);
-  const needle = Buffer.from("ARDIA_INSTANCE");
+  const needle = Buffer.from("UNIVERSE_INSTANCE");
   const fd = openSync(binary, "r");
   const chunk = Buffer.alloc(1 << 22);
   let found = false;
@@ -128,21 +128,21 @@ function binaryReadsLaunchConfig(binary) {
 
 export function forBuild(binary, env) {
   if (binaryReadsLaunchConfig(binary)) return env;
-  const { ARDIA_INSTANCE, ARDIA_TEST, ARDIA_TRACE, ...rest } = env;
-  const instance = entriesOf(ARDIA_INSTANCE, knownKeys.instance);
-  const test = entriesOf(ARDIA_TEST, knownKeys.test);
+  const { UNIVERSE_INSTANCE, UNIVERSE_TEST, UNIVERSE_TRACE, ...rest } = env;
+  const instance = entriesOf(UNIVERSE_INSTANCE, knownKeys.instance);
+  const test = entriesOf(UNIVERSE_TEST, knownKeys.test);
   const out = { ...rest };
   for (const [key, value] of Object.entries(instance)) if (OLD_INSTANCE[key]) out[OLD_INSTANCE[key]] = value;
   for (const [key, value] of Object.entries(test)) if (OLD_TEST[key]) out[OLD_TEST[key]] = value;
   const switches = Object.entries(test).filter(([key]) => OLD_TEST_SWITCH[key])
     .map(([key, value]) => (value === "1" ? OLD_TEST_SWITCH[key] : `${OLD_TEST_SWITCH[key]}=${value}`));
-  const data = env.ARDIA_DATA_DIR;
-  if (test.contextMenu && data) out.ARDIA_CONTEXT_MENU_LOG = `${data}/context-menu.json`;
-  for (const area of (ARDIA_TRACE ?? "").split(",").filter(Boolean)) {
+  const data = env.UNIVERSE_DATA_DIR;
+  if (test.contextMenu && data) out.UNIVERSE_CONTEXT_MENU_LOG = `${data}/context-menu.json`;
+  for (const area of (UNIVERSE_TRACE ?? "").split(",").filter(Boolean)) {
     if (OLD_TRACE[area]) out[OLD_TRACE[area]] = "1";
-    if (area === "trafficLights" && data) out.ARDIA_TRAFFIC_LIGHTS_LOG = `${data}/traffic-lights.log`;
+    if (area === "trafficLights" && data) out.UNIVERSE_TRAFFIC_LIGHTS_LOG = `${data}/traffic-lights.log`;
     if (area === "profileGate") switches.push("--universe-show-profile-gate");
   }
-  if (switches.length) out.ARDIA_CHROMIUM_SWITCHES = [out.ARDIA_CHROMIUM_SWITCHES, ...switches].filter(Boolean).join(" ");
+  if (switches.length) out.UNIVERSE_CHROMIUM_SWITCHES = [out.UNIVERSE_CHROMIUM_SWITCHES, ...switches].filter(Boolean).join(" ");
   return out;
 }

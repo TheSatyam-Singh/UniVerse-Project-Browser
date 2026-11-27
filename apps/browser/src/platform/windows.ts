@@ -3,7 +3,7 @@ import { nativeModule, type DragPreviewShape, type OpenWindowOptions, type Rect4
 
 export type { DragPreviewShape, WindowEvent, OpenWindowOptions };
 
-const Windows = nativeModule("ArdiaAppWindows");
+const Windows = nativeModule("UniVerseAppWindows");
 let cachedWindowCornerRadius: number | undefined;
 export const windowCornerRadius = () => (cachedWindowCornerRadius ??= Windows.windowCornerRadius());
 
@@ -38,4 +38,4 @@ export const chromeWindows = () => call("windows.list");
 export const devWindowAction = (windowNumber: number, action: string) => call("windows.dev", { window: windowNumber, action });
 
 export const setWindowActivity = (windowId: string, url: string | null, title: string | null) =>
-  nativeModule("ArdiaApp").setWindowActivity(windowId, url, title);
+  nativeModule("UniVerseApp").setWindowActivity(windowId, url, title);

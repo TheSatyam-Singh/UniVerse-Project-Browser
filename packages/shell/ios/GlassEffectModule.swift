@@ -1,11 +1,11 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import Carbon.HIToolbox
 import ExpoModulesCore
 
 public class GlassEffectModule: Module {
   public func definition() -> ModuleDefinition {
-    Name("ArdiaGlassEffect")
+    Name("UniVerseGlassEffect")
 
     Function("isLiquidGlass") { () -> Bool in LiquidGlass.available }
 

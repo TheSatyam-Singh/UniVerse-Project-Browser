@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 
 extension MainMenu {
   private static let dynamicCommands: Set<String> = [
@@ -116,7 +116,7 @@ extension MainMenu {
     }
     if bound != announcedShortcuts {
       announcedShortcuts = bound
-      ArdiaHost.menuShortcutsChanged()
+      UniVerseHost.menuShortcutsChanged()
     }
   }
 

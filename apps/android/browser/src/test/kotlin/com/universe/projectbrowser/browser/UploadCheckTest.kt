@@ -25,7 +25,7 @@ class UploadCheckTest {
         assertFalse(accepts("content://com.universe.projectbrowser.android.browsing.captures/captures/../databases/browser.db"))
         assertFalse(accepts("content://com.universe.projectbrowser.android.browsing.captures/captures/%2E%2E/databases/browser.db"))
         assertFalse(accepts("content://com.universe.projectbrowser.android.files/browser.db"))
-        assertFalse(accepts("content://COM.ARDIA.BROWSER.ANDROID.FILES/browser.db"))
+        assertFalse(accepts("content://COM.UNIVERSE.BROWSER.ANDROID.FILES/browser.db"))
     }
 
     @Test

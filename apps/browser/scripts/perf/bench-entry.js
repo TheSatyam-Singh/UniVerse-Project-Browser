@@ -4,7 +4,7 @@ import { requireNativeModule, requireOptionalNativeModule } from "expo-modules-c
 import { nativeApiSkew } from "../../src/platform/nativeApi";
 
 function answerBenchWithSkew(message) {
-  const documents = requireOptionalNativeModule("ArdiaDocuments") ?? requireNativeModule("ArdiaShell");
+  const documents = requireOptionalNativeModule("UniVerseDocuments") ?? requireNativeModule("UniVerseShell");
   const idOf = (source) => source?.match(/^\/\/ *(\S+)/)?.[1];
   let lastId = idOf(documents.readDocument("bench-cmd.js")) ?? "";
   setInterval(() => {

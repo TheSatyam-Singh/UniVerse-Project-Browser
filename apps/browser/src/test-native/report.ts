@@ -12,7 +12,7 @@ export const reportFake = {
   emit: (event: ReportEvent) => events.emit("onReport", event),
 };
 
-export const reportModule: ShellNativeModules["ArdiaReport"] = {
+export const reportModule: ShellNativeModules["UniVerseReport"] = {
   draftDirectory: () => "/tmp/report-draft",
   fileSize: (path) => reportFake.sizes.get(path) ?? -1,
   removeFile: (path) => void reportFake.removed.push(path),

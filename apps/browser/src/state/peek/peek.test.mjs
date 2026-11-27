@@ -321,9 +321,9 @@ test("out of the box a new-tab link peeks, a pinned tab's link to another site p
 
 test("a peek can adopt the page Chrome already opened for the link", () => {
   const { w, a } = windowWithTabs();
-  const id = S().openPeek(a, "https://peek.example/", { x: 1, y: 2 }, { adoptId: "ardiacore:7" });
+  const id = S().openPeek(a, "https://peek.example/", { x: 1, y: 2 }, { adoptId: "universecore:7" });
   assert.equal(S().tabs[id].page.kind, "adopted");
-  assert.equal(S().tabs[id].page.adopt, "ardiacore:7");
+  assert.equal(S().tabs[id].page.adopt, "universecore:7");
   assert.equal(peekTabId(S(), w), id);
 });
 

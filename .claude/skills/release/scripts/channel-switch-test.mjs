@@ -7,7 +7,7 @@
 //
 // The candidate (default: the installed app) becomes build +1 on the nightly channel. Every copy gets the bundle id
 // com.universe.projectbrowser.switchtest.<run>.<n>, the run's own EdDSA key, this run's local feed in its Info.plist and in
-// ARDIA_INSTANCE updateFeed, and an LSEnvironment that keeps any relaunch hidden in its scratch dir. A copy that fails
+// UNIVERSE_INSTANCE updateFeed, and an LSEnvironment that keeps any relaunch hidden in its scratch dir. A copy that fails
 // any of that isn't launched. Cleanup touches only those ids, their launchd jobs and processes run from the run's dirs.
 // Scratch: --scratch (default ~/universe-scratch/channel-switch-test). Needs an Apple Development identity, swiftc,
 // python3 and Accessibility for this terminal (the window checks press Sparkle's buttons by pid, never by focus).
@@ -626,8 +626,8 @@ class Scenario {
     put("SUAutomaticallyUpdate", "bool", String(automaticDownloads));
     put("ACUpdateChannel", "string", channel === "nightly" ? "nightly" : null);
     put("LSEnvironment", "dict", "");
-    plist(file, `Add :LSEnvironment:ARDIA_DATA_DIR string ${this.data}`, "Add :LSEnvironment:ARDIA_BACKGROUND string 1",
-      `Add :LSEnvironment:ARDIA_INSTANCE string updateFeed=${this.feedUrl}`);
+    plist(file, `Add :LSEnvironment:UNIVERSE_DATA_DIR string ${this.data}`, "Add :LSEnvironment:UNIVERSE_BACKGROUND string 1",
+      `Add :LSEnvironment:UNIVERSE_INSTANCE string updateFeed=${this.feedUrl}`);
     if (build !== undefined) plist(file, `Set :CFBundleVersion ${build}`, `Set :CFBundleShortVersionString 9.9.9-nightly.${build}`);
     const signed = sh("codesign", ["--force", "--deep", "--timestamp=none", "--sign", identity, app]);
     check(signed.status === 0, `couldn't sign ${app}: ${signed.stderr}`);
@@ -674,7 +674,7 @@ class Scenario {
       check(info(app, "CFBundleIdentifier") === this.id, `${app} isn't tagged ${this.id}`);
       check(info(app, "SUPublicEDKey") === publicKey, `${app} doesn't carry the run's test key`);
       check(info(app, "SUFeedURL") === this.feedUrl, `${app}'s feed isn't the local one`);
-      check(info(app, "LSEnvironment:ARDIA_DATA_DIR") === this.data && info(app, "LSEnvironment:ARDIA_BACKGROUND") === "1",
+      check(info(app, "LSEnvironment:UNIVERSE_DATA_DIR") === this.data && info(app, "LSEnvironment:UNIVERSE_BACKGROUND") === "1",
         `${app} would relaunch outside its scratch dir`);
       check(sh("codesign", ["--verify", "--deep", "--strict", app]).status === 0, `${app} isn't sealed after tagging`);
     }
@@ -686,8 +686,8 @@ class Scenario {
   async launch() {
     this.assertIsolated();
     const instance = { updateFeed: this.feedUrl };
-    const variables = launchVariables({ instance }).ARDIA_INSTANCE ?? "";
-    check(variables.split(",").includes(`updateFeed=${this.feedUrl}`), `the launch feed override is missing (ARDIA_INSTANCE=${variables})`);
+    const variables = launchVariables({ instance }).UNIVERSE_INSTANCE ?? "";
+    check(variables.split(",").includes(`updateFeed=${this.feedUrl}`), `the launch feed override is missing (UNIVERSE_INSTANCE=${variables})`);
     this.app = await launch(this.copy, { data: this.data, js: embeddedJs ? "none" : "pinned", onboarded: true, instance, startTimeout: 90000 });
     const u = await this.state();
     check(u.feedURL === this.feedUrl, `the updater's feed is ${u.feedURL}`);
@@ -822,7 +822,7 @@ class Scenario {
   expectUntouched() {
     check(this.def.start?.stale ? existsSync(join(this.installation, "stale-copy/UniVerse-Project-Browser.app/Contents/Info.plist")) : this.offChannelCopies().length,
       "UniVerse Project Browser moved or deleted a staged copy");
-    check(!existsSync(join(this.caches, "ArdiaDiscardedUpdates")), "UniVerse Project Browser set staged copies aside");
+    check(!existsSync(join(this.caches, "UniVerseDiscardedUpdates")), "UniVerse Project Browser set staged copies aside");
   }
     expectInstalled(expected) {
     const build = Number(info(this.copy, "CFBundleVersion"));

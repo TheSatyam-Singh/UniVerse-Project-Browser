@@ -23,7 +23,7 @@ class SystemEntryTest {
     }
 
     @Test
-    fun anArdiaLinkReachesTheModelUnchanged() {
+    fun anUniVerseLinkReachesTheModelUnchanged() {
         val entry = SystemEntry.from(Intent(Intent.ACTION_VIEW, Uri.parse(SystemLink.Incognito.uri)))
         assertEquals(SystemEntry.Link("universe://incognito"), entry)
     }
@@ -60,7 +60,7 @@ class SystemEntryTest {
 
     @Test
     fun launchArgumentsAreReadInADebuggableBuild() {
-        val intent = Intent().putExtra(LaunchArguments.ARDIA_DEMO, true).putExtra(LaunchArguments.ARDIA_RESTING_START, "YES")
+        val intent = Intent().putExtra(LaunchArguments.UNIVERSE_DEMO, true).putExtra(LaunchArguments.UNIVERSE_RESTING_START, "YES")
         val launch = SystemIntents.launchArguments(context, intent)
         assertEquals(context.acceptsLaunchArguments, launch.isDemo)
         assertEquals(context.acceptsLaunchArguments, launch.restingStart)

@@ -37,7 +37,7 @@ const states = option("states", STATES.join(",")).split(",");
 const regions = option("regions", "");
 
 const seed = await loadSeed();
-const reset = resetScript("ardiaDemo.store", seed.seedTabs());
+const reset = resetScript("universeDemo.store", seed.seedTabs());
 const run = (page, body) => page.eval(`(() => { ${body} })()`);
 
 async function key(page, key, { meta = false } = {}) {
@@ -65,14 +65,14 @@ const setups = {
     await sleep(300);
     await typeText(page, COMMAND_QUERY);
   },
-  ntp: (page) => run(page, newTabScript("ardiaDemo.store")),
+  ntp: (page) => run(page, newTabScript("universeDemo.store")),
   hover: (page) => mouse(page, HOVER_ROW.x, HOVER_ROW.y),
   menu: async (page) => {
     await mouse(page, 100, 209, "mousePressed", { button: "right", clickCount: 1 });
     await mouse(page, 100, 209, "mouseReleased", { button: "right", clickCount: 1 });
   },
-  profile: (page) => run(page, profileScript("ardiaDemo.store")),
-  field: (page) => run(page, fieldScript("ardiaDemo.store")),
+  profile: (page) => run(page, profileScript("universeDemo.store")),
+  field: (page) => run(page, fieldScript("universeDemo.store")),
 };
 
 async function captureDemo() {
@@ -84,10 +84,10 @@ async function captureDemo() {
       mkdirSync(join(out, theme), { recursive: true });
       for (const state of states) {
         await page.send("Page.navigate", { url: `${url}${url.includes("?") ? "&" : "?"}bare&compare=${Date.now()}` });
-        for (let i = 0; i < 100 && !(await page.eval("!!globalThis.ardiaDemo && document.readyState === 'complete'").catch(() => false)); i++) await sleep(100);
+        for (let i = 0; i < 100 && !(await page.eval("!!globalThis.universeDemo && document.readyState === 'complete'").catch(() => false)); i++) await sleep(100);
         await page.eval("document.fonts.ready.then(() => true)");
         await run(page, reset);
-        for (let i = 0; i < 100 && (await run(page, "const s = ardiaDemo.store.getState(); return !!s.live.t_browser?.isLoading;")); i++) await sleep(100);
+        for (let i = 0; i < 100 && (await run(page, "const s = universeDemo.store.getState(); return !!s.live.t_browser?.isLoading;")); i++) await sleep(100);
         await mouse(page, -10, -10);
         await sleep(700);
         await setups[state](page);

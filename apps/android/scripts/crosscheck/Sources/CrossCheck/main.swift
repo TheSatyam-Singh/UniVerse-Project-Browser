@@ -1,4 +1,4 @@
-import ArdiaSyncCore
+import UniVerseSyncCore
 import Foundation
 
 let password = "hunter2 \u{e9}\u{1F600}"

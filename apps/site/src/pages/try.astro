@@ -5,14 +5,14 @@ import Header from "../components/Header.astro";
 import Showcase from "../components/Showcase.astro";
 import Closing from "../components/Closing.astro";
 import Footer from "../components/Footer.astro";
-import { aboutArdiaPage, breadcrumbs } from "../data/jsonLd";
+import { aboutUniVersePage, breadcrumbs } from "../data/jsonLd";
 
 const home = homeUrl(Astro.site);
 const url = new URL("try/", home).href;
 const title = "Try UniVerse Project Browser live · an Arc and Dia alternative you can click";
 const description =
   "Click around the real UniVerse Project Browser sidebar right here: tabs, split view, the command bar, profiles. Free for Mac once you’re done kicking the tyres.";
-const jsonLd = [aboutArdiaPage({ home, url, title, description }), breadcrumbs(home, ["Demo", url])];
+const jsonLd = [aboutUniVersePage({ home, url, title, description }), breadcrumbs(home, ["Demo", url])];
 ---
 
 <Base title={title} description={description} jsonLd={jsonLd}>

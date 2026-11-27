@@ -31,7 +31,7 @@ const HELPERS = `
 const st = () => ac.store.getState();
 const settle = (ms) => new Promise((r) => setTimeout(r, ms));
 const live = () => !!globalThis.acLayout.peek.w1?.live;
-const at = (x, y) => ac.shell.devSetPointer("w1", { x, y }).then(() => globalThis.expo.modules.ArdiaDev.devSidebarEdgePointer("w1", x, y, true));
+const at = (x, y) => ac.shell.devSetPointer("w1", { x, y }).then(() => globalThis.expo.modules.UniVerseDev.devSidebarEdgePointer("w1", x, y, true));
 const watchCalls = () => { const p = globalThis.acLayout.peek.w1; const calls = []; const show = p.show, hide = p.hide;
   p.show = (...a) => (calls.push("show"), show(...a)); p.hide = (...a) => (calls.push("hide"), hide(...a));
   return () => { p.show = show; p.hide = hide; return calls; }; };
@@ -101,7 +101,7 @@ try {
     assert.equal(out.live, true);
   });
 } finally {
-  await run(`return globalThis.expo.modules.ArdiaDev.devSidebarEdgePointer("w1", 0, 0, false).then(() => ac.shell.devSetPointer("w1", null));`).catch(() => {});
+  await run(`return globalThis.expo.modules.UniVerseDev.devSidebarEdgePointer("w1", 0, 0, false).then(() => ac.shell.devSetPointer("w1", null));`).catch(() => {});
   await app?.quit();
   if (!keep) rmSync(data, { recursive: true, force: true });
   else rep.say(`data: ${data}`);

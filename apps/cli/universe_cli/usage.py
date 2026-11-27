@@ -12,7 +12,7 @@ MAX_STATE_BYTES = 64 * 1024
 MAX_RECENT = 5
 TASK_GAP_S = 30 * 60
 TASKS_BEFORE_ASKING = 5
-STAR_PROMPT_ENV = "ARDIA_STAR_PROMPT"
+STAR_PROMPT_ENV = "UNIVERSE_STAR_PROMPT"
 OFF_VALUES = frozenset({"0", "false", "off", "no"})
 CI_ENV = ("CI", "GITHUB_ACTIONS", "BUILDKITE", "JENKINS_URL")
 NOT_RECORDED = frozenset({"feedback", "star", "none"})
@@ -28,13 +28,13 @@ STAR_PROMPT = (
 
 def cli_home(env=None) -> Path:
     env = os.environ if env is None else env
-    return Path(env.get("ARDIA_CLI_HOME") or Path.home() / "Library" / "Application Support" / "UniVerse Project Browser" / "CLI").expanduser()
+    return Path(env.get("UNIVERSE_CLI_HOME") or Path.home() / "Library" / "Application Support" / "UniVerse Project Browser" / "CLI").expanduser()
 
 
 def recording_home(env) -> Path | None:
     from universe_cli import telemetry
 
-    if telemetry.is_dev_build() and not env.get("ARDIA_CLI_HOME"):
+    if telemetry.is_dev_build() and not env.get("UNIVERSE_CLI_HOME"):
         return None
     return cli_home(env)
 
@@ -45,7 +45,7 @@ def is_test_context(argv: list, env) -> bool:
     tokens = telemetry.leading_tokens(argv)
     if telemetry.names_test_endpoint(tokens) or any(env.get(name) for name in telemetry.TEST_ENDPOINT_ENV):
         return True
-    data_dir = telemetry.data_dir_arg(tokens) or env.get("ARDIA_DATA_DIR")
+    data_dir = telemetry.data_dir_arg(tokens) or env.get("UNIVERSE_DATA_DIR")
     if not data_dir:
         return False
     try:

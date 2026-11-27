@@ -1,5 +1,5 @@
 import AppKit
-import ArdiaCore
+import UniVerseCore
 import ExpoModulesCore
 
 final class IdleWatch {
@@ -75,7 +75,7 @@ public class SystemSignalsModule: Module {
   }
 
   public func definition() -> ModuleDefinition {
-    Name("ArdiaSystemSignals")
+    Name("UniVerseSystemSignals")
     Events(Self.event)
 
     OnCreate {
@@ -93,16 +93,16 @@ public class SystemSignalsModule: Module {
       self.lifetime.run { self.idle.watch(thresholds) }
     }
 
-    Function("holdsIncomingLinks") { () -> Bool in ArdiaHost.holdsIncomingLinks }
+    Function("holdsIncomingLinks") { () -> Bool in UniVerseHost.holdsIncomingLinks }
 
-    Function("setHoldIncomingLinks") { (hold: Bool, hooksStamp: String?) in ArdiaHost.setHoldIncomingLinks(hold, hooksStamp: hooksStamp) }
+    Function("setHoldIncomingLinks") { (hold: Bool, hooksStamp: String?) in UniVerseHost.setHoldIncomingLinks(hold, hooksStamp: hooksStamp) }
 
-    Function("setApprovedDownloadFolders") { (folders: [String]) in ArdiaDownloadMover.shared.setApprovedFolders(folders) }
+    Function("setApprovedDownloadFolders") { (folders: [String]) in UniVerseDownloadMover.shared.setApprovedFolders(folders) }
 
     AsyncFunction("moveCompletedDownload") { (path: String, folder: String) -> [String: Any] in
-      var result = ArdiaDownloadMover.shared.moveDownload(at: path, toFolder: folder)
+      var result = UniVerseDownloadMover.shared.moveDownload(at: path, toFolder: folder)
       if let event = result.removeValue(forKey: "event") as? [String: Any] {
-        DispatchQueue.main.async { ArdiaEvents.emit("downloads.changed", data: event) }
+        DispatchQueue.main.async { UniVerseEvents.emit("downloads.changed", data: event) }
       }
       return result
     }.runOnQueue(DispatchQueue.global(qos: .userInitiated))

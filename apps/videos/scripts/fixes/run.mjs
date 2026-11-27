@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
-const repo = process.env.ARDIA_REPO ?? join(here, "../../../..");
+const repo = process.env.UNIVERSE_REPO ?? join(here, "../../../..");
 const { appEnv, attach, binaryOf, binaryPids, launch, launchVariables, mergeLaunchEnv, processInfo, sleep } = await import(join(repo, "scripts/lib/instance.mjs"));
 
 const scratch = process.env.FIXES_SCRATCH ?? join(process.env.HOME, "universe-scratch/video-fixes");
@@ -62,7 +62,7 @@ async function launchWithoutDevTools(app, { data, js, probe, onboarded, files = 
   const binary = binaryOf(app);
   const log = join(data, "app.out.log");
   const vars = appEnv(app, mergeLaunchEnv({
-    ARDIA_BACKGROUND: "1", ARDIA_DATA_DIR: data,
+    UNIVERSE_BACKGROUND: "1", UNIVERSE_DATA_DIR: data,
     ...launchVariables({ instance: { chromiumSwitches: switches.join(" "), ...(js === "none" ? {} : { jsLocation: "localhost:8081" }), ...instanceKeys } }),
   }, env));
   const before = binaryPids(binary);

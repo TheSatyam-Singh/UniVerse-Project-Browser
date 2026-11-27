@@ -361,6 +361,6 @@ public struct SharedFolderDirectory {
   }
 
   static func failure(_ message: String) -> NSError {
-    NSError(domain: "ArdiaSharedFolders", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
+    NSError(domain: "UniVerseSharedFolders", code: 1, userInfo: [NSLocalizedDescriptionKey: message])
   }
 }

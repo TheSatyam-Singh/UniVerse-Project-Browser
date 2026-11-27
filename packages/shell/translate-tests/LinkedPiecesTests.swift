@@ -1,5 +1,5 @@
 import XCTest
-@testable import ArdiaTranslateCore
+@testable import UniVerseTranslateCore
 
 final class LinkedPiecesTests: XCTestCase {
   private func answer(_ runs: [(String, Int?)]) -> AttributedString {

@@ -8,7 +8,7 @@
 // The app runs hidden from a clone in the scratch dir (cp -c of the train's or the newest Debug build), on the
 // shared Metro, with the session seed.ts gives the demo. Each state is captured at 2x with `screencapture -l`
 // (20 s timeout), falling back to ac.shell.devSnapshotWindow; Metal views are also written by
-// ArdiaAreaLight.debugSnapshot. --favicons writes the favicons the app shows into packages/demo/public/favicons.
+// UniVerseAreaLight.debugSnapshot. --favicons writes the favicons the app shows into packages/demo/public/favicons.
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
@@ -181,7 +181,7 @@ for (const theme of themes) {
       report.captures.push({ theme, state, file, how, ...(typeof note === "string" ? { note } : {}) });
       console.log(`${theme} ${state}: ${how}`);
       if (state === "idle") {
-        report[`metal-${theme}`] = await evaluate(`return globalThis.expo.modules.ArdiaAreaLight.debugSnapshot(${JSON.stringify(join(out, theme, "metal"))})`).catch((e) => String(e));
+        report[`metal-${theme}`] = await evaluate(`return globalThis.expo.modules.UniVerseAreaLight.debugSnapshot(${JSON.stringify(join(out, theme, "metal"))})`).catch((e) => String(e));
         for (const shot of Array.isArray(report[`metal-${theme}`]) ? report[`metal-${theme}`] : []) if (shot.ok) toSrgb(shot.file);
       }
     }
