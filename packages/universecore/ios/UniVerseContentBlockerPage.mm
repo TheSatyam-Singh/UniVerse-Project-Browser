@@ -12,7 +12,7 @@ using namespace universe_content_blocker;
   BOOL _busy;
 }
 
-- (instancetype)initWithTab:(UniVerseCoreTab *)tab origin:(NSString *)origin {
+- (instancetype)initWithTab:(ArdiaCoreTab *)tab origin:(NSString *)origin {
   if ((self = [super init])) {
     _tab = tab;
     _origin = origin;
@@ -69,7 +69,7 @@ using namespace universe_content_blocker;
   _calls = nil;
   void (^inflight)(id, NSString *) = _inflight;
   _inflight = nil;
-  UniVerseCoreTab *tab = _tab;
+  ArdiaCoreTab *tab = _tab;
   dispatch_async(dispatch_get_main_queue(), ^{
     [tab closeNow];
     if (inflight) inflight(nil, error);
@@ -77,29 +77,29 @@ using namespace universe_content_blocker;
   });
 }
 
-- (void)tabDidChangeLoading:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeLoading:(ArdiaCoreTab *)tab {
   _started = _started || tab.loading;
   _loaded = _started && !tab.loading;
   [self next];
 }
 
-- (void)tabDidChangeURL:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeURL:(ArdiaCoreTab *)tab {
   if (tab.url.length && !self.onOwnPage) [self leftOwnPage];
 }
 
-- (void)tabDidCommitDocument:(UniVerseCoreTab *)tab {
+- (void)tabDidCommitDocument:(ArdiaCoreTab *)tab {
   if (!self.onOwnPage) [self leftOwnPage];
 }
 
-- (void)tabWillClose:(UniVerseCoreTab *)tab {
+- (void)tabWillClose:(ArdiaCoreTab *)tab {
   [self fail:@"closed"];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab rendererGone:(NSString *)status code:(int)code {
+- (void)tab:(ArdiaCoreTab *)tab rendererGone:(NSString *)status code:(int)code {
   [self fail:[@"renderer " stringByAppendingString:status]];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab didFailLoad:(NSString *)url code:(int)code description:(NSString *)text {
+- (void)tab:(ArdiaCoreTab *)tab didFailLoad:(NSString *)url code:(int)code description:(NSString *)text {
   if (code != -3) [self fail:text];
 }
 
