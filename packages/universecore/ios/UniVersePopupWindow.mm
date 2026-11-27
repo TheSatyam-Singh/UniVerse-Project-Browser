@@ -4,8 +4,8 @@
 using namespace universe_window;
 
 @interface UniVersePopupWindow : NSObject <UniVerseCoreWindowDelegate, UniVerseCoreTabDelegate>
-@property(nonatomic, readonly) UniVerseCoreTab *tab;
-@property(nonatomic, readonly) UniVerseCoreWindow *coreWindow;
+@property(nonatomic, readonly) ArdiaCoreTab *tab;
+@property(nonatomic, readonly) ArdiaCoreWindow *coreWindow;
 - (void)askPermission:(NSDictionary *)request;
 - (BOOL)dropPermission:(NSString *)requestId;
 @end
@@ -95,8 +95,8 @@ NSImage *_Nullable PermissionIcon(NSDictionary *request) {
 }
 
 @implementation UniVersePopupWindow {
-  UniVerseCoreWindow *_coreWindow;
-  UniVerseCoreTab *_tab;
+  ArdiaCoreWindow *_coreWindow;
+  ArdiaCoreTab *_tab;
   __weak UniVerseWebView *_opener;
   UniVersePopupOriginStrip *_strip;
   id _closeObserver;
@@ -108,11 +108,11 @@ NSImage *_Nullable PermissionIcon(NSDictionary *request) {
   NSAlert *_permissionAlert;
 }
 
-- (UniVerseCoreTab *)tab {
+- (ArdiaCoreTab *)tab {
   return _tab;
 }
 
-- (UniVerseCoreWindow *)coreWindow {
+- (ArdiaCoreWindow *)coreWindow {
   return _coreWindow;
 }
 
@@ -168,7 +168,7 @@ NSImage *_Nullable PermissionIcon(NSDictionary *request) {
   return YES;
 }
 
-- (instancetype)initWithTab:(UniVerseCoreTab *)tab opener:(UniVerseWebView *)opener {
+- (instancetype)initWithTab:(ArdiaCoreTab *)tab opener:(UniVerseWebView *)opener {
   if (!(self = [super init])) return nil;
   _tab = tab;
   _opener = opener;
@@ -176,7 +176,7 @@ NSImage *_Nullable PermissionIcon(NSDictionary *request) {
   NSDictionary<NSString *, NSNumber *> *features = tab.popupFeatures ?: @{};
   const NSSize size = NSMakeSize(MAX(features[@"width"] ? features[@"width"].doubleValue : 500, 200),
                                  MAX(features[@"height"] ? features[@"height"].doubleValue : 600, 150) + kPopupOriginStripHeight);
-  _coreWindow = [[UniVerseCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, size.width, size.height)];
+  _coreWindow = [[ArdiaCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, size.width, size.height)];
   NSWindow *window = _coreWindow.window;
   if (!window) return nil;
   _coreWindow.delegate = self;
@@ -288,20 +288,20 @@ NSImage *_Nullable PermissionIcon(NSDictionary *request) {
   dispatch_async(dispatch_get_main_queue(), ^{ [PopupWindows() removeObject:me]; });
 }
 
-- (void)tabDidChangeTitle:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeTitle:(ArdiaCoreTab *)tab {
   [self updateTitle];
 }
 
-- (void)tabDidChangeURL:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeURL:(ArdiaCoreTab *)tab {
   [self updateTitle];
   [self updateOrigin];
 }
 
-- (void)tabDidChangeSecurity:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeSecurity:(ArdiaCoreTab *)tab {
   [self updateOrigin];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab requestsActivation:(NSString *)reason {
+- (void)tab:(ArdiaCoreTab *)tab requestsActivation:(NSString *)reason {
   if (!universe_host::Background()) [_coreWindow.window makeKeyAndOrderFront:nil];
 }
 
@@ -309,15 +309,15 @@ NSImage *_Nullable PermissionIcon(NSDictionary *request) {
   return _opener ?: [UniVerseWindowController hostingViewForProfile:_tab.profile];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab externalAppRequest:(NSDictionary<NSString *, id> *)request {
+- (void)tab:(ArdiaCoreTab *)tab externalAppRequest:(NSDictionary<NSString *, id> *)request {
   [[self promptHost] tab:tab externalAppRequest:request];
 }
 
-- (void)window:(UniVerseCoreWindow *)window showRequestedActive:(BOOL)active {
+- (void)window:(ArdiaCoreWindow *)window showRequestedActive:(BOOL)active {
   if (!_shown) _showInactive = !active;
 }
 
-- (void)window:(UniVerseCoreWindow *)window didInsertTab:(UniVerseCoreTab *)tab opener:(UniVerseCoreTab *)opener disposition:(NSString *)disposition {
+- (void)window:(ArdiaCoreWindow *)window didInsertTab:(ArdiaCoreTab *)tab opener:(ArdiaCoreTab *)opener disposition:(NSString *)disposition {
   if (_adopting || tab == _tab) return;
   if (!_tab) {
     _tab = tab;
@@ -331,7 +331,7 @@ NSImage *_Nullable PermissionIcon(NSDictionary *request) {
   else [tab closeNow];
 }
 
-- (void)window:(UniVerseCoreWindow *)window passwordPrompt:(NSDictionary<NSString *, id> *)prompt forTab:(UniVerseCoreTab *)tab {
+- (void)window:(ArdiaCoreWindow *)window passwordPrompt:(NSDictionary<NSString *, id> *)prompt forTab:(ArdiaCoreTab *)tab {
   if (tab != _tab) return;
   UniVerseWebView *opener = [self promptHost];
   if (!opener) {
@@ -342,13 +342,13 @@ NSImage *_Nullable PermissionIcon(NSDictionary *request) {
   [opener emit:@"passwordPrompt" payload:prompt];
 }
 
-- (void)window:(UniVerseCoreWindow *)window didRemoveTab:(UniVerseCoreTab *)tab {
+- (void)window:(ArdiaCoreWindow *)window didRemoveTab:(ArdiaCoreTab *)tab {
   if (tab != _tab) return;
-  __weak UniVerseCoreWindow *coreWindow = _coreWindow;
+  __weak ArdiaCoreWindow *coreWindow = _coreWindow;
   dispatch_async(dispatch_get_main_queue(), ^{ [coreWindow close]; });
 }
 
-- (BOOL)window:(UniVerseCoreWindow *)window preHandleKeyEvent:(NSEvent *)event {
+- (BOOL)window:(ArdiaCoreWindow *)window preHandleKeyEvent:(NSEvent *)event {
   NSMenuItem *reserved = ReservedMenuItemForEvent(event);
   if (!reserved) return NO;
   if ([reserved.identifier isEqualToString:@"universe.command.closeTab"]) {
@@ -362,7 +362,7 @@ NSImage *_Nullable PermissionIcon(NSDictionary *request) {
 
 namespace universe_host {
 
-void OpenPopupWindow(UniVerseCoreTab *tab, UniVerseWebView *opener) {
+void OpenPopupWindow(ArdiaCoreTab *tab, UniVerseWebView *opener) {
   UniVersePopupWindow *popup = [[UniVersePopupWindow alloc] initWithTab:tab opener:opener];
   if (!popup) {
     if (opener) [opener openedTab:tab adoptId:[UniVerseTabRegistry offerTab:tab] disposition:@"foreground"];
@@ -373,7 +373,7 @@ void OpenPopupWindow(UniVerseCoreTab *tab, UniVerseWebView *opener) {
   dispatch_async(dispatch_get_main_queue(), ^{ [weakPopup takeTab]; });
 }
 
-UniVerseCoreWindow *PopupWindowForChromeBrowser(UniVerseCoreProfile *profile) {
+ArdiaCoreWindow *PopupWindowForChromeBrowser(UniVerseCoreProfile *profile) {
   UniVersePopupWindow *popup = [[UniVersePopupWindow alloc] initWithTab:nil opener:[UniVerseWindowController hostingViewForProfile:profile]];
   if (!popup) return nil;
   [PopupWindows() addObject:popup];
@@ -386,7 +386,7 @@ NSUInteger PopupWindowCount() {
   return PopupWindows().count;
 }
 
-bool AskPermissionInPopupWindow(UniVerseCoreTab *tab, NSDictionary *request) {
+bool AskPermissionInPopupWindow(ArdiaCoreTab *tab, NSDictionary *request) {
   for (UniVersePopupWindow *popup in PopupWindows()) {
     if (popup.tab != tab) continue;
     [popup askPermission:request];
@@ -400,7 +400,7 @@ void DropPopupWindowPermission(NSString *requestId) {
     if ([popup dropPermission:requestId]) return;
 }
 
-void NotePasswordPromptSource(UniVerseWebView *view, UniVerseCoreTab *source) {
+void NotePasswordPromptSource(UniVerseWebView *view, ArdiaCoreTab *source) {
   if (!source) {
     [PasswordPromptSources() removeObjectForKey:view];
     return;
@@ -410,11 +410,11 @@ void NotePasswordPromptSource(UniVerseWebView *view, UniVerseCoreTab *source) {
   [PasswordPromptSources() setObject:route forKey:view];
 }
 
-UniVerseCoreTab *PasswordPromptTab(UniVerseWebView *view, UniVerseCoreTab *own) {
+ArdiaCoreTab *PasswordPromptTab(UniVerseWebView *view, ArdiaCoreTab *own) {
   NSPointerArray *route = [PasswordPromptSources() objectForKey:view];
   if (!route) return own;
   [PasswordPromptSources() removeObjectForKey:view];
-  UniVerseCoreTab *source = (__bridge UniVerseCoreTab *)[route pointerAtIndex:0];
+  ArdiaCoreTab *source = (__bridge ArdiaCoreTab *)[route pointerAtIndex:0];
   return source.closed ? nil : source;
 }
 
