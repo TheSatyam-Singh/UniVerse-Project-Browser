@@ -1,6 +1,6 @@
 #import <AppKit/AppKit.h>
 
-@class UniVerseCoreTab;
+@class ArdiaCoreTab;
 @class UniVerseSavedSession;
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,8 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
                key:(NSString *)key
            profile:(NSString *)profile
           backdrop:(NSDictionary *)backdrop;
-+ (void)attachPage:(UniVerseCoreTab *)tab key:(NSString *)key;
-+ (BOOL)showLittleWindowForLink:(UniVerseCoreTab *)tab
++ (void)attachPage:(ArdiaCoreTab *)tab key:(NSString *)key;
++ (BOOL)showLittleWindowForLink:(ArdiaCoreTab *)tab
                            mark:(NSString *)mark
                             url:(NSString *)url
                           frame:(NSArray<NSNumber *> *)frame
@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSWindow *)claimLittleWindowForLink:(NSString *)mark profile:(nullable NSString *)profile;
 + (void)forgetPictures;
 + (void)forgetPicturesNow;
-+ (BOOL)holdsPage:(UniVerseCoreTab *)tab;
++ (BOOL)holdsPage:(ArdiaCoreTab *)tab;
 + (nullable NSWindow *)claimForAppWindow:(nullable NSString *)windowId profile:(nullable NSString *)profile;
 + (BOOL)takeDismissed:(nullable NSString *)windowId;
 + (nullable NSView *)coverInWindow:(nullable NSWindow *)window;
@@ -37,14 +37,14 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface UniVerseEarlyWindow (Pages)
-+ (void)pageMoved:(UniVerseCoreTab *)tab;
-+ (void)pageNavigated:(nullable UniVerseCoreTab *)tab launchURL:(nullable NSString *)launchURL;
-+ (BOOL)veils:(nullable UniVerseCoreTab *)tab;
-+ (void)requestFocus:(nullable UniVerseCoreTab *)tab;
-+ (void)page:(nullable UniVerseCoreTab *)tab shownURL:(nullable NSString *)url;
-+ (void)pageCommitted:(nullable UniVerseCoreTab *)tab shownURL:(nullable NSString *)url;
-+ (void)page:(nullable UniVerseCoreTab *)tab emitted:(nullable NSString *)url;
-+ (void)dropPage:(nullable UniVerseCoreTab *)tab;
++ (void)pageMoved:(ArdiaCoreTab *)tab;
++ (void)pageNavigated:(nullable ArdiaCoreTab *)tab launchURL:(nullable NSString *)launchURL;
++ (BOOL)veils:(nullable ArdiaCoreTab *)tab;
++ (void)requestFocus:(nullable ArdiaCoreTab *)tab;
++ (void)page:(nullable ArdiaCoreTab *)tab shownURL:(nullable NSString *)url;
++ (void)pageCommitted:(nullable ArdiaCoreTab *)tab shownURL:(nullable NSString *)url;
++ (void)page:(nullable ArdiaCoreTab *)tab emitted:(nullable NSString *)url;
++ (void)dropPage:(nullable ArdiaCoreTab *)tab;
 @end
 
 NS_ASSUME_NONNULL_END
