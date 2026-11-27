@@ -5,10 +5,16 @@ import { test } from "node:test";
 globalThis.__DEV__ = false;
 const toasts = new Map();
 globalThis.engineTestToasts = toasts;
+const signIn = { read: [], toWebKit: [], toChromium: [], cookies: [] };
+globalThis.engineTestSignIn = signIn;
 const stubs = {
   "../app/toasts": `export const showToast = (windowId, title, message, options) => globalThis.engineTestToasts.set(windowId, { title, ...options });
     export const hideKeyedToast = (windowId, key) => globalThis.engineTestToasts.get(windowId)?.key === key && globalThis.engineTestToasts.delete(windowId);`,
   "../tabs/tabPages": "export const wantsPage = (t) => !!t && !!(t.page.nav || t.page.adopt);",
+  "./engineSignIn": `export const signInCarryOn = () => true;
+    export const readSignInCookies = async (tabId, url) => { globalThis.engineTestSignIn.read.push([tabId, url]); return globalThis.engineTestSignIn.cookies; };
+    export const carrySignInToWebKit = async (tabId, url) => { globalThis.engineTestSignIn.toWebKit.push([tabId, url]); return 1; };
+    export const carrySignInToChromium = async (tabId, cookies, oldWeb) => { globalThis.engineTestSignIn.toChromium.push([tabId, cookies]); return cookies.length; };`,
 };
 registerHooks({
   resolve(specifier, context, next) {
@@ -51,6 +57,21 @@ test("Back across engines without unsaved input reopens the page before in its e
   assert.equal(S().tabs[tabId].engine, "chromium");
   assert.equal(S().tabs[tabId].page.nav.url, "https://search.example/?q=film");
   assert.equal(pageOf(tabId).engineBack, null);
+  webviews.clear();
+});
+
+test("Back across engines carries the sign-in cookies back to Chromium, so the login survives", async () => {
+  const { tabId } = movedTab("https://www.netflix.com/browse");
+  webviews.set(tabId, { evaluate: () => Promise.resolve(false) });
+  const cookie = { name: "NetflixId", value: "v", domain: ".netflix.com", path: "/", expires: -1, session: true, httpOnly: true, secure: true };
+  signIn.cookies = [cookie];
+  signIn.read.length = 0;
+  signIn.toChromium.length = 0;
+  assert.equal(await goBackAcrossEngines(tabId), true);
+  assert.equal(S().tabs[tabId].engine, "chromium");
+  assert.deepEqual(signIn.read, [[tabId, "https://www.netflix.com/browse"]]);
+  assert.deepEqual(signIn.toChromium, [[tabId, [cookie]]]);
+  signIn.cookies = [];
   webviews.clear();
 });
 
