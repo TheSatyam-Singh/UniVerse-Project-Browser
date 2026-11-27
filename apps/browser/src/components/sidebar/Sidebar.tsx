@@ -19,6 +19,7 @@ import { SidebarDropArea } from "./SidebarDropArea";
 import { FolderPanel } from "./FolderPanel";
 import { AiSidebar } from "./AiSidebar";
 import { NotesPanel } from "./NotesPanel";
+import { ReadingListPanel } from "./ReadingListPanel";
 import { dismissHover, dismissHoverIn } from "../../state/sidebar/hover";
 import { PinFieldZone, PinSlotZone } from "./PinnedGrid";
 import { ResizeHandle } from "./ResizeHandle";
@@ -173,6 +174,7 @@ export function Sidebar({ width }: { width: number }) {
             ) : null}
             <FolderPanel windowId={windowId} />
             <NotesPanel windowId={windowId} />
+            <ReadingListPanel windowId={windowId} />
             <AiSidebar windowId={windowId} />
             {ghost ? <DragGhost ghost={ghost} /> : null}
           </SidebarDropArea>

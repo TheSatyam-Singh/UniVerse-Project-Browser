@@ -11,6 +11,7 @@ type SidebarUi = {
   hover: Hover | null;
   searchTabs: string | null;
   notes: string | null;
+  readingList: string | null;
   switcher: { windowId: string; ids: string[]; index: number; visible: boolean } | null;
   dragWidth: Record<string, number>;
 };
@@ -21,6 +22,7 @@ export const useSidebarUi = create<SidebarUi>()(() => ({
   hover: null,
   searchTabs: null,
   notes: null,
+  readingList: null,
   switcher: null,
   dragWidth: {},
 }));

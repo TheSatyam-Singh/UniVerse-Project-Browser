@@ -74,6 +74,8 @@ enum CommandTable {
     case openSettings
     case importBrowserData
     case showHistory
+    case showReadingList
+    case addToReadingList
     case clearBrowsingData
     case manageBookmarks
     case exportBookmarks
@@ -191,6 +193,8 @@ enum CommandTable {
     "openSettings": "Settings…",
     "importBrowserData": "Import from Another Browser…",
     "showHistory": "Show History…",
+    "showReadingList": "Show Reading List",
+    "addToReadingList": "Add to Reading List",
     "clearBrowsingData": "Clear Browsing Data…",
     "manageBookmarks": "Manage Bookmarks",
     "exportBookmarks": "Export Bookmarks…",

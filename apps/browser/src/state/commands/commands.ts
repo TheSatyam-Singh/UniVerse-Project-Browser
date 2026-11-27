@@ -21,6 +21,7 @@ import {
   toggleSiteMute,
 } from "../browser/actions";
 import { bookmarkAllTabs, bookmarkTab } from "../bookmarks/actions";
+import { addTabToReadingList } from "../readingList/actions";
 import { exportBookmarksFromWindow } from "../bookmarks/exportHtml";
 import { requestClearData } from "../profiles/clearDataRequest";
 import { showHistory } from "../history/showHistory";
@@ -305,6 +306,8 @@ export function runCommand({ command, arg, windowId: requested }: CommandEvent, 
       return tab && arg ? moveTabToWindow(tab.id, newOrId(arg)) : undefined;
     case "bookmarkPage":
       return page ? bookmarkTab(windowId, page.id) : undefined;
+    case "addToReadingList":
+      return page ? addTabToReadingList(windowId, page.id) : undefined;
     case "addBookmarkToFolder":
       return page && arg ? void addBookmarkToFolder(windowId, page.id, arg) : undefined;
     case "openBookmark": {

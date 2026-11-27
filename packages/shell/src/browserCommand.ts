@@ -71,6 +71,8 @@ export type BrowserCommand =
   | "openSettings"
   | "importBrowserData"
   | "showHistory"
+  | "showReadingList"
+  | "addToReadingList"
   | "clearBrowsingData"
   | "manageBookmarks"
   | "exportBookmarks"

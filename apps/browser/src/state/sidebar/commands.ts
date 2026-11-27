@@ -41,6 +41,9 @@ export function runSidebarCommand(command: BrowserCommand, arg: string | null, w
     case "quickTabSwitcher":
       setSidebarUi({ searchTabs: windowId, hover: null });
       return true;
+    case "showReadingList":
+      setSidebarUi({ readingList: windowId, notes: null });
+      return true;
     case "renameTab":
       if (tabId) void startRename(windowId, { kind: "tab", id: tabId });
       return true;

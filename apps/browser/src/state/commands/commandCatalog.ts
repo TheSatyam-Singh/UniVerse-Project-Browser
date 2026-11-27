@@ -112,6 +112,8 @@ export const COMMANDS = {
   openSettings: { title: "Settings…", symbol: "gearshape", keys: ["⌘,"] },
   importBrowserData: { title: "Import from Another Browser…", barTitle: "Import Browser Data", symbol: "square.and.arrow.down" },
   showHistory: { title: "Show History…", barTitle: "History", symbol: "clock", keys: ["⌘Y"] },
+  showReadingList: { title: "Show Reading List", barTitle: "Reading List", symbol: "bookmark", ...windowOffInLittleUniverse },
+  addToReadingList: { title: "Add to Reading List", symbol: "bookmark", ...pageInLittleUniverse },
   clearBrowsingData: { title: "Clear Browsing Data…", symbol: "trash", keys: ["⇧⌘⌫"] },
   manageBookmarks: { title: "Manage Bookmarks", barTitle: "Bookmarks", symbol: "book", keys: ["⌥⌘B"] },
   exportBookmarks: { title: "Export Bookmarks…", symbol: "square.and.arrow.up" },
