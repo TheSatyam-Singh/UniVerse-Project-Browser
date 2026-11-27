@@ -151,7 +151,7 @@ void WithPrivateProfile(NSString *name, void (^completion)(UniVerseCoreProfile *
   ProfileWaiters()[name] = [NSMutableArray arrayWithObject:completion];
   NSString *original = OriginalProfileName(name);
   WithProfile(original, ^(UniVerseCoreProfile *base) {
-    UniVerseCoreEngine *engine = UniVerseCoreEngine.sharedEngine;
+    ArdiaCoreEngine *engine = ArdiaCoreEngine.sharedEngine;
     void (^answer)(UniVerseCoreProfile *, NSString *) = ^(UniVerseCoreProfile *otr, NSString *error) {
       NSArray *pending = ProfileWaiters()[name];
       [ProfileWaiters() removeObjectForKey:name];
@@ -180,7 +180,7 @@ void WithProfile(NSString *name, void (^completion)(UniVerseCoreProfile *)) {
   name = name ?: @"";
   if ([DeletedProfiles() containsObject:name]) return completion(nil);
   if (UniVerseCoreProfile *profile = LoadedProfile(name)) return completion(profile);
-  UniVerseCoreEngine *engine = UniVerseCoreEngine.sharedEngine;
+  ArdiaCoreEngine *engine = ArdiaCoreEngine.sharedEngine;
   if (!engine) return completion(nil);
   if (IsPrivateSessionId(name)) return WithPrivateProfile(name, [completion copy]);
   if (name.length == 0) {
@@ -213,7 +213,7 @@ void WithProfile(NSString *name, void (^completion)(UniVerseCoreProfile *)) {
            }];
 }
 
-UniVerseCoreProfile *PersonalIfLoaded(UniVerseCoreEngine *engine) {
+UniVerseCoreProfile *PersonalIfLoaded(ArdiaCoreEngine *engine) {
   UniVerseCoreProfile *profile = engine.defaultProfile;
   return [profile.name isEqualToString:@"Default"] ? profile : nil;
 }
