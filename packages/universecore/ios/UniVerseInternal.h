@@ -18,7 +18,7 @@ UniVerseCoreProfile *_Nullable LoadedProfile(NSString *name);
 bool IsDeletedProfile(NSString *name);
 void WithProfile(NSString *name, void (^completion)(UniVerseCoreProfile *_Nullable profile));
 NSString *ProfileName(UniVerseCoreProfile *_Nullable profile);
-UniVerseCoreProfile *_Nullable PersonalIfLoaded(UniVerseCoreEngine *engine);
+UniVerseCoreProfile *_Nullable PersonalIfLoaded(ArdiaCoreEngine *engine);
 bool IsPrivateProfile(NSString *_Nullable name);
 bool IsPrivateSessionId(NSString *_Nullable name);
 NSString *ProfileDirectoryName(NSString *_Nullable name);
@@ -28,13 +28,13 @@ NSString *OriginalProfileNameOf(UniVerseCoreProfile *_Nullable profile);
 bool IsOffTheRecordOf(UniVerseCoreProfile *_Nullable profile, NSString *_Nullable name);
 NSArray<NSString *> *LoadedProfileNames();
 
-int BrowserId(UniVerseCoreTab *tab);
-UniVerseCoreTab *_Nullable TabWithBrowserId(int browserId);
-NSString *_Nullable AppTabIdOf(UniVerseCoreTab *_Nullable tab);
-id AppTabIdValue(UniVerseCoreTab *_Nullable tab);
-UniVerseCoreTab *_Nullable TabWithAppTabId(NSString *_Nullable tabId);
-void HoldUntilHosted(UniVerseCoreTab *tab, NSString *event, NSDictionary *payload);
-void ReleaseHeldEvents(UniVerseCoreTab *tab);
+int BrowserId(ArdiaCoreTab *tab);
+ArdiaCoreTab *_Nullable TabWithBrowserId(int browserId);
+NSString *_Nullable AppTabIdOf(ArdiaCoreTab *_Nullable tab);
+id AppTabIdValue(ArdiaCoreTab *_Nullable tab);
+ArdiaCoreTab *_Nullable TabWithAppTabId(NSString *_Nullable tabId);
+void HoldUntilHosted(ArdiaCoreTab *tab, NSString *event, NSDictionary *payload);
+void ReleaseHeldEvents(ArdiaCoreTab *tab);
 void DropHeldEvent(NSString *event, NSString *eventId);
 
 NSString *AppDisposition(NSString *chromeDisposition);
@@ -55,15 +55,15 @@ void SetAppActive(bool active);
 void ActToggleFullScreen(NSWindow *window);
 void InstallTestCrashGuard(NSString *_Nullable dataDir);
 
-void OpenPopupWindow(UniVerseCoreTab *tab, UniVerseWebView *_Nullable opener);
-UniVerseCoreWindow *_Nullable PopupWindowForChromeBrowser(UniVerseCoreProfile *profile);
+void OpenPopupWindow(ArdiaCoreTab *tab, UniVerseWebView *_Nullable opener);
+ArdiaCoreWindow *_Nullable PopupWindowForChromeBrowser(UniVerseCoreProfile *profile);
 bool IsReservedKeyEvent(NSEvent *event);
 bool IsReservedBinding(NSString *key, NSString *unshiftedKey, NSEventModifierFlags modifiers);
 NSUInteger PopupWindowCount();
-bool AskPermissionInPopupWindow(UniVerseCoreTab *tab, NSDictionary *request);
+bool AskPermissionInPopupWindow(ArdiaCoreTab *tab, NSDictionary *request);
 void DropPopupWindowPermission(NSString *requestId);
-void NotePasswordPromptSource(UniVerseWebView *view, UniVerseCoreTab *_Nullable source);
-UniVerseCoreTab *_Nullable PasswordPromptTab(UniVerseWebView *view, UniVerseCoreTab *_Nullable own);
+void NotePasswordPromptSource(UniVerseWebView *view, ArdiaCoreTab *_Nullable source);
+ArdiaCoreTab *_Nullable PasswordPromptTab(UniVerseWebView *view, ArdiaCoreTab *_Nullable own);
 
 }
 
@@ -71,10 +71,10 @@ UniVerseCoreTab *_Nullable PasswordPromptTab(UniVerseWebView *view, UniVerseCore
 + (void)changedInWindow:(UniVerseWindowController *)controller profile:(UniVerseCoreProfile *)profile;
 + (void)changedInWindow:(UniVerseWindowController *)controller profile:(UniVerseCoreProfile *)profile cause:(nullable id)cause;
 + (void)windowClosed:(UniVerseWindowController *)controller;
-+ (void)activated:(UniVerseCoreTab *)tab inWindow:(UniVerseWindowController *)controller;
-+ (nullable UniVerseCoreTab *)activeTabInWindow:(UniVerseWindowController *)controller profile:(UniVerseCoreProfile *)profile;
-+ (void)removed:(UniVerseCoreTab *)tab fromWindow:(UniVerseWindowController *)controller;
-+ (void)setPinned:(BOOL)pinned tab:(UniVerseCoreTab *)tab;
++ (void)activated:(ArdiaCoreTab *)tab inWindow:(UniVerseWindowController *)controller;
++ (nullable ArdiaCoreTab *)activeTabInWindow:(UniVerseWindowController *)controller profile:(UniVerseCoreProfile *)profile;
++ (void)removed:(ArdiaCoreTab *)tab fromWindow:(UniVerseWindowController *)controller;
++ (void)setPinned:(BOOL)pinned tab:(ArdiaCoreTab *)tab;
 @end
 
 namespace universe_host {
