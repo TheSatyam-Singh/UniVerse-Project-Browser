@@ -16,7 +16,7 @@ NSMapTable<NSWindow *, UniVerseWindowController *> *Controllers() {
 
 namespace {
 
-void AnnounceStrayTab(UniVerseCoreTab *tab, int tries) {
+void AnnounceStrayTab(ArdiaCoreTab *tab, int tries) {
   if (tab.closed) return;
   NSString *url = tab.url;
   if ((!url.length || [url isEqualToString:@"about:blank"]) && tries < 20) {
@@ -31,7 +31,7 @@ void AnnounceStrayTab(UniVerseCoreTab *tab, int tries) {
                }];
 }
 
-void HandOffTab(UniVerseCoreTab *tab) {
+void HandOffTab(ArdiaCoreTab *tab) {
   UniVerseCoreProfile *profile = tab.profile;
   if (!profile) return (void)dispatch_async(dispatch_get_main_queue(), ^{ [tab closeNow]; });
   UniVerseWebView *view = [UniVerseWindowController hostingViewForProfile:profile];
@@ -50,12 +50,12 @@ void HandOffTab(UniVerseCoreTab *tab) {
 }
 
 @implementation UniVerseWindowController {
-  NSHashTable<UniVerseCoreTab *> *_closing;
+  NSHashTable<ArdiaCoreTab *> *_closing;
   NSString *_chromeToken;
   BOOL _awaitingApp;
   BOOL _showInactive;
   BOOL _announced;
-  __weak UniVerseCoreTab *_chromeActive;
+  __weak ArdiaCoreTab *_chromeActive;
   id _willCloseObserver;
 }
 
@@ -78,7 +78,7 @@ void HandOffTab(UniVerseCoreTab *tab) {
 }
 
 + (instancetype)strayWindowForProfile:(UniVerseCoreProfile *)profile {
-  UniVerseCoreWindow *coreWindow = [[UniVerseCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 800, 600)];
+  ArdiaCoreWindow *coreWindow = [[ArdiaCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 800, 600)];
   if (!coreWindow.window) return nil;
   UniVerseWindowController *controller = [[UniVerseWindowController alloc] initWithCoreWindow:coreWindow];
   controller->_stray = YES;
@@ -92,7 +92,7 @@ NSMutableDictionary<NSString *, UniVerseWindowController *> *ChromeMadeWindows()
 }
 
 + (instancetype)chromeMadeWindowForProfile:(UniVerseCoreProfile *)profile {
-  UniVerseCoreWindow *coreWindow = [[UniVerseCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1360, 860)];
+  ArdiaCoreWindow *coreWindow = [[ArdiaCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1360, 860)];
   NSWindow *window = coreWindow.window;
   if (!window) return nil;
   ConfigureWindow(window);
@@ -122,15 +122,15 @@ NSMutableDictionary<NSString *, UniVerseWindowController *> *ChromeMadeWindows()
   _awaitingApp = NO;
   [ChromeMadeWindows() removeObjectForKey:_chromeToken];
   _stray = YES;
-  NSArray<UniVerseCoreTab *> *tabs = @[];
+  NSArray<ArdiaCoreTab *> *tabs = @[];
   for (UniVerseCoreProfile *profile in universe_host::LoadedProfiles())
     tabs = [tabs arrayByAddingObjectsFromArray:[_coreWindow tabsForProfile:profile]];
   if (!tabs.count) return [_coreWindow close];
-  for (UniVerseCoreTab *tab in tabs)
+  for (ArdiaCoreTab *tab in tabs)
     if (![UniVerseTabRegistry viewForTab:tab]) HandOffTab(tab);
 }
 
-- (void)announceChromeMadeTab:(UniVerseCoreTab *)tab tries:(int)tries {
+- (void)announceChromeMadeTab:(ArdiaCoreTab *)tab tries:(int)tries {
   if (_stray || tab.closed || ![[_coreWindow tabsForProfile:tab.profile] containsObject:tab]) return;
   NSString *moving = [UniVerseTabRegistry viewForTab:tab].transferKey;
   NSString *url = tab.url;
@@ -159,7 +159,7 @@ NSMutableDictionary<NSString *, UniVerseWindowController *> *ChromeMadeWindows()
   [UniVerseEvents emit:@"extensions.tabs" data:request];
 }
 
-- (void)window:(UniVerseCoreWindow *)window showRequestedActive:(BOOL)active {
+- (void)window:(ArdiaCoreWindow *)window showRequestedActive:(BOOL)active {
   if (_awaitingApp) _showInactive = !active;
 }
 
@@ -172,7 +172,7 @@ NSMapTable<UniVerseCoreProfile *, UniVerseWindowController *> *StandaloneWindows
   NSMapTable<UniVerseCoreProfile *, UniVerseWindowController *> *windows = StandaloneWindows();
   UniVerseWindowController *controller = [windows objectForKey:profile];
   if (controller && controller.coreWindow.window) return controller;
-  UniVerseCoreWindow *coreWindow = [[UniVerseCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 800, 600)];
+  ArdiaCoreWindow *coreWindow = [[ArdiaCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 800, 600)];
   if (!coreWindow.window) return nil;
   coreWindow.internal = YES;
   controller = [[UniVerseWindowController alloc] initWithCoreWindow:coreWindow];
@@ -193,7 +193,7 @@ NSMapTable<UniVerseCoreProfile *, UniVerseWindowController *> *StandaloneWindows
   return profile.offTheRecord ? nil : any;
 }
 
-+ (instancetype)holding:(UniVerseCoreTab *)tab {
++ (instancetype)holding:(ArdiaCoreTab *)tab {
   UniVerseCoreProfile *profile = tab.profile;
   if (!profile) return nil;
   for (UniVerseWindowController *c in Controllers().objectEnumerator)
@@ -201,14 +201,14 @@ NSMapTable<UniVerseCoreProfile *, UniVerseWindowController *> *StandaloneWindows
   return nil;
 }
 
-- (void)noteClosing:(UniVerseCoreTab *)tab {
+- (void)noteClosing:(ArdiaCoreTab *)tab {
   if (!_closing) _closing = [NSHashTable weakObjectsHashTable];
   [_closing addObject:tab];
   __weak UniVerseWindowController *weakSelf = self;
-  __weak UniVerseCoreTab *weakTab = tab;
+  __weak ArdiaCoreTab *weakTab = tab;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 3 * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
     UniVerseWindowController *c = weakSelf;
-    UniVerseCoreTab *t = weakTab;
+    ArdiaCoreTab *t = weakTab;
     if (c && t) [c->_closing removeObject:t];
   });
 }
@@ -225,7 +225,7 @@ NSMapTable<UniVerseCoreProfile *, UniVerseWindowController *> *StandaloneWindows
   return Controllers().objectEnumerator.allObjects;
 }
 
-- (instancetype)initWithCoreWindow:(UniVerseCoreWindow *)coreWindow {
+- (instancetype)initWithCoreWindow:(ArdiaCoreWindow *)coreWindow {
   if ((self = [super init])) {
     _coreWindow = coreWindow;
     coreWindow.delegate = self;
@@ -244,12 +244,12 @@ NSMapTable<UniVerseCoreProfile *, UniVerseWindowController *> *StandaloneWindows
   if (_willCloseObserver) [NSNotificationCenter.defaultCenter removeObserver:_willCloseObserver];
 }
 
-- (UniVerseWebView *)viewFor:(UniVerseCoreTab *)tab {
+- (UniVerseWebView *)viewFor:(ArdiaCoreTab *)tab {
   return tab ? [UniVerseTabRegistry viewForTab:tab] : nil;
 }
 
 - (UniVerseWebView *)anyShownViewForProfile:(UniVerseCoreProfile *)profile {
-  for (UniVerseCoreTab *tab in [_coreWindow tabsForProfile:profile]) {
+  for (ArdiaCoreTab *tab in [_coreWindow tabsForProfile:profile]) {
     UniVerseWebView *view = [UniVerseTabRegistry viewForTab:tab];
     if (view.visible) return view;
   }
@@ -258,12 +258,12 @@ NSMapTable<UniVerseCoreProfile *, UniVerseWindowController *> *StandaloneWindows
 
 - (UniVerseWebView *)anyView {
   for (UniVerseCoreProfile *profile in universe_host::LoadedProfiles())
-    for (UniVerseCoreTab *tab in [_coreWindow tabsForProfile:profile])
+    for (ArdiaCoreTab *tab in [_coreWindow tabsForProfile:profile])
       if (UniVerseWebView *view = [UniVerseTabRegistry viewForTab:tab]) return view;
   return nil;
 }
 
-- (void)window:(UniVerseCoreWindow *)window didInsertTab:(UniVerseCoreTab *)tab opener:(UniVerseCoreTab *)opener disposition:(NSString *)disposition {
+- (void)window:(ArdiaCoreWindow *)window didInsertTab:(ArdiaCoreTab *)tab opener:(ArdiaCoreTab *)opener disposition:(NSString *)disposition {
   [UniVerseTabStrip changedInWindow:self profile:tab.profile];
   if (_hostChanges > 0) return;
   if (_awaitingApp) {
@@ -286,7 +286,7 @@ NSMapTable<UniVerseCoreProfile *, UniVerseWindowController *> *StandaloneWindows
   }
 }
 
-- (void)window:(UniVerseCoreWindow *)window didRemoveTab:(UniVerseCoreTab *)tab {
+- (void)window:(ArdiaCoreWindow *)window didRemoveTab:(ArdiaCoreTab *)tab {
   [UniVerseTabStrip removed:tab fromWindow:self];
   if (UniVerseCoreProfile *profile = tab.profile) [UniVerseTabStrip changedInWindow:self profile:profile];
   [[self viewFor:tab] tabRemovedFromWindow:window];
@@ -318,68 +318,68 @@ NSMapTable<UniVerseCoreProfile *, UniVerseWindowController *> *StandaloneWindows
   dispatch_async(dispatch_get_main_queue(), ^{ [self->_closing removeObject:tab]; });
 }
 
-- (void)window:(UniVerseCoreWindow *)window didActivateTab:(UniVerseCoreTab *)tab {
+- (void)window:(ArdiaCoreWindow *)window didActivateTab:(ArdiaCoreTab *)tab {
   if (_awaitingApp) _chromeActive = tab;
   [UniVerseTabStrip activated:tab inWindow:self];
   [UniVerseTabStrip changedInWindow:self profile:tab.profile];
   [[self viewFor:tab] tabActivatedByChrome:!self.appChanging];
 }
 
-- (void)window:(UniVerseCoreWindow *)window devToolsDidChangeForTab:(UniVerseCoreTab *)tab view:(NSView *)devToolsView {
+- (void)window:(ArdiaCoreWindow *)window devToolsDidChangeForTab:(ArdiaCoreTab *)tab view:(NSView *)devToolsView {
   [[self viewFor:tab] devToolsChanged:devToolsView];
 }
 
-- (void)window:(UniVerseCoreWindow *)window tab:(UniVerseCoreTab *)tab didChangeFullscreen:(BOOL)fullscreen {
+- (void)window:(ArdiaCoreWindow *)window tab:(ArdiaCoreTab *)tab didChangeFullscreen:(BOOL)fullscreen {
   [FullScreenChanges() setObject:@([FullScreenChanges() objectForKey:tab].unsignedIntegerValue + 1) forKey:tab];
   __weak UniVerseWindowController *weakSelf = self;
-  __weak UniVerseCoreTab *weakTab = tab;
+  __weak ArdiaCoreTab *weakTab = tab;
   void (^tell)(void) = ^{
-    UniVerseCoreTab *t = weakTab;
+    ArdiaCoreTab *t = weakTab;
     if (t) [[weakSelf viewFor:t] emit:@"fullscreen" payload:@{@"fullscreen" : @(fullscreen)}];
   };
   if (_stray || _standalone) return tell();
   [[UniVerseWindowFullScreen ofWindow:window create:YES] tab:tab fullScreen:fullscreen tell:tell];
 }
 
-- (void)window:(UniVerseCoreWindow *)window passwordPrompt:(NSDictionary<NSString *, id> *)prompt forTab:(UniVerseCoreTab *)tab {
+- (void)window:(ArdiaCoreWindow *)window passwordPrompt:(NSDictionary<NSString *, id> *)prompt forTab:(ArdiaCoreTab *)tab {
   UniVerseWebView *view = [self viewFor:tab];
   if (view) universe_host::NotePasswordPromptSource(view, nil);
   [view emit:@"passwordPrompt" payload:prompt];
 }
 
-- (void)window:(UniVerseCoreWindow *)window autofillPrompt:(NSDictionary<NSString *, id> *)prompt forTab:(UniVerseCoreTab *)tab {
+- (void)window:(ArdiaCoreWindow *)window autofillPrompt:(NSDictionary<NSString *, id> *)prompt forTab:(ArdiaCoreTab *)tab {
   [[self viewFor:tab] emit:@"autofillPrompt" payload:prompt];
 }
 
-- (BOOL)windowShouldClose:(UniVerseCoreWindow *)window {
+- (BOOL)windowShouldClose:(ArdiaCoreWindow *)window {
   return [UniVerseChromeWindowHost windowShouldClose:window.window];
 }
 
-- (void)windowDidCancelClose:(UniVerseCoreWindow *)window {
+- (void)windowDidCancelClose:(ArdiaCoreWindow *)window {
   NSLog(@"[universecore] window close cancelled");
   [UniVerseWebView retryPagesInWindow:self];
 }
 
-- (void)windowCanTakeTabs:(UniVerseCoreWindow *)window {
+- (void)windowCanTakeTabs:(ArdiaCoreWindow *)window {
   [UniVerseWebView retryPagesInWindow:self];
 }
 
-- (void)window:(UniVerseCoreWindow *)window confirmCloseWithDownloads:(int)count completion:(void (^)(BOOL))completion {
+- (void)window:(ArdiaCoreWindow *)window confirmCloseWithDownloads:(int)count completion:(void (^)(BOOL))completion {
   completion(YES);
 }
 
-- (BOOL)window:(UniVerseCoreWindow *)window preHandleKeyEvent:(NSEvent *)event {
+- (BOOL)window:(ArdiaCoreWindow *)window preHandleKeyEvent:(NSEvent *)event {
   return UniVersePerformReservedKey(event);
 }
 
-- (BOOL)window:(UniVerseCoreWindow *)window handleKeyEvent:(NSEvent *)event {
+- (BOOL)window:(ArdiaCoreWindow *)window handleKeyEvent:(NSEvent *)event {
   if (KeepsUnhandledSidebarKeyInPage(window.window, event)) return YES;
   const NSEventModifierFlags mods = event.modifierFlags & NSEventModifierFlagDeviceIndependentFlagsMask;
   if (event.type == NSEventTypeKeyDown && event.keyCode == 53 && !(mods & (NSEventModifierFlagCommand | NSEventModifierFlagOption | NSEventModifierFlagControl))) {
     NSResponder *focused = window.window.firstResponder;
     UniVerseWebView *target = nil;
     for (UniVerseCoreProfile *profile in universe_host::LoadedProfiles()) {
-      for (UniVerseCoreTab *tab in [window tabsForProfile:profile]) {
+      for (ArdiaCoreTab *tab in [window tabsForProfile:profile]) {
         UniVerseWebView *view = [UniVerseTabRegistry viewForTab:tab];
         if (view.visible && [focused isKindOfClass:NSView.class] && [(NSView *)focused isDescendantOf:tab.view]) target = view;
       }
