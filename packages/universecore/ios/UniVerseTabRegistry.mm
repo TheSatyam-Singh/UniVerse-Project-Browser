@@ -5,12 +5,12 @@
 
 namespace {
 
-NSMapTable<UniVerseCoreTab *, UniVerseWebView *> *Views() {
+NSMapTable<ArdiaCoreTab *, UniVerseWebView *> *Views() {
   static NSMapTable *views = [NSMapTable weakToWeakObjectsMapTable];
   return views;
 }
 
-NSMutableDictionary<NSString *, UniVerseCoreTab *> *Offered() {
+NSMutableDictionary<NSString *, ArdiaCoreTab *> *Offered() {
   static NSMutableDictionary *offered = [NSMutableDictionary dictionary];
   return offered;
 }
@@ -21,20 +21,20 @@ constexpr int64_t kOfferSeconds = 30;
 
 @implementation UniVerseTabRegistry
 
-+ (void)setView:(UniVerseWebView *)view forTab:(UniVerseCoreTab *)tab {
++ (void)setView:(UniVerseWebView *)view forTab:(ArdiaCoreTab *)tab {
   if (view) [Views() setObject:view forKey:tab];
   else [Views() removeObjectForKey:tab];
 }
 
-+ (UniVerseWebView *)viewForTab:(UniVerseCoreTab *)tab {
++ (UniVerseWebView *)viewForTab:(ArdiaCoreTab *)tab {
   return [Views() objectForKey:tab];
 }
 
-+ (NSString *)offerTab:(UniVerseCoreTab *)tab {
++ (NSString *)offerTab:(ArdiaCoreTab *)tab {
   return [self offerTab:tab prefix:@"universecore"];
 }
 
-+ (NSString *)offerTab:(UniVerseCoreTab *)tab prefix:(NSString *)prefix {
++ (NSString *)offerTab:(ArdiaCoreTab *)tab prefix:(NSString *)prefix {
   NSString *adoptId = [NSString stringWithFormat:@"%@:%d", prefix, universe_host::BrowserId(tab)];
   Offered()[adoptId] = tab;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, kOfferSeconds * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
@@ -45,17 +45,17 @@ constexpr int64_t kOfferSeconds = 30;
   return adoptId;
 }
 
-+ (UniVerseCoreTab *)offeredTab:(NSString *)adoptId {
++ (ArdiaCoreTab *)offeredTab:(NSString *)adoptId {
   return adoptId.length ? Offered()[adoptId] : nil;
 }
 
-+ (UniVerseCoreTab *)takeOffered:(NSString *)adoptId {
-  UniVerseCoreTab *tab = Offered()[adoptId];
++ (ArdiaCoreTab *)takeOffered:(NSString *)adoptId {
+  ArdiaCoreTab *tab = Offered()[adoptId];
   if (tab) [Offered() removeObjectForKey:adoptId];
   return tab;
 }
 
-+ (void)forget:(UniVerseCoreTab *)tab {
++ (void)forget:(ArdiaCoreTab *)tab {
   [Views() removeObjectForKey:tab];
   for (NSString *key in [Offered() allKeysForObject:tab]) [Offered() removeObjectForKey:key];
 }
@@ -66,13 +66,13 @@ namespace universe_host {
 
 namespace {
 const void *kBrowserIdKey = &kBrowserIdKey;
-NSMapTable<NSNumber *, UniVerseCoreTab *> *TabsById() {
+NSMapTable<NSNumber *, ArdiaCoreTab *> *TabsById() {
   static NSMapTable *tabs = [NSMapTable strongToWeakObjectsMapTable];
   return tabs;
 }
 }
 
-int BrowserId(UniVerseCoreTab *tab) {
+int BrowserId(ArdiaCoreTab *tab) {
   static int next = 0;
   NSNumber *id_ = objc_getAssociatedObject(tab, kBrowserIdKey);
   if (!id_) {
@@ -83,41 +83,41 @@ int BrowserId(UniVerseCoreTab *tab) {
   return id_.intValue;
 }
 
-UniVerseCoreTab *TabWithBrowserId(int browserId) {
+ArdiaCoreTab *TabWithBrowserId(int browserId) {
   return [TabsById() objectForKey:@(browserId)];
 }
 
-NSString *AppTabIdOf(UniVerseCoreTab *tab) {
+NSString *AppTabIdOf(ArdiaCoreTab *tab) {
   NSString *tabId = tab ? [UniVerseTabRegistry viewForTab:tab].transferKey : nil;
   return tabId.length ? tabId : nil;
 }
 
-id AppTabIdValue(UniVerseCoreTab *tab) {
+id AppTabIdValue(ArdiaCoreTab *tab) {
   return AppTabIdOf(tab) ?: NSNull.null;
 }
 
-UniVerseCoreTab *TabWithAppTabId(NSString *tabId) {
+ArdiaCoreTab *TabWithAppTabId(NSString *tabId) {
   if (!tabId.length) return nil;
-  for (UniVerseCoreTab *tab in Views().keyEnumerator.allObjects)
+  for (ArdiaCoreTab *tab in Views().keyEnumerator.allObjects)
     if ([[Views() objectForKey:tab].transferKey isEqualToString:tabId]) return tab;
   return nil;
 }
 
 namespace {
-NSMapTable<UniVerseCoreTab *, NSMutableArray<NSArray *> *> *HeldEvents() {
+NSMapTable<ArdiaCoreTab *, NSMutableArray<NSArray *> *> *HeldEvents() {
   static NSMapTable *held = [NSMapTable weakToStrongObjectsMapTable];
   return held;
 }
 }
 
-void HoldUntilHosted(UniVerseCoreTab *tab, NSString *event, NSDictionary *payload) {
+void HoldUntilHosted(ArdiaCoreTab *tab, NSString *event, NSDictionary *payload) {
   NSMutableArray *list = [HeldEvents() objectForKey:tab];
   if (!list) [HeldEvents() setObject:(list = [NSMutableArray array]) forKey:tab];
   [list addObject:@[ event, payload ]];
 }
 
 void DropHeldEvent(NSString *event, NSString *eventId) {
-  for (UniVerseCoreTab *tab in HeldEvents().keyEnumerator.allObjects) {
+  for (ArdiaCoreTab *tab in HeldEvents().keyEnumerator.allObjects) {
     NSMutableArray<NSArray *> *list = [HeldEvents() objectForKey:tab];
     NSIndexSet *dropped = [list indexesOfObjectsPassingTest:^BOOL(NSArray *held, NSUInteger, BOOL *) {
       return [held[0] isEqualToString:event] && [held[1][@"id"] isEqual:eventId];
@@ -127,7 +127,7 @@ void DropHeldEvent(NSString *event, NSString *eventId) {
   }
 }
 
-void ReleaseHeldEvents(UniVerseCoreTab *tab) {
+void ReleaseHeldEvents(ArdiaCoreTab *tab) {
   NSString *tabId = AppTabIdOf(tab);
   NSArray<NSArray *> *held = tabId ? [HeldEvents() objectForKey:tab] : nil;
   if (!held) return;
