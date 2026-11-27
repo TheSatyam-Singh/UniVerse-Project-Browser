@@ -117,7 +117,7 @@ BOOL TracingPictureInPicture() {
                                                          what, _tab.url, _autoPictureInPicture, _reports.capturing,
                                                          np[@"playbackState"] ?: @"none", JSONText(np[@"actions"] ?: @[])]
                    withInputs:YES];
-  UniVerseCoreTab *tab = _tab;
+  ArdiaCoreTab *tab = _tab;
   [_tab evaluate:@"post('result', JSON.stringify({ documentPictureInPicture: 'documentPictureInPicture' in window, "
                   "window: !!window.documentPictureInPicture?.window, videoPip: !!document.pictureInPictureElement, "
                   "brands: navigator.userAgentData?.brands?.map((b) => b.brand + '/' + b.version), visibility: document.visibilityState }))"
@@ -125,19 +125,19 @@ BOOL TracingPictureInPicture() {
 }
 
 + (void)setAutoPictureInPictureEnabled:(BOOL)enabled {
-  [UniVerseCoreEngine setAutoPictureInPicture:enabled];
+  [ArdiaCoreEngine setAutoPictureInPicture:enabled];
 }
 
 + (void)setVideoUpscalingEnabled:(BOOL)enabled {
-  [UniVerseCoreEngine setVideoUpscaling:enabled];
+  [ArdiaCoreEngine setVideoUpscaling:enabled];
 }
 
 + (void)setVideoUpscalingTestConditions:(NSDictionary<NSString *, NSNumber *> *)conditions {
-  [UniVerseCoreEngine setVideoUpscalingTestConditions:conditions];
+  [ArdiaCoreEngine setVideoUpscalingTestConditions:conditions];
 }
 
 + (NSDictionary<NSString *, id> *)videoUpscalingState {
-  return UniVerseCoreEngine.videoUpscalingState;
+  return ArdiaCoreEngine.videoUpscalingState;
 }
 
 - (BOOL)takeControlPressAt:(double)clickMs control:(NSInteger)target {
@@ -218,7 +218,7 @@ BOOL TracingPictureInPicture() {
   [_tab exitPictureInPicture];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab didChangePictureInPicture:(NSDictionary<NSString *, id> *)state {
+- (void)tab:(ArdiaCoreTab *)tab didChangePictureInPicture:(NSDictionary<NSString *, id> *)state {
   if (![state[@"kind"] isEqual:@"document"]) {
     const BOOL active = [state[@"active"] boolValue];
     if (!active && !_reports.inPictureInPicture) return;
@@ -234,7 +234,7 @@ BOOL TracingPictureInPicture() {
   if (_reports.inPictureInPicture) universe_pip::DocumentEntered(self);
 }
 
-- (void)tab:(UniVerseCoreTab *)tab requestsActivation:(NSString *)reason {
+- (void)tab:(ArdiaCoreTab *)tab requestsActivation:(NSString *)reason {
   universe_pip::TabRequestedActivation(self);
   [self emit:@"activateRequest" payload:@{@"reason" : reason ?: @"page"}];
 }
