@@ -35,7 +35,7 @@ BOOL gMenuShortcutsReady;
 
 void SendReservedShortcuts() {
   if (!UniVerseLaunchSequence.shared.engineRunning || !gMenuShortcutsReady) return;
-  [UniVerseCoreEngine reservedShortcutsChanged];
+  [ArdiaCoreEngine reservedShortcutsChanged];
 }
 
 }
@@ -100,24 +100,24 @@ static void (^gQuitCancelledHandler)(void);
 
 + (void)resolveExtensionInstallPrompt:(NSString *)requestId accepted:(BOOL)accepted {
   [gInstallPrompts removeObjectForKey:requestId ?: @""];
-  [UniVerseCoreEngine resolveExtensionInstallPrompt:requestId accepted:accepted];
+  [ArdiaCoreEngine resolveExtensionInstallPrompt:requestId accepted:accepted];
 }
 
 + (void)beginTracing:(void (^)(BOOL))completion {
-  [UniVerseCoreEngine beginTracing:completion];
+  [ArdiaCoreEngine beginTracing:completion];
 }
 
 + (void)endTracing:(BOOL)keep completion:(void (^)(NSString *))completion {
-  [UniVerseCoreEngine endTracing:keep completion:completion];
+  [ArdiaCoreEngine endTracing:keep completion:completion];
 }
 
 + (BOOL)isTracing {
-  return UniVerseCoreEngine.isTracing;
+  return ArdiaCoreEngine.isTracing;
 }
 
 + (void)deleteProfileData:(NSString *)profile completion:(void (^)(NSArray<NSString *> *))completion {
   if (universe_host::IsPrivateProfile(profile)) return completion(@[]);
-  UniVerseCoreEngine *engine = UniVerseCoreEngine.sharedEngine;
+  ArdiaCoreEngine *engine = ArdiaCoreEngine.sharedEngine;
   UniVerseCoreProfile *p = universe_host::LoadedProfile(profile);
   if (!profile.length || !engine) return completion(@[ @"data" ]);
   [DeletedProfiles() addObject:profile];
@@ -141,7 +141,7 @@ static void (^gQuitCancelledHandler)(void);
 }
 
 + (void)releaseProfile:(NSString *)profile {
-  UniVerseCoreEngine *engine = UniVerseCoreEngine.sharedEngine;
+  ArdiaCoreEngine *engine = ArdiaCoreEngine.sharedEngine;
   UniVerseCoreProfile *p = universe_host::LoadedProfile(profile);
   if (universe_host::IsPrivateProfile(profile)) {
     if (profile) [ReleasedPrivateNames() addObject:profile];
@@ -160,62 +160,62 @@ static void (^gQuitCancelledHandler)(void);
 }
 
 + (BOOL)stopCapture:(NSString *)tabId {
-  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  ArdiaCoreTab *tab = universe_host::TabWithAppTabId(tabId);
   return [tab stopCapture];
 }
 
 + (BOOL)showAutofillSuggestions:(NSString *)tabId passwords:(BOOL)passwords {
-  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  ArdiaCoreTab *tab = universe_host::TabWithAppTabId(tabId);
   return [tab showAutofillSuggestions:passwords];
 }
 
 + (void)deviceChooser:(int)chooserId select:(int)index {
-  [UniVerseCoreEngine selectDevice:chooserId index:index];
+  [ArdiaCoreEngine selectDevice:chooserId index:index];
 }
 
 + (void)deviceChooser:(int)chooserId action:(NSString *)action {
   if ([action isEqualToString:@"cancel"])
-    [UniVerseCoreEngine cancelDeviceChooser:chooserId];
+    [ArdiaCoreEngine cancelDeviceChooser:chooserId];
   else if ([action isEqualToString:@"refresh"])
-    [UniVerseCoreEngine refreshDeviceChooser:chooserId];
+    [ArdiaCoreEngine refreshDeviceChooser:chooserId];
   else if ([action isEqualToString:@"settings"])
-    [UniVerseCoreEngine openDeviceChooserSettings:chooserId];
+    [ArdiaCoreEngine openDeviceChooserSettings:chooserId];
 }
 
 + (NSArray<NSDictionary *> *)testExternalLaunches {
-  return UniVerseCoreEngine.testExternalLaunches ?: @[];
+  return ArdiaCoreEngine.testExternalLaunches ?: @[];
 }
 
 + (BOOL)devShowBluetoothChooser:(NSString *)tabId unauthorized:(BOOL)unauthorized {
-  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  ArdiaCoreTab *tab = universe_host::TabWithAppTabId(tabId);
   return [tab devShowBluetoothChooser:unauthorized];
 }
 
 + (NSArray<NSDictionary *> *)testChooserEvents {
-  return UniVerseCoreEngine.testChooserEvents ?: @[];
+  return ArdiaCoreEngine.testChooserEvents ?: @[];
 }
 
 + (BOOL)shareTabInstead:(NSString *)capturerTabId target:(NSString *)targetTabId {
-  UniVerseCoreTab *capturer = universe_host::TabWithAppTabId(capturerTabId);
-  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(targetTabId);
+  ArdiaCoreTab *capturer = universe_host::TabWithAppTabId(capturerTabId);
+  ArdiaCoreTab *tab = universe_host::TabWithAppTabId(targetTabId);
   return capturer && [tab shareThisTabInsteadFor:capturer];
 }
 
 + (BOOL)showCastDialog:(NSString *)tabId {
-  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  ArdiaCoreTab *tab = universe_host::TabWithAppTabId(tabId);
   return [tab showCastDialog];
 }
 
 + (void)castDialog:(int)dialogId start:(NSString *)sink mode:(int)mode {
-  [UniVerseCoreEngine startCasting:dialogId sink:sink mode:mode];
+  [ArdiaCoreEngine startCasting:dialogId sink:sink mode:mode];
 }
 
 + (void)castDialog:(int)dialogId stop:(NSString *)route {
-  [UniVerseCoreEngine stopCasting:dialogId route:route];
+  [ArdiaCoreEngine stopCasting:dialogId route:route];
 }
 
 + (void)closeCastDialog:(int)dialogId {
-  [UniVerseCoreEngine closeCastDialog:dialogId];
+  [ArdiaCoreEngine closeCastDialog:dialogId];
 }
 
 + (void)watchCastRoutes:(NSString *)profileName {
@@ -225,20 +225,20 @@ static void (^gQuitCancelledHandler)(void);
 }
 
 + (void)terminateCastRoute:(NSString *)route {
-  [UniVerseCoreEngine terminateCastRoute:route];
+  [ArdiaCoreEngine terminateCastRoute:route];
 }
 
 + (void)resolveExternalApp:(NSString *)requestId open:(BOOL)open remember:(BOOL)remember {
-  [UniVerseCoreEngine resolveExternalApp:requestId open:open remember:remember];
+  [ArdiaCoreEngine resolveExternalApp:requestId open:open remember:remember];
 }
 
 + (NSDictionary *)actionStates:(NSString *)tabId extensions:(NSArray<NSString *> *)ids {
-  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  ArdiaCoreTab *tab = universe_host::TabWithAppTabId(tabId);
   return [tab actionStatesForExtensions:ids] ?: @{};
 }
 
 + (NSString *)sidePanelURL:(NSString *)tabId extension:(NSString *)extensionId {
-  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  ArdiaCoreTab *tab = universe_host::TabWithAppTabId(tabId);
   return [tab sidePanelURLForExtension:extensionId];
 }
 
@@ -251,20 +251,20 @@ static void (^gQuitCancelledHandler)(void);
 }
 
 + (int)chromeTabIdOfTab:(NSString *)tabId {
-  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  ArdiaCoreTab *tab = universe_host::TabWithAppTabId(tabId);
   return tab ? tab.tabId : -1;
 }
 
-static NSMutableDictionary<NSString *, UniVerseCoreWindow *> *OffscreenWindows() {
-  static NSMutableDictionary<NSString *, UniVerseCoreWindow *> *windows = [NSMutableDictionary dictionary];
+static NSMutableDictionary<NSString *, ArdiaCoreWindow *> *OffscreenWindows() {
+  static NSMutableDictionary<NSString *, ArdiaCoreWindow *> *windows = [NSMutableDictionary dictionary];
   return windows;
 }
 
-static UniVerseCoreWindow *OffscreenWindowFor(UniVerseCoreProfile *profile) {
+static ArdiaCoreWindow *OffscreenWindowFor(UniVerseCoreProfile *profile) {
   NSString *name = universe_host::ProfileName(profile);
-  UniVerseCoreWindow *window = OffscreenWindows()[name];
+  ArdiaCoreWindow *window = OffscreenWindows()[name];
   if (window.window) return window;
-  window = [[UniVerseCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1280, 800)];
+  window = [[ArdiaCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1280, 800)];
   if (!window.window) return nil;
   window.internal = YES;
   window.automation = YES;
@@ -277,10 +277,10 @@ static NSDictionary<NSString *, id> *OffscreenRefusal(NSString *reason) {
 }
 
 + (void)cliMoveOffscreen:(NSString *)tabId tries:(NSInteger)tries completion:(void (^)(NSDictionary<NSString *, id> *moved))completion {
-  UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+  ArdiaCoreTab *tab = universe_host::TabWithAppTabId(tabId);
   UniVerseWebView *view = tab ? [UniVerseTabRegistry viewForTab:tab] : nil;
   if (!tab || tab.closed || tab.discarded || !view) return completion(OffscreenRefusal(@"That tab has no page loaded."));
-  UniVerseCoreWindow *window = OffscreenWindowFor(tab.profile);
+  ArdiaCoreWindow *window = OffscreenWindowFor(tab.profile);
   const UniVerseCoreAdoption adoption = window ? [window canAdoptTab:tab] : UniVerseCoreAdoptionRefused;
   if (adoption == UniVerseCoreAdoptionBusy && tries > 0) {
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 20 * NSEC_PER_MSEC), dispatch_get_main_queue(), ^{
@@ -308,9 +308,9 @@ static NSDictionary<NSString *, id> *OffscreenRefusal(NSString *reason) {
 }
 
 + (void)cliCloseOffscreenTabs {
-  for (UniVerseCoreWindow *window in OffscreenWindows().allValues)
+  for (ArdiaCoreWindow *window in OffscreenWindows().allValues)
     for (UniVerseCoreProfile *profile in universe_host::LoadedProfiles())
-      for (UniVerseCoreTab *tab in [[window tabsForProfile:profile] copy]) [tab close];
+      for (ArdiaCoreTab *tab in [[window tabsForProfile:profile] copy]) [tab close];
 }
 
 + (void)cliTabTargets:(NSArray<NSString *> *)tabIds completion:(void (^)(NSDictionary<NSString *, id> *targets))completion {
@@ -330,7 +330,7 @@ static NSDictionary<NSString *, id> *OffscreenRefusal(NSString *reason) {
   };
   dispatch_group_t pending = dispatch_group_create();
   for (NSString *tabId in tabIds) {
-    UniVerseCoreTab *tab = universe_host::TabWithAppTabId(tabId);
+    ArdiaCoreTab *tab = universe_host::TabWithAppTabId(tabId);
     if (!tab || tab.closed || tab.discarded || [UniVerseTabRegistry viewForTab:tab].awaitsFirstDocument) {
       record(tabId, nil);
       continue;
@@ -352,7 +352,7 @@ static NSDictionary<NSString *, id> *OffscreenRefusal(NSString *reason) {
 }
 
 + (void)resolvePermission:(NSString *)requestId result:(NSString *)result remember:(BOOL)remember {
-  [UniVerseCoreEngine resolvePermission:requestId result:result remember:remember];
+  [ArdiaCoreEngine resolvePermission:requestId result:result remember:remember];
 }
 
 + (NSArray<NSDictionary<NSString *, id> *> *)displayMediaSources {
@@ -418,7 +418,7 @@ static NSDictionary<NSString *, id> *OffscreenRefusal(NSString *reason) {
 }
 
 + (NSDictionary<NSString *, id> *)engineInfo {
-  UniVerseCoreEngine *engine = UniVerseCoreEngine.sharedEngine;
+  ArdiaCoreEngine *engine = ArdiaCoreEngine.sharedEngine;
   NSInteger chromeWindows = 0;
   for (UniVerseWindowController *c in UniVerseWindowController.all) chromeWindows += c.coreWindow ? 1 : 0;
   return @{
