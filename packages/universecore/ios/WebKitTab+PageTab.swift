@@ -1,4 +1,5 @@
 import AppKit
+import WebKit
 
 extension WebKitTab: PageTab {
   static let unsupported = "unsupported"
