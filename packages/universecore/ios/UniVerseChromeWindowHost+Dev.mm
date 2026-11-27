@@ -93,7 +93,7 @@ NSString *SnapshotFrameView(NSWindow *window, NSString *path) {
 }
 
 NSString *FullScreen(NSWindow *window, NSString *argument) {
-  UniVerseCoreWindow *coreWindow = [UniVerseWindowController forNSWindow:window].coreWindow;
+  ArdiaCoreWindow *coreWindow = [UniVerseWindowController forNSWindow:window].coreWindow;
   if (!coreWindow) return @"not an UniVerseCore window";
   if (argument) {
     NSArray<NSString *> *parts = Fields(argument);
