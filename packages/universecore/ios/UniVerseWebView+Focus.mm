@@ -110,7 +110,7 @@ static BOOL InTabPage(NSView *view) {
   [_tab focus];
 }
 
-- (void)tabDidGainFocus:(UniVerseCoreTab *)tab {
+- (void)tabDidGainFocus:(ArdiaCoreTab *)tab {
   [self emit:@"focus" payload:@{}];
 }
 
