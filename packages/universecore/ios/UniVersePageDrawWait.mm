@@ -4,12 +4,12 @@
 static const NSTimeInterval kPageDrawWait = 0.4;
 
 @implementation UniVersePageDrawWait {
-  __weak UniVerseCoreTab *_tab;
+  __weak ArdiaCoreTab *_tab;
   NSInteger (^_test)(BOOL fullScreen, BOOL fills);
   void (^_done)(void);
 }
 
-+ (void)tab:(UniVerseCoreTab *)tab draws:(NSInteger (^)(BOOL fullScreen, BOOL fills))test then:(void (^)(void))done {
++ (void)tab:(ArdiaCoreTab *)tab draws:(NSInteger (^)(BOOL fullScreen, BOOL fills))test then:(void (^)(void))done {
   NSView *page = tab.view;
   if (!page.window || page.isHiddenOrHasHiddenAncestor) return done();
   UniVersePageDrawWait *wait = [UniVersePageDrawWait new];
@@ -30,7 +30,7 @@ static const NSTimeInterval kPageDrawWait = 0.4;
 }
 
 - (void)ask {
-  UniVerseCoreTab *tab = _tab;
+  ArdiaCoreTab *tab = _tab;
   NSView *page = tab.view;
   if (!_done) return;
   if (!page.window) return [self finish];
