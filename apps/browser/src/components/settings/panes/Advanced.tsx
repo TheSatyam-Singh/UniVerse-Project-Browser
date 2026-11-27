@@ -110,7 +110,7 @@ export function AdvancedPane() {
               ? "Checking…"
               : widevineVersion
                 ? `Version ${widevineVersion}`
-                : "Protected video (Netflix, Disney+, Spotify) needs Widevine. It downloads from Google on first use — open Components and check for an update on Widevine."
+                : "Protected video (Netflix, Disney+, Spotify) already plays in WebKit with FairPlay. To play it in Chromium too, it needs Widevine — open Components and check for an update on Widevine."
           }
         >
           {widevine === undefined || widevineVersion ? null : (
