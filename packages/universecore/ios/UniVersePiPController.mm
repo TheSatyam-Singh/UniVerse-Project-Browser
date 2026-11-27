@@ -53,7 +53,7 @@ BOOL ShowsPage(NSView *view) {
 namespace universe_pip {
 
 BOOL IsChromeFloatingWindow(NSWindow *window) {
-  return [UniVerseCoreWindow isChromeFramelessWindow:window] && window.visible && window.level >= NSFloatingWindowLevel &&
+  return [ArdiaCoreWindow isChromeFramelessWindow:window] && window.visible && window.level >= NSFloatingWindowLevel &&
          (window.collectionBehavior & NSWindowCollectionBehaviorCanJoinAllSpaces);
 }
 
@@ -62,7 +62,7 @@ BOOL IsChromeVideoPictureInPicture(NSWindow *window) {
 }
 
 BOOL IsChromeDocumentPictureInPicture(NSWindow *window) {
-  return [UniVerseCoreWindow isChromeFramelessWindow:window] && ShowsPage(window.contentView);
+  return [ArdiaCoreWindow isChromeFramelessWindow:window] && ShowsPage(window.contentView);
 }
 
 }
