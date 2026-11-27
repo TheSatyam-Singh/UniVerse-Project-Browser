@@ -6,14 +6,14 @@ import { tabEngine } from "./engines";
 import { engineProfile } from "../browser/model";
 import { carriableCookies, cookieAddresses } from "./signInCookies";
 import { webviews } from "../../platform/webviews";
-import { experimentOn } from "../../platform/killSwitches";
+import { switchOverride } from "../../platform/launchConfig";
 import { withDeadline } from "../../lib/deadline";
 
 const CARRY_DEADLINE_MS = 1500;
 
 let carryOn: boolean | undefined;
 
-export const signInCarryOn = () => (carryOn ??= experimentOn("webkitSignIn"));
+export const signInCarryOn = () => (carryOn ??= switchOverride("webkitSignIn") ?? true);
 
 function stillChromiumPage(tabId: string, profile: string, web: WebViewHandle) {
   const s = useBrowser.getState();
