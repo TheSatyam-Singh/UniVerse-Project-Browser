@@ -435,7 +435,7 @@ NSMutableDictionary<NSString *, NSString *> *DownloadProfiles() {
       for (NSNumber *chromeTabId in [task[@"tabIds"] isKindOfClass:NSArray.class] ? task[@"tabIds"] : @[])
         for (UniVerseWindowController *c in UniVerseWindowController.all)
           for (UniVerseCoreProfile *p in universe_host::LoadedProfiles())
-            for (UniVerseCoreTab *tab in [c.coreWindow tabsForProfile:p])
+            for (ArdiaCoreTab *tab in [c.coreWindow tabsForProfile:p])
               if (tab.tabId == chromeTabId.intValue) [tabIds addObject:universe_host::AppTabIdValue(tab)];
       t[@"tabIds"] = tabIds;
       [tasks addObject:t];
