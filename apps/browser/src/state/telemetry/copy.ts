@@ -113,6 +113,7 @@ export const WHATS_SENT: { title: string; items: string[] }[] = [
       "How many times ⌘W closed several selected sidebar tabs at once and how many tabs that closed, summed up once an hour. Never which tabs",
       "Bringing your last window back from the Dock or at launch: how many tabs came back and how long it was closed, in rough ranges, and whether a pinned tab was showing",
       "When you import passwords from another browser or from a CSV file: how many passwords UniVerse Project Browser tried to save, how many it saved, how many the password store refused (invalid, or already saved), how many it didn't store in time, and how many failed for another reason, once per import. Never which sites, usernames or passwords",
+      "How many strong passwords you generated in Settings › Passwords, summed up once an hour. Never the password",
     ],
   },
   {
