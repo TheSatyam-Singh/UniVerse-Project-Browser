@@ -28,17 +28,17 @@ constexpr double kVeilFailSafeSeconds = 2;
 
 constexpr NSUInteger kOlderEmitsKept = 256;
 
-NSMapTable<UniVerseCoreTab *, UniVerseEarlyVeil *> *Veils() {
+NSMapTable<ArdiaCoreTab *, UniVerseEarlyVeil *> *Veils() {
   static NSMapTable *veils = [NSMapTable weakToStrongObjectsMapTable];
   return veils;
 }
 
-NSMapTable<UniVerseCoreTab *, UniVersePageEmits *> *Emits() {
+NSMapTable<ArdiaCoreTab *, UniVersePageEmits *> *Emits() {
   static NSMapTable *emits = [NSMapTable weakToStrongObjectsMapTable];
   return emits;
 }
 
-UniVersePageEmits *EmitsOf(UniVerseCoreTab *tab) {
+UniVersePageEmits *EmitsOf(ArdiaCoreTab *tab) {
   UniVersePageEmits *emits = [Emits() objectForKey:tab];
   if (!emits && tab) {
     emits = [UniVersePageEmits new];
@@ -63,7 +63,7 @@ void Archive(UniVersePageEmits *emits, NSString *url) {
 
 namespace universe_early_window {
 
-NSHashTable<UniVerseCoreTab *> *Watched() {
+NSHashTable<ArdiaCoreTab *> *Watched() {
   static NSHashTable *watched = [NSHashTable weakObjectsHashTable];
   return watched;
 }
@@ -86,7 +86,7 @@ BOOL IsFile(NSString *url) {
   return [url.lowercaseString hasPrefix:@"file:"];
 }
 
-BOOL ShownMatches(NSString *shownURL, UniVerseCoreTab *tab) {
+BOOL ShownMatches(NSString *shownURL, ArdiaCoreTab *tab) {
   if (shownURL.length && [[Emits() objectForKey:tab].current containsObject:shownURL]) return YES;
   NSString *shown = OriginOfURL(shownURL), *live = tab.committedOrigin;
   if (shown.length && live.length && !IsFile(shownURL) && !IsFile(tab.url)) return [shown isEqualToString:live];
@@ -98,7 +98,7 @@ BOOL ShownMatches(NSString *shownURL, UniVerseCoreTab *tab) {
 
 namespace universe_early_window {
 
-BOOL ShowsLaunchOrigin(UniVerseCoreTab *tab, NSString *launchURL) {
+BOOL ShowsLaunchOrigin(ArdiaCoreTab *tab, NSString *launchURL) {
   NSString *launch = OriginOfURL(launchURL);
   if (!launch) return NO;
   NSString *committed = tab.committedOrigin;
@@ -124,7 +124,7 @@ BOOL ReleaseFocusFrom(NSView *page) {
 
 namespace {
 
-void PlaceVeil(UniVerseCoreTab *tab, UniVerseEarlyVeil *veil) {
+void PlaceVeil(ArdiaCoreTab *tab, UniVerseEarlyVeil *veil) {
   NSView *page = tab.view, *host = page.superview;
   if (!host || host == veil.view.superview) return;
   [CATransaction begin];
@@ -142,7 +142,7 @@ void PlaceVeil(UniVerseCoreTab *tab, UniVerseEarlyVeil *veil) {
   if (ReleaseFocusFrom(page)) veil.restoreFocus = YES;
 }
 
-void Unveil(UniVerseCoreTab *tab) {
+void Unveil(ArdiaCoreTab *tab) {
   UniVerseEarlyVeil *veil = [Veils() objectForKey:tab];
   if (!veil) return;
   [Veils() removeObjectForKey:tab];
@@ -158,16 +158,16 @@ void Unveil(UniVerseCoreTab *tab) {
   if (window.isVisible && !window.isMiniaturized && web.visible && !web.isHiddenOrHasHiddenAncestor && (!focused || focused == window)) [tab focus];
 }
 
-void Reconcile(UniVerseCoreTab *tab) {
+void Reconcile(ArdiaCoreTab *tab) {
   NSView *host = tab.view.superview;
   if ([host isKindOfClass:UniVerseWebView.class]) [UniVerseEarlyWindow page:tab shownURL:((UniVerseWebView *)host).shownURL];
 }
 
-void WatchVeil(UniVerseCoreTab *tab, UniVerseEarlyVeil *veil, double after) {
-  __weak UniVerseCoreTab *weakTab = tab;
+void WatchVeil(ArdiaCoreTab *tab, UniVerseEarlyVeil *veil, double after) {
+  __weak ArdiaCoreTab *weakTab = tab;
   __weak UniVerseEarlyVeil *weakVeil = veil;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(after * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-    UniVerseCoreTab *page = weakTab;
+    ArdiaCoreTab *page = weakTab;
     UniVerseEarlyVeil *still = weakVeil;
     if (!page || !still || [Veils() objectForKey:page] != still) return;
     if (still.armedGeneration != EmitsOf(page).generation || ![still.armedShown ?: @"" isEqualToString:still.lastShown ?: @""]) return;
@@ -183,7 +183,7 @@ void WatchVeil(UniVerseCoreTab *tab, UniVerseEarlyVeil *veil, double after) {
 
 namespace universe_early_window {
 
-void CarryShield(UniVerseCoreTab *tab, id inputBlock, NSString *shownAtPlacement) {
+void CarryShield(ArdiaCoreTab *tab, id inputBlock, NSString *shownAtPlacement) {
   if (!tab || tab.closed) return;
   UniVerseEarlyVeil *veil = [Veils() objectForKey:tab];
   if (!veil) {
@@ -201,7 +201,7 @@ void CarryShield(UniVerseCoreTab *tab, id inputBlock, NSString *shownAtPlacement
 
 @implementation UniVerseEarlyWindow (Pages)
 
-+ (void)pageMoved:(UniVerseCoreTab *)tab {
++ (void)pageMoved:(ArdiaCoreTab *)tab {
   if (!tab) return;
   if (UniVerseEarlyVeil *veil = [Veils() objectForKey:tab]) {
     PlaceVeil(tab, veil);
@@ -215,15 +215,15 @@ void CarryShield(UniVerseCoreTab *tab, id inputBlock, NSString *shownAtPlacement
   }
 }
 
-+ (BOOL)veils:(UniVerseCoreTab *)tab {
++ (BOOL)veils:(ArdiaCoreTab *)tab {
   return tab && [Veils() objectForKey:tab] != nil;
 }
 
-+ (void)requestFocus:(UniVerseCoreTab *)tab {
++ (void)requestFocus:(ArdiaCoreTab *)tab {
   if (tab) [Veils() objectForKey:tab].restoreFocus = YES;
 }
 
-+ (void)page:(UniVerseCoreTab *)tab shownURL:(NSString *)url {
++ (void)page:(ArdiaCoreTab *)tab shownURL:(NSString *)url {
   if (!tab) return;
   UniVerseEarlyVeil *veil = [Veils() objectForKey:tab];
   if (veil && ![veil.lastShown ?: @"" isEqualToString:url ?: @""]) {
@@ -259,7 +259,7 @@ void CarryShield(UniVerseCoreTab *tab, id inputBlock, NSString *shownAtPlacement
   if (!tab.loading) [Watched() removeObject:tab];
 }
 
-+ (void)pageCommitted:(UniVerseCoreTab *)tab shownURL:(NSString *)url {
++ (void)pageCommitted:(ArdiaCoreTab *)tab shownURL:(NSString *)url {
   if (!tab) return;
   UniVersePageEmits *emits = EmitsOf(tab);
   for (NSString *each in emits.current) Archive(emits, each);
@@ -275,7 +275,7 @@ void CarryShield(UniVerseCoreTab *tab, id inputBlock, NSString *shownAtPlacement
   CarryShield(tab, nil, url);
 }
 
-+ (void)page:(UniVerseCoreTab *)tab emitted:(NSString *)url {
++ (void)page:(ArdiaCoreTab *)tab emitted:(NSString *)url {
   if (!tab || !url) return;
   UniVersePageEmits *emits = EmitsOf(tab);
   if (!emits.firstEmitAt) emits.firstEmitAt = CACurrentMediaTime();
@@ -288,13 +288,13 @@ void CarryShield(UniVerseCoreTab *tab, id inputBlock, NSString *shownAtPlacement
   if ([Veils() objectForKey:tab]) Reconcile(tab);
 }
 
-+ (void)pageNavigated:(UniVerseCoreTab *)tab launchURL:(NSString *)launchURL {
++ (void)pageNavigated:(ArdiaCoreTab *)tab launchURL:(NSString *)launchURL {
   if (!tab) return;
   for (UniVerseEarlyShown *s in Shown())
     if (s.tab == tab && !s.shielded && tab.view.superview == s.cover && !ShowsLaunchOrigin(tab, launchURL)) Shield(s);
 }
 
-+ (void)dropPage:(UniVerseCoreTab *)tab {
++ (void)dropPage:(ArdiaCoreTab *)tab {
   if (!tab) return;
   [Watched() removeObject:tab];
   Unveil(tab);
