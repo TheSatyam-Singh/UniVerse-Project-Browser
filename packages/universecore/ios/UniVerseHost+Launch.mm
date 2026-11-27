@@ -220,7 +220,7 @@ void StartLaunchTab() {
   NSString *key = session.launchTabId;
   if (!key) return;
   [UniVerseWebView startLaunchTab:key url:session.launchTabURL profile:session.launchTabProfile];
-  if (UniVerseCoreTab *tab = UniVerseTabParking.launchTab) [UniVerseEarlyWindow attachPage:tab key:key];
+  if (ArdiaCoreTab *tab = UniVerseTabParking.launchTab) [UniVerseEarlyWindow attachPage:tab key:key];
 }
 
 }
@@ -258,7 +258,7 @@ static void TryEarlyWindow() {
   if (shown) launch.earlyWindowShownAt = NSDate.date.timeIntervalSince1970 * 1000;
   [UniVerseWebView startLaunchTab:key url:url profile:profile];
   if (!shown) return;
-  if (UniVerseCoreTab *tab = UniVerseTabParking.launchTab) [UniVerseEarlyWindow attachPage:tab key:key];
+  if (ArdiaCoreTab *tab = UniVerseTabParking.launchTab) [UniVerseEarlyWindow attachPage:tab key:key];
 }
 
 static NSArray<NSNumber *> *LittleUniverseFrame(id size) {
@@ -308,7 +308,7 @@ static void TryEarlyLittleWindow() {
   if (!frame) return;
   NSString *url = link.absoluteString;
   [UniVerseWebView startLinkTabs:@[ url ] profile:profile];
-  UniVerseCoreTab *tab = UniVerseTabParking.firstLinkTab;
+  ArdiaCoreTab *tab = UniVerseTabParking.firstLinkTab;
   NSString *mark = tab ? [UniVerseTabParking linkMarkForTab:tab] : nil;
   NSString *focused = session.focusedWindowId;
   if (mark) [UniVerseEarlyWindow showLittleWindowForLink:tab mark:mark url:url frame:frame profile:profile backdrop:backdrop settings:settings like:focused];
@@ -510,7 +510,7 @@ void StartEarlyWindow() {
   for (const std::string &s : merged) args.push_back(s.c_str());
   static UniVerseHostEngineDelegate *engineDelegate = [UniVerseHostEngineDelegate new];
   UniVerseLaunchSequence.shared.chromiumEnteredAt = LaunchNowMs();
-  return [UniVerseCoreEngine runWithArgc:(int)args.size() argv:args.data() delegate:engineDelegate];
+  return [ArdiaCoreEngine runWithArgc:(int)args.size() argv:args.data() delegate:engineDelegate];
 }
 
 @end
