@@ -27,12 +27,12 @@ const CFTimeInterval kHiddenNewTabLinkSeconds = 1;
 
 @implementation UniVerseWebView (Tab)
 
-- (UniVerseCoreAdoption)windowTakes:(UniVerseCoreTab *)tab {
-  UniVerseCoreWindow *coreWindow = _standalone ? nil : self.controller.coreWindow;
+- (UniVerseCoreAdoption)windowTakes:(ArdiaCoreTab *)tab {
+  ArdiaCoreWindow *coreWindow = _standalone ? nil : self.controller.coreWindow;
   return coreWindow ? [coreWindow canAdoptTab:tab] : UniVerseCoreAdoptionAdopted;
 }
 
-- (BOOL)holdTransferOf:(UniVerseCoreTab *)tab {
+- (BOOL)holdTransferOf:(ArdiaCoreTab *)tab {
   const UniVerseCoreAdoption adoption = [self windowTakes:tab];
   if (adoption == UniVerseCoreAdoptionBusy) {
     __weak UniVerseWebView *weakSelf = self;
@@ -64,7 +64,7 @@ const CFTimeInterval kHiddenNewTabLinkSeconds = 1;
 }
 
 - (void)adoptMovedPage {
-  UniVerseCoreTab *tab = _tab;
+  ArdiaCoreTab *tab = _tab;
   const UniVerseCoreAdoption adoption = [self adoptIntoWindow];
   if (adoption == UniVerseCoreAdoptionBusy) {
     __weak UniVerseWebView *weakSelf = self;
@@ -77,7 +77,7 @@ const CFTimeInterval kHiddenNewTabLinkSeconds = 1;
   }
 }
 
-- (void)attach:(UniVerseCoreTab *)tab {
+- (void)attach:(ArdiaCoreTab *)tab {
   NSAssert(_life.canAttach(_tab != nil), @"a closed view, or one that has a tab, was given another tab");
   if (!_life.canAttach(_tab != nil) || [self windowTakes:tab] != UniVerseCoreAdoptionAdopted) return;
   if (TraceVisibility()) NSLog(@"[universecore-vis] %@ attach tab=%d visible=%d", _transferKey, (int)tab.tabId, _visible);
@@ -186,11 +186,11 @@ const CFTimeInterval kHiddenNewTabLinkSeconds = 1;
   gLittleUniverseOpensNewTabLinks = enabled;
 }
 
-- (void)openedTab:(UniVerseCoreTab *)tab adoptId:(NSString *)adoptId disposition:(NSString *)disposition {
+- (void)openedTab:(ArdiaCoreTab *)tab adoptId:(NSString *)adoptId disposition:(NSString *)disposition {
   [self announceOpenedTab:tab adoptId:adoptId disposition:disposition link:NO tries:0];
 }
 
-- (void)openedLinkTab:(UniVerseCoreTab *)tab adoptId:(NSString *)adoptId disposition:(NSString *)disposition {
+- (void)openedLinkTab:(ArdiaCoreTab *)tab adoptId:(NSString *)adoptId disposition:(NSString *)disposition {
   [self announceOpenedTab:tab adoptId:adoptId disposition:disposition link:[disposition isEqualToString:@"foreground"] tries:0];
 }
 
@@ -198,7 +198,7 @@ const CFTimeInterval kHiddenNewTabLinkSeconds = 1;
   return gLittleUniverseOpensNewTabLinks && [self.window.identifier isEqualToString:@"universe.window.small"];
 }
 
-- (void)announceOpenedTab:(UniVerseCoreTab *)tab
+- (void)announceOpenedTab:(ArdiaCoreTab *)tab
                   adoptId:(NSString *)adoptId
               disposition:(NSString *)disposition
                      link:(BOOL)link
@@ -216,7 +216,7 @@ const CFTimeInterval kHiddenNewTabLinkSeconds = 1;
   [self emitOpenedTab:tab adoptId:adoptId disposition:disposition clicked:NO linkWait:nil];
 }
 
-- (void)matchLinkTab:(UniVerseCoreTab *)tab
+- (void)matchLinkTab:(ArdiaCoreTab *)tab
              adoptId:(NSString *)adoptId
          disposition:(NSString *)disposition
             firstURL:(NSString *)firstURL
@@ -287,7 +287,7 @@ const CFTimeInterval kHiddenNewTabLinkSeconds = 1;
   return newest[@"url"];
 }
 
-- (void)emitOpenedTab:(UniVerseCoreTab *)tab
+- (void)emitOpenedTab:(ArdiaCoreTab *)tab
               adoptId:(NSString *)adoptId
           disposition:(NSString *)disposition
               clicked:(BOOL)clicked
@@ -307,10 +307,10 @@ const CFTimeInterval kHiddenNewTabLinkSeconds = 1;
   [self emit:@"openWindow" payload:payload];
 }
 
-- (void)tabRemovedFromWindow:(UniVerseCoreWindow *)window {
+- (void)tabRemovedFromWindow:(ArdiaCoreWindow *)window {
   if (_life.moving || _life.closed() || !_tab) return;
   {
-    UniVerseCoreTab *removed = _tab;
+    ArdiaCoreTab *removed = _tab;
     __weak UniVerseWebView *weakSelf = self;
     dispatch_async(dispatch_get_main_queue(), ^{
       UniVerseWebView *view = weakSelf;
@@ -348,14 +348,14 @@ const CFTimeInterval kHiddenNewTabLinkSeconds = 1;
   _devtoolsView = nil;
 }
 
-- (void)tabWillClose:(UniVerseCoreTab *)tab {
+- (void)tabWillClose:(ArdiaCoreTab *)tab {
   [UniVerseEarlyWindow dropPage:tab];
   if (_life.closed() || tab != _tab) return;
   [self detach];
   [self emit:@"windowClose" payload:@{}];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab rendererGone:(NSString *)status code:(int)code {
+- (void)tab:(ArdiaCoreTab *)tab rendererGone:(NSString *)status code:(int)code {
   _reports.crashed = YES;
   [self resetPageMedia];
   [self emit:@"crashed" payload:@{@"status" : @(code), @"reason" : status ?: @"unknown", @"code" : @(code)}];
@@ -372,16 +372,16 @@ const CFTimeInterval kHiddenNewTabLinkSeconds = 1;
   return [_tab discard] && _tab.discarded ? @"discarded" : @"refused";
 }
 
-- (void)tabDidChangeDiscarded:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeDiscarded:(ArdiaCoreTab *)tab {
   if (tab.discarded) [self emit:@"discarded" payload:@{@"url" : tab.url ?: @"", @"reason" : tab.discardReason ?: @""}];
   else [self emit:@"ready" payload:@{}];
 }
 
-- (void)tabBecameUnresponsive:(UniVerseCoreTab *)tab {
+- (void)tabBecameUnresponsive:(ArdiaCoreTab *)tab {
   [self emit:@"unresponsive" payload:@{}];
 }
 
-- (void)tabBecameResponsive:(UniVerseCoreTab *)tab {
+- (void)tabBecameResponsive:(ArdiaCoreTab *)tab {
   [self emit:@"responsive" payload:@{}];
 }
 
