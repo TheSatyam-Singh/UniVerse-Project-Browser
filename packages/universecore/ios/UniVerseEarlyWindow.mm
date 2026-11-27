@@ -186,7 +186,7 @@ UniVerseEarlyShown *ShownForWindow(NSWindow *window) {
   dispatch_sync(Writer(), ^{});
 }
 
-+ (BOOL)holdsPage:(UniVerseCoreTab *)tab {
++ (BOOL)holdsPage:(ArdiaCoreTab *)tab {
   if (!tab) return NO;
   for (UniVerseEarlyShown *s in Shown())
     if (s.tab == tab && !s.claimed && tab.view.superview == s.cover) return YES;
@@ -293,7 +293,7 @@ UniVerseEarlyShown *ShownForWindow(NSWindow *window) {
                                                                    if (!closing) return;
                                                                    if (!closing.claimed) {
                                                                      [Dismissed() addObject:closing.appWindow];
-                                                                     UniVerseCoreTab *page = closing.tab;
+                                                                     ArdiaCoreTab *page = closing.tab;
                                                                      if (page && page == UniVerseTabParking.launchTab)
                                                                        [UniVerseTabParking claimLaunchTab:@"" url:@"" profile:@""];
                                                                      else if (page && closing.expectedURL) {
@@ -318,7 +318,7 @@ UniVerseEarlyShown *ShownForWindow(NSWindow *window) {
   return YES;
 }
 
-+ (void)attachPage:(UniVerseCoreTab *)tab key:(NSString *)key {
++ (void)attachPage:(ArdiaCoreTab *)tab key:(NSString *)key {
   if (!tab || tab.closed || !key.length) return;
   for (UniVerseEarlyShown *s in Shown()) {
     if (!s.cover || s.tab || ![s.key isEqualToString:key]) continue;
@@ -338,7 +338,7 @@ UniVerseEarlyShown *ShownForWindow(NSWindow *window) {
   }
 }
 
-+ (BOOL)showLittleWindowForLink:(UniVerseCoreTab *)tab
++ (BOOL)showLittleWindowForLink:(ArdiaCoreTab *)tab
                            mark:(NSString *)mark
                             url:(NSString *)url
                           frame:(NSArray<NSNumber *> *)frame
