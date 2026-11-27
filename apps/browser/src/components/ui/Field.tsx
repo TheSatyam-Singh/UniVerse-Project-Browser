@@ -11,6 +11,7 @@ import { useHover } from "./useHover";
 const SEARCH_KEYS = [{ key: "Escape" }];
 const SEARCH_KEYS_WITH_ENTER = [{ key: "Escape" }, { key: "Enter" }, { key: "Enter", shiftKey: true }];
 const SEARCH_KEYS_WITH_ARROWS = [{ key: "Escape" }, { key: "Enter" }, { key: "Enter", shiftKey: true }, { key: "ArrowUp" }, { key: "ArrowDown" }];
+const COMMAND_BACKSPACE_KEY = { key: "Backspace", metaKey: true };
 const BARE_SEARCH = { glyph: 13, glyphBox: 16 } as const;
 const ESCAPE_KEY = [{ key: "Escape" }];
 
@@ -26,6 +27,7 @@ export function SearchField({
   onEscape,
   onArrow,
   onBlur,
+  onCommandBackspace,
   inputRef,
 }: {
   value: string;
@@ -39,11 +41,14 @@ export function SearchField({
   onEscape?: () => void;
   onArrow?: (step: 1 | -1) => void;
   onBlur?: () => void;
+  onCommandBackspace?: () => void;
   inputRef?: Ref<TextInput>;
 }) {
   const theme = useTheme();
   const bare = look === "bare";
   const clearMotion = usePressScaleMotion(!!value && !bare, buttonMotion.iconPressScale);
+  const searchKeys = onArrow ? SEARCH_KEYS_WITH_ARROWS : onSubmit ? SEARCH_KEYS_WITH_ENTER : SEARCH_KEYS;
+  const keyDownEvents = onCommandBackspace ? [...searchKeys, COMMAND_BACKSPACE_KEY] : searchKeys;
   return (
     <View
       style={[
@@ -79,13 +84,14 @@ export function SearchField({
         autoFocus={autoFocus}
         enableFocusRing={false}
         onBlur={onBlur}
-        keyDownEvents={onArrow ? SEARCH_KEYS_WITH_ARROWS : onSubmit ? SEARCH_KEYS_WITH_ENTER : SEARCH_KEYS}
+        keyDownEvents={keyDownEvents}
         onKeyDown={(e) => {
-          const { key, shiftKey } = e.nativeEvent;
+          const { key, shiftKey, metaKey } = e.nativeEvent;
           if (key === "Escape") (onEscape ?? (() => onChangeText("")))();
           else if (key === "Enter") onSubmit?.(!!shiftKey);
           else if (key === "ArrowDown") onArrow?.(1);
           else if (key === "ArrowUp") onArrow?.(-1);
+          else if (key === "Backspace" && metaKey) onCommandBackspace?.();
         }}
         style={{ flex: 1, ...(bare ? typeScale.title : typeScale.body), color: theme.textPrimary, paddingVertical: 0 }}
       />

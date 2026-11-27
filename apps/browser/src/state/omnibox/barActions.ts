@@ -48,6 +48,7 @@ const DEFS: ActionDef[] = [
   { command: "duplicateTab", needs: "tab" },
   { command: "renameTab", needs: "tab" },
   { command: "searchTabs" },
+  { command: "quickTabSwitcher", keywords: ["quick switch", "switch tab", "find tab"] },
   { command: "cleanUpTabs", keywords: ["tidy tabs"] },
   { command: "tidyPins", keywords: ["tidy pinned tabs", "organize pins", "pinned folders", "remove duplicate pins"], needs: "pins" },
   { command: "newGroupWithTabs", keywords: ["tab group"], needs: "tab" },

@@ -226,6 +226,7 @@ enum MainMenu {
       hidden(.moveTabDown),
       hidden(.moveTabUp),
       cmd(.searchTabs),
+      cmd(.quickTabSwitcher),
       hidden(.tabSwitcher, arg: "forward"),
       hidden(.tabSwitcher, arg: "backward"),
       hidden(.returnToPinnedUrl),

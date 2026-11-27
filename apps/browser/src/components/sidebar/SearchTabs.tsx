@@ -1,8 +1,8 @@
 import { displayUrl, fuzzyScore, hostOf } from "@universe/core";
 import { useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, View, type TextInput } from "react-native";
-import { switchToTab } from "../../state/browser/actions";
-import { Divider, FadeLabel, font, ListRow, Panel, radius, SearchField, space, Symbol, Text } from "../ui";
+import { closeTab, switchToTab } from "../../state/browser/actions";
+import { Button, Divider, FadeLabel, font, ListRow, Panel, radius, SearchField, space, Symbol, Text } from "../ui";
 import { useTheme } from "../ui/theme";
 import { useTabs } from "../../state/tabs/hooks";
 import { restoreClosed } from "../../state/windows/actions";
@@ -66,7 +66,11 @@ function SearchPanel({ windowId, windowWidth }: { windowId: string; windowWidth:
     ];
   }, [query, tabs, closedTabs, closedGroups, archivedTabs, windowId]);
   const rows = sections.flatMap((s) => s.rows);
+  const capped = Math.min(selected, Math.max(0, rows.length - 1));
   const close = () => setSidebarUi({ searchTabs: null });
+  const closeRow = (row: Row | undefined) => {
+    if (row?.kind === "tab") void closeTab(row.id);
+  };
   const choose = (row: Row | undefined) => {
     if (!row) return;
     close();
@@ -102,9 +106,10 @@ function SearchPanel({ windowId, windowWidth }: { windowId: string; windowWidth:
               scroll.current?.scrollTo({ y: 0, animated: false });
             }}
             placeholder="Search Tabs"
-            onSubmit={() => choose(rows[selected])}
+            onSubmit={() => choose(rows[capped])}
             onEscape={close}
             onArrow={move}
+            onCommandBackspace={() => closeRow(rows[capped])}
             onBlur={close}
           />
         </View>
@@ -122,7 +127,7 @@ function SearchPanel({ windowId, windowWidth }: { windowId: string; windowWidth:
                 {section.rows.map((row) => {
                   index++;
                   const i = index;
-                  return <ResultRow key={`${row.kind}:${row.id}`} row={row} selected={i === selected} onHover={() => setSelected(i)} onPress={() => choose(row)} />;
+                  return <ResultRow key={`${row.kind}:${row.id}`} row={row} selected={i === capped} onHover={() => setSelected(i)} onPress={() => choose(row)} onClose={() => closeRow(row)} />;
                 })}
               </View>
             ) : null,
@@ -133,23 +138,30 @@ function SearchPanel({ windowId, windowWidth }: { windowId: string; windowWidth:
   );
 }
 
-function ResultRow({ row, selected, onHover, onPress }: { row: Row; selected: boolean; onHover(): void; onPress(): void }) {
+function ResultRow({ row, selected, onHover, onPress, onClose }: { row: Row; selected: boolean; onHover(): void; onPress(): void; onClose(): void }) {
   const theme = useTheme();
   const detail = row.kind === "tab" ? (row.current && !row.where ? "Current Tab" : row.where) : row.detail;
   return (
     <ListRow height={ROW} selected={selected} onPress={onPress} onHover={(hovered) => hovered && onHover()}>
-        <TabIcon url={row.url} favicon={row.favicon} icon={row.icon} />
-        <View style={{ flex: 1, flexDirection: "row", alignItems: "center", minWidth: 0 }}>
-          <FadeLabel text={row.title} fontSize={font.title.fontSize} color={theme.textPrimary} style={{ flex: 3, height: 19 }} />
-          {row.url ? <FadeLabel text={`— ${displayUrl(row.url)}`} fontSize={font.title.fontSize} color={theme.textSecondary} style={{ flex: 2, height: 19, marginLeft: URL_LABEL_GAP }} /> : null}
-        </View>
-        {detail ? (
-          <Text size="small" tone="textTertiary">
-            {detail}
-          </Text>
-        ) : null}
-        {row.kind === "closed" ? <Symbol name="clock.arrow.circlepath" size={12} color={theme.textTertiary} style={{ width: 16, height: 16 }} /> : null}
-        {row.kind === "archived" ? <Symbol name="archivebox" size={12} color={theme.textTertiary} style={{ width: 16, height: 16 }} /> : null}
+      {({ hovered }) => (
+        <>
+          <TabIcon url={row.url} favicon={row.favicon} icon={row.icon} />
+          <View style={{ flex: 1, flexDirection: "row", alignItems: "center", minWidth: 0 }}>
+            <FadeLabel text={row.title} fontSize={font.title.fontSize} color={theme.textPrimary} style={{ flex: 3, height: 19 }} />
+            {row.url ? <FadeLabel text={`— ${displayUrl(row.url)}`} fontSize={font.title.fontSize} color={theme.textSecondary} style={{ flex: 2, height: 19, marginLeft: URL_LABEL_GAP }} /> : null}
+          </View>
+          {detail ? (
+            <Text size="small" tone="textTertiary">
+              {detail}
+            </Text>
+          ) : null}
+          {row.kind === "closed" ? <Symbol name="clock.arrow.circlepath" size={12} color={theme.textTertiary} style={{ width: 16, height: 16 }} /> : null}
+          {row.kind === "archived" ? <Symbol name="archivebox" size={12} color={theme.textTertiary} style={{ width: 16, height: 16 }} /> : null}
+          {row.kind === "tab" && (hovered || selected) ? (
+            <Button variant="icon" icon="xmark" size="s" color={theme.textSecondary} tooltip="Close Tab (⌘⌫)" onPress={onClose} />
+          ) : null}
+        </>
+      )}
     </ListRow>
   );
 }
