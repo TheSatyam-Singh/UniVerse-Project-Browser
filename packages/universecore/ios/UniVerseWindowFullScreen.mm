@@ -68,14 +68,14 @@ const void *kActedRestoreFrameKey = &kActedRestoreFrameKey;
 
 namespace universe_window {
 
-void ActWindowFullScreen(UniVerseCoreWindow *coreWindow, BOOL enter, NSTimeInterval seconds) {
+void ActWindowFullScreen(ArdiaCoreWindow *coreWindow, BOOL enter, NSTimeInterval seconds) {
   NSWindow *window = coreWindow.window;
   if (!window || objc_getAssociatedObject(window, kActingKey)) return;
   __weak NSWindow *weakWindow = window;
-  __weak UniVerseCoreWindow *weakCore = coreWindow;
+  __weak ArdiaCoreWindow *weakCore = coreWindow;
   void (^set)(BOOL) = ^(BOOL on) {
     if (NSWindow *w = weakWindow) objc_setAssociatedObject(w, kActedFullScreenKey, on ? @YES : nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    UniVerseCoreWindow *c = weakCore;
+    ArdiaCoreWindow *c = weakCore;
     c.actedFullScreen = on;
   };
   NSNotificationCenter *center = NSNotificationCenter.defaultCenter;
@@ -119,7 +119,7 @@ NSTimeInterval gActedTransition = [UniVerseLaunchConfig.shared testValue:@"fakeF
 
 namespace {
 
-void ToggleWindowFullScreen(UniVerseCoreWindow *coreWindow) {
+void ToggleWindowFullScreen(ArdiaCoreWindow *coreWindow) {
   NSWindow *window = coreWindow.window;
   if (!universe_host::Background()) return [window toggleFullScreen:nil];
   const BOOL enter = !IsWindowFullScreen(window);
@@ -169,15 +169,15 @@ BOOL WindowServerShows(NSWindow *window) {
 
 namespace universe_window {
 
-NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
+NSMapTable<ArdiaCoreTab *, NSNumber *> *FullScreenChanges() {
   static NSMapTable *changes = [NSMapTable weakToStrongObjectsMapTable];
   return changes;
 }
 }
 
 @implementation UniVerseWindowFullScreen {
-  __weak UniVerseCoreWindow *_coreWindow;
-  __weak UniVerseCoreTab *_tab;
+  __weak ArdiaCoreWindow *_coreWindow;
+  __weak ArdiaCoreTab *_tab;
   BOOL _entered;
   NSInteger _asked;
   BOOL _transitioning;
@@ -186,14 +186,14 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
   BOOL _seen;
   BOOL _closed;
   NSArray *_observers;
-  __weak UniVerseCoreTab *_leftTab;
+  __weak ArdiaCoreTab *_leftTab;
   NSInteger _waitingFor;
   NSUInteger _wait;
   BOOL _askedWait;
   BOOL _drew;
   NSInteger _telling;
   NSArray<UniVersePageCover *> *_covers;
-  __weak UniVerseCoreTab *_lastTab;
+  __weak ArdiaCoreTab *_lastTab;
   NSUInteger _coverTurn;
   BOOL _picturing;
   BOOL _overruled;
@@ -202,7 +202,7 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
   BOOL _leftApp;
 }
 
-+ (instancetype)ofWindow:(UniVerseCoreWindow *)coreWindow create:(BOOL)create {
++ (instancetype)ofWindow:(ArdiaCoreWindow *)coreWindow create:(BOOL)create {
   NSWindow *window = coreWindow.window;
   if (!window) return nil;
   UniVerseWindowFullScreen *state = objc_getAssociatedObject(window, kWindowFullScreenKey);
@@ -212,7 +212,7 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
   return state;
 }
 
-- (instancetype)initWithCoreWindow:(UniVerseCoreWindow *)coreWindow {
+- (instancetype)initWithCoreWindow:(ArdiaCoreWindow *)coreWindow {
   if ((self = [super init])) {
     _coreWindow = coreWindow;
     _seen = YES;
@@ -352,13 +352,13 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
 - (void)settled:(BOOL)entered ours:(BOOL)ours {
   if (!entered && !ours) {
     _entered = NO;
-    UniVerseCoreTab *tab = _tab;
+    ArdiaCoreTab *tab = _tab;
     if (tab) return [tab exitFullscreen];
   }
   [self sync];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab fullScreen:(BOOL)fullScreen tell:(void (^)(void))tell {
+- (void)tab:(ArdiaCoreTab *)tab fullScreen:(BOOL)fullScreen tell:(void (^)(void))tell {
   const NSUInteger change = [FullScreenChanges() objectForKey:tab].unsignedIntegerValue;
   _waitingFor = 0;
   _coverTurn++;
@@ -371,7 +371,7 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
   }
   _telling++;
   __weak UniVerseWindowFullScreen *weakSelf = self;
-  __weak UniVerseCoreTab *weakTab = tab;
+  __weak ArdiaCoreTab *weakTab = tab;
   [UniVersePageDrawWait tab:tab
                 draws:^NSInteger(BOOL drawnFullScreen, BOOL) {
                   if (fullScreen) return drawnFullScreen ? 1 : 0;
@@ -380,14 +380,14 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
                  then:^{
                    UniVerseWindowFullScreen *me = weakSelf;
                    if (me) me->_telling--;
-                   UniVerseCoreTab *t = weakTab;
+                   ArdiaCoreTab *t = weakTab;
                    if (t && [FullScreenChanges() objectForKey:t].unsignedIntegerValue == change) tell();
                    [me sync];
                  }];
 }
 
 - (void)sync {
-  UniVerseCoreWindow *coreWindow = _coreWindow;
+  ArdiaCoreWindow *coreWindow = _coreWindow;
   NSWindow *window = coreWindow.window;
   if (!window || _closed || _transitioning) return;
   const BOOL full = IsWindowFullScreen(window), page = _tab != nil;
@@ -408,13 +408,13 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
   }
 }
 
-- (NSArray<UniVerseCoreTab *> *)shownTabs:(UniVerseCoreTab *)tab entering:(BOOL)entering {
-  UniVerseCoreWindow *coreWindow = _coreWindow;
+- (NSArray<ArdiaCoreTab *> *)shownTabs:(ArdiaCoreTab *)tab entering:(BOOL)entering {
+  ArdiaCoreWindow *coreWindow = _coreWindow;
   NSWindow *window = coreWindow.window;
-  NSMutableArray<UniVerseCoreTab *> *tabs = [NSMutableArray array];
+  NSMutableArray<ArdiaCoreTab *> *tabs = [NSMutableArray array];
   if (tab) [tabs addObject:tab];
   if (entering || !coreWindow.activeProfile) return tabs;
-  for (UniVerseCoreTab *other in [coreWindow tabsForProfile:coreWindow.activeProfile]) {
+  for (ArdiaCoreTab *other in [coreWindow tabsForProfile:coreWindow.activeProfile]) {
     NSView *page = other.view;
     UniVerseWebView *view = [UniVerseTabRegistry viewForTab:other];
     if (other == tab || page.window != window || page.isHiddenOrHasHiddenAncestor || !view || view.alphaValue < 0.5) continue;
@@ -423,7 +423,7 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
   return tabs;
 }
 
-- (void)coverThenToggle:(UniVerseCoreTab *)tab entering:(BOOL)entering {
+- (void)coverThenToggle:(ArdiaCoreTab *)tab entering:(BOOL)entering {
   _picturing = YES;
   const NSUInteger turn = ++_coverTurn;
   __weak UniVerseWindowFullScreen *weakSelf = self;
@@ -442,7 +442,7 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
 }
 
 - (void)toggle:(BOOL)entering {
-  UniVerseCoreWindow *coreWindow = _coreWindow;
+  ArdiaCoreWindow *coreWindow = _coreWindow;
   NSWindow *window = coreWindow.window;
   const BOOL wanted = window && !_closed && !_transitioning && IsWindowFullScreen(window) != entering &&
                       (entering ? _tab && !_entered : !_tab && _entered);
@@ -465,7 +465,7 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
   });
 }
 
-- (UniVerseCoreTab *)probedTab {
+- (ArdiaCoreTab *)probedTab {
   return _tab ?: _leftTab ?: _lastTab;
 }
 
@@ -501,7 +501,7 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
   NSArray<UniVersePageCover *> *covers = _covers;
   _covers = nil;
   for (UniVersePageCover *cover in covers) {
-    UniVerseCoreTab *tab = cover.tab;
+    ArdiaCoreTab *tab = cover.tab;
     if (!tab) {
       [cover uncover:NO];
       continue;
@@ -516,7 +516,7 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
   }
 }
 
-- (BOOL)pageDrew:(UniVerseCoreTab *)tab entering:(BOOL)entering {
+- (BOOL)pageDrew:(ArdiaCoreTab *)tab entering:(BOOL)entering {
   if (_drew) {
     _drew = _askedWait = NO;
     _waitingFor = 0;
@@ -546,7 +546,7 @@ NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges() {
 
 - (NSDictionary *)state {
   NSWindow *window = _coreWindow.window;
-  UniVerseCoreTab *tab = _tab;
+  ArdiaCoreTab *tab = _tab;
   return @{
     @"page" : tab ? @(universe_host::BrowserId(tab)) : NSNull.null,
     @"entered" : @(_entered),
@@ -569,7 +569,7 @@ namespace universe_host {
 
 void ActToggleFullScreen(NSWindow *window) {
   LogActivation(@"toggleFullScreen: (acted out)");
-  if (UniVerseCoreWindow *coreWindow = [UniVerseWindowController forNSWindow:window].coreWindow)
+  if (ArdiaCoreWindow *coreWindow = [UniVerseWindowController forNSWindow:window].coreWindow)
     ActWindowFullScreen(coreWindow, !IsWindowFullScreen(window), gActedTransition);
 }
 }
