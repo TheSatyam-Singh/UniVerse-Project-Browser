@@ -161,6 +161,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)executeJavaScript:(NSString *)code;
 - (void)evaluate:(NSString *)code completion:(void (^)(NSString *_Nullable json))completion;
 - (void)capturePicture:(double)scale completion:(void (^)(NSDictionary<NSString *, id> *_Nullable picture))completion;
+- (void)captureScreenshot:(BOOL)fullPage completion:(void (^)(NSDictionary<NSString *, id> *_Nullable shot))completion;
 - (void)navigationEntries:(void (^)(NSArray<NSDictionary<NSString *, id> *> *entries))completion;
 - (void)downloadFavicon:(NSString *)url name:(nullable NSString *)name
              completion:(void (^)(NSDictionary<NSString *, id> *_Nullable result))completion

@@ -157,6 +157,8 @@ export const COMMANDS = {
   savePage: { title: "Save Page As…", ...pageInLittleUniverse },
   emailPageLocation: { title: "Email Page Location", keys: ["⇧⌘I"], ...pageInLittleUniverse },
   printWithSystemDialog: { title: "Print Using System Dialog…", keys: ["⌥⌘P"], ...pageInLittleUniverse },
+  screenshot: { title: "Take Screenshot", symbol: "camera", ...pageInLittleUniverse },
+  screenshotFullPage: { title: "Take Full Page Screenshot", symbol: "camera.fill", ...pageInLittleUniverse },
   stop: { title: "Stop", keys: ["⌘."], ...pageInLittleUniverse },
   caretBrowsing: { title: "Caret Browsing", keys: ["F7"], ...pageInLittleUniverse },
   moveTabDown: { title: "Move Tab Down", keys: ["⌃⇧⇟"], ...windowOffInLittleUniverse },

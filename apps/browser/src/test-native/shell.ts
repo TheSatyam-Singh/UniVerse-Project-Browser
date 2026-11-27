@@ -244,6 +244,7 @@ const system: Modules["UniVerseSystem"] = {
   fileExists: () => false,
   openFile: () => Promise.resolve(false),
   revealFile: () => Promise.resolve(false),
+  saveDataFile: () => Promise.resolve(null),
   moveToTrash: () => Promise.resolve(false),
   fileIcon: () => Promise.resolve(null),
   runningAppIcon: () => Promise.resolve(null),

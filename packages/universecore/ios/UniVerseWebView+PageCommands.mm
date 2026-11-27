@@ -134,6 +134,25 @@ using namespace universe_runtime;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC), dispatch_get_main_queue(), ^{ answer(nil); });
 }
 
+- (void)captureScreenshot:(BOOL)fullPage completion:(void (^)(NSDictionary<NSString *, id> *))completion {
+  NSWindow *window = self.window;
+  if (!_tab || !window || self.hidden || self.awaitsFirstDocument) return completion(nil);
+  const NSTimeInterval timeout = fullPage ? 15.0 : 5.0;
+  __block BOOL answered = NO;
+  void (^answer)(NSDictionary *) = ^(NSDictionary *result) {
+    if (answered) return;
+    answered = YES;
+    completion(result);
+  };
+  NSDictionary *params = @{@"format" : @"png", @"captureBeyondViewport" : @(fullPage)};
+  void (^done)(NSDictionary *, NSString *) = ^(NSDictionary *shot, NSString *error) {
+    NSString *data = shot[@"data"];
+    answer([data isKindOfClass:NSString.class] ? @{@"data" : data} : nil);
+  };
+  [_tab devToolsCall:@"Page.captureScreenshot" params:params timeout:timeout completion:done];
+  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(timeout * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{ answer(nil); });
+}
+
 - (void)navigationEntries:(void (^)(NSArray<NSDictionary<NSString *, id> *> *))completion {
   completion(_tab ? _tab.navigationEntries : @[]);
 }

@@ -75,6 +75,26 @@ public class SystemModule: Module {
       return true
     }.runOnQueue(.main)
 
+    AsyncFunction("saveDataFile") { (name: String, base64: String) -> String? in
+      guard let data = Data(base64Encoded: base64),
+            let downloads = FileManager.default.urls(for: .downloadsDirectory, in: .userDomainMask).first
+      else { return nil }
+      let stem = (name as NSString).deletingPathExtension
+      let ext = (name as NSString).pathExtension
+      var url = downloads.appendingPathComponent(name)
+      var n = 2
+      while FileManager.default.fileExists(atPath: url.path) {
+        url = downloads.appendingPathComponent(ext.isEmpty ? "\(stem) \(n)" : "\(stem) \(n).\(ext)")
+        n += 1
+      }
+      do {
+        try data.write(to: url, options: .atomic)
+        return url.path
+      } catch {
+        return nil
+      }
+    }.runOnQueue(.main)
+
     AsyncFunction("moveToTrash") { (path: String) -> Bool in
       guard FileManager.default.fileExists(atPath: path) else { return false }
       do {
