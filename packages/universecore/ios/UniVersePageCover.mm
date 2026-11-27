@@ -17,27 +17,27 @@ static const NSTimeInterval kPageCoverLimit = 4;
   NSSize _pictured;
 }
 
-+ (void)coverTabs:(NSArray<UniVerseCoreTab *> *)tabs then:(void (^)(NSArray<UniVersePageCover *> *covers))then {
++ (void)coverTabs:(NSArray<ArdiaCoreTab *> *)tabs then:(void (^)(NSArray<UniVersePageCover *> *covers))then {
   NSMutableArray<UniVersePageCover *> *covers = [NSMutableArray array];
   __block NSUInteger waiting = tabs.count + 1;
   void (^one)(UniVersePageCover *) = ^(UniVersePageCover *cover) {
     if (cover) [covers addObject:cover];
     if (--waiting == 0) then(covers);
   };
-  for (UniVerseCoreTab *tab in tabs) [self coverTab:tab then:one];
+  for (ArdiaCoreTab *tab in tabs) [self coverTab:tab then:one];
   one(nil);
 }
 
-+ (void)coverTab:(UniVerseCoreTab *)tab then:(void (^)(UniVersePageCover *cover))then {
++ (void)coverTab:(ArdiaCoreTab *)tab then:(void (^)(UniVersePageCover *cover))then {
   NSView *page = tab.view;
   if (gPageCoverOff || !page.window || page.isHiddenOrHasHiddenAncestor) return then(nil);
-  __weak UniVerseCoreTab *weakTab = tab;
+  __weak ArdiaCoreTab *weakTab = tab;
   __weak NSWindow *weakWindow = page.window;
   __weak NSView *weakHost = page.superview;
   const NSSize pictured = page.bounds.size;
   [tab copyPicture:kPageCoverPicture
         completion:^(CGImageRef picture) {
-          UniVerseCoreTab *t = weakTab;
+          ArdiaCoreTab *t = weakTab;
           NSView *now = t.view;
           if (!picture || !now.window || now.window != weakWindow || now.superview != weakHost) return then(nil);
           UniVersePageCover *cover = [[UniVersePageCover alloc] initWithFrame:now.bounds picture:picture];
@@ -85,7 +85,7 @@ static const NSTimeInterval kPageCoverLimit = 4;
 }
 
 - (void)repicture {
-  UniVerseCoreTab *tab = _tab;
+  ArdiaCoreTab *tab = _tab;
   NSView *page = tab.view;
   if (!self.superview || !page) return;
   __weak UniVersePageCover *weakSelf = self;
@@ -94,7 +94,7 @@ static const NSTimeInterval kPageCoverLimit = 4;
                 draws:^NSInteger(BOOL, BOOL) { return NSEqualSizes(page.bounds.size, before) ? 0 : 1; }
                  then:^{
                    UniVersePageCover *me = weakSelf;
-                   UniVerseCoreTab *t = me.tab;
+                   ArdiaCoreTab *t = me.tab;
                    const NSSize now = t.view.bounds.size;
                    if (!me.superview || !t || NSEqualSizes(now, before)) return;
                    [t copyPicture:kPageCoverPicture
