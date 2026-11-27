@@ -10,6 +10,7 @@ import { LayoutStep, TabsStep } from "./LayoutSteps";
 import { DetailsStep, LookStep } from "./LookStep";
 import { SearchPrivacyStep } from "./PrivacyStep";
 import { SourceStep } from "./SourceStep";
+import { EngineStep } from "./EngineStep";
 import { HomeStep } from "./HomeStep";
 import { OutroStep } from "./OutroStep";
 import { PinnedTabsStep } from "./PinnedTabsStep";
@@ -91,6 +92,7 @@ function Overlay({ session }: { session: number }) {
               <OnboardingCardContext.Provider value={{ width, height, inset }}>
                 <View key={step} style={{ flex: 1 }}>
                   {step === "source" && <SourceStep />}
+                  {step === "engine" && <EngineStep />}
                   {step === "layout" && <LayoutStep />}
                   {step === "tabs" && <TabsStep />}
                   {step === "look" && <LookStep />}
