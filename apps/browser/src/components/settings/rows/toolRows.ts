@@ -176,6 +176,13 @@ export const toolRows = {
           shown: (s) => s.memorySaver,
           keywords: ["sleep", "sleeping tabs", "moderate", "balanced", "maximum", "memory", "discard", "hibernate", "inactive tabs"],
         },
+        memorySaverIdleMinutes: {
+          advanced: true,
+          title: "Suspend inactive tabs after",
+          description: "Tabs you haven't used in this long are suspended to free memory. A suspended tab reloads when you go back to it.",
+          shown: (s) => s.memorySaver,
+          keywords: ["sleep", "sleeping tabs", "hibernate", "hibernation", "idle", "suspend", "suspended", "inactive tabs", "memory", "discard", "timeout"],
+        },
         batterySaver: { advanced: true, title: "Battery Saver", keywords: ["energy", "energy saver", "low power mode", "performance", "power"] },
         loadProfilesWhenOpened: {
           advanced: true,

@@ -8,6 +8,7 @@ import { updateSettings } from "../../../state/settings/actions";
 import { openInternalPage } from "../../../state/pages/urls";
 import type { BatterySaverWhen } from "../../../state/settings/settings";
 import { keepSiteActive, stopKeepingSiteActive, type MemorySaverMode } from "../../../state/tabs/memorySaver";
+import { hibernationChoices, NEVER_HIBERNATE } from "../../../state/tabs/tabHibernation";
 import { closeSettingsSheet, showSettingsSheet } from "../../../state/settings/sheet";
 import { Button, DialogActions, DialogTitle, lineHeight, PopUp, Sheet, space, Text, TextField, Toggle } from "../../ui";
 import { Favicon } from "../../favicon/Favicon";
@@ -35,6 +36,7 @@ const MEMORY_SAVER_OPTIONS = Object.entries(MEMORY_SAVER_MODES).map(([value, { t
 export function AdvancedPane() {
   const hideBookmarksBarImport = useSettings((s) => s.hideBookmarksBarImport);
   const memorySaverMode = useSettings((s) => s.memorySaverMode);
+  const memorySaverIdleMinutes = useSettings((s) => s.memorySaverIdleMinutes);
   const batterySaverWhen = useSettings((s) => s.batterySaverWhen);
   const keepActiveSites = useSettings((s) => s.keepActiveSites);
   const warnBeforeMovingTabs = useSettings((s) => s.warnBeforeMovingTabsToProfile);
@@ -63,6 +65,14 @@ export function AdvancedPane() {
             value={memorySaverMode}
             options={MEMORY_SAVER_OPTIONS}
             onChange={(v) => updateSettings({ memorySaverMode: v })}
+            minWidth={190}
+          />
+        </Row>
+        <Row anchor="advanced.memorySaverIdleMinutes">
+          <PopUp
+            value={memorySaverIdleMinutes === null ? NEVER_HIBERNATE : String(memorySaverIdleMinutes)}
+            options={hibernationChoices(memorySaverIdleMinutes)}
+            onChange={(v) => updateSettings({ memorySaverIdleMinutes: v === NEVER_HIBERNATE ? null : Number(v) })}
             minWidth={190}
           />
         </Row>

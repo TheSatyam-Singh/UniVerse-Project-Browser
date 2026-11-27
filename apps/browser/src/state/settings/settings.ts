@@ -133,6 +133,12 @@ export const SETTING_SPECS = {
   batterySaverWhen: oneOf(["lowBattery", "unplugged", "never"], "lowBattery"),
   memorySaver: flag(true),
   memorySaverMode: oneOf(["moderate", "balanced", "maximum"], "balanced"),
+  memorySaverIdleMinutes: shaped<number | null>(
+    30,
+    (v) => v === null || (typeof v === "number" && Number.isInteger(v) && v >= 1 && v <= 24 * 60),
+    { type: ["number", "null"], minimum: 1, maximum: 1440 },
+    SYNCED,
+  ),
   loadProfilesWhenOpened: flag(true),
   keepActiveSites: shaped<string[]>([], isStringList, STRING_LIST, SYNCED),
   extensionSidePanelWidth: width(360),
