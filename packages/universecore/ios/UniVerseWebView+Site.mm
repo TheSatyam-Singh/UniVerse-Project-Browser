@@ -7,7 +7,7 @@ using namespace universe_runtime;
 
 @implementation UniVerseWebView (Site)
 
-- (void)tabDidChangeSecurity:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeSecurity:(ArdiaCoreTab *)tab {
   if (NSDictionary *info = tab.securityInfo) [self emit:@"security" payload:info];
 }
 
@@ -79,7 +79,7 @@ using namespace universe_runtime;
   }
 }
 
-- (void)tab:(UniVerseCoreTab *)tab preferredSizeDidChange:(NSSize)size {
+- (void)tab:(ArdiaCoreTab *)tab preferredSizeDidChange:(NSSize)size {
   [self emit:@"preferredSize" payload:@{@"width" : @(size.width), @"height" : @(size.height)}];
 }
 
@@ -108,13 +108,13 @@ using namespace universe_runtime;
   [self callFrame:frame kind:@"notification" json:JSONText(@{@"id" : notificationId, @"action" : action ?: @""})];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab didChangeMediaAccess:(NSDictionary<NSString *, NSNumber *> *)access {
+- (void)tab:(ArdiaCoreTab *)tab didChangeMediaAccess:(NSDictionary<NSString *, NSNumber *> *)access {
   _reports.capturing = [access[@"camera"] boolValue] || [access[@"microphone"] boolValue] || [access[@"screen"] boolValue];
   [self emit:@"mediaAccess" payload:access ?: @{}];
   [self autoPictureInPictureInputsChanged];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab externalAppRequest:(NSDictionary<NSString *, id> *)request {
+- (void)tab:(ArdiaCoreTab *)tab externalAppRequest:(NSDictionary<NSString *, id> *)request {
   [self emit:@"externalApp" payload:request ?: @{}];
 }
 
