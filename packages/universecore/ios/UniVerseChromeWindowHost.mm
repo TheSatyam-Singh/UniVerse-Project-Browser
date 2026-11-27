@@ -46,7 +46,7 @@ NSView *UniVerseWindowRootView(NSWindow *window) {
 
 + (NSWindow *)makeWindowForProfile:(NSString *)profile {
   if (!UniVerseHost.isStarted) return nil;
-  UniVerseCoreWindow *coreWindow = [[UniVerseCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1360, 860)];
+  ArdiaCoreWindow *coreWindow = [[ArdiaCoreWindow alloc] initWithContentRect:NSMakeRect(0, 0, 1360, 860)];
   NSWindow *window = coreWindow.window;
   if (!window) return nil;
   ConfigureWindow(window);
@@ -90,13 +90,13 @@ NSView *UniVerseWindowRootView(NSWindow *window) {
 + (void)showProfile:(NSString *)profile inWindow:(NSWindow *)window {
   UniVerseWindowController *controller = [UniVerseWindowController forNSWindow:window];
   if (!controller) return;
-  __weak UniVerseCoreWindow *coreWindow = controller.coreWindow;
+  __weak ArdiaCoreWindow *coreWindow = controller.coreWindow;
   __weak UniVerseWindowController *weakController = controller;
   universe_host::WithProfile(profile ?: @"", ^(UniVerseCoreProfile *p) {
     UniVerseWindowController *shown = weakController;
     if (!p || !coreWindow || !shown) return;
     coreWindow.activeProfile = p;
-    UniVerseCoreTab *tab = [UniVerseTabStrip activeTabInWindow:shown profile:p];
+    ArdiaCoreTab *tab = [UniVerseTabStrip activeTabInWindow:shown profile:p];
     UniVerseWebView *view = tab ? [UniVerseTabRegistry viewForTab:tab] : nil;
     NSWindow *shownWindow = coreWindow.window;
     if (view && shownWindow && view.window == shownWindow && [[coreWindow tabsForProfile:p] containsObject:tab])
@@ -107,7 +107,7 @@ NSView *UniVerseWindowRootView(NSWindow *window) {
 + (void)prepareProfiles:(NSArray<NSString *> *)profiles forWindow:(NSWindow *)window {
   UniVerseWindowController *controller = [UniVerseWindowController forNSWindow:window];
   if (!controller) return;
-  __weak UniVerseCoreWindow *coreWindow = controller.coreWindow;
+  __weak ArdiaCoreWindow *coreWindow = controller.coreWindow;
   for (NSString *profile in profiles)
     universe_host::WithProfile(profile, ^(UniVerseCoreProfile *p) {
       if (p && coreWindow) [coreWindow prepareProfile:p];
@@ -198,11 +198,11 @@ NSView *UniVerseWindowRootView(NSWindow *window) {
 }
 
 + (NSView *)embeddedRootOfWindow:(NSWindow *)window {
-  return [UniVerseCoreWindow embeddedRootOfWindow:window];
+  return [ArdiaCoreWindow embeddedRootOfWindow:window];
 }
 
 + (Class)contentViewClass {
-  return UniVerseCoreWindow.contentViewClass;
+  return ArdiaCoreWindow.contentViewClass;
 }
 
 + (NSView *)rootViewOfWindow:(NSWindow *)window {
