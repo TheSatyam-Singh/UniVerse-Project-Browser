@@ -1,16 +1,4 @@
 PODS:
-  - UniVerseCore (0.0.0):
-    - ExpoModulesCore
-  - UniVerseImport (0.0.0):
-    - UniVerseCore
-    - ExpoModulesCore
-  - UniVerseShell (0.0.0):
-    - UniVerseCore
-    - ExpoModulesCore
-    - Sparkle (~> 2.9)
-  - UniVerseSync (0.0.0):
-    - UniVerseCore
-    - ExpoModulesCore
   - boost (1.84.0)
   - DoubleConversion (1.1.6)
   - EXConstants (18.0.14):
@@ -2310,16 +2298,24 @@ PODS:
     - SocketRocket
   - SocketRocket (0.7.1)
   - Sparkle (2.9.6)
-  - UniVerseShaders (0.0.0):
-    - UniVerseCore
+  - UniVerseCore (0.0.0):
     - ExpoModulesCore
+  - UniVerseImport (0.0.0):
+    - ExpoModulesCore
+    - UniVerseCore
+  - UniVerseShaders (0.0.0):
+    - ExpoModulesCore
+    - UniVerseCore
+  - UniVerseShell (0.0.0):
+    - ExpoModulesCore
+    - Sparkle (~> 2.9)
+    - UniVerseCore
+  - UniVerseSync (0.0.0):
+    - ExpoModulesCore
+    - UniVerseCore
   - Yoga (0.0.0)
 
 DEPENDENCIES:
-  - UniVerseCore (from `../../../packages/universecore/ios`)
-  - UniVerseImport (from `../../../packages/import/ios`)
-  - UniVerseShell (from `../../../packages/shell/ios`)
-  - UniVerseSync (from `../../../packages/sync/ios`)
   - boost (from `../../../node_modules/react-native-macos/third-party-podspecs/boost.podspec`)
   - DoubleConversion (from `../../../node_modules/react-native-macos/third-party-podspecs/DoubleConversion.podspec`)
   - EXConstants (from `../../../node_modules/expo-constants/ios`)
@@ -2399,7 +2395,11 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../../../node_modules/react-native-macos/ReactCommon`)
   - SocketRocket (~> 0.7.1)
+  - UniVerseCore (from `../../../packages/universecore/ios`)
+  - UniVerseImport (from `../../../packages/import/ios`)
   - UniVerseShaders (from `../../../packages/shaders/ios`)
+  - UniVerseShell (from `../../../packages/shell/ios`)
+  - UniVerseSync (from `../../../packages/sync/ios`)
   - Yoga (from `../../../node_modules/react-native-macos/ReactCommon/yoga`)
 
 SPEC REPOS:
@@ -2408,14 +2408,6 @@ SPEC REPOS:
     - Sparkle
 
 EXTERNAL SOURCES:
-  UniVerseCore:
-    :path: "../../../packages/universecore/ios"
-  UniVerseImport:
-    :path: "../../../packages/import/ios"
-  UniVerseShell:
-    :path: "../../../packages/shell/ios"
-  UniVerseSync:
-    :path: "../../../packages/sync/ios"
   boost:
     :podspec: "../../../node_modules/react-native-macos/third-party-podspecs/boost.podspec"
   DoubleConversion:
@@ -2571,16 +2563,20 @@ EXTERNAL SOURCES:
     :path: build/generated/ios
   ReactCommon:
     :path: "../../../node_modules/react-native-macos/ReactCommon"
+  UniVerseCore:
+    :path: "../../../packages/universecore/ios"
+  UniVerseImport:
+    :path: "../../../packages/import/ios"
   UniVerseShaders:
     :path: "../../../packages/shaders/ios"
+  UniVerseShell:
+    :path: "../../../packages/shell/ios"
+  UniVerseSync:
+    :path: "../../../packages/sync/ios"
   Yoga:
     :path: "../../../node_modules/react-native-macos/ReactCommon/yoga"
 
 SPEC CHECKSUMS:
-  UniVerseCore: 51e3fd7cdfa0a9194467e4f4bda05b1edd70905d
-  UniVerseImport: 189c1f873e40b728e2ce8928e460f731e1ec92d1
-  UniVerseShell: 9c1f361d116a7cf18225034cf1419648cab2e430
-  UniVerseSync: 7530152afdb0c3bd1c97018c6b497b06c27da770
   boost: cea1d4f90a3a59537f3deb03ff5656489d7133dd
   DoubleConversion: d31b1eb37f6d6f456530c4fd9124b857d6889cab
   EXConstants: 18ac927605517285307ea8f7ffe6fe7ca538eb5d
@@ -2660,7 +2656,11 @@ SPEC CHECKSUMS:
   ReactCommon: bc273d1cfc32a36ea662e81293e0961de8c21c77
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
   Sparkle: b8c9cf4ced217ffc708a1ca5f988a7ba877658db
-  UniVerseShaders: a68d6e6ec1f54b9c56138c6786163cd14192b8e6
+  UniVerseCore: e40288c83efe06dbb3fc0bf24dad55c375b1655b
+  UniVerseImport: 3478f6a69f5d5f934224935b93562c8f486ec45f
+  UniVerseShaders: 77bba5d3de3de35fd5425831dcd96ce0ba6d2032
+  UniVerseShell: 0b9fb0375b3d87db4364bc7b3839e73b4384a96a
+  UniVerseSync: de9257478f618c42a17f3e9d0b7bdad290439939
   Yoga: a88f30ac6f89fded00f9840e7d043315e5ab4fe0
 
 PODFILE CHECKSUM: 92edf9001525fdbe3ede0bca5500e3fa3dd3da6c
