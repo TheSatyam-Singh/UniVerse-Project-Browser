@@ -6,5 +6,5 @@
 @property (nonatomic, copy) NSString *url;
 @property (nonatomic, copy) NSString *profile;
 @property (nonatomic, readonly) BOOL closedByChrome;
-- (void)replayTo:(UniVerseWebView *)view tab:(UniVerseCoreTab *)tab;
+- (void)replayTo:(UniVerseWebView *)view tab:(ArdiaCoreTab *)tab;
 @end
