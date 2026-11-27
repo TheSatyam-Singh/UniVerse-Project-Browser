@@ -45,12 +45,12 @@ NSMutableDictionary<NSNumber *, NSDictionary *> *Groups() {
   return groups;
 }
 
-NSMapTable<UniVerseCoreTab *, NSNumber *> *Pinned() {
+NSMapTable<ArdiaCoreTab *, NSNumber *> *Pinned() {
   static NSMapTable *pinned = [NSMapTable weakToStrongObjectsMapTable];
   return pinned;
 }
 
-NSMapTable<UniVerseCoreProfile *, UniVerseCoreTab *> *ActiveTabs(UniVerseWindowController *controller) {
+NSMapTable<UniVerseCoreProfile *, ArdiaCoreTab *> *ActiveTabs(UniVerseWindowController *controller) {
   static NSMapTable *byWindow = [NSMapTable weakToStrongObjectsMapTable];
   NSMapTable *active = [byWindow objectForKey:controller];
   if (!active) {
@@ -76,12 +76,12 @@ NSString *AppWindowOf(UniVerseWindowController *controller) {
 }
 
 NSDictionary *Strip(UniVerseWindowController *controller, UniVerseCoreProfile *profile) {
-  UniVerseCoreWindow *window = controller.coreWindow;
+  ArdiaCoreWindow *window = controller.coreWindow;
   NSMutableArray *tabs = [NSMutableArray array];
-  NSArray<UniVerseCoreTab *> *live = [window tabsForProfile:profile];
-  UniVerseCoreTab *active = [ActiveTabs(controller) objectForKey:profile];
+  NSArray<ArdiaCoreTab *> *live = [window tabsForProfile:profile];
+  ArdiaCoreTab *active = [ActiveTabs(controller) objectForKey:profile];
   for (NSUInteger i = 0; i < live.count; i++) {
-    UniVerseCoreTab *tab = live[i];
+    ArdiaCoreTab *tab = live[i];
     NSString *key = [UniVerseTabRegistry viewForTab:tab].transferKey;
     [tabs addObject:@{
       @"key" : key.length ? key : NSNull.null,
@@ -170,21 +170,21 @@ NSArray<UniVerseCoreProfile *> *ProfilesWithTabs(UniVerseWindowController *contr
   Send(@{@"rev" : @(++gRev), @"cmd" : NSNull.null, @"strips" : closed});
 }
 
-+ (void)activated:(UniVerseCoreTab *)tab inWindow:(UniVerseWindowController *)controller {
++ (void)activated:(ArdiaCoreTab *)tab inWindow:(UniVerseWindowController *)controller {
   UniVerseCoreProfile *profile = tab.profile;
   if (profile) [ActiveTabs(controller) setObject:tab forKey:profile];
 }
 
-+ (UniVerseCoreTab *)activeTabInWindow:(UniVerseWindowController *)controller profile:(UniVerseCoreProfile *)profile {
++ (ArdiaCoreTab *)activeTabInWindow:(UniVerseWindowController *)controller profile:(UniVerseCoreProfile *)profile {
   return profile ? [ActiveTabs(controller) objectForKey:profile] : nil;
 }
 
-+ (void)removed:(UniVerseCoreTab *)tab fromWindow:(UniVerseWindowController *)controller {
++ (void)removed:(ArdiaCoreTab *)tab fromWindow:(UniVerseWindowController *)controller {
   UniVerseCoreProfile *profile = tab.profile;
   if (profile && [ActiveTabs(controller) objectForKey:profile] == tab) [ActiveTabs(controller) removeObjectForKey:profile];
 }
 
-+ (void)setPinned:(BOOL)pinned tab:(UniVerseCoreTab *)tab {
++ (void)setPinned:(BOOL)pinned tab:(ArdiaCoreTab *)tab {
   [Pinned() setObject:@(pinned) forKey:tab];
 }
 
@@ -205,8 +205,8 @@ NSArray<UniVerseCoreProfile *> *ProfilesWithTabs(UniVerseWindowController *contr
   for (UniVerseWindowController *controller in UniVerseWindowController.all)
     for (UniVerseCoreProfile *p in ProfilesWithTabs(controller))
       if ([controller.coreWindow chromeWindowIdForProfile:p] == stripId) found = controller, profile = p;
-  NSMutableDictionary<NSString *, UniVerseCoreTab *> *byKey = [NSMutableDictionary dictionary];
-  for (UniVerseCoreTab *tab in found ? [found.coreWindow tabsForProfile:profile] : @[]) {
+  NSMutableDictionary<NSString *, ArdiaCoreTab *> *byKey = [NSMutableDictionary dictionary];
+  for (ArdiaCoreTab *tab in found ? [found.coreWindow tabsForProfile:profile] : @[]) {
     NSString *key = [UniVerseTabRegistry viewForTab:tab].transferKey;
     if (key.length) byKey[key] = tab;
   }
@@ -215,7 +215,7 @@ NSArray<UniVerseCoreProfile *> *ProfilesWithTabs(UniVerseWindowController *contr
   gCommandWindow = found;
   gCommandProfile = profile;
   if (found && [op isEqualToString:@"activate"]) {
-    UniVerseCoreTab *tab = byKey[command[@"key"]];
+    ArdiaCoreTab *tab = byKey[command[@"key"]];
     if (tab) {
       [found.coreWindow activateTab:tab];
     } else {
@@ -229,7 +229,7 @@ NSArray<UniVerseCoreProfile *> *ProfilesWithTabs(UniVerseWindowController *contr
     for (NSString *key in keys)
       if (byKey[key]) rejected = NO;
     for (NSUInteger i = 0; i < keys.count; i++) {
-      UniVerseCoreTab *tab = byKey[keys[i]];
+      ArdiaCoreTab *tab = byKey[keys[i]];
       if (!tab) continue;
       [self setPinned:(NSInteger)i < pinned tab:tab];
       [found.coreWindow placeTab:tab index:index pinned:(NSInteger)i < pinned];
@@ -239,7 +239,7 @@ NSArray<UniVerseCoreProfile *> *ProfilesWithTabs(UniVerseWindowController *contr
   if (found && [op isEqualToString:@"group"]) {
     NSMutableArray *ids = [NSMutableArray array];
     for (NSString *key in [command[@"keys"] isKindOfClass:NSArray.class] ? command[@"keys"] : @[])
-      if (UniVerseCoreTab *tab = byKey[key]) [ids addObject:@(tab.tabId)];
+      if (ArdiaCoreTab *tab = byKey[key]) [ids addObject:@(tab.tabId)];
     if (!ids.count) rejected = YES;
     else {
       NSMutableDictionary *args = [@{@"window" : @(stripId), @"tabs" : ids} mutableCopy];
