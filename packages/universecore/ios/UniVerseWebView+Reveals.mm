@@ -73,7 +73,7 @@ static UniVerseWebView *ViewForKey(NSString *key) {
     UniVerseWebView *view = ViewForKey(key);
     if (!view.window) return;
     [UniVerseWebView dropRevealsInWindow:view.window except:nil];
-    UniVerseCoreTab *tab = [UniVerseTabRegistry offeredTab:offer];
+    ArdiaCoreTab *tab = [UniVerseTabRegistry offeredTab:offer];
     NSView *page = tab.view;
     if (TraceVisibility())
       NSLog(@"[universecore-vis] %@ front %@ offered=%d closed=%d superview=%@ adopted=%d", key, offer, tab != nil, tab.closed,
@@ -86,7 +86,7 @@ static UniVerseWebView *ViewForKey(NSString *key) {
 
 + (BOOL)discardOffered:(NSString *)adoptId {
   if (![adoptId hasPrefix:@"universecore:"]) return NO;
-  UniVerseCoreTab *tab = [UniVerseTabRegistry offeredTab:adoptId];
+  ArdiaCoreTab *tab = [UniVerseTabRegistry offeredTab:adoptId];
   if (!tab || tab.closed || [UniVerseTabRegistry viewForTab:tab] || [UniVerseTabParking linkMarkForTab:tab]) return NO;
   if (NSView *page = tab.view)
     for (UniVerseWebView *view in LiveViews().allObjects)
