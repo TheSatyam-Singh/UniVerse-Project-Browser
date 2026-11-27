@@ -93,7 +93,7 @@ NSDictionary *ProbeFrame(NSWindow *window, UniVerseWindowFullScreen *state, CFTi
     NSData *json = [NSJSONSerialization dataWithJSONObject:frames ?: @[] options:0 error:nil];
     return json ? [[NSString alloc] initWithData:json encoding:NSUTF8StringEncoding] : @"[]";
   }
-  UniVerseCoreWindow *coreWindow = [UniVerseWindowController forNSWindow:window].coreWindow;
+  ArdiaCoreWindow *coreWindow = [UniVerseWindowController forNSWindow:window].coreWindow;
   UniVerseWindowFullScreen *state = coreWindow ? [UniVerseWindowFullScreen ofWindow:coreWindow create:YES] : nil;
   if (!state) return @"not an UniVerseCore window";
   [timer invalidate];
