@@ -55,6 +55,12 @@ export function providerScope(text: string, providers: readonly KeywordProvider[
   return p ? { kind: "provider", name: p.title, host: p.host ?? "", url: p.url ?? "", providerId: p.id } : null;
 }
 
+export function historyScope(text: string): SearchScope | null {
+  const t = text.trim().toLowerCase();
+  if (t !== "@history" && t !== "@h") return null;
+  return { kind: "history", name: "History", host: "", url: "" };
+}
+
 function normalize(text: string): string {
   return text.trim().toLowerCase().replace(/^[a-z]+:\/\//, "").replace(/^www\./, "").replace(/\/$/, "");
 }
@@ -67,6 +73,8 @@ function siteLabel(host: string): string {
 export function findScope(text: string, { engines, sites = POPULAR_SITE_SEARCHES, hosts = [], providers }: ScopeSources): SearchScope | null {
   const provider = providerScope(text, providers);
   if (provider) return provider;
+  const history = historyScope(text);
+  if (history) return history;
   const t = normalize(text);
   if (!t || /\s/.test(t)) return null;
   const host = hostOf(`https://${t}`) || t;

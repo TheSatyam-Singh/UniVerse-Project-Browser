@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { BUILT_IN_ENGINES } from "./engines.ts";
-import { asksForBackspace, keywordBySpace, offeredSiteSearch, siteSearchKey, type SearchScope, type SiteSearchKeyState } from "./siteSearch.ts";
+import { asksForBackspace, findScope, historyScope, keywordBySpace, offeredSiteSearch, siteSearchKey, type SearchScope, type SiteSearchKeyState } from "./siteSearch.ts";
 
 const sources = { engines: BUILT_IN_ENGINES };
 
@@ -101,4 +101,27 @@ test("Ctrl+Tab is left to the tab switcher", () => {
 test("no site search is offered for text with spaces", () => {
   assert.equal(offeredSiteSearch("google maps", "", sources), null);
   assert.equal(offeredSiteSearch("  ", ".com", sources), null);
+});
+
+test("@history and @h resolve to a history scope with no host", () => {
+  assert.deepEqual(historyScope("@history"), { kind: "history", name: "History", host: "", url: "" });
+  assert.deepEqual(historyScope("@h"), { kind: "history", name: "History", host: "", url: "" });
+  assert.deepEqual(historyScope("@History"), { kind: "history", name: "History", host: "", url: "" });
+  assert.equal(historyScope("history"), null);
+  assert.equal(historyScope("@historyx"), null);
+  assert.equal(historyScope("@"), null);
+  assert.equal(historyScope(""), null);
+  assert.deepEqual(findScope("@history", sources), { kind: "history", name: "History", host: "", url: "" });
+  assert.deepEqual(findScope("@h", sources), { kind: "history", name: "History", host: "", url: "" });
+});
+
+test("Tab enters the history scope from '@history'", () => {
+  const state = bar("@history");
+  assert.equal(state.offered?.kind, "history");
+  assert.equal(state.offered?.name, "History");
+  const action = siteSearchKey("Tab", {}, state);
+  assert.equal(action?.kind, "enter");
+  assert.equal(action?.kind === "enter" && action.scope.name, "History");
+  assert.equal(action?.kind === "enter" && action.from, "@history");
+  assert.equal(offeredSiteSearch("@h", "", sources)?.kind, "history");
 });

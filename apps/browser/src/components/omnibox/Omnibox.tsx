@@ -24,6 +24,7 @@ import type { NewTabTarget } from "../../state/browser/types";
 import { showFieldMenu } from "../../state/omnibox/paste";
 import { SuggestionIcon, SuggestionList, isRemovable, type RowActions } from "./SuggestionRow";
 import { keywordScope } from "../../state/omnibox/scopes";
+import { openInternalPage } from "../../state/pages/urls";
 import { setPopover } from "../../state/tabs/pageState";
 import { AddChip } from "./AddChip";
 import { INCOGNITO_ICON } from "../ntp/IncognitoHeading";
@@ -203,6 +204,11 @@ export function Omnibox({
   const forceSearch = () => {
     const text = (previewing ? value : typed).trim();
     if (!text) return;
+    if (scope?.kind === "history" && !scope.host) {
+      openInternalPage("history", windowId, { query: text });
+      dismiss();
+      return;
+    }
     go(scope ? scopedSearchUrl(scope, text, engine) : searchUrl(engine, text));
   };
 

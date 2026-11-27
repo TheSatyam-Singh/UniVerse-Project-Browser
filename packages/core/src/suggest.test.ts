@@ -195,3 +195,24 @@ test("a newer request aborts the one in flight, which never answers", async () =
   }
 });
 
+const historyScope = { kind: "history" as const, name: "History", host: "", url: "" };
+
+test("history scope searches only visited history and ends with a row for the full History page", () => {
+  const { items, completion } = buildSuggestions("git", { tabs: [], history }, { now, scope: historyScope });
+  assert.equal(completion, "");
+  assert.ok(items.every((i) => i.kind === "page"));
+  assert.ok(items.some((i) => i.kind === "page" && i.url === "https://github.com/"));
+  assert.deepEqual(items[items.length - 1], { kind: "page", url: "universe://history?q=git", title: 'Search history for "git"', favicon: null });
+});
+
+test("history scope with no match still offers the History page for the query", () => {
+  const { items } = buildSuggestions("zzznope", { tabs: [], history }, { now, scope: historyScope });
+  assert.deepEqual(items, [{ kind: "page", url: "universe://history?q=zzznope", title: 'Search history for "zzznope"', favicon: null }]);
+});
+
+test("history scope leaves out bookmarks and open tabs that were never visited", () => {
+  const tabs = [{ id: "t1", url: "https://tab.example/", title: "Tab page", favicon: null }];
+  const bookmarks = [{ url: "https://bookmark.example/", title: "Bookmark page", favicon: null }];
+  const { items } = buildSuggestions("page", { tabs, history, bookmarks }, { now, scope: historyScope });
+  assert.deepEqual(items, [{ kind: "page", url: "universe://history?q=page", title: 'Search history for "page"', favicon: null }]);
+});

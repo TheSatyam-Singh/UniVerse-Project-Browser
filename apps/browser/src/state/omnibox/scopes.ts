@@ -1,4 +1,4 @@
-import { findScope, offeredSiteSearch, type SearchScope } from "@universe/core";
+import { findScope, historyScope, offeredSiteSearch, type SearchScope } from "@universe/core";
 import { useBrowser } from "../browser/store";
 import { searchEngines } from "../settings/settings";
 import { providerKeywords } from "./activeProviders";
@@ -20,6 +20,8 @@ export function offeredScope(typed: string, completion: string, windowId: string
 
 export function keywordScope(text: string, windowId: string): SearchScope | null {
   const bare = text.trim().replace(/^[a-z]+:\/\//i, "").replace(/\/$/, "");
+  const history = historyScope(bare);
+  if (history) return history;
   if (/[/?#:@]/.test(bare)) return null;
   const scope = scopeFor(text, windowId);
   if (!scope) return null;

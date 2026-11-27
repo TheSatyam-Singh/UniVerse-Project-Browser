@@ -108,6 +108,14 @@ export function buildSuggestions(raw: string, source: SuggestionSource, options:
   remember(pool, q, tokens, matched, scores);
   const ranked = top.items;
 
+  if (scope?.kind === "history" && !scope.host) {
+    const historyOut = new Output(limit);
+    const pages = ranked.filter((x) => x.c.visits > 0).map((x) => pageSuggestion(x.c, x.tabId));
+    historyOut.push(...pages.slice(0, limit - 1));
+    historyOut.push({ kind: "page", url: `universe://history?q=${encodeURIComponent(query)}`, title: `Search history for "${query}"`, favicon: null });
+    return { items: historyOut.items, completion: "" };
+  }
+
   const out = new Output(limit);
   const remoteRows = (url: (text: string) => string, name: string) =>
     dedupeSuggestions(remote, query)
