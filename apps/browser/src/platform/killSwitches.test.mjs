@@ -73,9 +73,9 @@ test("experiments are off unless UNIVERSE_SWITCHES turns them on, and don't coun
     assert.ok(def.removeBy >= today, `${name} is past its removal date (${def.removeBy})`);
     assert.equal(ks.experimentOn(name), false, `${name} defaults off`);
   }
-  launch.switches = { webkitSignIn: true };
+  launch.switches = { universeAiSidebar: true };
   reloadLaunchConfigForTests();
-  assert.equal(ks.experimentOn("webkitSignIn"), true);
+  assert.equal(ks.experimentOn("universeAiSidebar"), true);
   reset();
 });
 
