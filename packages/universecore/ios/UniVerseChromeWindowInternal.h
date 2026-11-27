@@ -2,12 +2,12 @@
 #import "UniVerseInternal.h"
 
 @interface UniVersePageDrawWait : NSObject
-+ (void)tab:(UniVerseCoreTab *)tab draws:(NSInteger (^)(BOOL fullScreen, BOOL fills))test then:(void (^)(void))done;
++ (void)tab:(ArdiaCoreTab *)tab draws:(NSInteger (^)(BOOL fullScreen, BOOL fills))test then:(void (^)(void))done;
 @end
 
 @interface UniVersePageCover : NSView
-@property(readonly, weak) UniVerseCoreTab *tab;
-+ (void)coverTabs:(NSArray<UniVerseCoreTab *> *)tabs then:(void (^)(NSArray<UniVersePageCover *> *covers))then;
+@property(readonly, weak) ArdiaCoreTab *tab;
++ (void)coverTabs:(NSArray<ArdiaCoreTab *> *)tabs then:(void (^)(NSArray<UniVersePageCover *> *covers))then;
 - (void)repicture;
 - (void)uncover:(BOOL)fade;
 @end
@@ -17,13 +17,13 @@
 @end
 
 @interface UniVerseWindowFullScreen : NSObject
-+ (instancetype)ofWindow:(UniVerseCoreWindow *)coreWindow create:(BOOL)create;
-- (void)tab:(UniVerseCoreTab *)tab fullScreen:(BOOL)fullScreen tell:(void (^)(void))tell;
++ (instancetype)ofWindow:(ArdiaCoreWindow *)coreWindow create:(BOOL)create;
+- (void)tab:(ArdiaCoreTab *)tab fullScreen:(BOOL)fullScreen tell:(void (^)(void))tell;
 - (BOOL)seen;
 - (BOOL)seenOnlyByWindowServer;
 - (void)reconsiderSight;
 - (NSDictionary *)state;
-- (UniVerseCoreTab *)probedTab;
+- (ArdiaCoreTab *)probedTab;
 - (BOOL)covered;
 - (NSInteger)covers;
 - (BOOL)transitioning;
@@ -59,9 +59,9 @@ BOOL IsWindowFullScreen(NSWindow *window);
 void ActOcclusion(NSWindow *window, NSNumber *visible);
 void ActWindowServer(NSWindow *window, BOOL shows);
 extern NSTimeInterval gActedOcclusionGap;
-void ActWindowFullScreen(UniVerseCoreWindow *coreWindow, BOOL enter, NSTimeInterval seconds);
+void ActWindowFullScreen(ArdiaCoreWindow *coreWindow, BOOL enter, NSTimeInterval seconds);
 extern NSTimeInterval gActedTransition;
-NSMapTable<UniVerseCoreTab *, NSNumber *> *FullScreenChanges();
+NSMapTable<ArdiaCoreTab *, NSNumber *> *FullScreenChanges();
 
 extern BOOL gPageCoverOff;
 
