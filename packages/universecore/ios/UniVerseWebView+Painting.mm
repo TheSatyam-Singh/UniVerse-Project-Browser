@@ -235,9 +235,9 @@ BOOL Above(NSView *a, NSView *b) {
           _frameHold.awaiting);
 }
 
-+ (void)noteShown:(UniVerseCoreTab *)tab {
++ (void)noteShown:(ArdiaCoreTab *)tab {
   if (!tab) return;
-  static NSMapTable<UniVerseCoreTab *, NSNumber *> *changes = [NSMapTable weakToStrongObjectsMapTable];
+  static NSMapTable<ArdiaCoreTab *, NSNumber *> *changes = [NSMapTable weakToStrongObjectsMapTable];
   const NSUInteger change = [changes objectForKey:tab].unsignedIntegerValue + 1;
   [changes setObject:@(change) forKey:tab];
   UniVerseWebView *view = [UniVerseTabRegistry viewForTab:tab];
@@ -252,7 +252,7 @@ BOOL Above(NSView *a, NSView *b) {
 
 - (void)markTemporary {
   if (_tab.temporary != _temporary) _tab.temporary = _temporary;
-  UniVerseCoreTab *source = nil;
+  ArdiaCoreTab *source = nil;
   if (_temporary && _temporarySource.length)
     for (UniVerseWebView *view in LiveViews().allObjects)
       if ([view.transferKey isEqualToString:_temporarySource]) source = view->_tab;
