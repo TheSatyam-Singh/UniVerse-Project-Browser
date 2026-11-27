@@ -12,6 +12,7 @@ import type { Tab } from "../browser/types";
 import { bookmarkTabs, copyUrls, editPinnedPage, newGroupWithSelection, openIconPicker, startRename } from "./actions";
 import { isCalendarUrl } from "../live/meetings";
 import { bookmarkTab } from "../bookmarks/actions";
+import { addTabToReadingList } from "../readingList/actions";
 import { bookmarksShown } from "../bookmarks/visibility";
 import { calendarMenuItem, dismissNowMenuItems, runCalendarMenu } from "./liveMenus";
 import { newFolderWithTab, removeFromFolder } from "./tileFolderUi";
@@ -167,6 +168,7 @@ export function tabMenuItems(s: BrowserState, windowId: string, tab: Tab, f: Fac
           { id: "bookmarkTo", title: "Add Bookmark to Folder", enabled: !!tab.url, children: bookmarkFolderItems(s, windowId) },
         ]
       : [],
+    [{ id: "readingList", title: "Add Tab to Reading List", symbol: "bookmark", enabled: !!tab.url, ...hintWhen(f.active, "addToReadingList", s) }],
     [
       ...withAlternate(
         { id: "copy", title: "Copy Link", symbol: "link", enabled: !!tab.url },
@@ -246,6 +248,7 @@ function runTabChoice(windowId: string, tab: Tab, f: Facts, choice: string | Des
   else if (choice === "copy") copyUrls([tab.id], false);
   else if (choice === "copyMd") copyUrls([tab.id], true);
   else if (choice === "bookmark") bookmarkTab(windowId, tab.id);
+  else if (choice === "readingList") addTabToReadingList(windowId, tab.id);
   else if (choice === "close") void closeTab(tab.id);
   else if (choice === "closeSplit" && f.split) closeSplitView(f.split.id);
   else if (choice === "closeOthers") s.closeTabs(f.others);

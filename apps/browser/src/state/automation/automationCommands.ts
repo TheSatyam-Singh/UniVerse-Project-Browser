@@ -77,6 +77,8 @@ export const AUTOMATION: Readonly<Record<BrowserCommand, AutomationDecision>> = 
   openSettings: "run",
   importBrowserData: "run",
   showHistory: "run",
+  showReadingList: "run",
+  addToReadingList: "run",
   clearBrowsingData: "run",
   manageBookmarks: "run",
   exportBookmarks: "run",
