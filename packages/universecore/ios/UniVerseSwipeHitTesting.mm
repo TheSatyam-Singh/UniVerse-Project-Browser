@@ -56,7 +56,7 @@ BOOL HasNativePager(NSView<UniVerseSwipeTarget> *target) {
 }
 
 NSView *FirstRenderer(NSView *view) {
-  if ([UniVerseCorePageView isPageView:view]) return view;
+  if ([ArdiaCorePageView isPageView:view]) return view;
   for (NSView *sub in view.subviews)
     if (NSView *found = FirstRenderer(sub)) return found;
   return nil;
@@ -70,7 +70,7 @@ NSView *ReactRoot(NSView *view, NSWindow *window) {
 }
 
 NSView<UniVerseSwipeTarget> *MisroutedRendererTarget(NSWindow *window, NSPoint location, NSView *hit) {
-  if (![UniVerseCorePageView isPageView:hit] || NSPointInRect([hit convertPoint:location fromView:nil], hit.bounds)) return nil;
+  if (![ArdiaCorePageView isPageView:hit] || NSPointInRect([hit convertPoint:location fromView:nil], hit.bounds)) return nil;
   NSView *root = ReactRoot(hit, window);
   NSView<UniVerseSwipeTarget> *best = nil;
   for (NSView<UniVerseSwipeTarget> *target in Targets()) {
@@ -93,7 +93,7 @@ NSView *ResolveHit(NSWindow *window, NSPoint location, NSView<UniVerseSwipeTarge
   if (!pager) return hit;
   NSView *container = pager.superview;
   NSView *inner = [container hitTest:[container.superview convertPoint:location fromView:nil]];
-  if (!inner || [UniVerseCorePageView isPageView:inner] || inner.window != window || ![inner isDescendantOf:container]) return hit;
+  if (!inner || [ArdiaCorePageView isPageView:inner] || inner.window != window || ![inner isDescendantOf:container]) return hit;
   if (!NSPointInRect([inner convertPoint:location fromView:nil], inner.bounds)) return hit;
   if (TargetAt(window, location, inner) != pager) return hit;
   *target = pager;
