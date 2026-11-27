@@ -21,13 +21,13 @@ using namespace universe_host;
 
 - (void)engineDidStart {
   UniVerseLaunchSequence.shared.engineStartedAt = NSDate.date.timeIntervalSince1970 * 1000;
-  NSLog(@"[universecore] engine started (Chromium %@)", UniVerseCoreEngine.sharedEngine.chromiumVersion);
+  NSLog(@"[universecore] engine started (Chromium %@)", ArdiaCoreEngine.sharedEngine.chromiumVersion);
   UniVerseLaunchSequence.shared.engineRunning = YES;
   WatchReservedShortcuts();
   universe_host::InstallActivationGuardsLate();
   if (gScratchDataDir && universe_host::Background())
     universe_host::InstallTestCrashGuard([gDataDirectory stringByDeletingLastPathComponent]);
-  UniVerseCoreEngine *engine = UniVerseCoreEngine.sharedEngine;
+  ArdiaCoreEngine *engine = ArdiaCoreEngine.sharedEngine;
   if (UniVerseCoreProfile *profile = universe_host::PersonalIfLoaded(engine)) Profiles()[@""] = profile;
   universe_host::LoadContentBlocker(@"");
   [UniVerseWebView installScrollZoom];
@@ -103,7 +103,7 @@ using namespace universe_host;
   if (UniVerseHost.quitCancelledHandler) UniVerseHost.quitCancelledHandler();
 }
 
-- (void)engine:(UniVerseCoreEngine *)engine permissionRequest:(NSDictionary *)request tab:(UniVerseCoreTab *)tab {
+- (void)engine:(ArdiaCoreEngine *)engine permissionRequest:(NSDictionary *)request tab:(ArdiaCoreTab *)tab {
   if (tab && universe_host::AskPermissionInPopupWindow(tab, request)) return;
   NSMutableDictionary *payload = [request mutableCopy];
   payload[@"tabId"] = universe_host::AppTabIdValue(tab);
@@ -111,23 +111,23 @@ using namespace universe_host;
   [UniVerseEvents emit:@"permissions.requested" data:payload];
 }
 
-- (void)engine:(UniVerseCoreEngine *)engine deviceChooser:(NSDictionary *)chooser tab:(UniVerseCoreTab *)tab {
+- (void)engine:(ArdiaCoreEngine *)engine deviceChooser:(NSDictionary *)chooser tab:(ArdiaCoreTab *)tab {
   NSMutableDictionary *payload = [chooser mutableCopy];
   payload[@"tabId"] = universe_host::AppTabIdValue(tab);
   if ([UniVerseEvents listens:@"media"]) [UniVerseEvents emit:@"media.deviceChooser" data:payload];
   else if ([payload[@"open"] boolValue])
-    [UniVerseCoreEngine cancelDeviceChooser:[payload[@"id"] intValue]];
+    [ArdiaCoreEngine cancelDeviceChooser:[payload[@"id"] intValue]];
 }
 
-- (void)engine:(UniVerseCoreEngine *)engine castDialog:(NSDictionary *)dialog tab:(UniVerseCoreTab *)tab {
+- (void)engine:(ArdiaCoreEngine *)engine castDialog:(NSDictionary *)dialog tab:(ArdiaCoreTab *)tab {
   NSMutableDictionary *payload = [dialog mutableCopy];
   payload[@"tabId"] = universe_host::AppTabIdValue(tab);
   if ([UniVerseEvents listens:@"media"]) [UniVerseEvents emit:@"media.castDialog" data:payload];
   else if ([payload[@"open"] boolValue])
-    [UniVerseCoreEngine closeCastDialog:[payload[@"id"] intValue]];
+    [ArdiaCoreEngine closeCastDialog:[payload[@"id"] intValue]];
 }
 
-- (void)engine:(UniVerseCoreEngine *)engine castRoutes:(NSArray *)routes profile:(UniVerseCoreProfile *)profile {
+- (void)engine:(ArdiaCoreEngine *)engine castRoutes:(NSArray *)routes profile:(UniVerseCoreProfile *)profile {
   if (![UniVerseEvents listens:@"media"]) return;
   NSMutableArray<NSString *> *names = [NSMutableArray array];
   if (profile.offTheRecord)
@@ -137,13 +137,13 @@ using namespace universe_host;
   for (NSString *name in names) [UniVerseEvents emit:@"media.castRoutes" data:@{@"profile" : name, @"routes" : routes ?: @[]}];
 }
 
-- (void)engine:(UniVerseCoreEngine *)engine extensionSidePanel:(NSDictionary *)panel tab:(UniVerseCoreTab *)tab {
+- (void)engine:(ArdiaCoreEngine *)engine extensionSidePanel:(NSDictionary *)panel tab:(ArdiaCoreTab *)tab {
   NSMutableDictionary *payload = [panel mutableCopy];
   payload[@"tabId"] = universe_host::AppTabIdValue(tab);
   [UniVerseEvents emit:@"extensions.sidePanel" data:payload];
 }
 
-- (BOOL)engine:(UniVerseCoreEngine *)engine extensionActionPopup:(NSDictionary *)popup tab:(UniVerseCoreTab *)tab {
+- (BOOL)engine:(ArdiaCoreEngine *)engine extensionActionPopup:(NSDictionary *)popup tab:(ArdiaCoreTab *)tab {
   if (![UniVerseEvents listens:@"extensions"] || !tab) {
     NSLog(@"[universecore] action.openPopup for %@: %@", popup[@"extensionId"], tab ? @"the app isn't listening yet" : @"no tab");
     return NO;
@@ -162,7 +162,7 @@ using namespace universe_host;
   return event.type == NSEventTypeKeyDown && universe_host::IsReservedKeyEvent(event);
 }
 
-- (BOOL)engine:(UniVerseCoreEngine *)engine extensionActionShortcut:(NSDictionary *)shortcut tab:(UniVerseCoreTab *)tab {
+- (BOOL)engine:(ArdiaCoreEngine *)engine extensionActionShortcut:(NSDictionary *)shortcut tab:(ArdiaCoreTab *)tab {
   if (![UniVerseEvents listens:@"extensions"] || !tab) return NO;
   NSMutableDictionary *payload = [shortcut mutableCopy];
   payload[@"tabId"] = universe_host::AppTabIdValue(tab);
@@ -170,10 +170,10 @@ using namespace universe_host;
   return YES;
 }
 
-- (void)engine:(UniVerseCoreEngine *)engine
+- (void)engine:(ArdiaCoreEngine *)engine
     extensionInstallPrompt:(NSDictionary *)prompt
                    profile:(UniVerseCoreProfile *)profile
-                       tab:(UniVerseCoreTab *)tab {
+                       tab:(ArdiaCoreTab *)tab {
   NSMutableDictionary *payload = [prompt mutableCopy];
   payload[@"tabId"] = universe_host::AppTabIdValue(tab);
   payload[@"profile"] = universe_host::ProfileName(profile);
@@ -181,17 +181,17 @@ using namespace universe_host;
   [UniVerseEvents emit:@"extensions.installPrompt" data:payload];
 }
 
-- (void)engine:(UniVerseCoreEngine *)engine extensionInstallFailed:(NSString *)message tab:(UniVerseCoreTab *)tab {
+- (void)engine:(ArdiaCoreEngine *)engine extensionInstallFailed:(NSString *)message tab:(ArdiaCoreTab *)tab {
   [UniVerseEvents emit:@"extensions.installFailed" data:@{@"message" : message ?: @"", @"tabId" : universe_host::AppTabIdValue(tab)}];
 }
 
-- (void)engine:(UniVerseCoreEngine *)engine permissionRequestDismissed:(NSString *)requestId {
+- (void)engine:(ArdiaCoreEngine *)engine permissionRequestDismissed:(NSString *)requestId {
   universe_host::DropPopupWindowPermission(requestId ?: @"");
   universe_host::DropHeldEvent(@"permissions.requested", requestId ?: @"");
   [UniVerseEvents emit:@"permissions.dismissed" data:@{@"id" : requestId ?: @""}];
 }
 
-- (UniVerseCoreWindow *)engineWindowForNewBrowserOfProfile:(UniVerseCoreProfile *)profile type:(NSString *)type {
+- (ArdiaCoreWindow *)engineWindowForNewBrowserOfProfile:(UniVerseCoreProfile *)profile type:(NSString *)type {
   if (![type isEqualToString:@"normal"] && ![type isEqualToString:@"popup"]) return nil;
   if ([type isEqualToString:@"popup"]) return universe_host::PopupWindowForChromeBrowser(profile);
   if (!profile.offTheRecord)
