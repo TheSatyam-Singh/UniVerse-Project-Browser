@@ -23,7 +23,7 @@ static const NSTimeInterval kRecordingPictureTimeout = 0.5;
   for (NSWindow *candidate in NSApp.windows) {
     UniVersePiPController *controller = [UniVersePiPController forWindow:candidate];
     UniVerseWebView *view = controller.view;
-    UniVerseCoreTab *tab = view ? view->_tab : nil;
+    ArdiaCoreTab *tab = view ? view->_tab : nil;
     if (controller.window == candidate && tab && !tab.closed && [UniVerseWindowController holding:tab] == owner) [owned addObject:candidate];
   }
   return owned;
@@ -41,7 +41,7 @@ static const NSTimeInterval kRecordingPictureTimeout = 0.5;
 }
 
 + (void)copyRecordingPictureOfWindow:(NSWindow *)window completion:(void (^)(CGImageRef _Nullable picture))completion {
-  [UniVerseCoreWindow copyPictureOfChromeWindow:window completion:completion];
+  [ArdiaCoreWindow copyPictureOfChromeWindow:window completion:completion];
 }
 
 + (NSView *)recordingControlsOfWindow:(NSWindow *)window {
