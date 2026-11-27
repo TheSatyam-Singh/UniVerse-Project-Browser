@@ -13,7 +13,7 @@ constexpr NSUInteger kMaxLinkTabs = 4;
 
 const char kHolderKey = 0;
 
-NSMutableDictionary<NSString *, UniVerseCoreTab *> *Parked() {
+NSMutableDictionary<NSString *, ArdiaCoreTab *> *Parked() {
   static NSMutableDictionary *parked = [NSMutableDictionary dictionary];
   return parked;
 }
@@ -29,13 +29,13 @@ NSMutableSet<NSString *> *ClosedLaunch() {
   return keys;
 }
 
-UniVerseCoreTab *gLaunchTab;
+ArdiaCoreTab *gLaunchTab;
 NSString *gLaunchKey;
 NSString *gLaunchURL;
 NSString *gLaunchProfile;
 BOOL gLaunchClaimed;
 
-NSMutableDictionary<NSNumber *, UniVerseCoreTab *> *LinkTabs() {
+NSMutableDictionary<NSNumber *, ArdiaCoreTab *> *LinkTabs() {
   static NSMutableDictionary *tabs = [NSMutableDictionary dictionary];
   return tabs;
 }
@@ -59,16 +59,16 @@ NSView *ParkingView() {
   return view;
 }
 
-void CloseNow(UniVerseCoreTab *tab) {
+void CloseNow(ArdiaCoreTab *tab) {
   [tab closeNow];
 }
 
-void CloseOpenTab(UniVerseCoreTab *tab) {
+void CloseOpenTab(ArdiaCoreTab *tab) {
   if (!tab || tab.closed) return;
   CloseNow(tab);
 }
 
-void ExpireLaunchTabUnlessShown(UniVerseCoreTab *tab) {
+void ExpireLaunchTabUnlessShown(ArdiaCoreTab *tab) {
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, kLaunchTabSeconds * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
     if (gLaunchTab != tab) return;
     if ([UniVerseEarlyWindow holdsPage:tab]) return ExpireLaunchTabUnlessShown(tab);
@@ -77,10 +77,10 @@ void ExpireLaunchTabUnlessShown(UniVerseCoreTab *tab) {
 }
 
 void CloseLinkTabs() {
-  NSArray<UniVerseCoreTab *> *left = LinkTabs().allValues;
+  NSArray<ArdiaCoreTab *> *left = LinkTabs().allValues;
   [LinkTabs() removeAllObjects];
   [LinkURLs() removeAllObjects];
-  for (UniVerseCoreTab *tab in left) {
+  for (ArdiaCoreTab *tab in left) {
     [UniVerseEarlyWindow dropPage:tab];
     CloseOpenTab(tab);
   }
@@ -90,12 +90,12 @@ void CloseLinkTabs() {
 
 @implementation UniVerseTabParking
 
-+ (void)park:(UniVerseCoreTab *)tab forKey:(NSString *)key {
++ (void)park:(ArdiaCoreTab *)tab forKey:(NSString *)key {
   [ParkingView() addSubview:tab.view];
   Parked()[key] = tab;
 }
 
-+ (UniVerseCoreTab *)parkedTabForKey:(NSString *)key {
++ (ArdiaCoreTab *)parkedTabForKey:(NSString *)key {
   return Parked()[key];
 }
 
@@ -109,14 +109,14 @@ void CloseLinkTabs() {
 
 + (void)releaseTransfer:(NSString *)key {
   [ClosedLaunch() removeObject:key];
-  UniVerseCoreTab *tab = Parked()[key];
+  ArdiaCoreTab *tab = Parked()[key];
   if (!tab) return;
   [Parked() removeObjectForKey:key];
   CloseNow(tab);
 }
 
 + (BOOL)launchWasClosed:(NSString *)key {
-  UniVerseCoreTab *tab = Parked()[key];
+  ArdiaCoreTab *tab = Parked()[key];
   id<UniVerseParkedPageHolder> held = tab ? objc_getAssociatedObject(tab, &kHolderKey) : nil;
   if (held && (tab.closed || held.closedByChrome)) {
     [Parked() removeObjectForKey:key];
@@ -126,7 +126,7 @@ void CloseLinkTabs() {
 }
 
 + (BOOL)rehomeFromWindow:(UniVerseWindowController *)closing {
-  for (UniVerseCoreTab *tab in Parked().allValues) {
+  for (ArdiaCoreTab *tab in Parked().allValues) {
     if (tab.closed || [UniVerseWindowController holding:tab] != closing || !tab.profile) continue;
     UniVerseWindowController *keeper = [UniVerseWindowController strayWindowForProfile:tab.profile];
     keeper.hostChanges++;
@@ -140,24 +140,24 @@ void CloseLinkTabs() {
   return YES;
 }
 
-+ (void)keepOffscreen:(UniVerseCoreTab *)tab holder:(id<UniVerseParkedPageHolder>)holder {
++ (void)keepOffscreen:(ArdiaCoreTab *)tab holder:(id<UniVerseParkedPageHolder>)holder {
   [ParkingView() addSubview:tab.view];
   objc_setAssociatedObject(tab, &kHolderKey, holder, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   tab.delegate = holder;
 }
 
-+ (id<UniVerseParkedPageHolder>)takeHolderOfTab:(UniVerseCoreTab *)tab {
++ (id<UniVerseParkedPageHolder>)takeHolderOfTab:(ArdiaCoreTab *)tab {
   id<UniVerseParkedPageHolder> holder = objc_getAssociatedObject(tab, &kHolderKey);
   objc_setAssociatedObject(tab, &kHolderKey, nil, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
   return holder;
 }
 
-+ (void)holdAcrossReload:(NSDictionary<NSString *, UniVerseCoreTab *> *)tabs expired:(void (^)(NSString *, UniVerseCoreTab *))expired {
++ (void)holdAcrossReload:(NSDictionary<NSString *, ArdiaCoreTab *> *)tabs expired:(void (^)(NSString *, ArdiaCoreTab *))expired {
   NSNumber *reload = @(++gReloads);
-  NSDictionary<NSString *, UniVerseCoreTab *> *held = [tabs copy];
+  NSDictionary<NSString *, ArdiaCoreTab *> *held = [tabs copy];
   for (NSString *key in held) ReloadHolds()[key] = reload;
   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, kReloadHoldSeconds * NSEC_PER_SEC), dispatch_get_main_queue(), ^{
-    [held enumerateKeysAndObjectsUsingBlock:^(NSString *key, UniVerseCoreTab *tab, BOOL *) {
+    [held enumerateKeysAndObjectsUsingBlock:^(NSString *key, ArdiaCoreTab *tab, BOOL *) {
       if (![ReloadHolds()[key] isEqual:reload]) return;
       [ReloadHolds() removeObjectForKey:key];
       expired(key, tab);
@@ -168,13 +168,13 @@ void CloseLinkTabs() {
   });
 }
 
-+ (UniVerseCoreTab *)launchTab {
++ (ArdiaCoreTab *)launchTab {
   return gLaunchTab;
 }
 
-+ (void)holdLaunchTab:(NSString *)key url:(NSString *)url profile:(NSString *)profile opening:(UniVerseCoreTab * (^)(void))open {
++ (void)holdLaunchTab:(NSString *)key url:(NSString *)url profile:(NSString *)profile opening:(ArdiaCoreTab * (^)(void))open {
   if (gLaunchTab || gLaunchClaimed || !key.length) return;
-  UniVerseCoreTab *tab = open();
+  ArdiaCoreTab *tab = open();
   if (!tab) return;
   gLaunchTab = tab;
   gLaunchKey = [key copy];
@@ -186,7 +186,7 @@ void CloseLinkTabs() {
 + (void)claimLaunchTab:(NSString *)transferKey url:(NSString *)url profile:(NSString *)profile {
   NSString *key = [transferKey copy], *claimed = [url copy], *name = [profile copy];
   void (^claim)(void) = ^{
-    UniVerseCoreTab *tab = gLaunchTab;
+    ArdiaCoreTab *tab = gLaunchTab;
     gLaunchClaimed = YES;
     const BOOL same = tab && key.length && [gLaunchKey isEqualToString:key] && [gLaunchURL isEqualToString:claimed] &&
                       [gLaunchProfile isEqualToString:name ?: @""] && !Parked()[key];
@@ -200,18 +200,18 @@ void CloseLinkTabs() {
   else dispatch_async(dispatch_get_main_queue(), claim);
 }
 
-+ (UniVerseCoreTab *)firstLinkTab {
++ (ArdiaCoreTab *)firstLinkTab {
   return LinkTabs()[@0];
 }
 
-+ (void)holdLinkTabs:(NSArray<NSString *> *)urls profile:(NSString *)profile opening:(UniVerseCoreTab * (^)(NSString *))open {
++ (void)holdLinkTabs:(NSArray<NSString *> *)urls profile:(NSString *)profile opening:(ArdiaCoreTab * (^)(NSString *))open {
   if (gLinkTabsStarted) return;
   gLinkTabsStarted = YES;
   gLinkProfile = [profile copy] ?: @"";
   NSUInteger index = 0;
   for (NSString *url in urls) {
     if (index >= kMaxLinkTabs) break;
-    if (UniVerseCoreTab *tab = open(url)) {
+    if (ArdiaCoreTab *tab = open(url)) {
       LinkTabs()[@(index)] = tab;
       LinkURLs()[@(index)] = [url copy];
     }
@@ -223,13 +223,13 @@ void CloseLinkTabs() {
   });
 }
 
-+ (NSString *)linkMarkForTab:(UniVerseCoreTab *)tab {
++ (NSString *)linkMarkForTab:(ArdiaCoreTab *)tab {
   for (NSNumber *index in LinkTabs())
     if (LinkTabs()[index] == tab && LinkURLs()[index]) return [NSString stringWithFormat:@"link:%@", index];
   return nil;
 }
 
-+ (void)dismissLinkTab:(UniVerseCoreTab *)tab {
++ (void)dismissLinkTab:(ArdiaCoreTab *)tab {
   for (NSNumber *index in LinkTabs().allKeys) {
     if (LinkTabs()[index] != tab) continue;
     [LinkTabs() removeObjectForKey:index];
@@ -275,16 +275,16 @@ void CloseLinkTabs() {
   return @{@"profile" : gLinkProfile ?: @"", @"adoptIds" : marks, @"dismissed" : dismissed};
 }
 
-+ (UniVerseCoreTab *)parkLinkTab:(NSString *)mark forKey:(NSString *)key {
++ (ArdiaCoreTab *)parkLinkTab:(NSString *)mark forKey:(NSString *)key {
   NSNumber *index = @([[mark substringFromIndex:5] integerValue]);
-  UniVerseCoreTab *tab = LinkTabs()[index];
+  ArdiaCoreTab *tab = LinkTabs()[index];
   if (!tab || !key.length || Parked()[key]) return nil;
   [LinkTabs() removeObjectForKey:index];
   Parked()[key] = tab;
   return tab;
 }
 
-+ (void)discardTab:(UniVerseCoreTab *)tab forKey:(NSString *)key {
++ (void)discardTab:(ArdiaCoreTab *)tab forKey:(NSString *)key {
   if (Parked()[key] == tab) [Parked() removeObjectForKey:key];
   [UniVerseEarlyWindow dropPage:tab];
   CloseOpenTab(tab);
