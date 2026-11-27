@@ -27,5 +27,6 @@ echo "==> Archive"
   "$@" -derivedDataPath "$build" -archivePath "$dist/UniVerse-Project-Browser.xcarchive" "${archive_signing[@]}" archive) \
   > "$dist/archive.log" 2>&1 || {
   grep -E "error:|build commands failed" -A2 "$dist/archive.log" | grep -v MACOSX_DEPLOYMENT_TARGET | tail -20 >&2
+  grep -E "Undefined symbols|duplicate symbol" -A20 "$dist/archive.log" | head -50 >&2
   die "archive failed ($dist/archive.log)"
 }
