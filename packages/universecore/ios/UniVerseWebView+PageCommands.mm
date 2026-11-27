@@ -28,16 +28,16 @@ using namespace universe_runtime;
       }];
 }
 
-- (void)tabDidChangeZoom:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeZoom:(ArdiaCoreTab *)tab {
   [self emitZoom];
 }
 
-- (void)tabDidChangeAudio:(UniVerseCoreTab *)tab {
+- (void)tabDidChangeAudio:(ArdiaCoreTab *)tab {
   if (_muted && !tab.muted) tab.muted = YES;
   [self emitMedia];
 }
 
-- (void)tab:(UniVerseCoreTab *)tab didFindMatches:(int)count active:(int)active final:(BOOL)final {
+- (void)tab:(ArdiaCoreTab *)tab didFindMatches:(int)count active:(int)active final:(BOOL)final {
   [self emit:@"find" payload:@{@"count" : @(count), @"active" : @(active), @"final" : @(final)}];
 }
 
