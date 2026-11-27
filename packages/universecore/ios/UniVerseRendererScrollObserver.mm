@@ -63,7 +63,7 @@ namespace universe_swipe {
 
 NSView *PageViewOf(NSView *hit) {
   for (NSView *v = hit; v; v = v.superview)
-    if ([UniVerseCorePageView isPageView:v]) return v;
+    if ([ArdiaCorePageView isPageView:v]) return v;
   return nil;
 }
 
@@ -72,10 +72,10 @@ UniVerseRendererScroll *RendererScrollFor(NSView *hit) {
   static dispatch_once_t once;
   dispatch_once(&once, ^{
     acks = [UniVerseRendererScrollAcks new];
-    [UniVerseCorePageView setScrollObserver:acks];
+    [ArdiaCorePageView setScrollObserver:acks];
   });
   NSView *page = PageViewOf(hit);
-  if (!page || ![UniVerseCorePageView takeSwipes:page]) return nil;
+  if (!page || ![ArdiaCorePageView takeSwipes:page]) return nil;
   UniVerseRendererScroll *scroll = ExistingScroll(page);
   if (!scroll) {
     scroll = [UniVerseRendererScroll new];
