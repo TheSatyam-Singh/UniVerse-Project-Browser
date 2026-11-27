@@ -35,7 +35,7 @@ namespace universe_early_window {
 void DropCover(UniVerseEarlyShown *s) {
   if (s.contentObserver) [NSNotificationCenter.defaultCenter removeObserver:s.contentObserver];
   s.contentObserver = nil;
-  UniVerseCoreTab *tab = s.tab;
+  ArdiaCoreTab *tab = s.tab;
   NSView *cover = s.cover;
   id inputBlock = s.inputBlock;
   s.tab = nil;
@@ -53,9 +53,9 @@ void DropCover(UniVerseEarlyShown *s) {
   }
   else if (tab && !tab.closed && [tab.view.superview isKindOfClass:UniVerseWebView.class]) {
     [Watched() addObject:tab];
-    __weak UniVerseCoreTab *watched = tab;
+    __weak ArdiaCoreTab *watched = tab;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(kWatchAfterAdoptionSeconds * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-      if (UniVerseCoreTab *still = watched) [Watched() removeObject:still];
+      if (ArdiaCoreTab *still = watched) [Watched() removeObject:still];
     });
     [UniVerseEarlyWindow page:tab shownURL:((UniVerseWebView *)tab.view.superview).shownURL];
   }
