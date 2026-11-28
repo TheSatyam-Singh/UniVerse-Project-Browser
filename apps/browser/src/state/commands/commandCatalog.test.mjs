@@ -34,6 +34,10 @@ test("no two shortcut ids share a default key", () => {
   assert.deepEqual([...holders].filter(([, ids]) => ids.length > 1), []);
 });
 
+test("Duplicate Tab's default key is ⌥⌘D", () => {
+  assert.deepEqual(COMMANDS.duplicateTab.keys, ["⌥⌘D"]);
+});
+
 test("profiles get ⌃1 to ⌃9 in order", () => {
   const ids = Array.from({ length: 10 }, (_, i) => `p${i}`);
   const keys = new Map(shortcutSources(ids, []).map((s) => [s.id, s.keys.map(formatShortcut)]));

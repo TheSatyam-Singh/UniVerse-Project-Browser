@@ -68,6 +68,7 @@ export const WHATS_SENT: { title: string; items: string[] }[] = [
       "How many times you used Tidy Tabs, how many tabs it moved and how many times you undid it, summed up once an hour. Never which tabs or groups",
       "How many times you copied a tab's address, and how many of those were taken while its first page was still loading, summed up once an hour. Never the address",
       "How many screenshots you took, and how many of those were full-page screenshots, summed up once an hour. Never which page",
+      "How many tabs you duplicated, summed up once an hour. Never which tabs",
       "How many closed tabs and windows you reopened came back with their Back history, and how many Dock icon clicks brought a browser window forward, including those made while a floating video was in front, summed up once an hour",
       "How many closed tabs you reopened from History › Recently Closed, summed up once an hour. Never which page",
       "How many times the \"New tab opened\" pill appeared after a link opened in the background, and how many times it was clicked, and how many link addresses showed at the top of the page because the pointer was near its bottom edge, summed up once an hour. Never which link or tab",

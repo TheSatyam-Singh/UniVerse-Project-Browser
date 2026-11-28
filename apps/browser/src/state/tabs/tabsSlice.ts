@@ -1,6 +1,7 @@
 import type { StateCreator } from "zustand";
 import { startNavigation } from "./earlyNavigate";
 import { cloneId } from "./adoptIds";
+import { noteTabDuplicated } from "../telemetry/duplicatedTabs";
 import type { BrowserState } from "../browser/store";
 import { syncGroupOrder } from "../groups/groups";
 import { activeTabId, merge, navigationTo, pinSection, snapshotTab, viewTabIds } from "../browser/model";
@@ -229,6 +230,7 @@ export const createTabsSlice: StateCreator<BrowserState, [], [], TabsSlice> = (s
       adoptId: source.url ? cloneId(id) : undefined,
     });
     set(next);
+    noteTabDuplicated();
     return copy;
   },
 

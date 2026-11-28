@@ -292,6 +292,7 @@ enum CommandTable {
     "selectTab:8": [("8", [.command])],
     "selectLastTab": [("9", [.command])],
     "togglePinnedRow": [("d", [.option, .shift, .command])],
+    "duplicateTab": [("d", [.option, .command])],
     "bookmarkPage": [("d", [.command])],
     "downloads": [("j", [.shift, .command]), ("l", [.option, .command])],
     "nextProfile": [("\u{F703}", [.option, .command])],

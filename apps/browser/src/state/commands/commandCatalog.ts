@@ -93,7 +93,7 @@ export const COMMANDS = {
     variants: { tile: { title: "Move Pinned Tab to Top Apps" }, row: {} },
   },
   togglePinnedRow: { title: "Move to Pinned", keys: ["⌥⇧⌘D"], ...windowOffInLittleUniverse },
-  duplicateTab: { title: "Duplicate", barTitle: "Duplicate Tab", symbol: "plus.square.on.square", ...windowOffInLittleUniverse },
+  duplicateTab: { title: "Duplicate", barTitle: "Duplicate Tab", symbol: "plus.square.on.square", keys: ["⌥⌘D"], ...windowOffInLittleUniverse },
   moveTabToProfile: windowOffInLittleUniverse,
   moveTabToWindow: windowOffInLittleUniverse,
   bookmarkPage: { title: "Add to Bookmarks…", symbol: "bookmark", keys: ["⌘D"], ...pageInLittleUniverse, onInternalPages: true },
