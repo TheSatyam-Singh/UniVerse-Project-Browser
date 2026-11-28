@@ -31,7 +31,7 @@ const { useBrowser } = await import("../browser/store.ts");
 const model = await import("../browser/model.ts");
 const { webviews } = await import("../../platform/webviews.ts");
 const { patchPage, pageOf } = await import("../tabs/pageState.ts");
-const { goBackAcrossEngines, offerWebKit } = await import("./actions.ts");
+const { goBackAcrossEngines, offerWebKit, useEngineOffers } = await import("./actions.ts");
 
 const S = () => useBrowser.getState();
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
@@ -134,7 +134,7 @@ test("moving the same tab to WebKit again keeps one watch on its site, and closi
   }
 });
 
-test("when Widevine is missing, a protected-media request moves the page to WebKit instead of asking", async () => {
+test("when Widevine is missing, a protected-media request asks instead of moving the page to WebKit", async () => {
   S().hydrate({});
   const w = S().createWindow({ url: "https://video.example/watch/1" });
   const tabId = model.activeTabId(S(), w);
@@ -145,9 +145,11 @@ test("when Widevine is missing, a protected-media request moves the page to WebK
   await settle();
   await settle();
   assert.equal(S().tabs[tabId].engine, "chromium");
+  assert.equal(useEngineOffers.getState()[tabId]?.site, "https://video.example");
   offerWebKit(tabId, { keySystem: "com.widevine.alpha", main: true });
   await settle();
   await settle();
-  assert.equal(S().tabs[tabId].engine, "webkit");
+  assert.equal(S().tabs[tabId].engine, "chromium");
+  assert.equal(useEngineOffers.getState()[tabId]?.site, "https://video.example");
   webviews.clear();
 });
