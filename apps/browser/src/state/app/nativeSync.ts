@@ -5,7 +5,7 @@ import { releaseProfile } from "../../platform/profiles";
 import { closeWindow, onWindowEvent, openWindow, restoreFullScreen, setTrafficLightsCenter, setWindowTitle, windowIds } from "../../platform/windows";
 import { isDarkAppearance, onAppEvent, onOpenURLs, replyToTerminate } from "../../platform/app";
 import { startCookieAutoDelete } from "../site/cookieAutoDelete";
-import { startNativeSettings } from "../settings/nativeSettings";
+import { startAppearanceSchedule, startNativeSettings } from "../settings/nativeSettings";
 import { menuShortcuts, onCommand, setMenuStateParts } from "../../platform/commands";
 import { Appearance } from "react-native";
 import { useBrowser } from "../browser/store";
@@ -64,6 +64,7 @@ export function startNativeSync() {
 
   store.getState().setAppDark(Appearance.getColorScheme() === "dark");
   startNativeSettings();
+  startAppearanceSchedule();
   startCookieAutoDelete();
   void isDarkAppearance().then((dark) => store.getState().setAppDark(dark));
 

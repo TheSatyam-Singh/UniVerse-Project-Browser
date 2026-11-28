@@ -10,7 +10,7 @@ export const CONFIG_SETTING_KEYS: readonly SettingKey[] = [
   "showClearButton", "tidyTabs", "balancedTopApps", "showAdvancedSettings", "selectedTabGlow", "interfaceStyle", "glassTintWithTheme",
   "glassTintAmount", "pageScrollBars", "fadeUnloadedTabs", "warnBeforeClosingTabGroup", "batterySaverWhen", "memorySaver",
   "memorySaverMode", "memorySaverIdleMinutes", "loadProfilesWhenOpened", "keepActiveSites", "extensionSidePanelWidth", "showFullUrl", "showBookmarks", "bookmarksBar", "bookmarksBarSize",
-  "hideBookmarksBarImport", "appearance", "addressBar", "compactToolbar", "borderlessMode", "pageFrame", "pageFrameZeroInFullScreen", "pageFrameZeroWhenTabsHidden", "commandBarPlacement", "spacesFollowAppearance", "adaptTextToColor",
+  "hideBookmarksBarImport", "appearance", "appearanceSchedule", "appearanceScheduleStart", "appearanceScheduleEnd", "appearanceScheduleLatitude", "appearanceScheduleLongitude", "addressBar", "compactToolbar", "borderlessMode", "pageFrame", "pageFrameZeroInFullScreen", "pageFrameZeroWhenTabsHidden", "commandBarPlacement", "spacesFollowAppearance", "adaptTextToColor",
   "profileSwitcherIcons", "shortcuts", "openLinksInLittleUniverse", "littleUniverseOpensNewTabLinks", "littleWindowGestures", "littleUniverseSize",
   "omniboxProviders", "launchActions", "commandBarStart", "aiSearchUrl", "autoDeleteCookies", "cookieKeepHosts",
   "fingerprintProtection", "surfBestScore", "boosts",

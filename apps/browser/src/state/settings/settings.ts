@@ -36,6 +36,10 @@ const SYNCED = true;
 const isRecordOf = (v: unknown, item: (x: unknown) => boolean) => isFields(v) && Object.values(v).every(item);
 const isWidth = (v: unknown) => typeof v === "number" && Number.isFinite(v) && v > 0;
 const hasStrings = (v: unknown, keys: readonly string[]) => isFields(v) && keys.every((k) => isString(v[k]));
+export const TIME_OF_DAY_PATTERN = "^(?:[01][0-9]|2[0-3]):[0-5][0-9]$";
+const isTimeOfDay = (v: unknown) => isString(v) && new RegExp(TIME_OF_DAY_PATTERN).test(v);
+const isLatitude = (v: unknown) => v === null || (typeof v === "number" && Number.isFinite(v) && v >= -90 && v <= 90);
+const isLongitude = (v: unknown) => v === null || (typeof v === "number" && Number.isFinite(v) && v >= -180 && v <= 180);
 
 const STRING_LIST: JsonSchema = { type: "array", items: { type: "string" } };
 const WIDTH: JsonSchema = { type: "number", exclusiveMinimum: 0 };
@@ -151,6 +155,11 @@ export const SETTING_SPECS = {
   bookmarksBarSize: oneOf(["default", "large"], "default", SYNCED),
   hideBookmarksBarImport: flag(false),
   appearance: oneOf(["auto", "light", "dark"], "auto", SYNCED),
+  appearanceSchedule: oneOf(["off", "sunset", "custom"], "off", SYNCED),
+  appearanceScheduleStart: shaped<string>("22:00", isTimeOfDay, { type: "string", pattern: TIME_OF_DAY_PATTERN }, SYNCED),
+  appearanceScheduleEnd: shaped<string>("07:00", isTimeOfDay, { type: "string", pattern: TIME_OF_DAY_PATTERN }, SYNCED),
+  appearanceScheduleLatitude: shaped<number | null>(null, isLatitude, { type: ["number", "null"], minimum: -90, maximum: 90 }, SYNCED),
+  appearanceScheduleLongitude: shaped<number | null>(null, isLongitude, { type: ["number", "null"], minimum: -180, maximum: 180 }, SYNCED),
   addressBar: oneOf(["toolbar", "sidebar"], "toolbar", SYNCED),
   compactToolbar: flag(false, SYNCED),
   pageFrame: shaped<number>(PAGE_FRAME.default, validPageFrame, { type: "integer", minimum: PAGE_FRAME.min, maximum: PAGE_FRAME.max }, SYNCED),
