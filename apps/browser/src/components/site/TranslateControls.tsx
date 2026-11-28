@@ -3,13 +3,16 @@ import { chooseFromMenu } from "../../state/app/menuChoice";
 import {
   translation,
   defaultTarget,
+  isAlwaysTranslated,
   isNeverTranslated,
   languageName,
   otherLanguages,
   revertPage,
+  setAlwaysTranslate,
   setNeverTranslate,
   toggleTranslation,
   translatePage,
+  translationSource,
   isTranslated,
   translationTarget,
   useTranslateState,
@@ -55,6 +58,7 @@ async function showTranslateMenu(tabId: string) {
   const tab = currentTab(tabId);
   if (!tab) return;
   const target = translationTarget(tabId);
+  const source = translationSource(tabId);
   const languages = await otherLanguages();
   const choice = await chooseFromMenu(
     translateMenuItems({
@@ -62,11 +66,14 @@ async function showTranslateMenu(tabId: string) {
       target: languageName(defaultTarget()),
       languages: languages.map((l) => ({ id: l.id, name: l.name, current: l.id === target })),
       neverTranslate: isIncognitoProfile(tab.profileId) ? null : isNeverTranslated(tab.profileId, tab.url),
+      alwaysTranslate:
+        source && !isIncognitoProfile(tab.profileId) ? { language: source, name: languageName(source), on: isAlwaysTranslated(tab.profileId, source) } : null,
     }),
   );
   if (choice === "original") void revertPage(tabId);
   else if (choice === "translate") void translatePage(tabId);
   else if (choice && typeof choice === "object") void translatePage(tabId, choice.language);
+  else if (choice === "always" && source) setAlwaysTranslate(tabId, !isAlwaysTranslated(tab.profileId, source));
   else if (choice === "never") setNeverTranslate(tabId, !isNeverTranslated(tab.profileId, tab.url));
 }
 
@@ -74,7 +81,9 @@ export function TranslateRows({ tabId, onClose }: { tabId: string; onClose: () =
   const state = useTranslateState(tabId);
   const tab = useTab(tabId);
   useSettings((st) => st.neverTranslateSites);
+  useSettings((st) => st.alwaysTranslateLanguages);
   const never = tab ? isNeverTranslated(tab.profileId, tab.url) : false;
+  const always = tab && state.source ? isAlwaysTranslated(tab.profileId, state.source) : false;
   if (!translation || !tab || (!state.source && state.status === "idle" && !never)) return null;
   const translated = state.status !== "idle";
   return (
@@ -98,6 +107,9 @@ export function TranslateRows({ tabId, onClose }: { tabId: string; onClose: () =
             void chooseLanguage(tabId);
           }}
         />
+      )}
+      {!never && !isIncognitoProfile(tab.profileId) && state.source && (
+        <MenuRow icon="arrow.triangle.2.circlepath" title={`Always Translate ${languageName(state.source)}`} accessory={<Toggle look="panel" value={always} onChange={(v) => setAlwaysTranslate(tabId, v)} />} />
       )}
       {!isIncognitoProfile(tab.profileId) && (
         <MenuRow icon="nosign" title="Never Translate This Site" accessory={<Toggle look="panel" value={never} onChange={(v) => setNeverTranslate(tabId, v)} />} />
