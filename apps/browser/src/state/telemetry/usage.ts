@@ -28,6 +28,7 @@ import { useToolbarAutoHide } from "../windows/toolbarAutoHide";
 import { toolbarBounces } from "./toolbarBounces";
 import { takeStuckDragCounts } from "./stuckDrags";
 import { takeScreenshotCounts } from "./screenshots";
+import { takeAppearanceScheduleCounts } from "./appearanceScheduleCounts";
 import { takeDuplicatedTabCounts } from "./duplicatedTabs";
 import { takeClosedTabRestoreCounts } from "./closedTabs";
 import { takeUrlCopyCounts } from "./urlCopies";
@@ -51,8 +52,9 @@ let counts = { ...NO_COUNTS }, countsSince = Date.now();
 function emitCounts() {
   const snapshots = takeSnapshotWrites(), tornOffKept = takeTornOffWindowsKeptAutoHide(), switcherOpensInWebKit = takeTabSwitcherOpensInWebKit(), stuckDrags = takeStuckDragCounts(), urlCopies = takeUrlCopyCounts(), screenshots = takeScreenshotCounts(), duplicatedTabs = takeDuplicatedTabCounts(), closedTabRestores = takeClosedTabRestoreCounts(), externalAppRequests = takeExternalAppRequests(), tabSleeps = takeTabSleepCounts(), syncCodes = takeSyncCodeCounts(), escapeCloses = takeLittleUniverseEscapeCloses(), liveCompletedTabsClosed = takeLiveCompletedTabsClosed(), liveHides = takeLiveHideCounts(), tidyTabs = takeTidyTabsCounts(), webKitFaults = takeWebKitMediaFaultCounts(), airTraffic = takeAirTrafficCounts();
   const { nothingPlaying: autoPictureInPictureNothingPlaying, backToTab } = takePictureInPictureCounts();
+  const appearanceSchedule = takeAppearanceScheduleCounts();
   counts.autoHideTabsToggles += takeAutoHideTabsChoices();
-  if (Object.values(counts).some(Boolean) || tornOffKept > 0 || Object.values(tabSleeps).some(Boolean) || Object.values(syncCodes).some(Boolean) || Object.values(stuckDrags).some(Boolean) || Object.values(escapeCloses).some(Boolean) || Object.values(liveHides).some(Boolean) || Object.values(tidyTabs).some(Boolean) || Object.keys(webKitFaults).length || Object.values(airTraffic).some(Boolean) || Object.values(externalAppRequests).some(Boolean) || urlCopies.url_copies || screenshots.screenshots_taken || duplicatedTabs.tabs_duplicated || closedTabRestores.closed_tabs_restored_from_history || liveCompletedTabsClosed || snapshots.count || switcherOpensInWebKit || autoPictureInPictureNothingPlaying || backToTab.chromium || backToTab.webkit) {
+  if (Object.values(counts).some(Boolean) || tornOffKept > 0 || Object.values(tabSleeps).some(Boolean) || Object.values(syncCodes).some(Boolean) || Object.values(stuckDrags).some(Boolean) || Object.values(escapeCloses).some(Boolean) || Object.values(liveHides).some(Boolean) || Object.values(tidyTabs).some(Boolean) || Object.keys(webKitFaults).length || Object.values(airTraffic).some(Boolean) || Object.values(externalAppRequests).some(Boolean) || urlCopies.url_copies || screenshots.screenshots_taken || appearanceSchedule.appearance_schedule_switches || duplicatedTabs.tabs_duplicated || closedTabRestores.closed_tabs_restored_from_history || liveCompletedTabsClosed || snapshots.count || switcherOpensInWebKit || autoPictureInPictureNothingPlaying || backToTab.chromium || backToTab.webkit) {
     capture("usage_counts", {
       tabs_opened: counts.tabs,
       windows_opened: counts.windows,
@@ -60,7 +62,7 @@ function emitCounts() {
       sidebar_peeks: counts.sidebarPeeks,
       sidebar_peek_bounces: counts.sidebarPeekBounces,
       cli_tab_edits: counts.cliTabEdits, cli_group_edits: counts.cliGroupEdits, cli_edit_failures: counts.cliEditFailures, cli_pill_shows: counts.cliPillShows,
-      ...stuckDrags, ...urlCopies, ...screenshots, ...duplicatedTabs, ...closedTabRestores, ...externalAppRequests, ...webKitFaults, ...tabSleeps, ...syncCodes, ...liveHides, ...tidyTabs, ...airTraffic, live_completed_tabs_closed: liveCompletedTabsClosed,
+      ...stuckDrags, ...urlCopies, ...screenshots, ...appearanceSchedule, ...duplicatedTabs, ...closedTabRestores, ...externalAppRequests, ...webKitFaults, ...tabSleeps, ...syncCodes, ...liveHides, ...tidyTabs, ...airTraffic, live_completed_tabs_closed: liveCompletedTabsClosed,
       popover_press_closes: counts.popoverPressCloses, popover_escape_closes: counts.popoverEscapeCloses,
       tab_switcher_opens: counts.tabSwitcherOpens,
       tab_switcher_opens_in_webkit: switcherOpensInWebKit,

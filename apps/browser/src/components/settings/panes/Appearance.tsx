@@ -11,6 +11,7 @@ import { PictureChoice } from "../PictureChoice";
 import { AmountSlider } from "../ThemeControls";
 import { PAGE_FRAME } from "../../../lib/windowLayout";
 import { BookmarksBarSection } from "./BookmarksBarSection";
+import { AppearanceSchedulePicker } from "./AppearanceSchedule";
 import { modePreview, stylePreview } from "../tokens";
 import { useSettingsColors } from "../useSettingsColors";
 import { APP_ICON_SIZE, appIconChoices, chooseAppIcon } from "../../../state/settings/paneData";
@@ -46,6 +47,7 @@ export function AppearancePane() {
           </Row>
         </Group>
       </Box>
+      <AppearanceSchedulePicker />
       <InterfaceStylePicker />
       <AddressBarPicker />
       <PageFramePicker />

@@ -21,6 +21,40 @@ export const appearanceRows = {
       },
     },
     {
+      section: "Appearance Schedule",
+      rows: {
+        appearanceSchedule: {
+          title: "Appearance schedule",
+          description: "Switch the theme between light and dark on a schedule instead of following the system. Sunset to sunrise needs your latitude and longitude below; Custom times uses the times below.",
+          keywords: ["sunset", "sunrise", "night mode", "schedule"],
+        },
+        appearanceScheduleStart: {
+          title: "Night starts",
+          description: "The time the theme turns dark each day, when the schedule is Custom times.",
+          keywords: ["start time", "night starts", "evening"],
+          shown: (s) => s.appearanceSchedule === "custom",
+        },
+        appearanceScheduleEnd: {
+          title: "Day starts",
+          description: "The time the theme turns light each day, when the schedule is Custom times.",
+          keywords: ["end time", "morning", "day starts"],
+          shown: (s) => s.appearanceSchedule === "custom",
+        },
+        appearanceScheduleLatitude: {
+          title: "Latitude",
+          description: "Your latitude, from -90 to 90, so Sunset to sunrise knows when the sun sets where you are.",
+          keywords: ["latitude", "sunset", "coordinates"],
+          shown: (s) => s.appearanceSchedule === "sunset",
+        },
+        appearanceScheduleLongitude: {
+          title: "Longitude",
+          description: "Your longitude, from -180 to 180, so Sunset to sunrise knows when the sun sets where you are.",
+          keywords: ["longitude", "sunset", "coordinates"],
+          shown: (s) => s.appearanceSchedule === "sunset",
+        },
+      },
+    },
+    {
       section: "Interface Style",
       rows: {
         interfaceStyle: {
