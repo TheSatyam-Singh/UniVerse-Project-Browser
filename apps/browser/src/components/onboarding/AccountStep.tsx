@@ -1,9 +1,8 @@
-import { View } from "react-native";
 import { Box, Text } from "../ui";
-import { space } from "../ui/tokens";
 import { confirmAnswer, skipStep } from "../../state/onboarding/onboarding";
 import { useAccount } from "../../state/account/account";
 import { UniverseAccountForm } from "../account/UniverseAccountForm";
+import { Avatar } from "../account/AccountSheet";
 import { StepActions, StepLayout } from "./StepLayout";
 
 export function AccountStep() {
@@ -51,11 +50,7 @@ function AccountPreview() {
   }
   return (
     <Box gap="m" pad="l">
-      <View style={{ width: 56, height: 56, borderRadius: 28, backgroundColor: "#5b4bc4", alignItems: "center", justifyContent: "center" }}>
-        <Text size="title" style={{ color: "#ffffff" }}>
-          {(account.name.trim()[0] ?? "?").toUpperCase()}
-        </Text>
-      </View>
+      <Avatar name={account.name} picture={account.picture} size={56} />
       <Text size="title">{account.name}</Text>
       <Text size="body" tone="textSecondary">
         {account.email}

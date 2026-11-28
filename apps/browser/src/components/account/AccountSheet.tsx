@@ -13,7 +13,7 @@ export function showAccountSheet(): void {
   showSettingsSheet(<AccountSheet />);
 }
 
-function Avatar({ name, picture, size }: { name: string; picture: string | null; size: number }) {
+export function Avatar({ name, picture, size }: { name: string; picture: string | null; size: number }) {
   if (picture) {
     return <Image source={{ uri: picture }} style={{ width: size, height: size, borderRadius: size / 2 }} />;
   }

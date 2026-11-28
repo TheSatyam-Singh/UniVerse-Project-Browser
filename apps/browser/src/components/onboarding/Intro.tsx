@@ -14,7 +14,7 @@ import { useTheme } from "../ui/theme";
 import { CircleButton, SecondaryButton } from "./Buttons";
 import { useOnboardingColors } from "./Parts";
 import { curve, springs } from "../ui/motion";
-import { space } from "../ui/tokens";
+import { ink as inkColors, space } from "../ui/tokens";
 import { onboardingMotion, onboardingType } from "./tokens";
 
 const WORDMARK = "UniVerse Project Browser";
@@ -41,8 +41,9 @@ const RING = 180;
 const ORBIT = 26000;
 const ORBIT_BACK = 42000;
 const HALO = 1600;
-const ACCENT = DIA_SPECTRUM[0] ?? "#0358F7";
-const HOTSPOT = DIA_SPECTRUM[3] ?? "#FFD400";
+const ACCENT = DIA_SPECTRUM[0]!;
+const HOTSPOT = DIA_SPECTRUM[3]!;
+const HOTSPOT_SIZE = 6;
 
 type Star = { left: `${number}%`; top: `${number}%`; size: number; drift: number; phase: number };
 
@@ -80,7 +81,7 @@ export function Intro({ onDone }: { onDone: () => void }) {
   const [muted, setMuted] = useState(introMusicMuted);
   const [tone, setTone] = useState(() => OPENING_TONE[dark ? "night" : "day"]);
   const ink = isWebDemo ? null : meadowTextStyle(tone);
-  const starColor = dark ? "#FFFFFF" : accent;
+  const starColor = dark ? inkColors.white : accent;
 
   const finish = () => {
     if (done.current) return;
@@ -218,7 +219,7 @@ export function Intro({ onDone }: { onDone: () => void }) {
                   height: DISK,
                   borderRadius: DISK / 2,
                   borderWidth: 2,
-                  borderColor: "transparent",
+                  borderColor: inkColors.clear,
                   borderTopColor: accent,
                   borderRightColor: withAlpha(accent, 0.4),
                 }}
@@ -226,11 +227,11 @@ export function Intro({ onDone }: { onDone: () => void }) {
               <View
                 style={{
                   position: "absolute",
-                  left: DISK / 2 - 3,
-                  top: -3,
-                  width: 6,
-                  height: 6,
-                  borderRadius: 3,
+                  left: DISK / 2 - HOTSPOT_SIZE / 2,
+                  top: -HOTSPOT_SIZE / 2,
+                  width: HOTSPOT_SIZE,
+                  height: HOTSPOT_SIZE,
+                  borderRadius: HOTSPOT_SIZE / 2,
                   backgroundColor: HOTSPOT,
                 }}
               />

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { View } from "react-native";
 import { Box, Button, Text, TextField } from "../ui";
+import { space } from "../ui/tokens";
 import { FormField } from "../settings/Form";
 import { signIn, signUp, useAccount } from "../../state/account/account";
 
@@ -34,7 +35,7 @@ export function UniverseAccountForm({ autoFocus }: { autoFocus?: boolean }) {
           {error}
         </Text>
       ) : null}
-      <View style={{ flexDirection: "row", alignItems: "center", gap: 12 }}>
+      <View style={{ flexDirection: "row", alignItems: "center", gap: space.l }}>
         <Button title={busy ? "Please wait…" : mode === "signUp" ? "Create UniVerse Account" : "Sign in"} kind="primary" disabled={busy} onPress={submit} />
         <Button
           title={mode === "signUp" ? "I already have one" : "Create an account"}
