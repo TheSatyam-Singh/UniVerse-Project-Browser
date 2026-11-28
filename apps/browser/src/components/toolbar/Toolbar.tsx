@@ -129,7 +129,7 @@ export function Toolbar({
         <ReloadButton place={at.reload} tab={tab} loading={isLoading} palette={palette} onFocus={focus} />
         <ToolbarExtensions tabId={tab.id} windowId={windowId} palette={palette} top={row.center - row.extensionButton / 2} right={inSplit ? 8 + 2 * row.button : 8 + row.button + 2} />
         <TimerChip palette={palette} top={row.center - 14} right={(inSplit ? 8 + 2 * row.button : 8 + row.button + 2) + extensionsWidth + 8} />
-        {!inSplit && <AccountButton windowId={windowId} top={row.center - row.button / 2} size={row.button} />}
+        {!inSplit && <AccountButton top={row.center - row.button / 2} size={row.button} />}
         {tab.url ? (
           <ToolbarUrlField tab={tab} palette={palette} windowId={windowId} inSplit={inSplit} onFocus={focus} style={urlStyle} />
         ) : null}

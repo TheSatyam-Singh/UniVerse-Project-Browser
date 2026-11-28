@@ -1,16 +1,16 @@
 import { useState } from "react";
 import { Image, View } from "react-native";
-import { Box, Button, Checkbox, DialogActions, DialogTitle, Sheet, Text, TextField } from "../ui";
-import { FormField } from "../settings/Form";
+import { Box, Button, Checkbox, DialogActions, DialogTitle, Sheet, Text } from "../ui";
 import { closeSettingsSheet, showSettingsSheet } from "../../state/settings/sheet";
 import { openSettings } from "../../state/settings/settingsWindows";
 import { DATA_TYPES } from "../../state/sync/syncDoc";
-import { refreshSyncNow, setClientId, signIn, signOut, useAccount, type BrowserAccount } from "../../state/account/account";
+import { refreshSyncNow, signOut, useAccount, type BrowserAccount } from "../../state/account/account";
 import { useSync } from "../../state/sync/engine";
 import { ago } from "../../lib/time";
+import { UniverseAccountForm } from "./UniverseAccountForm";
 
-export function showAccountSheet(windowId: string): void {
-  showSettingsSheet(<AccountSheet windowId={windowId} />);
+export function showAccountSheet(): void {
+  showSettingsSheet(<AccountSheet />);
 }
 
 function Avatar({ name, picture, size }: { name: string; picture: string | null; size: number }) {
@@ -26,49 +26,24 @@ function Avatar({ name, picture, size }: { name: string; picture: string | null;
   );
 }
 
-export function AccountSheet({ windowId }: { windowId: string }) {
+export function AccountSheet() {
   const account = useAccount((s) => s.account);
-  const clientId = useAccount((s) => s.clientId);
-  const status = useAccount((s) => s.status);
-  const error = useAccount((s) => s.error);
   return (
     <Sheet size="m" onClose={closeSettingsSheet}>
-      {account ? <SignedIn account={account} /> : <SignedOut windowId={windowId} clientId={clientId} status={status} error={error} />}
+      {account ? <SignedIn account={account} /> : <SignedOut />}
     </Sheet>
   );
 }
 
-function SignedOut({ windowId, clientId, status, error }: { windowId: string; clientId: string; status: string; error: string | null }) {
-  const [draft, setDraft] = useState(clientId);
-  const signingIn = status === "signingIn";
+function SignedOut() {
   return (
     <View>
-      <DialogTitle subtitle="Sign in with your Google account to sync bookmarks, history, passwords and settings across your Macs — just like Chrome.">
+      <DialogTitle subtitle="Sign in with your UniVerse Account to sync bookmarks, history, passwords and settings across your Macs. No Google account needed.">
         Sign in to UniVerse
       </DialogTitle>
-      <Box gap="m">
-        <FormField label="Google client ID">
-          <TextField
-            value={draft}
-            onChangeText={(value) => {
-              setDraft(value);
-              setClientId(value);
-            }}
-            placeholder="123456789012-abcdefghijklmnopqrstuvwxyz.apps.googleusercontent.com"
-          />
-        </FormField>
-        <Text size="caption" tone="textTertiary">
-          Create a Desktop app OAuth client in Google Cloud Console (APIs &amp; Services › Credentials), then paste its client ID here. The app never sees a client secret.
-        </Text>
-        {error ? (
-          <Text size="caption" tone="destructive">
-            {error}
-          </Text>
-        ) : null}
-      </Box>
+      <UniverseAccountForm autoFocus />
       <DialogActions>
         <Button title="Cancel" onPress={closeSettingsSheet} />
-        <Button title={signingIn ? "Signing In…" : "Sign in with Google"} kind="primary" disabled={signingIn || !draft.trim()} onPress={() => void signIn(windowId)} />
       </DialogActions>
     </View>
   );

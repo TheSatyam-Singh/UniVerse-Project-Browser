@@ -1,9 +1,11 @@
 import type { Settings } from "../settings/settings";
 
-export type OnboardingStep = "intro" | "source" | "engine" | "look" | "layout" | "tabs" | "details" | "searchPrivacy" | "pins" | "home" | "outro";
+export type OnboardingStep = "intro" | "account" | "profiles" | "source" | "engine" | "look" | "layout" | "tabs" | "details" | "searchPrivacy" | "pins" | "home" | "outro";
 
 export type QuestionId =
   | "source"
+  | "account"
+  | "profiles"
   | "browserEngine"
   | "tabs"
   | "address"
@@ -27,6 +29,8 @@ export type Question = { id: QuestionId; keys: readonly (keyof Settings)[] };
 export const GLASS_KEYS = ["interfaceStyle", "glassTintWithTheme", "glassTintAmount"] as const satisfies readonly (keyof Settings)[];
 
 export const QUESTIONS: Record<Exclude<OnboardingStep, "intro">, Question[]> = {
+  account: [{ id: "account", keys: [] }],
+  profiles: [{ id: "profiles", keys: [] }],
   source: [{ id: "source", keys: [] }],
   engine: [{ id: "browserEngine", keys: ["pageEngine"] }],
   look: [{ id: "look", keys: ["appearance", ...GLASS_KEYS] }],

@@ -133,7 +133,7 @@ export const generalRows = {
       rows: {
         sync: { title: "Sync", description: "Sync your profiles, bookmarks, history, tabs, passwords, extensions and settings across your Macs.", keywords: ["icloud", "recovery phrase", "devices", "turn on sync", "end to end", "encrypted"] },
         folder: { advanced: true, title: "Sync folder", keywords: ["icloud drive", "dropbox", "folder"] },
-        account: { title: "Account", description: "Sign in with your Google account to sync across your Macs.", keywords: ["sign in", "google account", "account"] },
+        account: { title: "Account", description: "Sign in with your UniVerse Account to sync across your Macs.", keywords: ["sign in", "universe account", "account"] },
       },
     },
   ],

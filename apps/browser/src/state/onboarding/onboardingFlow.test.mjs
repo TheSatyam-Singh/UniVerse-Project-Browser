@@ -23,12 +23,12 @@ const S = () => useBrowser.getState();
 const O = () => useOnboarding.getState();
 const settle = () => useOnboarding.setState({ windowId: null, leaving: false, redo: false, customizing: false });
 
-test("the default path is four steps, whatever browser you come from", () => {
+test("the default path is six steps, whatever browser you come from", () => {
   const id = S().createWindow();
   for (const source of [null, "fresh", "chrome", "safari", "arc", "dia"]) {
     startOnboarding(id, "source");
     chooseSource(source);
-    assert.deepEqual(activeSteps().filter((s) => s !== "intro"), ["source", "engine", "look", "outro"], String(source));
+    assert.deepEqual(activeSteps().filter((s) => s !== "intro"), ["account", "profiles", "source", "engine", "look", "outro"], String(source));
   }
   settle();
 });
@@ -45,7 +45,7 @@ test("Customize more adds the detailed steps after look and comes back to the la
   assert.equal(O().step, "outro");
   customizeMore();
   assert.equal(O().step, "layout");
-  assert.deepEqual(activeSteps().filter((s) => s !== "intro"), ["source", "engine", "look", "layout", "tabs", "details", "searchPrivacy", "pins", "home", "outro"]);
+  assert.deepEqual(activeSteps().filter((s) => s !== "intro"), ["account", "profiles", "source", "engine", "look", "layout", "tabs", "details", "searchPrivacy", "pins", "home", "outro"]);
   for (const step of ["layout", "tabs", "details", "searchPrivacy", "pins", "home"]) {
     assert.equal(O().step, step);
     skipStep();

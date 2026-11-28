@@ -26,7 +26,6 @@ import { ago } from "../../../lib/time";
 import { perLook } from "../../ui/tokens";
 import { useAccount } from "../../../state/account/account";
 import { showAccountSheet } from "../../account/AccountSheet";
-import { useWindowId } from "../../../state/browser/hooks";
 
 export function SyncPane() {
   const enabled = useSync((s) => s.enabled);
@@ -54,7 +53,6 @@ export function SyncPane() {
 }
 
 function AccountRow() {
-  const windowId = useWindowId();
   const theme = useTheme();
   const account = useAccount((s) => s.account);
   return (
@@ -63,9 +61,9 @@ function AccountRow() {
         icon={<Symbol name="person.crop.circle" size={15} color={theme.icon} style={{ width: 24, height: 20 }} />}
         anchor="sync.account"
         title={account ? account.name : "Not signed in"}
-        description={account ? `${account.email} · sync is tied to this account` : "Sign in with your Google account to sync across your Macs."}
+        description={account ? `${account.email} · sync is tied to this account` : "Sign in with your UniVerse Account to sync across your Macs."}
       >
-        <Button title={account ? "Account…" : "Sign In…"} onPress={() => showAccountSheet(windowId)} />
+        <Button title={account ? "Account…" : "Sign In…"} onPress={() => showAccountSheet()} />
       </Row>
     </Group>
   );

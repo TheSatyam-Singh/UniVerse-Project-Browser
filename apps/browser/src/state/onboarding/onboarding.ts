@@ -31,7 +31,7 @@ export {
 export { playIntroMusic, setIntroMusicMuted, stopIntroMusic, type IntroMusicCues } from "../../platform/introMusic";
 export { PRESET_NAMES, PRESETS, presetFor, setsUpLikeBrowser, type BrowserSourceId, type Preset } from "./presets";
 
-export const STEPS: OnboardingStep[] = stepsForThisSurface(["intro", "source", "engine", "look", "layout", "tabs", "details", "searchPrivacy", "pins", "home", "outro"]);
+export const STEPS: OnboardingStep[] = stepsForThisSurface(["intro", "account", "profiles", "source", "engine", "look", "layout", "tabs", "details", "searchPrivacy", "pins", "home", "outro"]);
 
 export const CUSTOMIZE_STEPS: readonly OnboardingStep[] = ["layout", "tabs", "details", "searchPrivacy", "pins", "home"];
 

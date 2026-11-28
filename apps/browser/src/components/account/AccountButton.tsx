@@ -3,9 +3,9 @@ import { Button, Text } from "../ui";
 import { useAccount } from "../../state/account/account";
 import { showAccountSheet } from "./AccountSheet";
 
-export function AccountButton({ windowId, top, size }: { windowId: string; top: number; size: number }) {
+export function AccountButton({ top, size }: { top: number; size: number }) {
   const account = useAccount((s) => s.account);
-  const open = () => showAccountSheet(windowId);
+  const open = () => showAccountSheet();
   if (!account) {
     return (
       <Button

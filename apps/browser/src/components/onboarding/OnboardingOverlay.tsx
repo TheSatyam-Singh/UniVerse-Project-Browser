@@ -5,6 +5,8 @@ import { curve, springs } from "../ui/motion";
 import { onboardingCard, onboardingMotion } from "./tokens";
 import { useWindowId } from "../../state/browser/hooks";
 import { Intro } from "./Intro";
+import { AccountStep } from "./AccountStep";
+import { ProfilesStep } from "./ProfilesStep";
 import { dismissOnboarding, goToStep, useOnboarding } from "../../state/onboarding/onboarding";
 import { LayoutStep, TabsStep } from "./LayoutSteps";
 import { DetailsStep, LookStep } from "./LookStep";
@@ -91,6 +93,8 @@ function Overlay({ session }: { session: number }) {
             <Panel fill={colors.card} radius={onboardingCard.radius} border={floating ? colors.cardBorder : null} shadow={floating ? onboardingCard.shadow : undefined} style={{ flex: 1, overflow: "hidden" }}>
               <OnboardingCardContext.Provider value={{ width, height, inset }}>
                 <View key={step} style={{ flex: 1 }}>
+                  {step === "account" && <AccountStep />}
+                  {step === "profiles" && <ProfilesStep />}
                   {step === "source" && <SourceStep />}
                   {step === "engine" && <EngineStep />}
                   {step === "layout" && <LayoutStep />}
@@ -108,7 +112,7 @@ function Overlay({ session }: { session: number }) {
           </Animated.View>
         </View>
       )}
-      {step === "intro" && <Intro onDone={() => goToStep("source")} />}
+      {step === "intro" && <Intro onDone={() => goToStep("account")} />}
     </Animated.View>
   );
 }
