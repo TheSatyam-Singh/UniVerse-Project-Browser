@@ -98,10 +98,10 @@ bool gLaunching = true;
 constexpr double kSettleAfterLaunchSeconds = 1.5;
 
 NSString *const kRead =
-    @"Promise.all([lists(), trusted()]).then(([l, t]) => ({lists: selected(l).sort(), whitelist: [...t.whitelist].sort(), autoUpdate: l.autoUpdate !== false}))";
+    @"Promise.all([lists(), trusted(), send({what: 'readUserFilters'}).catch(() => ({content: ''}))]).then(([l, t, uf]) => ({lists: selected(l).sort(), whitelist: [...t.whitelist].sort(), autoUpdate: l.autoUpdate !== false, userFilters: typeof uf.content === 'string' ? uf.content : ''}))";
 
 NSString *const kFollow =
-    @"Promise.all([lists(), trusted()]).then(([l, t]) => {"
+    @"Promise.all([lists(), trusted(), send({what: 'readUserFilters'}).catch(() => ({content: ''}))]).then(([l, t, uf]) => {"
      "  const want = %@;"
      "  if (!Array.isArray(want.lists) || !Array.isArray(want.whitelist)) throw new Error('no settings to copy');"
      "  let written = Promise.resolve(null);"
@@ -111,6 +111,8 @@ NSString *const kFollow =
      "    written = written.then(() => send({what: 'setWhitelist', whitelist: want.whitelist.join('\\n')}));"
      "  if ((l.autoUpdate !== false) !== (want.autoUpdate !== false))"
      "    written = written.then(() => send({what: 'userSettings', name: 'autoUpdate', value: want.autoUpdate !== false}));"
+     "  if ((uf.content || '') !== (want.userFilters || ''))"
+     "    written = written.then(() => send({what: 'writeUserFilters', content: want.userFilters || '', enabled: true}));"
      "  return written.then(() => null);"
      "})";
 
@@ -395,6 +397,13 @@ void LoadContentBlocker(NSString *profile) {
                       "})";
   Call(kProfile, ScriptWith(script, @[ @(allowed), host.lowercaseString ]), ^(id, NSString *error) {
     if (!error) Publish(@{@"host" : host.lowercaseString, @"allowed" : @(allowed)});
+    Changed(error, completion);
+  });
+}
+
++ (void)setUserFilters:(NSString *)content completion:(void (^)(NSString *))completion {
+  NSString *script = @"send({what: 'writeUserFilters', content: %@, enabled: true}).then(() => null)";
+  Call(kProfile, ScriptWith(script, @[ content ?: @"" ]), ^(id, NSString *error) {
     Changed(error, completion);
   });
 }

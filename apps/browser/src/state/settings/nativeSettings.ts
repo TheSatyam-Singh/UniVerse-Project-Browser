@@ -2,6 +2,7 @@ import { setAppearance, setThinScrollBars } from "../../platform/app";
 import { setAutoPictureInPicture, setVideoUpscaling } from "../../platform/media";
 import { setCommandScrollZoom } from "../../platform/siteSettings";
 import { setFingerprintProtection } from "../../platform/pageOptions";
+import { pushCustomBlockRules } from "../site/contentBlocking";
 import { everySlowly } from "../../platform/slowTimers";
 import { useBrowser } from "../browser/store";
 import { noteAppearanceScheduleSwitch } from "../telemetry/appearanceScheduleCounts";
@@ -23,6 +24,7 @@ const NATIVE_SETTINGS: Mirror[] = [
   mirror("videoUpscaling", setVideoUpscaling),
   mirror("commandScrollZoom", setCommandScrollZoom),
   mirror("fingerprintProtection", setFingerprintProtection),
+  mirror("customBlockRules", pushCustomBlockRules),
 ];
 
 let resync: (() => void) | null = null;

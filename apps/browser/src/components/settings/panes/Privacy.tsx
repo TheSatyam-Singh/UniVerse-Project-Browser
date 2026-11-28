@@ -28,7 +28,9 @@ import { useResource } from "../../../state/settings/resources";
 import { closeSettingsSheet, showSettingsSheet } from "../../../state/settings/sheet";
 import { updateSettings } from "../../../state/settings/actions";
 import { blockerAvailable, categoryOn, setBlockingCategory, setFilterList } from "../../../state/site/contentBlocking";
+import { normalizeCustomRule } from "../../../state/site/customFilters";
 import { noteContentBlockerUnavailable, noteContentBlockerWriteFailure } from "../../../state/telemetry/usage";
+import { noteCustomBlockRuleAdded } from "../../../state/telemetry/customBlockRules";
 import { ShareDiagnosticsSection } from "./ShareDiagnostics";
 import { UI_LOCALE } from "../../../lib/uiLocale";
 
@@ -132,6 +134,7 @@ export function PrivacyPane() {
         </>
       )}
 
+      <CustomRulesSection />
       <CookiesSection />
       <FingerprintSection />
       <SitePermissions />
@@ -154,6 +157,43 @@ export function PrivacyPane() {
 }
 
 const RULES_LOADED = { marginTop: space.xl } as const;
+
+function CustomRulesSection() {
+  const rules = useSettings((s) => s.customBlockRules);
+  const [input, setInput] = useState("");
+  const [error, setError] = useState("");
+  const add = () => {
+    const rule = normalizeCustomRule(input);
+    if (!rule) {
+      setError("Enter a domain like example.com or a URL pattern like *://*.example.com/*");
+      return;
+    }
+    if (rules.includes(rule)) {
+      setError("That rule is already added");
+      return;
+    }
+    noteCustomBlockRuleAdded();
+    updateSettings({ customBlockRules: [...rules, rule] });
+    setInput("");
+    setError("");
+  };
+  const remove = (rule: string) => updateSettings({ customBlockRules: rules.filter((r) => r !== rule) });
+  return (
+    <>
+      <SectionHeader title="Your own rules" description="Your rules block on top of the filter lists, in every profile. They don't apply on WebKit pages." />
+      <Group>
+        <Row anchor="privacy.customBlockRules" title={<TextField value={input} onChangeText={(v) => { setInput(v); setError(""); }} placeholder="example.com" onSubmit={add} />} description={error || undefined}>
+          <Button title="Add" disabled={!input.trim()} onPress={add} />
+        </Row>
+        {rules.map((rule) => (
+          <Row key={rule} title={rule}>
+            <Button title="Remove" onPress={() => remove(rule)} />
+          </Row>
+        ))}
+      </Group>
+    </>
+  );
+}
 
 function CookiesSection() {
   const autoDeleteCookies = useSettings((s) => s.autoDeleteCookies);
