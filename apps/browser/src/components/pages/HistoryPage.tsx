@@ -1,7 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { findNodeHandle, View, type TextInput } from "react-native";
+import { useShallow } from "zustand/react/shallow";
+import { useBrowser } from "../../state/browser/store";
 import { useTab, useWindow } from "../../state/browser/hooks";
 import { useProfileHistory } from "../../state/history/hooks";
+import { recentlyClosedTabs } from "../../state/history/recentlyClosed";
 import { removeHistory } from "../../state/history/actions";
 import type { HistoryEntry } from "../../state/browser/types";
 import { requestClearData, useClearDataRequest } from "../../state/profiles/clearDataRequest";
@@ -12,12 +15,14 @@ import { ClearDataDialog } from "./ClearDataDialog";
 import { layoutHistory } from "./historyLayout";
 import { confirmRemoveSelected, shownSelection } from "../../state/history/historyMenus";
 import { HistoryList } from "./HistoryList";
+import { RecentlyClosedSection } from "./RecentlyClosedSection";
 import { hostLabel, PageHeader } from "./PageLayout";
 
 
 export function HistoryPage({ tabId, profileId, initialQuery }: { tabId: string; profileId: string; initialQuery: string }) {
   const windowId = useTab(tabId, (t) => t?.windowId ?? "");
   const history = useProfileHistory(profileId);
+  const closed = useBrowser(useShallow((s) => recentlyClosedTabs(s, profileId)));
   const [query, setQuery] = useState(initialQuery);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [clearOpen, setClearOpen] = useState(false);
@@ -98,6 +103,7 @@ export function HistoryPage({ tabId, profileId, initialQuery }: { tabId: string;
   return (
     <View style={{ flex: 1 }}>
       <PageHeader title="History" query={query} onQuery={setQuery} actions={actions} searchRef={search} />
+      {!query && closed.length > 0 && <RecentlyClosedSection closed={closed} profileId={profileId} windowId={windowId} />}
       {layout.rows.length === 0 ? (
         <EmptyState
           symbol="clock"
