@@ -1,7 +1,6 @@
 import { addHistoryVisits } from "../../platform/history";
 import type { PageEngine, ProtectedMediaRequest } from "../../platform/tabs";
 import { confirm } from "../../platform/dialogs";
-import { listComponents, WIDEVINE_COMPONENT_ID } from "../../platform/app";
 import { create } from "zustand";
 import { useBrowser } from "../browser/store";
 import { pageOf, patchPage } from "../tabs/pageState";
@@ -108,22 +107,6 @@ export async function openPageIn(tabId: string, engine: PageEngine, options: { r
 
 export const togglePageEngine = (tabId: string) => openPageIn(tabId, tabEngine(store(), tabId) === "webkit" ? "chromium" : "webkit");
 
-let widevineReady: boolean | undefined;
-let widevineCheck: Promise<void> | null = null;
-
-function refreshWidevine() {
-  widevineCheck ??= listComponents()
-    .then((list) => {
-      const found = list.find((c) => c.id === WIDEVINE_COMPONENT_ID);
-      widevineReady = !!found && found.version !== "0.0.0.0";
-    })
-    .catch(() => undefined)
-    .finally(() => {
-      widevineCheck = null;
-    });
-  return widevineCheck;
-}
-
 export function offerWebKit(tabId: string, { keySystem }: ProtectedMediaRequest) {
   const s = store();
   const t = s.tabs[tabId];
@@ -133,8 +116,6 @@ export function offerWebKit(tabId: string, { keySystem }: ProtectedMediaRequest)
   const rule = chosenEngine(s, t.url);
   if (rule === "chromium" || declinedSites.has(site)) return;
   if (rule === "webkit") return void moveForProtectedVideo(tabId, site);
-  void refreshWidevine();
-  if (widevineReady === false) return void moveForProtectedVideo(tabId, site);
   if (useEngineOffers.getState()[tabId]?.site === site) return;
   useEngineOffers.setState({ [tabId]: { site, host: hostLabel(site), keySystem, canRemember: !isIncognitoProfile(t.profileId) } });
 }
