@@ -8,7 +8,7 @@ import { useSplitRowPanes } from "../../state/sidebar/hooks";
 import { muteTitle } from "../../state/tabs/mute";
 import { usePictureInPicture } from "../../state/media/media";
 import { HoverSlot } from "../ui/HoverSlot";
-import { ActivitySpinner, Button, Divider, FadeLabel, font, ink, OutsidePressArea, radius, space, Symbol, lineHeight, typeFace, useHover } from "../ui";
+import { ActivitySpinner, Badge, Button, Divider, FadeLabel, font, ink, OutsidePressArea, radius, space, Symbol, lineHeight, typeFace, useHover } from "../ui";
 import { isPinnedRow, tabTitle } from "../../state/browser/model";
 import { awayFromPin, awayTitle } from "../../state/pins/organize";
 import { commitRename, endRename, startRename } from "../../state/sidebar/actions";
@@ -29,6 +29,7 @@ import { useSidebarRowLook } from "./rowLook";
 import { rowTitleFrame, SidebarRowLabel, SidebarRowSurface } from "./SidebarRow";
 import { AwayTitleLabel } from "./AwayTitle";
 import { withShortcut } from "../../state/commands/commandShortcuts";
+import { useIsSleeping } from "../../state/tabs/tabLifecycle";
 import { TabPressArea } from "./TabPressArea";
 import { entryKey } from "../../state/sidebar/entryKey";
 import type { RowSection } from "./dragModel";
@@ -80,6 +81,7 @@ export const TabRow = memo(function TabRow({
   const closeControl = useTabCloseControlWhile(tabId, hovered && !renaming);
   const { backToPinHint } = useSidebarRowLook();
   const unread = useTabUnread(tabId);
+  const sleeping = useIsSleeping(tabId);
   const [unreadDrawn, setUnreadDrawn] = useState(false);
   const showsUnread = !!unread || unreadDrawn;
   const resettable = !!tab && (isPinnedRow(tab) || !tab.pin) && awayFromPin(tab);
@@ -156,6 +158,7 @@ export const TabRow = memo(function TabRow({
             ) : (
               <SidebarRowLabel text={title} color={active ? theme.rowSelectedText : theme.textTab} />
             )}
+            {sleeping && !renaming && <Badge text="Suspended" size="s" tone="chip" />}
             <HoverSlot
               hovered={hovered && !renaming}
               reserve="hover"
