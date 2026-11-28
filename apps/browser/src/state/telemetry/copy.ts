@@ -68,6 +68,7 @@ export const WHATS_SENT: { title: string; items: string[] }[] = [
       "How many times you used Tidy Tabs, how many tabs it moved and how many times you undid it, summed up once an hour. Never which tabs or groups",
       "How many times you copied a tab's address, and how many of those were taken while its first page was still loading, summed up once an hour. Never the address",
       "How many screenshots you took, and how many of those were full-page screenshots, summed up once an hour. Never which page",
+      "How many startup pages opened at launch, summed up once an hour. Never which pages",
       "How many of your own content-blocking rules you added, summed up once an hour. Never the rules",
       "How many times the appearance schedule switched the theme between light and dark, summed up once an hour",
       "How many tabs you duplicated, summed up once an hour. Never which tabs",

@@ -71,6 +71,8 @@ export const SETTING_SPECS = {
   warnBeforeQuitting: flag(false, SYNCED),
   warnBeforeClosingWindow: flag(true, SYNCED),
   restoreSession: flag(true),
+  startupMode: oneOf(["lastSession", "newTab", "customPages"], "lastSession"),
+  startupPages: shaped<string[]>([], isStringList, STRING_LIST),
   searchEngine: text("google", SYNCED),
   customSearchUrl: text("", SYNCED),
   aiSearchUrl: text("", SYNCED),

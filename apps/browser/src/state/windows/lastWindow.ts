@@ -4,6 +4,7 @@ import { ago, bucket } from "../telemetry/journeys";
 import { lastWindowToRestore } from "./reopenClosed";
 import { finishAnimatedCloses } from "./closeAnimated";
 import { mainWindowFor } from "./small";
+import { openStartupWindow } from "./startupPages";
 import { focusWindow } from "../../platform/windows";
 
 export type LastWindowSource = "dock" | "launch";
@@ -19,7 +20,7 @@ export function openLastWindowOrNew(source: LastWindowSource): string {
     return open;
   }
   const entry = lastWindowToRestore(s);
-  if (!entry) return s.createWindow();
+  if (!entry) return source === "launch" ? openStartupWindow() : s.createWindow();
   s.restoreClosed(entry.id);
   const props = { source, tabs: tabCount(entry.tabs.length), pinned_shown: !!entry.activePin, closed_for: ago(Date.now() - entry.closedAt) };
   setTimeout(() => capture("last_window_restored", props), 0);
