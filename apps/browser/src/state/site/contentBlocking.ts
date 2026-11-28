@@ -1,4 +1,6 @@
-import { setContentBlockerEnabled, setFilterListEnabled, type ContentBlockerState, type FilterListCategory } from "../../platform/contentBlocker";
+import { setContentBlockerEnabled, setContentBlockerUserFilters, setFilterListEnabled, type ContentBlockerState, type FilterListCategory } from "../../platform/contentBlocker";
+import { customFiltersText } from "./customFilters";
+import { noteContentBlockerWriteFailure } from "../telemetry/usage";
 
 export const blockerAvailable = (s: ContentBlockerState | null): s is ContentBlockerState => !!s && s.stats.ready !== false && s.lists.length > 0;
 
@@ -22,3 +24,6 @@ export function setBlockingCategory(s: ContentBlockerState, category: FilterList
 }
 
 export const setFilterList = (s: ContentBlockerState, id: string, on: boolean) => setLists(s, [id], on);
+
+export const pushCustomBlockRules = (rules: string[]) =>
+  setContentBlockerUserFilters(customFiltersText(rules)).catch(() => noteContentBlockerWriteFailure());

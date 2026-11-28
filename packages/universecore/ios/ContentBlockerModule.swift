@@ -26,6 +26,9 @@ public class ContentBlockerModule: Module {
     "setAllowed": { args, reply in
       UniVerseContentBlocker.setAllowed(try args.bool("allowed"), host: try args.text("host"), completion: settled(reply))
     },
+    "setUserFilters": { args, reply in
+      UniVerseContentBlocker.setUserFilters(try args.text("content"), completion: settled(reply))
+    },
     "devFailNextMessage": { _, reply in
       UniVerseContentBlocker.devFailNextMessage()
       reply.ok()

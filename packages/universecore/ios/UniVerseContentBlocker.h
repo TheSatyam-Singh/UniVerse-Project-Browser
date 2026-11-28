@@ -8,6 +8,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)setList:(NSString *)listId enabled:(BOOL)enabled completion:(void (^)(NSString *_Nullable error))completion NS_SWIFT_NAME(setList(_:enabled:completion:));
 + (void)isAllowedOnHost:(NSString *)host completion:(void (^)(BOOL allowed))completion NS_SWIFT_NAME(isAllowed(host:completion:));
 + (void)setAllowed:(BOOL)allowed onHost:(NSString *)host completion:(void (^)(NSString *_Nullable error))completion NS_SWIFT_NAME(setAllowed(_:host:completion:));
++ (void)setUserFilters:(NSString *)content completion:(void (^)(NSString *_Nullable error))completion NS_SWIFT_NAME(setUserFilters(_:completion:));
 + (void)devFailNextMessage;
 + (void)devDelayNextLoad:(double)ms;
 @end

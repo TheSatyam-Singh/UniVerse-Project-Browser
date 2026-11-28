@@ -111,6 +111,7 @@ export const SETTING_SPECS = {
   mutedSites: shaped<string[]>([], isStringList, STRING_LIST, SYNCED),
   autoDeleteCookies: flag(false, SYNCED),
   cookieKeepHosts: shaped<string[]>([], isStringList, STRING_LIST, SYNCED),
+  customBlockRules: shaped<string[]>([], isStringList, STRING_LIST, SYNCED),
   fingerprintProtection: flag(true, SYNCED),
   surfBestScore: shaped<number>(0, (v) => typeof v === "number" && Number.isInteger(v) && v >= 0, { type: "integer", minimum: 0 }, SYNCED),
   showUnreadCounts: flag(false, SYNCED),

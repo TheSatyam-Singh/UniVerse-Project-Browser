@@ -15,6 +15,11 @@ export const privacyRows = {
           description: "Block common components found across the web by using additional rules and filters.",
           keywords: ["filter lists", "annoyances", "malware", "regional", "ad block settings"],
         },
+        customBlockRules: {
+          title: "Your own rules",
+          description: "Block a domain or a URL pattern with your own rules, on top of the filter lists.",
+          keywords: ["custom filters", "my filters", "block domain", "block site", "custom rules", "adblock rules"],
+        },
       },
     },
     {

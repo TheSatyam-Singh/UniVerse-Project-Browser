@@ -7,4 +7,5 @@ export const setContentBlockerEnabled = (enabled: boolean) => call("contentBlock
 export const setFilterListEnabled = (id: string, enabled: boolean) => call("contentBlocker.setListEnabled", { id, enabled });
 export const isContentBlockerAllowed = (host: string) => call("contentBlocker.isAllowed", { host });
 export const setContentBlockerAllowed = (host: string, allowed: boolean) => call("contentBlocker.setAllowed", { host, allowed });
+export const setContentBlockerUserFilters = (content: string) => call("contentBlocker.setUserFilters", { content });
 export const onContentBlockerChange = (listener: (stats: ContentBlockerStats) => void) => on("contentBlocker.changed", listener);

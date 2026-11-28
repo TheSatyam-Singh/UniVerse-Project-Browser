@@ -155,6 +155,7 @@ export type EngineCalls = {
   "contentBlocker.setListEnabled": [{ id: string; enabled: boolean }, null];
   "contentBlocker.isAllowed": [{ host: string }, boolean];
   "contentBlocker.setAllowed": [{ host: string; allowed: boolean }, null];
+  "contentBlocker.setUserFilters": [{ content: string }, null];
   "contentBlocker.devFailNextMessage": [{}, null];
   "contentBlocker.devDelayNextLoad": [{ ms: number }, null];
 

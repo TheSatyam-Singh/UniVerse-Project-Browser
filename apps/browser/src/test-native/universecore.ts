@@ -479,6 +479,7 @@ const fakeModules = {
     setListEnabled: () => null,
     isAllowed: () => false,
     setAllowed: () => null,
+    setUserFilters: () => null,
   }),
   UniVerseHistory: domain("history", {
     query: ({ profile, ...args }) => queryHistory(profile, args),
