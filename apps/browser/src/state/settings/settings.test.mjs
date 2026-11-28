@@ -86,6 +86,15 @@ test("a synced value this version can't show is left out", () => {
   assert.ok(SYNCED_SETTINGS.includes("compactToolbar"));
 });
 
+test("startup pages default to the last session, and only known modes and string lists survive", () => {
+  assert.equal(DEFAULT_SETTINGS.startupMode, "lastSession");
+  assert.deepEqual(DEFAULT_SETTINGS.startupPages, []);
+  assert.equal(parseSettings({ startupMode: "soon" }).startupMode, "lastSession");
+  assert.equal(parseSettings({ startupMode: "customPages" }).startupMode, "customPages");
+  assert.deepEqual(parseSettings({ startupPages: "https://a.com" }).startupPages, []);
+  assert.deepEqual(parseSettings({ startupPages: ["https://a.com", 7] }).startupPages, []);
+});
+
 test("a setup code can carry every value its settings can take", () => {
   for (const key of SETUP_SETTING_KEYS) {
     const values = SETTING_SPECS[key].values;

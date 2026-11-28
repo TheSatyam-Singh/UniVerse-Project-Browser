@@ -284,7 +284,8 @@ export function loadSession({ restoreSession }: LaunchOverrides = {}): (HydrateD
   const spaces = parseSpacesDoc(read(SPACES_DOCUMENT));
   const archived = parseArchivedDoc(read(ARCHIVED_DOCUMENT));
   const sessions = parseSessionsDoc(read(SESSIONS_DOCUMENT));
-  const restore = restoreSession ?? session.settings?.restoreSession !== false;
+  const startupMode = session.settings?.startupMode;
+  const restore = (restoreSession ?? session.settings?.restoreSession !== false) && startupMode !== "newTab" && startupMode !== "customPages";
   const data = restore ? session : closedForLaunch(session);
   return { ...data, downloads, ...(spaces ?? {}), ...(archived ?? {}), ...(sessions ?? {}), windowsAgainstAutoHideTabs: restore ? session.windowsAgainstAutoHideTabs : 0 };
 }

@@ -39,12 +39,18 @@ export const generalRows = {
       },
     },
     {
-      section: `When quitting ${APP}:`,
+      section: "On startup",
       rows: {
         windowsAndTabs: {
-          title: "Windows and tabs",
-          description: "What you see the next time you open it. Closed windows stay in History › Recently Closed.",
-          keywords: ["restore", "session", "reopen", "preserve tabs", "start fresh"],
+          title: "On startup",
+          description: "What opens when you launch it. Closed windows stay in History › Recently Closed.",
+          keywords: ["restore", "session", "reopen", "preserve tabs", "start fresh", "startup", "launch", "new tab", "specific pages", "home page", "continue where you left off"],
+        },
+        startupPages: {
+          title: "Startup pages",
+          description: "The pages that open when On startup is set to specific pages.",
+          keywords: ["startup pages", "open pages", "home page", "launch pages", "start pages", "specific pages"],
+          shown: (settings) => settings.startupMode === "customPages",
         },
       },
     },

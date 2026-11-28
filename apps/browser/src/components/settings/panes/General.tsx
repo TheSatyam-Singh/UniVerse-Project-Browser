@@ -1,11 +1,13 @@
 import type { DownloadSettings } from "../../../state/downloads/actions";
 import { checkForUpdates, setLaunchAtLogin } from "../../../state/app/appSettings";
 import { pickFolder } from "../../../state/app/system";
-import { ActivitySpinner, Button, PopUp, space, Symbol, Toggle } from "../../ui";
-import { useEffect } from "react";
+import { ActivitySpinner, Button, PopUp, space, Symbol, TextField, Toggle } from "../../ui";
+import { useEffect, useState } from "react";
 import { AppState, View } from "react-native";
 import { useTheme } from "../../ui/theme";
+import { Favicon } from "../../favicon/Favicon";
 import { updateSettings } from "../../../state/settings/actions";
+import { normalizeStartupPage } from "../../../state/windows/startupPages";
 import { currentEngineProfile } from "../../../state/browser/current";
 import { useProfiles, useSettings } from "../../../state/browser/hooks";
 import { SHARING_COPY } from "../../../state/telemetry/copy";
@@ -23,7 +25,8 @@ const APP = "UniVerse Project Browser";
 
 export function GeneralPane() {
   const openLinksInLittleUniverse = useSettings((s) => s.openLinksInLittleUniverse);
-  const restoreSession = useSettings((s) => s.restoreSession);
+  const startupMode = useSettings((s) => s.startupMode);
+  const startupPages = useSettings((s) => s.startupPages);
   const commandBarPreference = useSettings((s) => s.commandBarPreference);
   const [loginStatus = "notRegistered", refreshLogin] = useResource(loginItem);
 
@@ -56,19 +59,21 @@ export function GeneralPane() {
         <SettingToggle anchor="general.littleWindowGestures" />
       </Group>
 
-      <SectionHeader title={`When quitting ${APP}:`} />
+      <SectionHeader title="On startup" />
       <Group>
         <Row anchor="general.windowsAndTabs">
           <PopUp
-            value={restoreSession ? "keep" : "close"}
+            value={startupMode}
             options={[
-              { value: "keep", title: "Preserve tabs and windows" },
-              { value: "close", title: "Start fresh" },
+              { value: "lastSession", title: "Continue where you left off" },
+              { value: "newTab", title: "Open a new tab" },
+              { value: "customPages", title: "Open specific pages" },
             ]}
-            onChange={(v) => updateSettings({ restoreSession: v === "keep" })}
+            onChange={(v) => updateSettings({ startupMode: v, restoreSession: v === "lastSession" })}
             minWidth={190}
           />
         </Row>
+        {startupMode === "customPages" && <StartupPagesEditor pages={startupPages} />}
       </Group>
 
       <SectionHeader title="Command bar" description="What happens when what you type could be a website or a search." />
@@ -99,6 +104,29 @@ export function GeneralPane() {
         <SetupCodeRow />
       </Group>
     </View>
+  );
+}
+
+function StartupPagesEditor({ pages }: { pages: string[] }) {
+  const [page, setPage] = useState("");
+  const url = normalizeStartupPage(page);
+  const add = () => {
+    if (!url || pages.includes(url)) return;
+    updateSettings({ startupPages: [...pages, url] });
+    setPage("");
+  };
+  const remove = (old: string) => updateSettings({ startupPages: pages.filter((p) => p !== old) });
+  return (
+    <>
+      <Row anchor="general.startupPages" title={<TextField value={page} onChangeText={setPage} placeholder="https://example.com" onSubmit={add} />}>
+        <Button title="Add" disabled={!url || pages.includes(url)} onPress={add} />
+      </Row>
+      {pages.map((pageUrl) => (
+        <Row key={pageUrl} icon={<Favicon url={pageUrl} />} title={pageUrl}>
+          <Button title="Remove" onPress={() => remove(pageUrl)} />
+        </Row>
+      ))}
+    </>
   );
 }
 
