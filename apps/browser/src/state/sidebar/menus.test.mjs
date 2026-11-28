@@ -56,7 +56,7 @@ test("a shown tab's menu follows Dia's sections, and its hints are the keys that
     "Move to Pinned in Personal ⌥⇧⌘D",
     "---",
     "Open as Split [rectangle.split.2x1] ⌃⇧=",
-    "Duplicate [plus.square.on.square]",
+    "Duplicate [plus.square.on.square] ⌥⌘D",
     "Open in WebKit",
     "---",
     "New Group with Tab [folder.badge.plus] ⌃⌘N",

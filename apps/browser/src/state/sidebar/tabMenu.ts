@@ -88,7 +88,7 @@ function openItems(s: BrowserState, tab: Tab, f: Facts): MenuItem[] {
       : f.section === "tile"
         ? []
         : [{ id: "split", title: "Open as Split", symbol: "rectangle.split.2x1", ...hintWhen(f.active, "openSplitPane", s) }]),
-    { id: "duplicate", title: "Duplicate", symbol: "plus.square.on.square" },
+    { id: "duplicate", title: "Duplicate", symbol: "plus.square.on.square", ...hintWhen(f.active, "duplicateTab", s) },
     ...(f.housed ? [{ id: "newWindow", title: "Open in New Window", symbol: "macwindow.badge.plus", enabled: !!tab.url && !f.incognito }] : []),
     ...(engine ? [{ id: "engine", title: `Open in ${engine}` }] : []),
   ];
