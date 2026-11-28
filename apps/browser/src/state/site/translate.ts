@@ -25,6 +25,9 @@ function setSource(tabId: string, source: string | null) {
   if (stateOf(tabId).status === "idle") set(tabId, { status: "idle", source });
 }
 export const isTranslated = (tabId: string) => stateOf(tabId).status !== "idle";
+export function translationSource(tabId: string): string | null {
+  return stateOf(tabId).source;
+}
 export function translationTarget(tabId: string): string | null {
   const state = stateOf(tabId);
   return state.status === "idle" ? null : state.target;
@@ -75,6 +78,23 @@ export function isNeverTranslated(profileId: string, url: string): boolean {
   const host = translatableHost(url);
   return !!host && (useBrowser.getState().settings.neverTranslateSites[listOwner(profileId)] ?? []).includes(host);
 }
+export function setAlwaysTranslate(tabId: string, always: boolean) {
+  const s = useBrowser.getState();
+  const tab = s.tabs[tabId];
+  const source = stateOf(tabId).source;
+  if (!tab || !source || isIncognitoProfile(tab.profileId)) return;
+  const language = baseLanguage(source);
+  const all = s.settings.alwaysTranslateLanguages;
+  const list = (all[tab.profileId] ?? []).filter((l) => l !== language);
+  s.updateSettings({ alwaysTranslateLanguages: { ...all, [tab.profileId]: always ? [...list, language] : list } });
+  if (!always || stateOf(tabId).status !== "idle") return;
+  void translatePage(tabId, defaultTarget(), true);
+}
+
+export function isAlwaysTranslated(profileId: string, language: string): boolean {
+  return (useBrowser.getState().settings.alwaysTranslateLanguages[listOwner(profileId)] ?? []).includes(baseLanguage(language));
+}
+
 export function setNeverTranslate(tabId: string, never: boolean) {
   const s = useBrowser.getState();
   const tab = s.tabs[tabId];
@@ -110,6 +130,7 @@ async function detect(tabId: string) {
   const source = page.language && !mine.has(baseLanguage(page.language)) ? page.language : null;
   if (source && (await translation.status(source, defaultTarget())) === "unsupported") return setSource(tabId, null);
   setSource(tabId, source);
+  if (source && isAlwaysTranslated(tab.profileId, source)) void translatePage(tabId, defaultTarget(), true);
 }
 
 type BlockTranslator = Pick<NonNullable<typeof translation>, "translateBlocks">;
@@ -195,7 +216,7 @@ function toast(tabId: string, title: string, message?: string, progress = false)
   else showToast(windowId, title, message, { icon: "translate" });
 }
 
-export async function translatePage(tabId: string, target = defaultTarget()) {
+export async function translatePage(tabId: string, target = defaultTarget(), auto = false) {
   const tab = useBrowser.getState().tabs[tabId];
   if (!translation || !tab || !webviews.get(tabId)) return;
   await revertPage(tabId, { quiet: true });
@@ -229,14 +250,14 @@ export async function translatePage(tabId: string, target = defaultTarget()) {
     if (!done) {
       if (holds(tabId, mine)) toIdle(tabId);
       if (shown && stateOf(tabId).status === "idle") hideKeyedToast(tab.windowId, PROGRESS_TOAST);
-      return void reportFirstPass("stopped", started, progress);
+      return void reportFirstPass("stopped", started, progress, auto);
     }
-    reportFirstPass("done", started, progress);
+    reportFirstPass("done", started, progress, auto);
     if (holds(tabId, mine)) set(tabId, { status: "translated", source, target, token: mine });
     toast(tabId, `Translated to ${languageName(target)}`);
     void follow(tabId, mine);
   } catch (error) {
-    if (started) reportFirstPass("failed", started, progress);
+    if (started) reportFirstPass("failed", started, progress, auto);
     const replaced = token !== null && !holds(tabId, token);
     if (shown && (!replaced || stateOf(tabId).status === "idle")) hideKeyedToast(tab.windowId, PROGRESS_TOAST);
     if (replaced) return;
@@ -246,9 +267,10 @@ export async function translatePage(tabId: string, target = defaultTarget()) {
   }
 }
 
-function reportFirstPass(outcome: "done" | "stopped" | "failed", started: number, progress: Progress) {
+function reportFirstPass(outcome: "done" | "stopped" | "failed", started: number, progress: Progress, auto: boolean) {
   capture("translate_finished", {
     outcome,
+    auto,
     first_pass_ms: Date.now() - started,
     first_text_ms: progress.firstAppliedAt === null ? null : progress.firstAppliedAt - started,
     passages: progress.applied,

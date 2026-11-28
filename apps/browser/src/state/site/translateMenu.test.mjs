@@ -15,13 +15,20 @@ test("the translate button's menu puts the other languages in a submenu", () => 
     { id: "fr", name: "French", current: true },
     { id: "de", name: "German", current: false },
   ];
-  assert.deepEqual(render(translateMenuItems({ translated: true, target: "English", languages, neverTranslate: false })), [
+  assert.deepEqual(render(translateMenuItems({ translated: true, target: "English", languages, neverTranslate: false, alwaysTranslate: { language: "fr", name: "French", on: true } })), [
     "Show Original [arrow.uturn.backward]",
     "Choose Another Language [globe] ›",
     "  ✓ French",
     "  German",
     "---",
+    "✓ Always Translate French",
     "Never Translate This Site",
   ]);
-  assert.deepEqual(render(translateMenuItems({ translated: false, target: "English", languages: [], neverTranslate: null })), ["Translate to English [translate]"]);
+  assert.deepEqual(render(translateMenuItems({ translated: false, target: "English", languages: [], neverTranslate: null, alwaysTranslate: null })), ["Translate to English [translate]"]);
+  assert.deepEqual(render(translateMenuItems({ translated: false, target: "English", languages: [], neverTranslate: false, alwaysTranslate: { language: "de", name: "German", on: false } })), [
+    "Translate to English [translate]",
+    "---",
+    "Always Translate German",
+    "Never Translate This Site",
+  ]);
 });
